@@ -44,6 +44,8 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
 .spot + .spot{border-top:1px solid var(--rule)}
 .spot-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .spot-name{font-weight:600;font-size:17px}
+.spot-sub{font-size:13px;color:var(--slate);margin-top:1px}
+.spot-sub .water{display:block}.spot-sub .water:empty{display:none}
 .spot-verdict{font-size:14px;color:var(--slate);text-align:right}
 .spot-verdict b{font-weight:600;color:var(--deep)}
 .ribbon{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px}
@@ -267,12 +269,12 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       '<path d="'+path("g")+'" fill="none" stroke="var(--haze)" stroke-width="1.2" stroke-dasharray="2 3"/><path d="'+path("kn")+'" fill="none" stroke="var(--marine)" stroke-width="2.2" stroke-linejoin="round"/>'+arrows+'</svg>'}
   function spotHTML(spot,days,W,interactive){var best=null;
     days.forEach(function(D){["surf","wing"].forEach(function(k){if(D[k]&&!best)best={D:D,k:k,r:runInfo(D[k])}})});
-    var verdict=best?'<b>'+dayName(best.D.day,true)+'</b> '+(best.k==="wing"?"wing":"windsurf")+' ~'+best.r.kn+' kn':'Nothing rideable';
+    var verdict=best?'<b>'+dayName(best.D.day,true)+'</b> '+(best.k==="wing"?"wing":"windsurf")+' <span style="white-space:nowrap">~'+best.r.kn+' kn</span>':'Nothing rideable';
     var max=Math.max(30,W.sports.windsurf.max);
     var rib=days.map(function(D,i){var good=!!(D.wing||D.surf);
       var bars=D.light.map(function(x){var ht=Math.max(6,Math.min(100,(x.kn||0)/max*100));return '<i class="bar '+hourClass(x,spot,W)+'" style="height:'+ht.toFixed(0)+'%;animation-delay:'+(i*60)+'ms"></i>'}).join("");
       return '<button class="rday'+(good?" good":"")+'" data-i="'+i+'" type="button" aria-label="'+dayName(D.day,true)+'"><div class="bars">'+bars+'</div><div class="rlab">'+dayName(D.day)+'</div></button>'}).join("");
-    return '<div class="spot"><div class="spot-top"><span class="spot-name">'+esc(spot.name)+'</span><span class="spot-verdict">'+verdict+'</span></div><div class="ribbon grow">'+rib+'</div>'+(interactive?'<div class="detail"></div>':'')+'</div>'}
+    return '<div class="spot" data-spot="'+esc(spot.id)+'"><div class="spot-top"><span class="spot-name">'+esc(spot.name)+'</span><span class="spot-verdict">'+verdict+'</span></div>'+(interactive?'<div class="spot-sub">'+esc(spot.sub||"")+'<span class="water">'+waterText(spot)+'</span></div>':'')+'<div class="ribbon grow">'+rib+'</div>'+(interactive?'<div class="detail"></div>':'')+'</div>'}
   function wireDetail(root,spot,days,W){var det=root.querySelector(".detail");
     root.querySelectorAll(".rday").forEach(function(b){b.onclick=function(){var i=+b.dataset.i,open=b.classList.contains("sel");
       root.querySelectorAll(".rday").forEach(function(x){x.classList.remove("sel")});
@@ -292,12 +294,24 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     sessions.sort(function(a,b){return a.D.day<b.D.day?-1:a.D.day>b.D.day?1:b.r.len-a.r.len});var n=sessions[0];
     $("lead").innerHTML=n?esc(dayName(n.D.day,true))+" looks good at "+esc(n.spot.name)+'. <span>'+(n.k==="wing"?"Wingfoil":"Windsurf")+" "+n.r.from+"–"+n.r.to+", around "+n.r.kn+" kn from the "+n.r.dir+".</span>"
       :"No rideable wind this week. <span>You'll get an alert when that changes.</span>";
-    $("windSub").textContent=(stale?"Offline copy, ":"")+"next 7 days, daylight hours"}
+    $("windSub").textContent=(stale?"Offline copy. ":"")+"Next 7 days, daylight hours"}
+  /* water temperature (Open-Meteo Marine); lakes and failures simply show nothing */
+  var WATER=LS.get("radar-water",{});
+  function suit(c){return c>=22?"boardshorts or a shorty":c>=18?"3/2 wetsuit":c>=15?"4/3 wetsuit":c>=12?"5/4 wetsuit and boots":c>=9?"5/4 or 6/5 with boots and gloves":"6/5 hooded, boots and gloves"}
+  function waterText(spot){var c=WATER[spot.id];if(c==null)return "";return "Water "+Math.round(c)+"°C, "+suit(c)}
+  function paintWater(){document.querySelectorAll("#windAll .spot").forEach(function(el){var sp=CONFIG.wind.spots.filter(function(x){return x.id===el.dataset.spot})[0],w=el.querySelector(".water");if(sp&&w)w.textContent=waterText(sp)})}
+  function isSea(s){return s.water!=null?!!s.water:!/\blake\b/i.test((s.sub||"")+" "+s.name)}
+  function loadWater(){var sp=CONFIG.wind.spots.filter(isSea);if(!sp.length)return;
+    var u="https://marine-api.open-meteo.com/v1/marine?latitude="+sp.map(function(s){return s.lat}).join(",")+"&longitude="+sp.map(function(s){return s.lon}).join(",")+
+      "&daily=sea_surface_temperature_max&timezone=Europe%2FAmsterdam&forecast_days=3";
+    return fetch(u).then(function(r){if(!r.ok)throw r.status;return r.json()}).then(function(res){if(!Array.isArray(res))res=[res];var out={};
+      sp.forEach(function(s,i){var v=res[i]&&res[i].daily&&res[i].daily.sea_surface_temperature_max;v=v&&v.filter(function(x){return x!=null})[0];if(typeof v==="number")out[s.id]=v});
+      WATER=out;LS.set("radar-water",out);paintWater()}).catch(function(){paintWater()})}
   function loadWind(){var sp=CONFIG.wind.spots;
     var u="https://api.open-meteo.com/v1/forecast?latitude="+sp.map(function(s){return s.lat}).join(",")+"&longitude="+sp.map(function(s){return s.lon}).join(",")+
       "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn&timezone=Europe%2FAmsterdam&forecast_days=7";
     fetch(u).then(function(r){return r.json()}).then(function(res){if(!Array.isArray(res))res=[res];LS.set("radar-wind",{t:Date.now(),res:res});drawWind(res,false)})
-      .catch(function(){var c=LS.get("radar-wind",null);if(c)drawWind(c.res,true);else $("lead").textContent="The forecast needs a connection."})}
+      .catch(function(){var c=LS.get("radar-wind",null);if(c)drawWind(c.res,true);else $("lead").textContent="The forecast needs a connection."});loadWater()}
 
   /* feed */
   var KINDS=[["all","Everything"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["work","Work"],["bucket","Bucket list"]];
