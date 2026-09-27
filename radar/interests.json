@@ -142,5 +142,11 @@
  "work": {
   "what": "Climate adaptation finance: events, conferences, calls for startups, accelerator and grant deadlines",
   "where": "Netherlands, Brussels/EU, Japan"
- }
+ },
+ "focus": {
+  "place": "Japan",
+  "until": "2026-10-09",
+  "since": "2026-09-27"
+ },
+ "afterFocus": "Back home in the Netherlands from 2026-10-10: no Japan recommendations after that date; remove jp items then."
 }

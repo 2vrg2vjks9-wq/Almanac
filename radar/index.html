@@ -378,6 +378,7 @@ footer{color:var(--mute);font-size:12px;margin-top:26px;line-height:1.6}
     var box=$("feed"); box.innerHTML="";
     var items=FEED.items.filter(function(it){
       if(past(it))return false;
+      var F=CONFIG.focus; if(it.region==="jp"&&!(F&&/japan/i.test(F.place)&&(!F.until||d(F.until)>=today)))return false;
       if(hidden[it.id]&&!state.showHidden)return false;
       if(state.kind==="saved")return !!saved[it.id];
       if(state.kind!=="all"&&it.kind!==state.kind&&!(state.kind==="concert"&&it.kind==="release"))return false;
@@ -447,6 +448,7 @@ footer{color:var(--mute);font-size:12px;margin-top:26px;line-height:1.6}
     $("feedUpd").textContent="updated "+ago(FEED.updated);
     $("learned").innerHTML=(TASTE.learned||[]).map(function(l){return "<li>"+esc(l)+"</li>"}).join("")||"<li>Nothing yet: use 👍 and 👎.</li>";
     $("tasteUpd").textContent=TASTE.updated?("updated "+TASTE.updated):"";
+    var F=CONFIG.focus, inJP=F&&/japan/i.test(F.place)&&(!F.until||d(F.until)>=today); if(!inJP)REGIONS=REGIONS.filter(function(r){return r[0]!=="jp"});
     chips("kinds",KINDS,"kind"); chips("regions",REGIONS,"region");
     drawFeed(); fbBar(); loadWind();
   }
