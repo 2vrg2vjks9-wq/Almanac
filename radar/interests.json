@@ -1,0 +1,146 @@
+{
+ "_about": "What Radar watches. Edit this file (or ask Claude) to add or change interests. The daily update reads it.",
+ "home": "Netherlands",
+ "regions": [
+  "Den Haag / Rotterdam",
+  "Netherlands + BE/DE",
+  "Japan (while travelling)"
+ ],
+ "diet": {
+  "avoid": [
+   "gluten",
+   "lactose / dairy",
+   "oats",
+   "eggs"
+  ],
+  "note": "Prefer 100% gluten-free kitchens that are also vegan (covers dairy and eggs). Always flag oat milk / oat flour risk."
+ },
+ "wind": {
+  "sports": {
+   "wing": {
+    "label": "Wingfoil",
+    "min": 10,
+    "max": 20
+   },
+   "windsurf": {
+    "label": "Windsurf",
+    "min": 20,
+    "max": 30
+   }
+  },
+  "daylight": [
+   8,
+   20
+  ],
+  "minHours": 2,
+  "spots": [
+   {
+    "id": "scheveningen",
+    "name": "Scheveningen",
+    "sub": "Noorderstrand, North Sea",
+    "lat": 52.114,
+    "lon": 4.279,
+    "good": [
+     [
+      200,
+      360
+     ],
+     [
+      0,
+      20
+     ]
+    ],
+    "note": "Beach faces WNW. SW to N is on/side-shore; anything from the east is offshore."
+   },
+   {
+    "id": "oostvoorne",
+    "name": "Oostvoornse Meer",
+    "sub": "South beach, lake",
+    "lat": 51.9188,
+    "lon": 4.07,
+    "good": [
+     [
+      225,
+      360
+     ],
+     [
+      0,
+      90
+     ]
+    ],
+    "note": "From the south beach, S and SE blow offshore. Adjust if you launch elsewhere."
+   },
+   {
+    "id": "amstelmeer",
+    "name": "Amstelmeer",
+    "sub": "Westerland, ~30 min from Groet",
+    "lat": 52.8896,
+    "lon": 4.9116,
+    "good": [
+     [
+      0,
+      360
+     ]
+    ],
+    "note": "Guessed as your lake near Groet, all directions for now. Tell Claude your launch side to refine."
+   }
+  ]
+ },
+ "artists": [
+  "Bon Iver",
+  "Ben Howard",
+  "Nick Mulvey"
+ ],
+ "museums": {
+  "taste": "Contemplative art in nature and in strong architecture: land art, sculpture parks, light and space, zen, Tadao Ando, Isamu Noguchi, Dani Karavan, James Turrell. Liked: Murou Art Forest, D.T. Suzuki Museum (Kanazawa).",
+  "watch": [
+   "Kröller-Müller",
+   "Voorlinden",
+   "Museum Beelden aan Zee",
+   "Kunstmuseum Den Haag",
+   "Kunsthal",
+   "Depot Boijmans",
+   "Langen Foundation / Insel Hombroich",
+   "Benesse Art Site Naoshima",
+   "Teshima Art Museum"
+  ]
+ },
+ "restaurants": {
+  "rule": "High ratings (4.4+), and genuinely safe for gluten-free, dairy-free, egg-free and oat-free eating.",
+  "extras": [
+   "new openings that suit the diet",
+   "seasonal food where you are"
+  ]
+ },
+ "culture": {
+  "people": [
+   "Tadao Ando",
+   "Isamu Noguchi",
+   "Dani Karavan",
+   "James Turrell",
+   "teamLab"
+  ],
+  "festivals": true,
+  "newMusic": true
+ },
+ "stories": {
+  "loved": [
+   "Arrival (film)",
+   "Ted Chiang",
+   "Shantaram",
+   "Eastern Body, Western Mind"
+  ],
+  "watch": [
+   "new work by Ted Chiang, Denis Villeneuve, Gregory David Roberts, Anodea Judith",
+   "author talks and screenings nearby"
+  ]
+ },
+ "meditation": {
+  "what": "Zen and silent retreats, meditation classes and meetups",
+  "where": "Den Haag / Rotterdam, Netherlands, and Japan while travelling"
+ },
+ "work": {
+  "what": "Climate adaptation finance: events, conferences, calls for startups, accelerator and grant deadlines",
+  "where": "Netherlands, Brussels/EU, Japan"
+ }
+}

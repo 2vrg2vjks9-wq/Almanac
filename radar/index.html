@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Radar</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Radar">
+<meta name="theme-color" content="#f3f1ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f1ea; --card:#fffdf8; --ink:#16181b; --soft:#50565e; --mute:#8a8f96;
+  --line:rgba(22,24,27,.1); --sea:#1f5f8b; --wing:#2f8a5b; --surf:#c9701f; --warn:#b3412e;
+  --chip:#e8e5dc; --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#101214; --card:#181b1e; --ink:#eceae4; --soft:#b5bac0; --mute:#80868d;
+  --line:rgba(236,234,228,.11); --sea:#79b3dd; --wing:#6cc795; --surf:#eba35a; --warn:#ea7d69;
+  --chip:#23272b; --shadow:none;
+}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:15px/1.5 "Inter Tight",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  padding:calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 40px)}
+.wrap{max-width:640px;margin:0 auto}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--sea)}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
+h1{font:600 34px/1 Fraunces,Georgia,serif;letter-spacing:-.02em;margin:0}
+.date{color:var(--mute);font-size:13px}
+.lede{color:var(--soft);margin:6px 0 18px;font-size:14px}
+h2{font:600 20px/1.2 Fraunces,Georgia,serif;margin:26px 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+h2 small{font:500 12px "Inter Tight",sans-serif;color:var(--mute)}
+
+/* wind */
+.next{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
+.next .k{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.next .v{font:600 19px/1.3 Fraunces,Georgia,serif;margin-top:2px}
+.next .d{color:var(--soft);font-size:14px;margin-top:2px}
+.spot{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-top:10px;box-shadow:var(--shadow);overflow:hidden}
+.spot-h{display:flex;justify-content:space-between;align-items:baseline;padding:12px 16px 4px;gap:8px}
+.spot-h b{font-weight:600}
+.spot-h span{color:var(--mute);font-size:12px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:6px 10px 12px}
+.day{border:0;background:var(--chip);border-radius:10px;padding:7px 2px 6px;text-align:center;line-height:1.15;min-width:0}
+.day .dn{font-size:11px;color:var(--mute);text-transform:uppercase}
+.day .kn{font-weight:600;font-size:15px;margin:2px 0}
+.day .dir{font-size:11px;color:var(--soft)}
+.day.wing{background:color-mix(in srgb,var(--wing) 20%,var(--card));box-shadow:inset 0 0 0 1.5px var(--wing)}
+.day.surf{background:color-mix(in srgb,var(--surf) 22%,var(--card));box-shadow:inset 0 0 0 1.5px var(--surf)}
+.day.sel{outline:2px solid var(--ink);outline-offset:1px}
+.detail{padding:0 16px 14px;display:none}
+.detail.open{display:block}
+.detail svg{width:100%;height:auto;display:block}
+.detail p{margin:6px 0 0;color:var(--soft);font-size:13px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--mute);margin-top:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* feed */
+.filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin:0 -16px;padding:0 16px 2px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;font-size:13px;color:var(--soft)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.row2{margin-top:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 10px;margin-top:10px;box-shadow:var(--shadow)}
+.meta{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--mute);flex-wrap:wrap}
+.kind{font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.badge{border-radius:6px;padding:1px 6px;font-weight:600;font-size:11px}
+.b-new{background:var(--sea);color:var(--card)}
+.b-soon{background:var(--warn);color:var(--card)}
+.b-now{background:var(--wing);color:var(--card)}
+.b-pick{border:1px solid var(--mute);color:var(--soft)}
+.card h3{font:600 18px/1.3 Fraunces,Georgia,serif;margin:6px 0 2px}
+.where{color:var(--soft);font-size:13px}
+.card p{margin:6px 0 0;font-size:14px;color:var(--soft)}
+.why{font-size:12px;color:var(--mute);margin-top:6px}
+.flags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.flag{font-size:11px;border:1px dashed var(--warn);color:var(--warn);border-radius:6px;padding:1px 6px}
+.acts{display:flex;align-items:center;gap:4px;margin-top:8px;border-top:1px solid var(--line);padding-top:6px}
+.acts a{font-size:13px;text-decoration:none;margin-right:auto;padding:6px 0}
+.ib{border:0;background:transparent;border-radius:10px;padding:6px 9px;font-size:15px;color:var(--mute)}
+.ib.on{background:var(--chip);color:var(--ink)}
+.empty{color:var(--mute);font-size:14px;padding:18px 4px}
+
+/* feedback bar */
+.fb{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);max-width:616px;margin:0 auto;
+  background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 12px 10px 16px;display:none;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.fb.show{display:flex}
+.fb span{flex:1;font-size:14px}
+.fb button{border:0;border-radius:10px;padding:8px 12px;background:var(--bg);color:var(--ink);font-weight:600;font-size:14px}
+
+.learned{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow)}
+.learned li{margin:4px 0;color:var(--soft);font-size:14px}
+.learned ul{margin:0;padding-left:18px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 14px;font-size:14px;font-weight:500}
+
+.near{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow)}
+.near .row{display:flex;gap:8px;flex-wrap:wrap}
+.near-list{margin-top:6px}
+.ni{display:flex;gap:10px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit}
+.ni:first-child{border-top:0}
+.ni b{font-weight:600;font-size:14px}.ni .t{font-size:12px;color:var(--mute)}
+.ni .km{margin-left:auto;font-size:12px;color:var(--soft);white-space:nowrap}
+.ni .ic{width:18px;text-align:center;flex:none}
+.hint{font-size:13px;color:var(--mute);margin-top:6px}
+.more{display:block;width:100%;margin-top:10px}
+footer{color:var(--mute);font-size:12px;margin-top:26px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>Radar</h1><span class="date" id="today"></span></header>
+  <div class="lede" id="lede">Wind, culture, food and more, checked for you.</div>
+
+  <h2>Wind <small id="windUpd">loading forecast…</small></h2>
+  <div class="next" id="nextSession"><div class="k">Next session</div><div class="v">Checking the forecast…</div></div>
+  <div id="spots"></div>
+  <div class="legend"><span><i style="background:var(--wing)"></i>Wingfoil 10–20 kn</span><span><i style="background:var(--surf)"></i>Windsurf 20–30 kn</span><span>Numbers: best daylight average, knots</span></div>
+
+  <h2>Around me <small id="nearUpd"></small></h2>
+  <div class="near">
+    <div class="row">
+      <button class="btn" id="nearBtn" type="button">📍 What's around me</button>
+      <button class="btn" id="hereBtn" type="button">I'm here: scout this city</button>
+    </div>
+    <div class="hint" id="nearHint">Finds museums, galleries, sculpture, zen temples and gluten-free or vegan food within walking distance, wherever you are. "I'm here" points the daily research at your current city.</div>
+    <div class="near-list" id="nearList"></div>
+  </div>
+
+  <h2>For you <small id="feedUpd"></small></h2>
+  <div class="filters" id="kinds"></div>
+  <div class="filters row2" id="regions"></div>
+  <div id="feed"></div>
+
+  <h2>What Radar has learned <small id="tasteUpd"></small></h2>
+  <div class="learned"><ul id="learned"></ul></div>
+  <div class="tools">
+    <button class="btn" id="addBtn" type="button">＋ Add an interest</button>
+    <button class="btn" id="showHidden" type="button">Show hidden</button>
+  </div>
+
+  <footer>
+    👍 and 👎 teach Radar what you like; send them with the button that appears. Sending opens a pre-filled note on GitHub; tap <b>Submit</b> and the next daily update learns from it. Note: the repo is public, so those notes are too.<br>
+    Wind: Open-Meteo forecast, checked live. Everything else: researched daily by Claude, so double-check before you book.
+  </footer>
+</div>
+<div class="fb" id="fbBar"><span id="fbText"></span><button type="button" id="fbSend">Send</button></div>
+
+<script>
+(function(){
+  var REPO = "https://github.com/2vrg2vjks9-wq/Almanac";
+  var LS = {
+    get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+    set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  };
+  var reactions = LS.get("radar-reactions", {});   // id -> {v:1|-1, t, title, kind, sent}
+  var saved = LS.get("radar-saved", {});
+  var hidden = LS.get("radar-hidden", {});
+  var state = {kind:"all", region:"all", showHidden:false};
+  var CONFIG, FEED, TASTE;
+  var $ = function(id){return document.getElementById(id)};
+  var today = new Date(); today.setHours(0,0,0,0);
+  $("today").textContent = new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  function fetchJSON(u){return fetch(u+"?v="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json()})}
+
+  /* ---------------- wind ---------------- */
+  var COMPASS=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+  function dirName(d){return COMPASS[Math.round(d/22.5)%16]}
+  function dirOK(d,ranges){return ranges.some(function(r){return d>=r[0]&&d<=r[1]})}
+  function circMean(ds){var x=0,y=0;ds.forEach(function(d){x+=Math.cos(d*Math.PI/180);y+=Math.sin(d*Math.PI/180)});var a=Math.atan2(y,x)*180/Math.PI;return (a+360)%360}
+
+  function nowNL(){var p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Amsterdam",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",hourCycle:"h23"}).formatToParts(new Date()),o={};
+    p.forEach(function(x){o[x.type]=x.value});return {day:o.year+"-"+o.month+"-"+o.day,h:+o.hour}}
+  function analyse(spot, hourly, W){
+    var days={}, order=[];
+    hourly.time.forEach(function(t,i){
+      var day=t.slice(0,10), h=+t.slice(11,13);
+      if(!days[day]){days[day]={day:day,hours:[]};order.push(day)}
+      days[day].hours.push({h:h,kn:hourly.wind_speed_10m[i],g:hourly.wind_gusts_10m[i],d:hourly.wind_direction_10m[i]});
+    });
+    return order.map(function(k){
+      var D=days[k], nl=nowNL(), light=D.hours.filter(function(x){return x.h>=W.daylight[0]&&x.h<W.daylight[1]&&!(k===nl.day&&x.h<nl.h)});
+      function runs(sport){
+        var s=W.sports[sport], best=null, cur=[];
+        light.concat([{h:99}]).forEach(function(x){
+          var ok=x.kn!=null&&x.kn>=s.min&&x.kn<=s.max&&dirOK(x.d,spot.good);
+          if(ok)cur.push(x); else { if(cur.length>(best?best.length:0))best=cur; cur=[]; }
+        });
+        return best&&best.length>=W.minHours?best:null;
+      }
+      var wing=runs("wing"), surf=runs("windsurf");
+      var peak=light.reduce(function(m,x){return x.kn>m.kn?x:m},{kn:-1});
+      var avg=light.length?light.reduce(function(a,x){return a+x.kn},0)/light.length:0;
+      return {day:k,hours:D.hours,light:light,wing:wing,surf:surf,peak:peak,avg:avg,
+        dir:light.length?circMean(light.map(function(x){return x.d})):0};
+    });
+  }
+  function runText(r){var a=r[0].h,b=r[r.length-1].h+1,kn=r.reduce(function(s,x){return s+x.kn},0)/r.length;
+    return {win:pad(a)+":00–"+pad(b)+":00",kn:Math.round(kn),dir:dirName(circMean(r.map(function(x){return x.d}))),len:r.length}}
+  function pad(n){return (n<10?"0":"")+n}
+  function dayName(k,long){var d=new Date(k+"T00:00:00"),n=Math.round((d-today)/864e5);
+    if(n===0)return long?"Today":"Today";
+    if(n===1)return long?"Tomorrow":"Tmrw";
+    return d.toLocaleDateString("en-GB",{weekday:long?"long":"short"})}
+
+  function chart(D, spot, W){
+    var w=320,h=110,pl=22,pr=4,pt=8,pb=18, hrs=D.hours, max=Math.max(32,Math.max.apply(null,hrs.map(function(x){return x.g||0})));
+    var x=function(i){return pl+(w-pl-pr)*i/23}, y=function(v){return pt+(h-pt-pb)*(1-v/max)};
+    var bands=[["wing",W.sports.wing,"var(--wing)"],["windsurf",W.sports.windsurf,"var(--surf)"]].map(function(b){
+      return '<rect x="'+pl+'" width="'+(w-pl-pr)+'" y="'+y(b[1].max)+'" height="'+(y(b[1].min)-y(b[1].max))+'" fill="'+b[2]+'" opacity=".12"/>'}).join("");
+    var night='<rect x="'+pl+'" width="'+(x(W.daylight[0])-pl)+'" y="'+pt+'" height="'+(h-pt-pb)+'" fill="var(--ink)" opacity=".05"/>'+
+      '<rect x="'+x(W.daylight[1])+'" width="'+(w-pr-x(W.daylight[1]))+'" y="'+pt+'" height="'+(h-pt-pb)+'" fill="var(--ink)" opacity=".05"/>';
+    var gust=hrs.map(function(v,i){return (i?"L":"M")+x(i).toFixed(1)+","+y(v.g||0).toFixed(1)}).join("");
+    var line=hrs.map(function(v,i){return (i?"L":"M")+x(i).toFixed(1)+","+y(v.kn||0).toFixed(1)}).join("");
+    var arrows=hrs.filter(function(v,i){return i%3===0}).map(function(v){var cx=x(v.h),cy=h-6,ok=dirOK(v.d,spot.good);
+      return '<g transform="translate('+cx+','+cy+') rotate('+(v.d+180)+')"><path d="M0,-4 L2.6,3 L0,1.6 L-2.6,3Z" fill="'+(ok?"var(--ink)":"var(--warn)")+'"/></g>'}).join("");
+    var ticks=[10,20,30].map(function(t){return '<text x="2" y="'+(y(t)+3)+'" font-size="8" fill="var(--mute)">'+t+'</text><line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="var(--line)"/>'}).join("");
+    return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Hourly wind">'+night+bands+ticks+
+      '<path d="'+gust+'" fill="none" stroke="var(--mute)" stroke-width="1" stroke-dasharray="2 2"/>'+
+      '<path d="'+line+'" fill="none" stroke="var(--sea)" stroke-width="2"/>'+arrows+'</svg>';
+  }
+
+  function loadWind(){
+    var W=CONFIG.wind, sp=W.spots;
+    var u="https://api.open-meteo.com/v1/forecast?latitude="+sp.map(function(s){return s.lat}).join(",")+
+      "&longitude="+sp.map(function(s){return s.lon}).join(",")+
+      "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn&timezone=Europe%2FAmsterdam&forecast_days=7";
+    fetch(u).then(function(r){return r.json()}).then(function(res){
+      if(!Array.isArray(res))res=[res];
+      LS.set("radar-wind",{t:Date.now(),res:res});
+      drawWind(res, false);
+    }).catch(function(){
+      var c=LS.get("radar-wind",null);
+      if(c){drawWind(c.res,true)} else {$("windUpd").textContent="forecast unavailable offline"}
+    });
+  }
+  function drawWind(res, stale){
+    var W=CONFIG.wind, box=$("spots"); box.innerHTML="";
+    var sessions=[];
+    W.spots.forEach(function(spot,si){
+      var days=analyse(spot,res[si].hourly,W);
+      var el=document.createElement("div"); el.className="spot";
+      var h='<div class="spot-h"><b>'+esc(spot.name)+'</b><span>'+esc(spot.sub)+'</span></div><div class="days">';
+      days.forEach(function(D,di){
+        var cls=D.surf?"surf":D.wing?"wing":"", best=D.surf||D.wing;
+        var kn=best?runText(best).kn:Math.round(D.peak.kn||0);
+        if(D.wing)sessions.push({spot:spot,D:D,sport:"Wingfoil",r:runText(D.wing)});
+        if(D.surf)sessions.push({spot:spot,D:D,sport:"Windsurf",r:runText(D.surf)});
+        h+='<button class="day '+cls+'" data-i="'+di+'" type="button"><div class="dn">'+dayName(D.day)+'</div><div class="kn">'+kn+'</div><div class="dir">'+dirName(best?circMean(best.map(function(x){return x.d})):D.dir)+'</div></button>';
+      });
+      h+='</div><div class="detail"></div>';
+      el.innerHTML=h; box.appendChild(el);
+      var det=el.querySelector(".detail");
+      el.querySelectorAll(".day").forEach(function(b){b.onclick=function(){
+        var i=+b.dataset.i, open=b.classList.contains("sel");
+        el.querySelectorAll(".day").forEach(function(x){x.classList.remove("sel")});
+        if(open){det.classList.remove("open");return}
+        b.classList.add("sel"); var D=days[i], lines=[];
+        if(D.wing){var r=runText(D.wing);lines.push("Wingfoil "+r.win+", ~"+r.kn+" kn "+r.dir)}
+        if(D.surf){var r2=runText(D.surf);lines.push("Windsurf "+r2.win+", ~"+r2.kn+" kn "+r2.dir)}
+        if(!lines.length)lines.push("No window of "+W.minHours+"+ hours in range with a good direction. Peak "+Math.round(D.peak.kn)+" kn "+dirName(D.peak.d||0)+" at "+pad(D.peak.h||0)+":00.");
+        det.innerHTML=chart(D,spot,W)+'<p><b>'+dayName(D.day,true)+'.</b> '+lines.join(" · ")+'</p><p>'+esc(spot.note)+' Red arrows: wrong direction. Dashed: gusts.</p>';
+        det.classList.add("open");
+      }});
+    });
+    sessions.sort(function(a,b){return a.D.day<b.D.day?-1:a.D.day>b.D.day?1:b.r.len-a.r.len});
+    var n=sessions[0], ns=$("nextSession");
+    if(n){ns.innerHTML='<div class="k">Next session</div><div class="v">'+dayName(n.D.day,true)+' · '+esc(n.spot.name)+'</div><div class="d">'+n.sport+' '+n.r.win+', ~'+n.r.kn+' kn from '+n.r.dir+(sessions.length>1?' · '+(sessions.length-1)+' more in the next 7 days':'')+'</div>'}
+    else ns.innerHTML='<div class="k">Next session</div><div class="v">Nothing rideable in the next 7 days</div><div class="d">Radar will tell you when that changes.</div>';
+    $("windUpd").textContent=stale?"offline copy":"live · Open-Meteo";
+  }
+
+
+  /* ---------------- around me ---------------- */
+  var here=LS.get("radar-here",null);
+  function km(a,b,c,d){var R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h))}
+  function locate(){return new Promise(function(ok,no){if(!navigator.geolocation)return no("no-geo");
+    navigator.geolocation.getCurrentPosition(function(p){here={lat:p.coords.latitude,lon:p.coords.longitude,t:Date.now()};LS.set("radar-here",here);ok(here)},
+      function(e){no(e&&e.code===1?"denied":"failed")},{enableHighAccuracy:false,timeout:15000,maximumAge:600000})})}
+  function nearMsg(t){$("nearHint").textContent=t}
+  function overpass(h){
+    var r=2500, a="(around:"+r+","+h.lat+","+h.lon+")";
+    var q="[out:json][timeout:20];("+
+      "nwr[tourism=museum]"+a+";nwr[tourism=gallery]"+a+";nwr[tourism=artwork][artwork_type~\"sculpture|installation|land_art\"]"+a+";"+
+      "nwr[amenity~\"restaurant|cafe\"][\"diet:gluten_free\"~\"only|yes\"]"+a+";nwr[amenity~\"restaurant|cafe\"][\"diet:vegan\"~\"only\"]"+a+";"+
+      "nwr[amenity=place_of_worship][religion=buddhist][denomination~\"zen|rinzai|soto\"]"+a+";nwr[amenity=place_of_worship][religion=buddhist][name]"+a+";"+
+      ");out center tags 120;";
+    return fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}}).then(function(r){return r.json()});
+  }
+  function classify(t){
+    if(t.tourism==="museum")return["🏛","Museum",3];
+    if(t.tourism==="gallery")return["🖼","Gallery",3];
+    if(t.tourism==="artwork")return["🗿","Sculpture / artwork",2];
+    if(t.amenity==="place_of_worship")return["☸","Temple"+(/zen|rinzai|soto/i.test(t.denomination||"")?" (Zen)":""),/zen|rinzai|soto/i.test(t.denomination||"")?3:1];
+    var gf=t["diet:gluten_free"], vg=t["diet:vegan"];
+    var lab=(gf==="only"?"100% gluten-free":gf==="yes"?"Gluten-free options":"")+(vg==="only"?(gf?" · vegan":"100% vegan"):vg==="yes"&&gf?" · vegan options":"");
+    return["🍽",(t.amenity==="cafe"?"Café · ":"")+lab,gf==="only"?4:(gf&&vg==="only")?4:gf?2:1];
+  }
+  function drawNear(h,els){
+    var seen={},list=[];
+    els.forEach(function(e){var t=e.tags||{};if(!t.name&&!t["name:en"])return;
+      var la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);if(la==null)return;
+      var nm=t["name:en"]||t.name,key=nm+"|"+Math.round(la*1e3);if(seen[key])return;seen[key]=1;
+      var c=classify(t),dist=km(h.lat,h.lon,la,lo);
+      list.push({nm:nm,local:t["name:en"]&&t.name!==t["name:en"]?t.name:"",c:c,dist:dist,lat:la,lon:lo,rank:c[2]*2-dist});
+    });
+    list.sort(function(a,b){return b.rank-a.rank});
+    var box=$("nearList");
+    if(!list.length){box.innerHTML='<div class="hint">Nothing tagged nearby. OpenStreetMap coverage varies; try again somewhere more central.</div>';return}
+    box.innerHTML=list.slice(0,15).map(function(x){
+      var link="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.nm)+"&query_place_id=&center="+x.lat+","+x.lon;
+      link="https://www.google.com/maps/search/?api=1&query="+x.lat+"%2C"+x.lon;
+      return '<a class="ni" href="'+link+'" target="_blank" rel="noopener"><span class="ic">'+x.c[0]+'</span><span><b>'+esc(x.nm)+'</b>'+(x.local?' <span class="t">'+esc(x.local)+'</span>':'')+'<br><span class="t">'+esc(x.c[1])+'</span></span><span class="km">'+(x.dist<1?Math.round(x.dist*1000)+" m":x.dist.toFixed(1)+" km")+'</span></a>'}).join("");
+    nearMsg("From OpenStreetMap: unrated, so check reviews. Food marked 'options' is not a dedicated kitchen; ask about oats, dairy and eggs.");
+  }
+  $("nearBtn").onclick=function(){
+    nearMsg("Finding you…");
+    locate().then(function(h){nearMsg("Looking around…");$("nearUpd").textContent="within 2.5 km";drawFeed();return overpass(h).then(function(r){drawNear(h,r.elements||[])})})
+    .catch(function(e){nearMsg(e==="denied"?"Location is off for Radar. Allow it in Settings → Privacy & Security → Location Services → Safari Websites.":"Couldn't search right now. Try again in a moment.")});
+  };
+  $("hereBtn").onclick=function(){
+    nearMsg("Finding your city…");
+    locate().then(function(h){return fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat="+h.lat+"&lon="+h.lon).then(function(r){return r.json()})})
+    .then(function(g){var a=g.address||{},city=a.city||a.town||a.village||a.municipality||a.county||"",place=[city,a.state,a.country].filter(Boolean).join(", ");
+      var until=prompt("Scouting "+place+". Until when are you here? (optional, e.g. 5 Oct)","");
+      if(until===null){nearMsg("Cancelled.");return}
+      window.open(REPO+"/issues/new?labels=radar-location&title="+encodeURIComponent("I'm in "+place+(until?" until "+until:""))+"&body="+encodeURIComponent("Radar: focus research on "+place+(until?" until "+until:"")+".\nCity level only; no exact location is shared."),"_blank");
+      nearMsg("Submit the note that opened, and the next update scouts "+city+".");
+    }).catch(function(e){nearMsg(e==="denied"?"Location is off for Radar. Allow it in Settings → Privacy & Security → Location Services → Safari Websites.":"Couldn't find your city. Try again.")});
+  };
+
+  /* ---------------- feed ---------------- */
+  var KINDS=[["all","All"],["saved","★ Saved"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["work","Work"],["news","News"]];
+  var KLABEL={concert:"Music",release:"Music",exhibition:"Art",restaurant:"Food",story:"Books & film",meditation:"Meditation",work:"Work",news:"News"};
+  var REGIONS=[["all","Everywhere"],["nl","Netherlands"],["near","BE · DE · EU"],["jp","Japan"]];
+  function regionMatch(it){if(state.region==="all")return true;var r=it.region;
+    if(state.region==="near")return r==="be"||r==="de"||r==="eu"||r==="uk";return r===state.region||r==="all"}
+  function d(s){return s?new Date(s+"T12:00:00"):null}
+  function status(it){
+    var s=d(it.start),e=d(it.end),out=[];
+    var found=d(it.found); if(found&&(today-found)/864e5<=3)out.push(["b-new","New"]);
+    if(it.pick)out.push(["b-pick","Pick"]);
+    if(e&&e>=today&&(e-today)/864e5<=14&&(!s||s<=today))out.push(["b-soon","Ends soon"]);
+    else if(s&&s<=today&&(!e||e>=today)&&it.kind!=="restaurant")out.push(["b-now","On now"]);
+    return out;
+  }
+  function past(it){var e=d(it.end)||(it.kind==="concert"?d(it.start):null);return e&&e<today}
+  function when(it){var s=d(it.start),e=d(it.end),f=function(x){return x.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
+    if(s&&e&&+s!==+e)return f(s)+" – "+f(e); if(s)return f(s); if(e)return "until "+f(e); return ""}
+  function score(it){
+    var sc=0, r=reactions[it.id]; if(r)sc+=r.v*50; if(saved[it.id])sc+=40;
+    var st=status(it).map(function(x){return x[1]});
+    if(st.indexOf("New")>=0)sc+=30; if(st.indexOf("Ends soon")>=0)sc+=25;
+    var s=d(it.start); if(s&&s>=today)sc+=Math.max(0,20-(s-today)/864e5/3);
+    if(here&&it.lat!=null){var dk=km(here.lat,here.lon,it.lat,it.lon);sc+=dk<5?25:dk<30?15:dk<100?5:0}
+    (TASTE.more||[]).forEach(function(m){if((it.title+" "+it.why+" "+it.summary).toLowerCase().indexOf(String(m).toLowerCase())>=0)sc+=15});
+    (TASTE.less||[]).forEach(function(m){if((it.title+" "+it.why+" "+it.summary).toLowerCase().indexOf(String(m).toLowerCase())>=0)sc-=15});
+    return sc;
+  }
+  function chips(boxId, list, key){
+    var box=$(boxId); box.innerHTML="";
+    list.forEach(function(c){var b=document.createElement("button");b.type="button";b.className="chip"+(state[key]===c[0]?" on":"");b.textContent=c[1];
+      b.onclick=function(){state[key]=c[0];state.all=false;chips(boxId,list,key);drawFeed()};box.appendChild(b)});
+  }
+  function drawFeed(){
+    var box=$("feed"); box.innerHTML="";
+    var items=FEED.items.filter(function(it){
+      if(past(it))return false;
+      if(hidden[it.id]&&!state.showHidden)return false;
+      if(state.kind==="saved")return !!saved[it.id];
+      if(state.kind!=="all"&&it.kind!==state.kind&&!(state.kind==="concert"&&it.kind==="release"))return false;
+      return regionMatch(it);
+    }).sort(function(a,b){return score(b)-score(a)});
+    if(!items.length){box.innerHTML='<div class="empty">Nothing here yet. The daily update will fill this in.</div>';return}
+    var limit=state.all?items.length:12, rest=items.length-limit;
+    items.slice(0,limit).forEach(function(it){
+      var r=reactions[it.id], el=document.createElement("div"); el.className="card";
+      var badges=status(it).map(function(b){return '<span class="badge '+b[0]+'">'+b[1]+'</span>'}).join("");
+      var w=when(it), place=[it.place,it.city].filter(Boolean).join(", ");
+      if(here&&it.lat!=null){var dk=km(here.lat,here.lon,it.lat,it.lon);place+=(place?" · ":"")+(dk<10?dk.toFixed(1):Math.round(dk))+" km away"}
+      el.innerHTML='<div class="meta"><span class="kind">'+esc(KLABEL[it.kind]||it.kind)+'</span>'+(w?'<span>'+esc(w)+'</span>':'')+badges+'</div>'+
+        '<h3>'+esc(it.title)+'</h3>'+(place?'<div class="where">'+esc(place)+'</div>':'')+
+        '<p>'+esc(it.summary)+'</p>'+(it.why?'<div class="why">Because: '+esc(it.why)+'</div>':'')+
+        (it.flags&&it.flags.length?'<div class="flags">'+it.flags.map(function(f){return '<span class="flag">'+esc(f)+'</span>'}).join("")+'</div>':'')+
+        '<div class="acts">'+(it.url?'<a href="'+esc(it.url)+'" target="_blank" rel="noopener">Details ↗</a>':'<span style="margin-right:auto"></span>')+
+        '<button class="ib'+(r&&r.v>0?" on":"")+'" data-a="up" aria-label="More like this">👍</button>'+
+        '<button class="ib'+(r&&r.v<0?" on":"")+'" data-a="down" aria-label="Less like this">👎</button>'+
+        '<button class="ib'+(saved[it.id]?" on":"")+'" data-a="save" aria-label="Save">'+(saved[it.id]?"★":"☆")+'</button>'+
+        '<button class="ib" data-a="hide" aria-label="Hide">'+(hidden[it.id]?"↺":"✕")+'</button></div>';
+      el.querySelectorAll(".ib").forEach(function(b){b.onclick=function(){act(it,b.dataset.a)}});
+      box.appendChild(el);
+    });
+    if(rest>0){var m=document.createElement("button");m.className="btn more";m.type="button";m.textContent="Show "+rest+" more";m.onclick=function(){state.all=true;drawFeed()};box.appendChild(m)}
+  }
+  function act(it,a){
+    if(a==="save"){if(saved[it.id])delete saved[it.id];else saved[it.id]=1;LS.set("radar-saved",saved)}
+    else if(a==="hide"){if(hidden[it.id])delete hidden[it.id];else{hidden[it.id]=1;react(it,-1,true)}LS.set("radar-hidden",hidden)}
+    else react(it,a==="up"?1:-1);
+    drawFeed(); fbBar();
+  }
+  function react(it,v,soft){
+    var r=reactions[it.id];
+    if(r&&r.v===v&&!soft){delete reactions[it.id]}
+    else if(!(soft&&r)){reactions[it.id]={v:v,t:Date.now(),title:it.title,kind:it.kind,why:it.why||"",sent:false}}
+    LS.set("radar-reactions",reactions);
+  }
+  function pending(){return Object.keys(reactions).filter(function(k){return !reactions[k].sent})}
+  function fbBar(){var p=pending();$("fbBar").classList.toggle("show",p.length>0);
+    $("fbText").textContent=p.length+" reaction"+(p.length>1?"s":"")+" to teach Radar"}
+  $("fbSend").onclick=function(){
+    var p=pending(); if(!p.length)return;
+    var body="Radar feedback, sent from the app.\n\n"+p.map(function(k){var r=reactions[k];
+      return (r.v>0?"+1":"-1")+" | "+r.kind+" | "+r.title+" | because: "+r.why+" | id: "+k}).join("\n")+
+      "\n\n(Optional) Add a note about why, e.g. 'love anything by Ando, less street photography':\n";
+    var url=REPO+"/issues/new?labels=radar-feedback&title="+encodeURIComponent("Radar feedback "+new Date().toISOString().slice(0,10))+"&body="+encodeURIComponent(body);
+    p.forEach(function(k){reactions[k].sent=true}); LS.set("radar-reactions",reactions); fbBar();
+    window.open(url,"_blank");
+  };
+  $("addBtn").onclick=function(){
+    var t=prompt("What should Radar watch? (e.g. 'Fred again.. concerts', 'padel tournaments in Den Haag', 'new Noguchi exhibitions')");
+    if(!t)return;
+    window.open(REPO+"/issues/new?labels=radar-interest&title="+encodeURIComponent("Add interest: "+t)+"&body="+encodeURIComponent("Please add to Radar: "+t+"\n\n(Anything specific? Where, how often, what counts as worth a notification.)"),"_blank");
+  };
+  $("showHidden").onclick=function(){state.showHidden=!state.showHidden;this.textContent=state.showHidden?"Hide hidden":"Show hidden";drawFeed()};
+
+  function ago(iso){var t=new Date(iso),h=(Date.now()-t)/36e5;if(h<1)return"just now";if(h<24)return Math.round(h)+" h ago";return Math.round(h/24)+" d ago"}
+
+  Promise.all([fetchJSON("interests.json"),fetchJSON("feed.json"),fetchJSON("taste.json").catch(function(){return {learned:[]}})]).then(function(a){
+    CONFIG=a[0]; FEED=a[1]; TASTE=a[2];
+    LS.set("radar-cache",{c:CONFIG,f:FEED,t:TASTE});
+    start();
+  }).catch(function(){var c=LS.get("radar-cache",null);if(c){CONFIG=c.c;FEED=c.f;TASTE=c.t;start()}else $("feed").innerHTML='<div class="empty">Offline and nothing cached yet.</div>'});
+
+  function start(){
+    $("feedUpd").textContent="updated "+ago(FEED.updated);
+    $("learned").innerHTML=(TASTE.learned||[]).map(function(l){return "<li>"+esc(l)+"</li>"}).join("")||"<li>Nothing yet: use 👍 and 👎.</li>";
+    $("tasteUpd").textContent=TASTE.updated?("updated "+TASTE.updated):"";
+    chips("kinds",KINDS,"kind"); chips("regions",REGIONS,"region");
+    drawFeed(); fbBar(); loadWind();
+  }
+  if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+})();
+</script>
+</body>
+</html>
