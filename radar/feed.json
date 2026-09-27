@@ -1,6 +1,6 @@
 {
- "updated": "2026-09-27T22:40:00+09:00",
- "note": "First run. Written by Claude from web research; check details before booking.",
+ "updated": "2026-09-27T13:50:00+00:00",
+ "note": "Written by Claude from web research; check details before booking. Japan items drop off after 9 Oct.",
  "items": [
   {
    "id": "benhoward-berlin-2026-10",
@@ -83,22 +83,6 @@
    "lon": 4.2806
   },
   {
-   "id": "voorlinden-stilte",
-   "kind": "exhibition",
-   "region": "nl",
-   "title": "Silent mornings at Voorlinden",
-   "place": "Museum Voorlinden",
-   "city": "Wassenaar",
-   "start": null,
-   "end": null,
-   "summary": "Every Saturday and Sunday morning the museum runs a silent visit. Turrell's Skyspace in the dunes is part of the permanent collection.",
-   "why": "Contemplative, Turrell, art in nature",
-   "url": "https://www.voorlinden.nl/en/exhibitions/",
-   "found": "2026-09-27",
-   "lat": 52.1106,
-   "lon": 4.3547
-  },
-  {
    "id": "tokyo-atlas-2026",
    "kind": "exhibition",
    "region": "jp",
@@ -153,11 +137,11 @@
    "title": "Rokko Meets Art",
    "place": "Mt Rokko",
    "city": "Kobe",
-   "start": null,
+   "start": "2026-08-29",
    "end": "2026-11-29",
-   "summary": "Contemporary art spread through the forest and viewpoints on Mt Rokko. Closest thing to the Murou Art Forest feeling near Osaka.",
-   "why": "Art in forest, land art",
-   "url": "https://www.google.com/search?q=Rokko+Meets+Art+2026",
+   "summary": "Site-specific art on Mt Rokko, including works at Tadao Ando's Chapel of the Wind (10:00–16:50) and the Tenran Observatory. Closest thing to the Murou Art Forest feeling near Osaka.",
+   "why": "Ando, art in forest, land art",
+   "url": "https://mizuma-art.co.jp/en/2608_rokko-meets-art",
    "found": "2026-09-27",
    "lat": 34.7616,
    "lon": 135.2383
@@ -382,22 +366,6 @@
    "pick": true
   },
   {
-   "id": "med-shunkoin-retreat-nov",
-   "kind": "meditation",
-   "region": "jp",
-   "title": "2-day Zen meditation retreat, Shunkō-in",
-   "place": "Shunkō-in, Myōshin-ji",
-   "city": "Kyoto",
-   "start": "2026-11-13",
-   "end": "2026-11-14",
-   "summary": "In English with the temple's priest. The Oct 29–30 retreat is sold out; Oct 2–3 and Nov 13–14 are still listed. Shorter 2-hour zen-and-tea sessions run most mornings.",
-   "why": "Zen, D.T. Suzuki Museum",
-   "url": "https://shunkoin.com/archives/823",
-   "found": "2026-09-27",
-   "lat": 35.0241,
-   "lon": 135.7195
-  },
-  {
    "id": "med-zen-training-najaar",
    "kind": "meditation",
    "region": "nl",
@@ -406,7 +374,7 @@
    "city": "Netherlands",
    "start": "2026-10-22",
    "end": "2026-10-25",
-   "summary": "Four-day silent zen retreat. I couldn't open the page to confirm location and price, so check before booking.",
+   "summary": "Four-day silent zen retreat with John (sensei), 22–25 October, in the Utrecht region. I couldn't open the page to confirm venue and price, so check before booking.",
    "why": "Zen, silence",
    "flags": [
     "unverified"
@@ -438,11 +406,11 @@
    "place": "European Innovation Council",
    "city": "",
    "start": null,
-   "end": null,
-   "summary": "2026 challenge for startups on urban heat, climate-smart agriculture, water scarcity, and flood and coastal protection. Useful for startups you work with; cut-off dates are in the Work Programme.",
+   "end": "2026-11-04",
+   "summary": "2026 challenge for startups on urban heat, climate-smart agriculture, water scarcity, and flood and coastal protection. Last full-application cut-off of 2026 is 4 November, 17:00 Brussels; short applications are open continuously.",
    "why": "Adaptation finance, startups",
    "flags": [
-    "check deadline"
+    "deadline 4 Nov"
    ],
    "url": "https://eic.ec.europa.eu/eic-funding-opportunities/eic-accelerator/eic-accelerator-challenges-2026/deep-tech-climate-adaptation_en",
    "found": "2026-09-27"
@@ -491,6 +459,253 @@
    "summary": "Paid remote work evaluating Horizon Europe and EIC proposals, including climate-adaptation calls. Registration is open year-round; profiles with startup-finance and adaptation expertise get picked for relevant calls.",
    "why": "Climate adaptation finance, startup financing",
    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/work-as-an-expert",
+   "found": "2026-09-27"
+  },
+  {
+   "id": "sakamoto-kagami-osaka",
+   "kind": "exhibition",
+   "region": "jp",
+   "title": "Ryuichi Sakamoto & Tin Drum: Kagami+",
+   "place": "Kagami+",
+   "city": "Osaka",
+   "start": null,
+   "end": "2026-10-12",
+   "summary": "Mixed-reality concert: Sakamoto appears as a 3D presence playing piano around you. Quiet and meditative, and it closes on 12 October.",
+   "why": "Contemplative, immersive; you are in Japan until 9 Oct",
+   "flags": [
+    "ends soon"
+   ],
+   "url": "https://www.timeout.com/osaka/art/best-art-exhibitions-showing-in-osaka-right-now",
+   "found": "2026-09-27"
+  },
+  {
+   "id": "teamlab-biovortex-kyoto",
+   "kind": "exhibition",
+   "region": "jp",
+   "title": "teamLab Biovortex Kyoto",
+   "place": "21-5 Higashikujō, Minami-ku",
+   "city": "Kyoto",
+   "start": null,
+   "end": null,
+   "summary": "teamLab's largest museum in Japan, 50+ works across 10,000 m², a short walk from Kyoto Station's Hachijō exit. Open 9:00–21:00 daily.",
+   "why": "teamLab",
+   "url": "https://www.nippon.com/en/japan-video/j00024/",
+   "found": "2026-09-27",
+   "lat": 34.979,
+   "lon": 135.759
+  },
+  {
+   "id": "med-shunkoin-retreat-oct",
+   "kind": "meditation",
+   "region": "jp",
+   "title": "2-day Zen retreat at Shunkō-in, 2–3 Oct",
+   "place": "Shunkō-in, Myōshin-ji",
+   "city": "Kyoto",
+   "start": "2026-10-02",
+   "end": "2026-10-03",
+   "summary": "Zazen, calligraphy, tea ceremony and shōjin ryōri, in English. Still open; the 29–30 Oct one is sold out. Temple food is vegan but often uses shoyu and fu (wheat), so tell them about gluten when booking.",
+   "why": "Zen, D.T. Suzuki Museum",
+   "flags": [
+    "check gluten (shoyu, fu)"
+   ],
+   "url": "https://shunkoin.com/archives/823",
+   "found": "2026-09-27",
+   "lat": 35.0241,
+   "lon": 135.7195
+  },
+  {
+   "id": "rest-uno-yokiko-kyoto",
+   "kind": "restaurant",
+   "region": "jp",
+   "title": "Soy Milk Ramen Uno Yokiko",
+   "place": "40 Kameichō, Higashiyama (Gion)",
+   "city": "Kyoto",
+   "start": null,
+   "end": null,
+   "summary": "Soy-milk ramen, gyoza and croquettes, reported 100% gluten-free and vegan, so no dairy or egg. Expect a queue; go early.",
+   "why": "100% gluten-free and vegan",
+   "flags": [
+    "check oats"
+   ],
+   "url": "https://www.endlessdistances.com/gluten-free-kyoto-japan/",
+   "found": "2026-09-27"
+  },
+  {
+   "id": "rest-marugoto-vegan-tokyo",
+   "kind": "restaurant",
+   "region": "jp",
+   "title": "Marugoto Vegan Dining",
+   "place": "Asakusa, Taitō",
+   "city": "Tokyo",
+   "start": null,
+   "end": null,
+   "summary": "The whole menu is gluten-free and vegan: curry, vegetable tempura, rice-flour waffles. Coeliac reviewers felt safe.",
+   "why": "100% gluten-free and vegan",
+   "flags": [
+    "check oats"
+   ],
+   "url": "https://www.findmeglutenfree.com/biz/marugoto-vegan/4822230015541248",
+   "found": "2026-09-27"
+  },
+  {
+   "id": "voorlinden-icons",
+   "kind": "exhibition",
+   "region": "nl",
+   "title": "Celebrating the Icons of Art",
+   "place": "Museum Voorlinden",
+   "city": "Wassenaar",
+   "start": "2026-09-12",
+   "end": "2027-03-07",
+   "summary": "Voorlinden's 10th-birthday show pairs contemporary icons from the collection with their 20th-century predecessors. Combine with a silent morning and Turrell's Skyspace.",
+   "why": "Voorlinden, Turrell, art in the dunes",
+   "url": "https://www.voorlinden.nl/visit/exhibitions/?lang=en",
+   "found": "2026-09-27",
+   "lat": 52.1106,
+   "lon": 4.3547
+  },
+  {
+   "id": "baz-chafes-giacometti",
+   "kind": "exhibition",
+   "region": "nl",
+   "title": "Rui Chafes × Alberto Giacometti",
+   "place": "Museum Beelden aan Zee",
+   "city": "Den Haag",
+   "start": "2026-06-27",
+   "end": "2027-01-10",
+   "summary": "The Portuguese sculptor's dark, weightless steel forms in dialogue with Giacometti, in the museum dug into the Scheveningen dunes.",
+   "why": "Sculpture, museum in the landscape",
+   "url": "https://www.beeldenaanzee.nl/en/exhibitions",
+   "found": "2026-09-27",
+   "lat": 52.1113,
+   "lon": 4.2786
+  },
+  {
+   "id": "km-van-gogh-88",
+   "kind": "exhibition",
+   "region": "nl",
+   "title": "Van Gogh, all our paintings",
+   "place": "Kröller-Müller Museum",
+   "city": "Otterlo",
+   "start": "2026-09-15",
+   "end": "2027-01-03",
+   "summary": "All 88 Van Goghs in the collection shown together for the first time since 1984. Pair it with the sculpture garden and an autumn walk in the Hoge Veluwe.",
+   "why": "Kröller-Müller, sculpture park in nature",
+   "url": "https://www.krollermuller.nl/nl",
+   "found": "2026-09-27",
+   "lat": 52.0955,
+   "lon": 5.817
+  },
+  {
+   "id": "turrell-aros-dome",
+   "kind": "news",
+   "region": "eu",
+   "title": "Turrell's largest Skyspace: As Seen Below – The Dome",
+   "place": "ARoS Aarhus Art Museum",
+   "city": "Aarhus, Denmark",
+   "start": "2026-06-19",
+   "end": null,
+   "summary": "Opened at the summer solstice: the biggest Skyspace Turrell has built for a museum. A long drive or short flight, but a pilgrimage-grade Turrell.",
+   "why": "James Turrell",
+   "url": "https://news.artnet.com/art-world/james-turrell-largest-skyspace-aros-museum-denmark-2703773",
+   "found": "2026-09-27",
+   "lat": 56.1537,
+   "lon": 10.1995
+  },
+  {
+   "id": "glow-eindhoven-2026",
+   "kind": "exhibition",
+   "region": "nl",
+   "title": "GLOW light festival: Connect",
+   "place": "Eindhoven and surrounding towns",
+   "city": "Eindhoven",
+   "start": "2026-11-07",
+   "end": "2026-11-14",
+   "summary": "Eight evenings of light art along a walking route through Eindhoven, Oirschot, Best, Veldhoven, Helmond and Lieshout. Free.",
+   "why": "Light art",
+   "url": "https://gloweindhoven.nl/en/theme-2026-connect/",
+   "found": "2026-09-27",
+   "lat": 51.4416,
+   "lon": 5.4697
+  },
+  {
+   "id": "med-zen-denhaag-stille-zondag",
+   "kind": "meditation",
+   "region": "nl",
+   "title": "Stille zondag, Zen.nl Den Haag",
+   "place": "Ivoorhorst 401",
+   "city": "Den Haag",
+   "start": "2026-10-25",
+   "end": null,
+   "summary": "Sunday morning 9:00–11:15: four 25-minute zazen rounds with kinhin, ending with tea. €15, needs prior zen experience and sign-up by email. Next dates 29 Nov and 20 Dec.",
+   "why": "Zen, close to home",
+   "url": "https://www.zen.nl/denhaag/stille-zondag/",
+   "found": "2026-09-27"
+  },
+  {
+   "id": "med-zen-delft-sesshin-nov",
+   "kind": "meditation",
+   "region": "nl",
+   "title": "Weekend sesshin (Zen.nl Delft)",
+   "place": "Centrum OostRaven",
+   "city": "Epe",
+   "start": "2026-11-27",
+   "end": "2026-11-29",
+   "summary": "Silent weekend of zazen, walking meditation and work practice, meals and lodging included (from €471). Ask about gluten, dairy, egg and oats.",
+   "why": "Zen silent retreat",
+   "flags": [
+    "check diet"
+   ],
+   "url": "https://www.zen.nl/delft/weekendsesshin-2026/",
+   "found": "2026-09-27"
+  },
+  {
+   "id": "work-oecd-gfi-2026",
+   "kind": "work",
+   "region": "eu",
+   "title": "OECD Forum on Green Finance and Investment",
+   "place": "OECD Conference Centre (hybrid)",
+   "city": "Paris / online",
+   "start": "2026-10-07",
+   "end": "2026-10-08",
+   "summary": "The OECD's flagship green-finance forum, this year on investing for energy security, transition and resilience. You can join online from Japan.",
+   "why": "Climate adaptation finance",
+   "flags": [
+    "online option"
+   ],
+   "url": "https://www.oecd-events.org/e/oecd-forum-on-green-finance-and-investment-2026",
+   "found": "2026-09-27"
+  },
+  {
+   "id": "work-brussels-climate-week-2026",
+   "kind": "work",
+   "region": "be",
+   "title": "Brussels Climate Week",
+   "place": "Tour & Taxis",
+   "city": "Brussels",
+   "start": "2026-10-12",
+   "end": "2026-10-15",
+   "summary": "Four days with EU institutions, cities and investors; includes a Global Climate Finance Roundtable (Mon) and a Local Climate Finance Roundtable (Wed). Right after you land.",
+   "why": "Climate finance, Brussels/EU",
+   "url": "https://brusselsclimateweek.com/conference/",
+   "found": "2026-09-27",
+   "lat": 50.8667,
+   "lon": 4.3483
+  },
+  {
+   "id": "freelance-mission-adaptation-roster",
+   "kind": "freelance",
+   "region": "eu",
+   "title": "EU Mission Adaptation: Roster of Experts",
+   "place": "EU Mission Adaptation Community (Futurium)",
+   "city": "Remote",
+   "start": null,
+   "end": null,
+   "summary": "The Mission is building a roster of specialists to support regions and Mission projects, and explicitly asks for expertise in financing climate resilience. The first cohort started in September; applications stay open as it grows.",
+   "why": "Climate adaptation finance, advisory",
+   "flags": [
+    "pay not stated"
+   ],
+   "url": "https://mission-adaptation-portal.ec.europa.eu/news-events/news/eu-mission-adaptation-launches-call-experts-join-new-roster-experts-2026-06-15_en",
    "found": "2026-09-27"
   }
  ]
