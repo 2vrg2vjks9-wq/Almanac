@@ -15,12 +15,12 @@ meditation, climate-work opportunities). Live at https://2vrg2vjks9-wq.github.io
     stories, meditation, work, `focus` (current travel city + until date), `_rules`.
   - `radar/feed.json` — `{updated, note, items:[{id, kind, region, title, place, city, start, end, summary,
     why, url, found, flags?, pick?, lat?, lon?}]}`. kinds: concert, release, exhibition, restaurant, story,
-    meditation, work, news. regions: nl, be, de, eu, uk, jp, all.
+    meditation, work, news, freelance, bucket (with `bucket: <wish id>`). regions: nl, be, de, eu, uk, jp, all.
   - `radar/taste.json` — `{updated, learned:[sentences], more:[keywords], less:[keywords]}` — used for ranking.
 - **Live data in the browser:** wind from Open-Meteo (`api.open-meteo.com`, no key, CORS ok),
   "Around me" from OpenStreetMap Overpass (`overpass-api.de`) and city lookup from Nominatim.
 - **Feedback loop:** 👍/👎/save/hide are stored in `localStorage`; "Send" opens a pre-filled GitHub issue
-  (labels `radar-feedback`, `radar-interest`, `radar-location`) which the daily task processes and closes.
+  (labels `radar-feedback`, `radar-interest`, `radar-location`, `radar-bucket`) which the daily task processes and closes.
   No tokens on the phone — keep it that way.
 - **Wind alert:** `.github/workflows/radar-wind.yml` runs `radar/tools/wind_alert.py` every morning and
   pushes to ntfy.sh. Keep it working if you touch `interests.json`'s wind section.
@@ -44,6 +44,15 @@ restrictions: never claim a place is safe unless the data says so, and always sh
 contemplative art in nature and strong architecture, the artists and stories listed in `interests.json`,
 zen/meditation; works in climate-adaptation finance. Travel is handled by `interests.json` `focus`.
 Don't add personal details to this public repo.
+
+## Bucket list
+
+`interests.json` has a `bucketlist` array: `{id, title, good_time, where, added}`. The Saved tab shows each
+wish, its matching feed items, and an "Add to bucket list" button that opens a GitHub issue labelled
+`radar-bucket` (and keeps the wish locally as "sent" until it appears in `interests.json`). The daily task
+adds the wish, then checks every wish each morning for a genuinely good moment (price drop, season, rare
+availability) and writes feed items with `kind: "bucket"` and `bucket: "<wish id>"`; the app ranks them
+high and labels them "Good time". A new bucket item is always worth a push notification.
 
 ## Freelance
 

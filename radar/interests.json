@@ -144,7 +144,8 @@
  },
  "_rules": [
   "Only add items that are actionable or new. Never add 'no news' items such as an artist having no tour dates.",
-  "Only research the focus place while focus.until has not passed; then remove its items."
+  "Only research the focus place while focus.until has not passed; then remove its items.",
+  "Bucket list: every morning check each bucketlist wish for a genuinely good moment (price drop, season, availability, rare deal). Add at most one feed item per wish with kind 'bucket' and 'bucket': <wish id>, only when it is actionable, and notify when one appears."
  ],
  "freelance": {
   "profile": "Climate innovation and adaptation finance; startup financing and accelerators; background in blockchain and competition economics.",
@@ -157,5 +158,21 @@
   ],
   "where": "Remote, Netherlands, EU; Japan-Europe bridge roles",
   "rule": "Include rate or budget when stated; skip unpaid volunteer roles unless prestigious (e.g. major jury)."
- }
+ },
+ "bucketlist": [
+  {
+   "id": "northern-lights",
+   "title": "See the northern lights",
+   "good_time": "a strong aurora season with dark, clear skies, and flights or trains north that are unusually cheap about two months ahead",
+   "where": "Northern Norway, Swedish Lapland, Finnish Lapland, Iceland",
+   "added": "2026-09-27"
+  },
+  {
+   "id": "mountain-forest-hut",
+   "title": "Sleep in a mountain forest hut",
+   "good_time": "an unusually cheap or newly bookable hut in a quiet mountain forest, ideally reachable by train",
+   "where": "Europe within reach of the Netherlands, or wherever he is travelling",
+   "added": "2026-09-27"
+  }
+ ]
 }

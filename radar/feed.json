@@ -707,6 +707,25 @@
    ],
    "url": "https://mission-adaptation-portal.ec.europa.eu/news-events/news/eu-mission-adaptation-launches-call-experts-join-new-roster-experts-2026-06-15_en",
    "found": "2026-09-27"
+  },
+  {
+   "id": "bucket-aurora-march-2027",
+   "kind": "bucket",
+   "bucket": "northern-lights",
+   "region": "eu",
+   "title": "Northern lights: aim for the new moon around 8 March 2027",
+   "place": "Rovaniemi",
+   "city": "Finnish Lapland",
+   "start": "2027-03-08",
+   "end": null,
+   "summary": "The solar cycle peaked in late 2024 and is now declining, so this winter is one of the last strong ones for years. Clear-sky data favours early March in Rovaniemi (about half the nights clear) at shoulder-season prices; Tromsø in December is the worst bet despite the darkness.",
+   "why": "Bucket list: see the northern lights",
+   "flags": [
+    "book early",
+    "Radar watches flight prices"
+   ],
+   "url": "https://northernlights.travel/news/aurora-season-2026-27-forecast/",
+   "found": "2026-09-27"
   }
  ]
 }

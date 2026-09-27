@@ -98,6 +98,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
 .more{width:100%;margin:6px 0 10px;padding:11px;border-radius:12px;background:var(--mist);font-weight:600;font-size:15px}
 .fine{color:var(--haze);font-size:13px;line-height:1.55;margin:26px 2px 0}
 .fb{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 76px);max-width:600px;margin:0 auto;background:var(--deep);color:var(--mist);border-radius:16px;padding:10px 10px 10px 16px;display:none;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.22);z-index:5}
+.bk{padding:13px 0 11px}.bk + .bk{border-top:1px solid var(--rule)}.bk h3{font:600 17px/1.3 var(--ui);margin:0}.bk .bw{font:14px/1.5 var(--read);color:var(--slate);margin-top:3px}.bk .bs{font-size:13px;color:var(--haze);margin-top:4px}.bk .bs.hot{color:var(--kelp);font-weight:600}.bk .item{padding-bottom:4px}
 .fb.show{display:flex}.fb span{flex:1;font-size:15px}
 .fb button{border-radius:11px;padding:9px 14px;background:var(--mist);color:var(--deep);font-weight:600;font-size:15px}
 .tabs{position:fixed;left:0;right:0;bottom:0;padding:6px 10px calc(env(safe-area-inset-bottom) + 6px);background:var(--tab);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-top:1px solid var(--rule);z-index:6}
@@ -148,8 +149,12 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
 
   <section class="view" id="v-saved" aria-label="Saved">
     <h1 class="title">Saved</h1>
-    <p class="sub">Things you starred, and what Radar has learned about you.</p>
+    <p class="sub">Things you starred, your bucket list, and what Radar has learned about you.</p>
     <div class="sheet" id="savedList" style="margin-top:16px"></div>
+    <h2>Bucket list</h2>
+    <div class="sheet" id="bucketList"></div>
+    <div class="sheet" style="margin-top:8px"><div class="near-row"><button class="btn" id="bucketBtn" type="button">Add to bucket list</button></div>
+      <div class="hint">Radar checks each wish every morning and tells you when the timing is right: cheap flights, a good season, a rare deal.</div></div>
     <h2>What Radar has learned</h2>
     <div class="sheet learned"><ul id="learned"></ul></div>
     <h2>Teach it more</h2>
@@ -174,7 +179,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
 (function(){
   var REPO="https://github.com/2vrg2vjks9-wq/Almanac";
   var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-  var reactions=LS.get("radar-reactions",{}),saved=LS.get("radar-saved",{}),hidden=LS.get("radar-hidden",{}),here=LS.get("radar-here",null);
+  var bucketSent=LS.get("radar-bucket-sent",[]),reactions=LS.get("radar-reactions",{}),saved=LS.get("radar-saved",{}),hidden=LS.get("radar-hidden",{}),here=LS.get("radar-here",null);
   var state={kind:"all",region:"all",showHidden:false,all:false};
   var CONFIG,FEED,TASTE,byId={};
   var $=function(id){return document.getElementById(id)};
@@ -264,9 +269,9 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       .catch(function(){var c=LS.get("radar-wind",null);if(c)drawWind(c.res,true);else $("lead").textContent="The forecast needs a connection."})}
 
   /* feed */
-  var KINDS=[["all","Everything"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["work","Work"]];
-  var KLABEL={concert:"Music",release:"Music",exhibition:"Art",restaurant:"Food",story:"Books & film",meditation:"Meditation",work:"Work",news:"Music"};
-  var KCOLOR={concert:"#7b5ea7",release:"#7b5ea7",news:"#7b5ea7",exhibition:"var(--marine)",restaurant:"var(--buoy)",story:"#a0567a",meditation:"var(--kelp)",work:"var(--slate)"};
+  var KINDS=[["all","Everything"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["work","Work"],["bucket","Bucket list"]];
+  var KLABEL={concert:"Music",release:"Music",exhibition:"Art",restaurant:"Food",story:"Books & film",meditation:"Meditation",work:"Work",news:"Music",bucket:"Bucket list"};
+  var KCOLOR={concert:"#7b5ea7",release:"#7b5ea7",news:"#7b5ea7",exhibition:"var(--marine)",restaurant:"var(--buoy)",story:"#a0567a",meditation:"var(--kelp)",work:"var(--slate)",bucket:"var(--flag)"};
   var REGIONS=[["all","Anywhere"],["nl","Netherlands"],["near","Belgium, Germany, EU"],["jp","Japan"]];
   function km(a,b,c,e){var R=6371,x=(c-a)*Math.PI/180,y=(e-b)*Math.PI/180,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h))}
   function inJapan(){var F=CONFIG.focus;return !!(F&&/japan/i.test(F.place)&&(!F.until||d(F.until)>=today))}
@@ -276,11 +281,11 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     if(f&&(today-f)/864e5<=3)return ["new","New"];
     if(e&&e>=today&&(e-today)/864e5<=14&&(!s||s<=today))return ["soon","Ends soon"];
     if(s&&s<=today&&(!e||e>=today)&&it.kind!=="restaurant"&&it.kind!=="story")return ["now","On now"];
-    if(it.pick)return ["","Suggestion"];return null}
+    if(it.pick)return ["","Suggestion"];if(it.kind==="bucket")return ["now","Good time"];return null}
   function when(it){var s=d(it.start),e=d(it.end),f=function(x){return x.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
     if(s&&e&&+s!==+e)return f(s)+" to "+f(e);if(s)return f(s);if(e)return "Until "+f(e);return ""}
   function score(it){var sc=0,r=reactions[it.id];if(r)sc+=r.v*50;if(saved[it.id])sc+=40;
-    var st=status(it);if(st&&st[0]==="new")sc+=30;if(st&&st[0]==="soon")sc+=25;
+    if(it.kind==="bucket")sc+=35;var st=status(it);if(st&&st[0]==="new")sc+=30;if(st&&st[0]==="soon")sc+=25;
     var s=d(it.start);if(s&&s>=today)sc+=Math.max(0,20-(s-today)/864e5/3);
     if(here&&it.lat!=null){var k=km(here.lat,here.lon,it.lat,it.lon);sc+=k<5?25:k<30?15:k<100?5:0}
     var txt=(it.title+" "+it.why+" "+it.summary).toLowerCase();
@@ -315,7 +320,16 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     if(items.length>limit){var m=document.createElement("button");m.className="more";m.type="button";m.textContent="Show "+(items.length-limit)+" more";m.onclick=function(){state.all=true;drawFeed()};$("feed").appendChild(m)}
     $("feedSub").textContent=items.length+" things for you, updated "+ago(FEED.updated)}
   function drawSaved(){mount($("savedList"),FEED.items.filter(function(it){return saved[it.id]&&!past(it)}),false,"Nothing saved yet. Tap the star on anything you want to keep.");
+    drawBucket();
     $("learned").innerHTML=(TASTE.learned||[]).map(function(l){return "<li>"+esc(l)+"</li>"}).join("")||"<li>Nothing yet. Use thumbs up and down.</li>"}
+  function drawBucket(){var wishes=(CONFIG.bucketlist||[]).slice(),known={};wishes.forEach(function(b){known[b.title.toLowerCase()]=1});
+    var sent=bucketSent.filter(function(b){return !known[b.title.toLowerCase()]});bucketSent=sent;LS.set("radar-bucket-sent",sent);
+    var box=$("bucketList");if(!wishes.length&&!sent.length){box.innerHTML='<div class="empty">Nothing on it yet. Add the things you want to do once in your life, and what would make it a good moment.</div>';return}
+    box.innerHTML=wishes.map(function(b){var hits=FEED.items.filter(function(it){return it.kind==="bucket"&&it.bucket===b.id&&!past(it)&&!hidden[it.id]});
+      return '<div class="bk"><h3>'+esc(b.title)+'</h3>'+(b.good_time?'<div class="bw">Good moment: '+esc(b.good_time)+'</div>':'')+
+        (hits.length?'<div class="bs hot">'+(hits.length===1?"1 good chance right now":hits.length+" good chances right now")+'</div><div class="bkhits" data-b="'+esc(b.id)+'"></div>':'<div class="bs">Watching. Radar will flag it when the timing is right.</div>')+'</div>'}).join("")+
+      sent.map(function(b){return '<div class="bk"><h3>'+esc(b.title)+'</h3>'+(b.good_time?'<div class="bw">Good moment: '+esc(b.good_time)+'</div>':'')+'<div class="bs">Sent. Radar starts watching after the next morning update.</div></div>'}).join("");
+    box.querySelectorAll(".bkhits").forEach(function(el){mount(el,FEED.items.filter(function(it){return it.kind==="bucket"&&it.bucket===el.dataset.b&&!past(it)&&!hidden[it.id]}),false,"")})}
   function segs(id,list,key){var box=$(id);box.innerHTML="";list.forEach(function(c){var b=document.createElement("button");b.type="button";b.className="pill"+(state[key]===c[0]?" on":"");b.textContent=c[1];
     b.onclick=function(){state[key]=c[0];state.all=false;segs(id,list,key);drawFeed()};box.appendChild(b)})}
   function act(it,a){if(a==="save"){if(saved[it.id])delete saved[it.id];else saved[it.id]=1;LS.set("radar-saved",saved)}
@@ -331,6 +345,10 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     p.forEach(function(k){reactions[k].sent=true});LS.set("radar-reactions",reactions);fbBar()};
   $("addBtn").onclick=function(){var t=prompt("What should Radar keep an eye on? For example: Fred again.. concerts, padel tournaments in Den Haag, new Noguchi exhibitions.");if(!t)return;
     window.open(REPO+"/issues/new?labels=radar-interest&title="+encodeURIComponent("Add interest: "+t)+"&body="+encodeURIComponent("Please add to Radar: "+t+"\n\nAnything specific? Where, and what's worth a notification:\n"),"_blank")};
+  $("bucketBtn").onclick=function(){var t=prompt("What do you want to do once in your life? For example: see the northern lights, sleep in a mountain forest hut.");if(!t)return;t=t.trim();if(!t)return;
+    var g=prompt("What would make it a good moment? For example: flights under €150, clear dark skies, a hut under €60 a night. Leave empty and Radar will work it out.")||"";g=g.trim();
+    bucketSent.push({title:t,good_time:g,added:new Date().toISOString().slice(0,10)});LS.set("radar-bucket-sent",bucketSent);drawBucket();
+    window.open(REPO+"/issues/new?labels=radar-bucket&title="+encodeURIComponent("Bucket list: "+t)+"&body="+encodeURIComponent("Add to my Radar bucket list: "+t+"\n\nA good moment would be: "+(g||"(work it out)")+"\n\nFrom where / when I could go (optional):\n"),"_blank")};
   $("showHidden").onclick=function(){state.showHidden=!state.showHidden;this.textContent=state.showHidden?"Hide hidden":"Show hidden";document.querySelector('.tab[data-v="explore"]').click();drawFeed()};
   function ago(iso){var h=(Date.now()-new Date(iso))/36e5;if(h<1)return "just now";if(h<24)return Math.round(h)+" hours ago";var n=Math.round(h/24);return n===1?"yesterday":n+" days ago"}
 
