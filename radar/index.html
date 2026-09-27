@@ -8,450 +8,364 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Radar">
-<meta name="theme-color" content="#f3f1ea" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e4eae9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1a20" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f3f1ea; --card:#fffdf8; --ink:#16181b; --soft:#50565e; --mute:#8a8f96;
-  --line:rgba(22,24,27,.1); --sea:#1f5f8b; --wing:#2f8a5b; --surf:#c9701f; --warn:#b3412e;
-  --chip:#e8e5dc; --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px rgba(0,0,0,.05);
+  --mist:#e4eae9; --foam:#f7faf9; --deep:#0e2a33; --slate:#4a5f67; --haze:#8b9b9f;
+  --rule:rgba(14,42,51,.10); --marine:#1b5e7a; --kelp:#2f8660; --buoy:#dba73a; --flag:#b8452f;
+  --calm:rgba(14,42,51,.13); --tab:rgba(247,250,249,.82);
+  --ui:"Familjen Grotesk",-apple-system,system-ui,sans-serif; --read:"Literata",Georgia,serif;
 }
 @media (prefers-color-scheme:dark){:root{
-  --bg:#101214; --card:#181b1e; --ink:#eceae4; --soft:#b5bac0; --mute:#80868d;
-  --line:rgba(236,234,228,.11); --sea:#79b3dd; --wing:#6cc795; --surf:#eba35a; --warn:#ea7d69;
-  --chip:#23272b; --shadow:none;
+  --mist:#0b1a20; --foam:#122730; --deep:#e2ebea; --slate:#a9bbbe; --haze:#6f8489;
+  --rule:rgba(226,235,234,.10); --marine:#7fc0dc; --kelp:#5fc494; --buoy:#f0c35d; --flag:#ef7c63;
+  --calm:rgba(226,235,234,.16); --tab:rgba(18,39,48,.84);
 }}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink)}
-body{font:15px/1.5 "Inter Tight",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;
-  padding:calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 40px)}
-.wrap{max-width:640px;margin:0 auto}
-button{font:inherit;color:inherit;cursor:pointer}
-a{color:var(--sea)}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
-h1{font:600 34px/1 Fraunces,Georgia,serif;letter-spacing:-.02em;margin:0}
-.date{color:var(--mute);font-size:13px}
-.lede{color:var(--soft);margin:6px 0 18px;font-size:14px}
-h2{font:600 20px/1.2 Fraunces,Georgia,serif;margin:26px 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-h2 small{font:500 12px "Inter Tight",sans-serif;color:var(--mute)}
-
-/* wind */
-.next{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
-.next .k{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
-.next .v{font:600 19px/1.3 Fraunces,Georgia,serif;margin-top:2px}
-.next .d{color:var(--soft);font-size:14px;margin-top:2px}
-.spot{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-top:10px;box-shadow:var(--shadow);overflow:hidden}
-.spot-h{display:flex;justify-content:space-between;align-items:baseline;padding:12px 16px 4px;gap:8px}
-.spot-h b{font-weight:600}
-.spot-h span{color:var(--mute);font-size:12px}
-.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:6px 10px 12px}
-.day{border:0;background:var(--chip);border-radius:10px;padding:7px 2px 6px;text-align:center;line-height:1.15;min-width:0}
-.day .dn{font-size:11px;color:var(--mute);text-transform:uppercase}
-.day .kn{font-weight:600;font-size:15px;margin:2px 0}
-.day .dir{font-size:11px;color:var(--soft)}
-.day.wing{background:color-mix(in srgb,var(--wing) 20%,var(--card));box-shadow:inset 0 0 0 1.5px var(--wing)}
-.day.surf{background:color-mix(in srgb,var(--surf) 22%,var(--card));box-shadow:inset 0 0 0 1.5px var(--surf)}
-.day.sel{outline:2px solid var(--ink);outline-offset:1px}
-.detail{padding:0 16px 14px;display:none}
-.detail.open{display:block}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--mist);color:var(--deep)}
+body{font:16px/1.45 var(--ui);-webkit-font-smoothing:antialiased;padding:calc(env(safe-area-inset-top) + 20px) 18px calc(env(safe-area-inset-bottom) + 92px)}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+a{color:var(--marine)}
+:focus-visible{outline:2px solid var(--marine);outline-offset:2px;border-radius:6px}
+.wrap{max-width:620px;margin:0 auto}
+.view{display:none}.view.on{display:block}
+.title{font:700 34px/1.05 var(--ui);letter-spacing:-.025em;margin:0}
+.sub{color:var(--slate);margin:6px 0 0;font-size:16px}
+h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
+.sheet{background:var(--foam);border-radius:20px;padding:4px 16px}
+.spot{padding:14px 0 12px}
+.spot + .spot{border-top:1px solid var(--rule)}
+.spot-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.spot-name{font-weight:600;font-size:17px}
+.spot-verdict{font-size:14px;color:var(--slate);text-align:right}
+.spot-verdict b{font-weight:600;color:var(--deep)}
+.ribbon{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px}
+.rday{display:flex;flex-direction:column;align-items:stretch;border-radius:8px;padding:0 1px;min-width:0}
+.rday.sel{background:var(--mist)}
+.bars{height:54px;display:flex;align-items:flex-end;gap:1px}
+.bar{flex:1;border-radius:2px 2px 0 0;background:var(--calm);transform-origin:bottom}
+.bar.wing{background:var(--kelp)} .bar.surf{background:var(--buoy)} .bar.over{background:var(--flag)}
+.bar.off{background:repeating-linear-gradient(135deg,var(--calm) 0 2px,transparent 2px 4px)}
+.rlab{font-size:11px;color:var(--haze);text-align:center;margin-top:4px;white-space:nowrap;overflow:hidden}
+.rday.good .rlab{color:var(--deep);font-weight:600}
+@media (prefers-reduced-motion:no-preference){.grow .bar{animation:grow .7s cubic-bezier(.2,.7,.2,1) both}@keyframes grow{from{transform:scaleY(0)}}}
+.detail{display:none;padding:10px 0 2px}.detail.open{display:block}
 .detail svg{width:100%;height:auto;display:block}
-.detail p{margin:6px 0 0;color:var(--soft);font-size:13px}
-.legend{display:flex;gap:14px;font-size:12px;color:var(--mute);margin-top:8px;flex-wrap:wrap}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-
-/* feed */
-.filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin:0 -16px;padding:0 16px 2px;scrollbar-width:none}
-.filters::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;font-size:13px;color:var(--soft)}
-.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.row2{margin-top:8px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 10px;margin-top:10px;box-shadow:var(--shadow)}
-.meta{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--mute);flex-wrap:wrap}
-.kind{font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-.badge{border-radius:6px;padding:1px 6px;font-weight:600;font-size:11px}
-.b-new{background:var(--sea);color:var(--card)}
-.b-soon{background:var(--warn);color:var(--card)}
-.b-now{background:var(--wing);color:var(--card)}
-.b-pick{border:1px solid var(--mute);color:var(--soft)}
-.card h3{font:600 18px/1.3 Fraunces,Georgia,serif;margin:6px 0 2px}
-.where{color:var(--soft);font-size:13px}
-.card p{margin:6px 0 0;font-size:14px;color:var(--soft)}
-.why{font-size:12px;color:var(--mute);margin-top:6px}
-.flags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.flag{font-size:11px;border:1px dashed var(--warn);color:var(--warn);border-radius:6px;padding:1px 6px}
-.acts{display:flex;align-items:center;gap:4px;margin-top:8px;border-top:1px solid var(--line);padding-top:6px}
-.acts a{font-size:13px;text-decoration:none;margin-right:auto;padding:6px 0}
-.ib{border:0;background:transparent;border-radius:10px;padding:6px 9px;font-size:15px;color:var(--mute)}
-.ib.on{background:var(--chip);color:var(--ink)}
-.empty{color:var(--mute);font-size:14px;padding:18px 4px}
-
-/* feedback bar */
-.fb{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);max-width:616px;margin:0 auto;
-  background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 12px 10px 16px;display:none;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
-.fb.show{display:flex}
-.fb span{flex:1;font-size:14px}
-.fb button{border:0;border-radius:10px;padding:8px 12px;background:var(--bg);color:var(--ink);font-weight:600;font-size:14px}
-
-.learned{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow)}
-.learned li{margin:4px 0;color:var(--soft);font-size:14px}
-.learned ul{margin:0;padding-left:18px}
-.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.btn{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 14px;font-size:14px;font-weight:500}
-
-.near{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow)}
-.near .row{display:flex;gap:8px;flex-wrap:wrap}
-.near-list{margin-top:6px}
-.ni{display:flex;gap:10px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit}
-.ni:first-child{border-top:0}
-.ni b{font-weight:600;font-size:14px}.ni .t{font-size:12px;color:var(--mute)}
-.ni .km{margin-left:auto;font-size:12px;color:var(--soft);white-space:nowrap}
-.ni .ic{width:18px;text-align:center;flex:none}
-.hint{font-size:13px;color:var(--mute);margin-top:6px}
-.more{display:block;width:100%;margin-top:10px}
-footer{color:var(--mute);font-size:12px;margin-top:26px;line-height:1.6}
+.detail p{margin:8px 0 0;font:15px/1.55 var(--read);color:var(--slate)}
+.key{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--haze);margin:10px 2px 0}
+.key i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+.lead{margin:22px 0 0;font:500 21px/1.35 var(--ui);letter-spacing:-.01em}
+.lead span{color:var(--slate);font-weight:400}
+.item{padding:14px 0 12px}
+.item + .item{border-top:1px solid var(--rule)}
+.item-top{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--slate);flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.state{font-weight:600}.state.new{color:var(--marine)}.state.soon{color:var(--flag)}.state.now{color:var(--kelp)}
+.item h3{font:600 18px/1.28 var(--ui);letter-spacing:-.01em;margin:5px 0 0}
+.item.big h3{font-size:21px}
+.item .where{font-size:14px;color:var(--slate);margin-top:2px}
+.item p{font:15px/1.6 var(--read);color:var(--slate);margin:6px 0 0}
+.flags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.flag{font-size:12px;color:var(--flag);border:1px solid color-mix(in srgb,var(--flag) 45%,transparent);border-radius:999px;padding:1px 8px}
+.acts{display:flex;align-items:center;gap:2px;margin-top:8px}
+.acts .go{margin-right:auto;font-size:14px;font-weight:500;text-decoration:none;padding:6px 0}
+.ib{width:38px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--haze)}
+.ib svg{width:19px;height:19px}
+.ib.on{background:var(--mist)} .ib.on.up{color:var(--kelp)} .ib.on.down{color:var(--flag)} .ib.on.save{color:var(--buoy)}
+.empty{padding:22px 0;color:var(--slate);font:15px/1.55 var(--read)}
+.seg{display:flex;gap:6px;overflow-x:auto;margin:0 -18px;padding:2px 18px 4px;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg + .seg{margin-top:4px}
+.pill{flex:none;border-radius:999px;padding:7px 13px;font-size:14px;color:var(--slate);background:var(--foam)}
+.pill.on{background:var(--deep);color:var(--mist)}
+.near-row{display:flex;gap:10px;padding:12px 0}
+.btn{flex:1;border-radius:14px;padding:12px 10px;font-weight:600;font-size:15px;background:var(--deep);color:var(--mist);text-align:center}
+.btn.ghost{background:var(--mist);color:var(--deep)}
+.ni{display:flex;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--rule);text-decoration:none;color:inherit}
+.ni .g{width:30px;height:30px;border-radius:9px;background:var(--mist);display:flex;align-items:center;justify-content:center;flex:none;font-size:15px}
+.ni b{font-weight:600;font-size:15px;display:block}.ni small{font-size:13px;color:var(--slate)}
+.ni .km{margin-left:auto;font-size:13px;color:var(--haze);white-space:nowrap}
+.hint{font:14px/1.5 var(--read);color:var(--slate);padding:0 0 12px}
+.learned li{font:15px/1.55 var(--read);color:var(--slate);margin:8px 0}
+.learned ul{margin:6px 0 10px;padding-left:18px}
+.more{width:100%;margin:6px 0 10px;padding:11px;border-radius:12px;background:var(--mist);font-weight:600;font-size:15px}
+.fine{color:var(--haze);font-size:13px;line-height:1.55;margin:26px 2px 0}
+.fb{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 76px);max-width:600px;margin:0 auto;background:var(--deep);color:var(--mist);border-radius:16px;padding:10px 10px 10px 16px;display:none;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.22);z-index:5}
+.fb.show{display:flex}.fb span{flex:1;font-size:15px}
+.fb button{border-radius:11px;padding:9px 14px;background:var(--mist);color:var(--deep);font-weight:600;font-size:15px}
+.tabs{position:fixed;left:0;right:0;bottom:0;padding:6px 10px calc(env(safe-area-inset-bottom) + 6px);background:var(--tab);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-top:1px solid var(--rule);z-index:6}
+.tabs .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:11px;font-weight:500;color:var(--haze)}
+.tab svg{width:24px;height:24px}.tab.on{color:var(--deep)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header><h1>Radar</h1><span class="date" id="today"></span></header>
-  <div class="lede" id="lede">Wind, culture, food and more, checked for you.</div>
-
-  <h2>Wind <small id="windUpd">loading forecast…</small></h2>
-  <div class="next" id="nextSession"><div class="k">Next session</div><div class="v">Checking the forecast…</div></div>
-  <div id="spots"></div>
-  <div class="legend"><span><i style="background:var(--wing)"></i>Wingfoil 10–20 kn</span><span><i style="background:var(--surf)"></i>Windsurf 20–30 kn</span><span>Numbers: best daylight average, knots</span></div>
-
-  <h2>Around me <small id="nearUpd"></small></h2>
-  <div class="near">
-    <div class="row">
-      <button class="btn" id="nearBtn" type="button">📍 What's around me</button>
-      <button class="btn" id="hereBtn" type="button">I'm here: scout this city</button>
+  <section class="view on" id="v-today" aria-label="Today">
+    <h1 class="title" id="hello">Today</h1>
+    <p class="sub" id="sub"></p>
+    <p class="lead" id="lead">Reading the wind…</p>
+    <div class="sheet" id="todayWind" style="margin-top:14px"></div>
+    <h2>Worth your attention</h2>
+    <div class="sheet" id="top"></div>
+    <h2>Around you</h2>
+    <div class="sheet">
+      <div class="near-row">
+        <button class="btn" id="nearBtn" type="button">Look around here</button>
+        <button class="btn ghost" id="hereBtn" type="button">Scout this city</button>
+      </div>
+      <div class="hint" id="nearHint">Museums, galleries, sculpture, zen temples and gluten-free food within walking distance. Scouting sends your city to the daily research.</div>
+      <div id="nearList"></div>
     </div>
-    <div class="hint" id="nearHint">Finds museums, galleries, sculpture, zen temples and gluten-free or vegan food within walking distance, wherever you are. "I'm here" points the daily research at your current city.</div>
-    <div class="near-list" id="nearList"></div>
-  </div>
+  </section>
 
-  <h2>For you <small id="feedUpd"></small></h2>
-  <div class="filters" id="kinds"></div>
-  <div class="filters row2" id="regions"></div>
-  <div id="feed"></div>
+  <section class="view" id="v-wind" aria-label="Wind">
+    <h1 class="title">Wind</h1>
+    <p class="sub" id="windSub">Next 7 days, daylight hours</p>
+    <div class="sheet" id="windAll" style="margin-top:16px"></div>
+    <div class="key">
+      <span><i style="background:var(--kelp)"></i>Wingfoil 10–20 kn</span>
+      <span><i style="background:var(--buoy)"></i>Windsurf 20–30 kn</span>
+      <span><i style="background:var(--flag)"></i>Over 30</span>
+      <span><i style="background:repeating-linear-gradient(135deg,var(--calm) 0 2px,transparent 2px 4px)"></i>Wrong direction</span>
+    </div>
+    <p class="fine">Each bar is one hour between 08:00 and 20:00. Tap a day for the hourly chart. Forecast from Open-Meteo, checked live; the morning alert comes through the ntfy app.</p>
+  </section>
 
-  <h2>What Radar has learned <small id="tasteUpd"></small></h2>
-  <div class="learned"><ul id="learned"></ul></div>
-  <div class="tools">
-    <button class="btn" id="addBtn" type="button">＋ Add an interest</button>
-    <button class="btn" id="showHidden" type="button">Show hidden</button>
-  </div>
+  <section class="view" id="v-explore" aria-label="Explore">
+    <h1 class="title">Explore</h1>
+    <p class="sub" id="feedSub"></p>
+    <div style="margin-top:16px"><div class="seg" id="kinds"></div><div class="seg" id="regions"></div></div>
+    <div class="sheet" id="feed" style="margin-top:12px"></div>
+  </section>
 
-  <footer>
-    👍 and 👎 teach Radar what you like; send them with the button that appears. Sending opens a pre-filled note on GitHub; tap <b>Submit</b> and the next daily update learns from it. Note: the repo is public, so those notes are too.<br>
-    Wind: Open-Meteo forecast, checked live. Everything else: researched daily by Claude, so double-check before you book.
-  </footer>
+  <section class="view" id="v-saved" aria-label="Saved">
+    <h1 class="title">Saved</h1>
+    <p class="sub">Things you starred, and what Radar has learned about you.</p>
+    <div class="sheet" id="savedList" style="margin-top:16px"></div>
+    <h2>What Radar has learned</h2>
+    <div class="sheet learned"><ul id="learned"></ul></div>
+    <h2>Teach it more</h2>
+    <div class="sheet"><div class="near-row">
+      <button class="btn" id="addBtn" type="button">Add an interest</button>
+      <button class="btn ghost" id="showHidden" type="button">Show hidden</button>
+    </div></div>
+    <p class="fine">Thumbs up and down change what Radar looks for. Sending them opens a pre-filled note on GitHub; submit it and the next morning's update learns from it. The repository is public, so those notes are too. Everything except the wind is researched by Claude, so check details before booking.</p>
+  </section>
 </div>
+
 <div class="fb" id="fbBar"><span id="fbText"></span><button type="button" id="fbSend">Send</button></div>
+
+<nav class="tabs" aria-label="Sections"><div class="in">
+  <button class="tab on" data-v="today" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>Today</button>
+  <button class="tab" data-v="wind" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h7"/></svg>Wind</button>
+  <button class="tab" data-v="explore" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Explore</button>
+  <button class="tab" data-v="saved" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Saved</button>
+</div></nav>
 
 <script>
 (function(){
-  var REPO = "https://github.com/2vrg2vjks9-wq/Almanac";
-  var LS = {
-    get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
-    set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-  };
-  var reactions = LS.get("radar-reactions", {});   // id -> {v:1|-1, t, title, kind, sent}
-  var saved = LS.get("radar-saved", {});
-  var hidden = LS.get("radar-hidden", {});
-  var state = {kind:"all", region:"all", showHidden:false};
-  var CONFIG, FEED, TASTE;
-  var $ = function(id){return document.getElementById(id)};
-  var today = new Date(); today.setHours(0,0,0,0);
-  $("today").textContent = new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
-
+  var REPO="https://github.com/2vrg2vjks9-wq/Almanac";
+  var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+  var reactions=LS.get("radar-reactions",{}),saved=LS.get("radar-saved",{}),hidden=LS.get("radar-hidden",{}),here=LS.get("radar-here",null);
+  var state={kind:"all",region:"all",showHidden:false,all:false};
+  var CONFIG,FEED,TASTE,byId={};
+  var $=function(id){return document.getElementById(id)};
+  var today=new Date();today.setHours(0,0,0,0);
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
   function fetchJSON(u){return fetch(u+"?v="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json()})}
+  function d(s){return s?new Date(s+"T12:00:00"):null}
+  function pad(n){return (n<10?"0":"")+n}
 
-  /* ---------------- wind ---------------- */
+  document.querySelectorAll(".tab").forEach(function(t){t.onclick=function(){
+    document.querySelectorAll(".tab").forEach(function(x){x.classList.toggle("on",x===t)});
+    document.querySelectorAll(".view").forEach(function(v){v.classList.toggle("on",v.id==="v-"+t.dataset.v)});
+    window.scrollTo(0,0)}});
+  (function(){var h=new Date().getHours();
+    $("hello").textContent=h<5?"Good night":h<12?"Good morning":h<18?"Good afternoon":"Good evening";
+    $("sub").textContent=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})})();
+
+  /* wind */
   var COMPASS=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
-  function dirName(d){return COMPASS[Math.round(d/22.5)%16]}
-  function dirOK(d,ranges){return ranges.some(function(r){return d>=r[0]&&d<=r[1]})}
-  function circMean(ds){var x=0,y=0;ds.forEach(function(d){x+=Math.cos(d*Math.PI/180);y+=Math.sin(d*Math.PI/180)});var a=Math.atan2(y,x)*180/Math.PI;return (a+360)%360}
-
+  function dirName(x){return COMPASS[Math.round(x/22.5)%16]}
+  function dirOK(x,rs){return rs.some(function(r){return x>=r[0]&&x<=r[1]})}
+  function circMean(ds){var a=0,b=0;ds.forEach(function(x){a+=Math.cos(x*Math.PI/180);b+=Math.sin(x*Math.PI/180)});return (Math.atan2(b,a)*180/Math.PI+360)%360}
   function nowNL(){var p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Amsterdam",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",hourCycle:"h23"}).formatToParts(new Date()),o={};
     p.forEach(function(x){o[x.type]=x.value});return {day:o.year+"-"+o.month+"-"+o.day,h:+o.hour}}
-  function analyse(spot, hourly, W){
-    var days={}, order=[];
-    hourly.time.forEach(function(t,i){
-      var day=t.slice(0,10), h=+t.slice(11,13);
-      if(!days[day]){days[day]={day:day,hours:[]};order.push(day)}
-      days[day].hours.push({h:h,kn:hourly.wind_speed_10m[i],g:hourly.wind_gusts_10m[i],d:hourly.wind_direction_10m[i]});
-    });
-    return order.map(function(k){
-      var D=days[k], nl=nowNL(), light=D.hours.filter(function(x){return x.h>=W.daylight[0]&&x.h<W.daylight[1]&&!(k===nl.day&&x.h<nl.h)});
-      function runs(sport){
-        var s=W.sports[sport], best=null, cur=[];
-        light.concat([{h:99}]).forEach(function(x){
-          var ok=x.kn!=null&&x.kn>=s.min&&x.kn<=s.max&&dirOK(x.d,spot.good);
-          if(ok)cur.push(x); else { if(cur.length>(best?best.length:0))best=cur; cur=[]; }
-        });
-        return best&&best.length>=W.minHours?best:null;
-      }
-      var wing=runs("wing"), surf=runs("windsurf");
-      var peak=light.reduce(function(m,x){return x.kn>m.kn?x:m},{kn:-1});
-      var avg=light.length?light.reduce(function(a,x){return a+x.kn},0)/light.length:0;
-      return {day:k,hours:D.hours,light:light,wing:wing,surf:surf,peak:peak,avg:avg,
-        dir:light.length?circMean(light.map(function(x){return x.d})):0};
-    });
-  }
-  function runText(r){var a=r[0].h,b=r[r.length-1].h+1,kn=r.reduce(function(s,x){return s+x.kn},0)/r.length;
-    return {win:pad(a)+":00–"+pad(b)+":00",kn:Math.round(kn),dir:dirName(circMean(r.map(function(x){return x.d}))),len:r.length}}
-  function pad(n){return (n<10?"0":"")+n}
-  function dayName(k,long){var d=new Date(k+"T00:00:00"),n=Math.round((d-today)/864e5);
-    if(n===0)return long?"Today":"Today";
-    if(n===1)return long?"Tomorrow":"Tmrw";
-    return d.toLocaleDateString("en-GB",{weekday:long?"long":"short"})}
-
-  function chart(D, spot, W){
-    var w=320,h=110,pl=22,pr=4,pt=8,pb=18, hrs=D.hours, max=Math.max(32,Math.max.apply(null,hrs.map(function(x){return x.g||0})));
-    var x=function(i){return pl+(w-pl-pr)*i/23}, y=function(v){return pt+(h-pt-pb)*(1-v/max)};
-    var bands=[["wing",W.sports.wing,"var(--wing)"],["windsurf",W.sports.windsurf,"var(--surf)"]].map(function(b){
-      return '<rect x="'+pl+'" width="'+(w-pl-pr)+'" y="'+y(b[1].max)+'" height="'+(y(b[1].min)-y(b[1].max))+'" fill="'+b[2]+'" opacity=".12"/>'}).join("");
-    var night='<rect x="'+pl+'" width="'+(x(W.daylight[0])-pl)+'" y="'+pt+'" height="'+(h-pt-pb)+'" fill="var(--ink)" opacity=".05"/>'+
-      '<rect x="'+x(W.daylight[1])+'" width="'+(w-pr-x(W.daylight[1]))+'" y="'+pt+'" height="'+(h-pt-pb)+'" fill="var(--ink)" opacity=".05"/>';
-    var gust=hrs.map(function(v,i){return (i?"L":"M")+x(i).toFixed(1)+","+y(v.g||0).toFixed(1)}).join("");
-    var line=hrs.map(function(v,i){return (i?"L":"M")+x(i).toFixed(1)+","+y(v.kn||0).toFixed(1)}).join("");
-    var arrows=hrs.filter(function(v,i){return i%3===0}).map(function(v){var cx=x(v.h),cy=h-6,ok=dirOK(v.d,spot.good);
-      return '<g transform="translate('+cx+','+cy+') rotate('+(v.d+180)+')"><path d="M0,-4 L2.6,3 L0,1.6 L-2.6,3Z" fill="'+(ok?"var(--ink)":"var(--warn)")+'"/></g>'}).join("");
-    var ticks=[10,20,30].map(function(t){return '<text x="2" y="'+(y(t)+3)+'" font-size="8" fill="var(--mute)">'+t+'</text><line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="var(--line)"/>'}).join("");
-    return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Hourly wind">'+night+bands+ticks+
-      '<path d="'+gust+'" fill="none" stroke="var(--mute)" stroke-width="1" stroke-dasharray="2 2"/>'+
-      '<path d="'+line+'" fill="none" stroke="var(--sea)" stroke-width="2"/>'+arrows+'</svg>';
-  }
-
-  function loadWind(){
-    var W=CONFIG.wind, sp=W.spots;
-    var u="https://api.open-meteo.com/v1/forecast?latitude="+sp.map(function(s){return s.lat}).join(",")+
-      "&longitude="+sp.map(function(s){return s.lon}).join(",")+
+  function dayName(k,long){var n=Math.round((new Date(k+"T00:00:00")-today)/864e5);
+    if(n===0)return "Today";if(n===1)return long?"Tomorrow":"Tmrw";
+    return new Date(k+"T00:00:00").toLocaleDateString("en-GB",{weekday:long?"long":"short"})}
+  function hourClass(x,spot,W){if(x.kn==null)return "";
+    if(!dirOK(x.d,spot.good)&&x.kn>=W.sports.wing.min)return "off";
+    if(x.kn>W.sports.windsurf.max)return "over";if(x.kn>=W.sports.windsurf.min)return "surf";if(x.kn>=W.sports.wing.min)return "wing";return ""}
+  function analyse(spot,hourly,W){var days={},order=[],nl=nowNL();
+    hourly.time.forEach(function(t,i){var k=t.slice(0,10);if(!days[k]){days[k]=[];order.push(k)}
+      days[k].push({h:+t.slice(11,13),kn:hourly.wind_speed_10m[i],g:hourly.wind_gusts_10m[i],d:hourly.wind_direction_10m[i]})});
+    return order.map(function(k){var hrs=days[k],light=hrs.filter(function(x){return x.h>=W.daylight[0]&&x.h<W.daylight[1]});
+      var usable=light.filter(function(x){return !(k===nl.day&&x.h<nl.h)});
+      function run(sport){var s=W.sports[sport],best=[],cur=[];
+        usable.concat([{kn:-1}]).forEach(function(x){if(x.kn>=s.min&&x.kn<=s.max&&dirOK(x.d,spot.good))cur.push(x);else{if(cur.length>best.length)best=cur;cur=[]}});
+        return best.length>=W.minHours?best:null}
+      var peak=light.reduce(function(m,x){return x.kn>m.kn?x:m},{kn:-1,h:0,d:0});
+      return {day:k,hours:hrs,light:light,wing:run("wing"),surf:run("windsurf"),peak:peak}})}
+  function runInfo(r){var kn=r.reduce(function(a,x){return a+x.kn},0)/r.length;
+    return {from:pad(r[0].h)+":00",to:pad(r[r.length-1].h+1)+":00",kn:Math.round(kn),dir:dirName(circMean(r.map(function(x){return x.d}))),len:r.length}}
+  function chart(D,spot,W){var w=330,h=120,pl=22,pr=4,pt=8,pb=20,hrs=D.hours,max=Math.max(32,Math.max.apply(null,hrs.map(function(x){return x.g||0})));
+    var x=function(i){return pl+(w-pl-pr)*i/23},y=function(v){return pt+(h-pt-pb)*(1-v/max)};
+    var band=function(s,c){return '<rect x="'+pl+'" width="'+(w-pl-pr)+'" y="'+y(s.max)+'" height="'+(y(s.min)-y(s.max))+'" fill="'+c+'" opacity=".14"/>'};
+    var night='<rect x="'+pl+'" width="'+(x(W.daylight[0])-pl)+'" y="'+pt+'" height="'+(h-pt-pb)+'" fill="var(--deep)" opacity=".05"/><rect x="'+x(W.daylight[1])+'" width="'+(w-pr-x(W.daylight[1]))+'" y="'+pt+'" height="'+(h-pt-pb)+'" fill="var(--deep)" opacity=".05"/>';
+    var path=function(k){return hrs.map(function(v,i){return (i?"L":"M")+x(i).toFixed(1)+","+y(v[k]||0).toFixed(1)}).join("")};
+    var F='font-family="Familjen Grotesk,sans-serif" font-size="9" fill="var(--haze)"';
+    var ticks=[10,20,30].map(function(t){return '<text x="2" y="'+(y(t)+3)+'" '+F+'>'+t+'</text><line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="var(--rule)"/>'}).join("");
+    var hours=[6,9,12,15,18,21].map(function(t){return '<text x="'+x(t)+'" y="'+(h-2)+'" text-anchor="middle" '+F+'>'+t+'</text>'}).join("");
+    var arrows=hrs.filter(function(v,i){return i%2===0}).map(function(v){var ok=dirOK(v.d,spot.good);
+      return '<g transform="translate('+x(v.h)+','+(y(v.kn||0)-9)+') rotate('+(v.d+180)+')"><path d="M0,-4 L2.8,3 L0,1.6 L-2.8,3Z" fill="'+(ok?"var(--deep)":"var(--flag)")+'"/></g>'}).join("");
+    return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Hourly wind and gusts">'+night+band(W.sports.wing,"var(--kelp)")+band(W.sports.windsurf,"var(--buoy)")+ticks+hours+
+      '<path d="'+path("g")+'" fill="none" stroke="var(--haze)" stroke-width="1.2" stroke-dasharray="2 3"/><path d="'+path("kn")+'" fill="none" stroke="var(--marine)" stroke-width="2.2" stroke-linejoin="round"/>'+arrows+'</svg>'}
+  function spotHTML(spot,days,W,interactive){var best=null;
+    days.forEach(function(D){["surf","wing"].forEach(function(k){if(D[k]&&!best)best={D:D,k:k,r:runInfo(D[k])}})});
+    var verdict=best?'<b>'+dayName(best.D.day,true)+'</b> '+(best.k==="wing"?"wing":"windsurf")+' ~'+best.r.kn+' kn':'Nothing rideable';
+    var max=Math.max(30,W.sports.windsurf.max);
+    var rib=days.map(function(D,i){var good=!!(D.wing||D.surf);
+      var bars=D.light.map(function(x){var ht=Math.max(6,Math.min(100,(x.kn||0)/max*100));return '<i class="bar '+hourClass(x,spot,W)+'" style="height:'+ht.toFixed(0)+'%;animation-delay:'+(i*60)+'ms"></i>'}).join("");
+      return '<button class="rday'+(good?" good":"")+'" data-i="'+i+'" type="button" aria-label="'+dayName(D.day,true)+'"><div class="bars">'+bars+'</div><div class="rlab">'+dayName(D.day)+'</div></button>'}).join("");
+    return '<div class="spot"><div class="spot-top"><span class="spot-name">'+esc(spot.name)+'</span><span class="spot-verdict">'+verdict+'</span></div><div class="ribbon grow">'+rib+'</div>'+(interactive?'<div class="detail"></div>':'')+'</div>'}
+  function wireDetail(root,spot,days,W){var det=root.querySelector(".detail");
+    root.querySelectorAll(".rday").forEach(function(b){b.onclick=function(){var i=+b.dataset.i,open=b.classList.contains("sel");
+      root.querySelectorAll(".rday").forEach(function(x){x.classList.remove("sel")});
+      if(open){det.classList.remove("open");return}
+      b.classList.add("sel");var D=days[i],t=[];
+      if(D.wing){var r=runInfo(D.wing);t.push("Wingfoil "+r.from+"–"+r.to+", around "+r.kn+" kn from the "+r.dir+".")}
+      if(D.surf){var s=runInfo(D.surf);t.push("Windsurf "+s.from+"–"+s.to+", around "+s.kn+" kn from the "+s.dir+".")}
+      if(!t.length)t.push("No "+W.minHours+"-hour window in range from a good direction. Strongest: "+Math.round(D.peak.kn)+" kn from the "+dirName(D.peak.d)+" at "+pad(D.peak.h)+":00.");
+      det.innerHTML=chart(D,spot,W)+'<p><strong>'+dayName(D.day,true)+'.</strong> '+t.join(" ")+' '+esc(spot.note)+'</p>';det.classList.add("open")}})}
+  function drawWind(res,stale){var W=CONFIG.wind,sessions=[];
+    var all=W.spots.map(function(spot,si){var days=analyse(spot,res[si].hourly,W);
+      days.forEach(function(D){["wing","surf"].forEach(function(k){if(D[k])sessions.push({spot:spot,D:D,k:k,r:runInfo(D[k])})})});return {spot:spot,days:days}});
+    $("todayWind").innerHTML=all.map(function(a){return spotHTML(a.spot,a.days,W,false)}).join("");
+    $("todayWind").onclick=function(){document.querySelector('.tab[data-v="wind"]').click()};
+    var box=$("windAll");box.innerHTML="";
+    all.forEach(function(a){var div=document.createElement("div");div.innerHTML=spotHTML(a.spot,a.days,W,true);var el=div.firstChild;box.appendChild(el);wireDetail(el,a.spot,a.days,W)});
+    sessions.sort(function(a,b){return a.D.day<b.D.day?-1:a.D.day>b.D.day?1:b.r.len-a.r.len});var n=sessions[0];
+    $("lead").innerHTML=n?esc(dayName(n.D.day,true))+" looks good at "+esc(n.spot.name)+'. <span>'+(n.k==="wing"?"Wingfoil":"Windsurf")+" "+n.r.from+"–"+n.r.to+", around "+n.r.kn+" kn from the "+n.r.dir+".</span>"
+      :"No rideable wind this week. <span>You'll get an alert when that changes.</span>";
+    $("windSub").textContent=(stale?"Offline copy, ":"")+"next 7 days, daylight hours"}
+  function loadWind(){var sp=CONFIG.wind.spots;
+    var u="https://api.open-meteo.com/v1/forecast?latitude="+sp.map(function(s){return s.lat}).join(",")+"&longitude="+sp.map(function(s){return s.lon}).join(",")+
       "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn&timezone=Europe%2FAmsterdam&forecast_days=7";
-    fetch(u).then(function(r){return r.json()}).then(function(res){
-      if(!Array.isArray(res))res=[res];
-      LS.set("radar-wind",{t:Date.now(),res:res});
-      drawWind(res, false);
-    }).catch(function(){
-      var c=LS.get("radar-wind",null);
-      if(c){drawWind(c.res,true)} else {$("windUpd").textContent="forecast unavailable offline"}
-    });
-  }
-  function drawWind(res, stale){
-    var W=CONFIG.wind, box=$("spots"); box.innerHTML="";
-    var sessions=[];
-    W.spots.forEach(function(spot,si){
-      var days=analyse(spot,res[si].hourly,W);
-      var el=document.createElement("div"); el.className="spot";
-      var h='<div class="spot-h"><b>'+esc(spot.name)+'</b><span>'+esc(spot.sub)+'</span></div><div class="days">';
-      days.forEach(function(D,di){
-        var cls=D.surf?"surf":D.wing?"wing":"", best=D.surf||D.wing;
-        var kn=best?runText(best).kn:Math.round(D.peak.kn||0);
-        if(D.wing)sessions.push({spot:spot,D:D,sport:"Wingfoil",r:runText(D.wing)});
-        if(D.surf)sessions.push({spot:spot,D:D,sport:"Windsurf",r:runText(D.surf)});
-        h+='<button class="day '+cls+'" data-i="'+di+'" type="button"><div class="dn">'+dayName(D.day)+'</div><div class="kn">'+kn+'</div><div class="dir">'+dirName(best?circMean(best.map(function(x){return x.d})):D.dir)+'</div></button>';
-      });
-      h+='</div><div class="detail"></div>';
-      el.innerHTML=h; box.appendChild(el);
-      var det=el.querySelector(".detail");
-      el.querySelectorAll(".day").forEach(function(b){b.onclick=function(){
-        var i=+b.dataset.i, open=b.classList.contains("sel");
-        el.querySelectorAll(".day").forEach(function(x){x.classList.remove("sel")});
-        if(open){det.classList.remove("open");return}
-        b.classList.add("sel"); var D=days[i], lines=[];
-        if(D.wing){var r=runText(D.wing);lines.push("Wingfoil "+r.win+", ~"+r.kn+" kn "+r.dir)}
-        if(D.surf){var r2=runText(D.surf);lines.push("Windsurf "+r2.win+", ~"+r2.kn+" kn "+r2.dir)}
-        if(!lines.length)lines.push("No window of "+W.minHours+"+ hours in range with a good direction. Peak "+Math.round(D.peak.kn)+" kn "+dirName(D.peak.d||0)+" at "+pad(D.peak.h||0)+":00.");
-        det.innerHTML=chart(D,spot,W)+'<p><b>'+dayName(D.day,true)+'.</b> '+lines.join(" · ")+'</p><p>'+esc(spot.note)+' Red arrows: wrong direction. Dashed: gusts.</p>';
-        det.classList.add("open");
-      }});
-    });
-    sessions.sort(function(a,b){return a.D.day<b.D.day?-1:a.D.day>b.D.day?1:b.r.len-a.r.len});
-    var n=sessions[0], ns=$("nextSession");
-    if(n){ns.innerHTML='<div class="k">Next session</div><div class="v">'+dayName(n.D.day,true)+' · '+esc(n.spot.name)+'</div><div class="d">'+n.sport+' '+n.r.win+', ~'+n.r.kn+' kn from '+n.r.dir+(sessions.length>1?' · '+(sessions.length-1)+' more in the next 7 days':'')+'</div>'}
-    else ns.innerHTML='<div class="k">Next session</div><div class="v">Nothing rideable in the next 7 days</div><div class="d">Radar will tell you when that changes.</div>';
-    $("windUpd").textContent=stale?"offline copy":"live · Open-Meteo";
-  }
+    fetch(u).then(function(r){return r.json()}).then(function(res){if(!Array.isArray(res))res=[res];LS.set("radar-wind",{t:Date.now(),res:res});drawWind(res,false)})
+      .catch(function(){var c=LS.get("radar-wind",null);if(c)drawWind(c.res,true);else $("lead").textContent="The forecast needs a connection."})}
 
+  /* feed */
+  var KINDS=[["all","Everything"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["work","Work"]];
+  var KLABEL={concert:"Music",release:"Music",exhibition:"Art",restaurant:"Food",story:"Books & film",meditation:"Meditation",work:"Work",news:"Music"};
+  var KCOLOR={concert:"#7b5ea7",release:"#7b5ea7",news:"#7b5ea7",exhibition:"var(--marine)",restaurant:"var(--buoy)",story:"#a0567a",meditation:"var(--kelp)",work:"var(--slate)"};
+  var REGIONS=[["all","Anywhere"],["nl","Netherlands"],["near","Belgium, Germany, EU"],["jp","Japan"]];
+  function km(a,b,c,e){var R=6371,x=(c-a)*Math.PI/180,y=(e-b)*Math.PI/180,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h))}
+  function inJapan(){var F=CONFIG.focus;return !!(F&&/japan/i.test(F.place)&&(!F.until||d(F.until)>=today))}
+  function past(it){var e=d(it.end)||(it.kind==="concert"?d(it.start):null);return e&&e<today}
+  function visible(it){return !past(it)&&!(it.region==="jp"&&!inJapan())}
+  function status(it){var s=d(it.start),e=d(it.end),f=d(it.found);
+    if(f&&(today-f)/864e5<=3)return ["new","New"];
+    if(e&&e>=today&&(e-today)/864e5<=14&&(!s||s<=today))return ["soon","Ends soon"];
+    if(s&&s<=today&&(!e||e>=today)&&it.kind!=="restaurant"&&it.kind!=="story")return ["now","On now"];
+    if(it.pick)return ["","Suggestion"];return null}
+  function when(it){var s=d(it.start),e=d(it.end),f=function(x){return x.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
+    if(s&&e&&+s!==+e)return f(s)+" to "+f(e);if(s)return f(s);if(e)return "Until "+f(e);return ""}
+  function score(it){var sc=0,r=reactions[it.id];if(r)sc+=r.v*50;if(saved[it.id])sc+=40;
+    var st=status(it);if(st&&st[0]==="new")sc+=30;if(st&&st[0]==="soon")sc+=25;
+    var s=d(it.start);if(s&&s>=today)sc+=Math.max(0,20-(s-today)/864e5/3);
+    if(here&&it.lat!=null){var k=km(here.lat,here.lon,it.lat,it.lon);sc+=k<5?25:k<30?15:k<100?5:0}
+    var txt=(it.title+" "+it.why+" "+it.summary).toLowerCase();
+    (TASTE.more||[]).forEach(function(m){if(txt.indexOf(String(m).toLowerCase())>=0)sc+=15});
+    (TASTE.less||[]).forEach(function(m){if(txt.indexOf(String(m).toLowerCase())>=0)sc-=15});return sc}
+  var ICON={up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2.2 2.6L12.8 10H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg>',
+    down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M7 13V4H4v9zM7 13l4 7c1.5 0 2.5-1 2.2-2.6l-.4-3.4H19a2 2 0 0 0 2-2.3l-1.2-6A2 2 0 0 0 17.8 4H7"/></svg>',
+    save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>',
+    saveOn:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>',
+    hide:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    unhide:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>'};
+  function itemHTML(it,big){var r=reactions[it.id],st=status(it),w=when(it),place=[it.place,it.city].filter(Boolean).join(", ");
+    if(here&&it.lat!=null){var k=km(here.lat,here.lon,it.lat,it.lon);place+=(place?", ":"")+(k<10?k.toFixed(1):Math.round(k))+" km away"}
+    var top='<span class="dot" style="background:'+(KCOLOR[it.kind]||"var(--haze)")+'"></span><span>'+esc(KLABEL[it.kind]||it.kind)+'</span>'+(w?'<span>'+esc(w)+'</span>':'')+(st?'<span class="state '+st[0]+'">'+st[1]+'</span>':'');
+    return '<div class="item'+(big?" big":"")+'" data-id="'+esc(it.id)+'"><div class="item-top">'+top+'</div><h3>'+esc(it.title)+'</h3>'+(place?'<div class="where">'+esc(place)+'</div>':'')+'<p>'+esc(it.summary)+'</p>'+
+      (it.flags&&it.flags.length?'<div class="flags">'+it.flags.map(function(f){return '<span class="flag">'+esc(f)+'</span>'}).join("")+'</div>':'')+
+      '<div class="acts">'+(it.url?'<a class="go" href="'+esc(it.url)+'" target="_blank" rel="noopener">Open details</a>':'<span class="go"></span>')+
+      '<button class="ib up'+(r&&r.v>0?" on":"")+'" data-a="up" type="button" aria-label="More like this">'+ICON.up+'</button>'+
+      '<button class="ib down'+(r&&r.v<0?" on":"")+'" data-a="down" type="button" aria-label="Less like this">'+ICON.down+'</button>'+
+      '<button class="ib save'+(saved[it.id]?" on":"")+'" data-a="save" type="button" aria-label="Save">'+(saved[it.id]?ICON.saveOn:ICON.save)+'</button>'+
+      '<button class="ib" data-a="hide" type="button" aria-label="'+(hidden[it.id]?"Unhide":"Hide")+'">'+(hidden[it.id]?ICON.unhide:ICON.hide)+'</button></div></div>'}
+  function mount(box,list,big,empty){box.innerHTML=list.length?list.map(function(it){return itemHTML(it,big)}).join(""):'<div class="empty">'+empty+'</div>';
+    box.querySelectorAll(".item").forEach(function(el){var it=byId[el.dataset.id];el.querySelectorAll(".ib").forEach(function(b){b.onclick=function(){act(it,b.dataset.a)}})})}
+  function drawAll(){drawTop();drawFeed();drawSaved();fbBar()}
+  function drawTop(){var list=FEED.items.filter(function(it){return visible(it)&&!hidden[it.id]&&!(reactions[it.id]&&reactions[it.id].v<0)}).sort(function(a,b){return score(b)-score(a)}).slice(0,4);
+    mount($("top"),list,true,"Nothing urgent. Explore has everything Radar found.")}
+  function regionMatch(it){if(state.region==="all")return true;var r=it.region;if(state.region==="near")return ["be","de","eu","uk"].indexOf(r)>=0;return r===state.region||r==="all"}
+  function drawFeed(){var items=FEED.items.filter(function(it){if(!visible(it))return false;if(hidden[it.id]&&!state.showHidden)return false;
+      if(state.kind!=="all"&&it.kind!==state.kind&&!(state.kind==="concert"&&(it.kind==="release"||it.kind==="news")))return false;return regionMatch(it)}).sort(function(a,b){return score(b)-score(a)});
+    var limit=state.all?items.length:12;
+    mount($("feed"),items.slice(0,limit),false,"Nothing here yet. The daily update adds new finds every morning.");
+    if(items.length>limit){var m=document.createElement("button");m.className="more";m.type="button";m.textContent="Show "+(items.length-limit)+" more";m.onclick=function(){state.all=true;drawFeed()};$("feed").appendChild(m)}
+    $("feedSub").textContent=items.length+" things for you, updated "+ago(FEED.updated)}
+  function drawSaved(){mount($("savedList"),FEED.items.filter(function(it){return saved[it.id]&&!past(it)}),false,"Nothing saved yet. Tap the star on anything you want to keep.");
+    $("learned").innerHTML=(TASTE.learned||[]).map(function(l){return "<li>"+esc(l)+"</li>"}).join("")||"<li>Nothing yet. Use thumbs up and down.</li>"}
+  function segs(id,list,key){var box=$(id);box.innerHTML="";list.forEach(function(c){var b=document.createElement("button");b.type="button";b.className="pill"+(state[key]===c[0]?" on":"");b.textContent=c[1];
+    b.onclick=function(){state[key]=c[0];state.all=false;segs(id,list,key);drawFeed()};box.appendChild(b)})}
+  function act(it,a){if(a==="save"){if(saved[it.id])delete saved[it.id];else saved[it.id]=1;LS.set("radar-saved",saved)}
+    else if(a==="hide"){if(hidden[it.id])delete hidden[it.id];else{hidden[it.id]=1;react(it,-1,true)}LS.set("radar-hidden",hidden)}
+    else react(it,a==="up"?1:-1);drawAll()}
+  function react(it,v,soft){var r=reactions[it.id];if(r&&r.v===v&&!soft)delete reactions[it.id];
+    else if(!(soft&&r))reactions[it.id]={v:v,t:Date.now(),title:it.title,kind:it.kind,why:it.why||"",sent:false};LS.set("radar-reactions",reactions)}
+  function pending(){return Object.keys(reactions).filter(function(k){return !reactions[k].sent})}
+  function fbBar(){var p=pending();$("fbBar").classList.toggle("show",p.length>0);$("fbText").textContent=p.length===1?"1 reaction ready to teach Radar":p.length+" reactions ready to teach Radar"}
+  $("fbSend").onclick=function(){var p=pending();if(!p.length)return;
+    var body="Radar feedback, sent from the app.\n\n"+p.map(function(k){var r=reactions[k];return (r.v>0?"+1":"-1")+" | "+r.kind+" | "+r.title+" | because: "+r.why+" | id: "+k}).join("\n")+"\n\nAnything to add about why? Write it here, e.g. 'more Ando, less street photography':\n";
+    window.open(REPO+"/issues/new?labels=radar-feedback&title="+encodeURIComponent("Radar feedback "+new Date().toISOString().slice(0,10))+"&body="+encodeURIComponent(body),"_blank");
+    p.forEach(function(k){reactions[k].sent=true});LS.set("radar-reactions",reactions);fbBar()};
+  $("addBtn").onclick=function(){var t=prompt("What should Radar keep an eye on? For example: Fred again.. concerts, padel tournaments in Den Haag, new Noguchi exhibitions.");if(!t)return;
+    window.open(REPO+"/issues/new?labels=radar-interest&title="+encodeURIComponent("Add interest: "+t)+"&body="+encodeURIComponent("Please add to Radar: "+t+"\n\nAnything specific? Where, and what's worth a notification:\n"),"_blank")};
+  $("showHidden").onclick=function(){state.showHidden=!state.showHidden;this.textContent=state.showHidden?"Hide hidden":"Show hidden";document.querySelector('.tab[data-v="explore"]').click();drawFeed()};
+  function ago(iso){var h=(Date.now()-new Date(iso))/36e5;if(h<1)return "just now";if(h<24)return Math.round(h)+" hours ago";var n=Math.round(h/24);return n===1?"yesterday":n+" days ago"}
 
-  /* ---------------- around me ---------------- */
-  var here=LS.get("radar-here",null);
-  function km(a,b,c,d){var R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h))}
-  function locate(){return new Promise(function(ok,no){if(!navigator.geolocation)return no("no-geo");
-    navigator.geolocation.getCurrentPosition(function(p){here={lat:p.coords.latitude,lon:p.coords.longitude,t:Date.now()};LS.set("radar-here",here);ok(here)},
-      function(e){no(e&&e.code===1?"denied":"failed")},{enableHighAccuracy:false,timeout:15000,maximumAge:600000})})}
-  function nearMsg(t){$("nearHint").textContent=t}
-  function overpass(h){
-    var r=2500, a="(around:"+r+","+h.lat+","+h.lon+")";
-    var q="[out:json][timeout:20];("+
-      "nwr[tourism=museum]"+a+";nwr[tourism=gallery]"+a+";nwr[tourism=artwork][artwork_type~\"sculpture|installation|land_art\"]"+a+";"+
-      "nwr[amenity~\"restaurant|cafe\"][\"diet:gluten_free\"~\"only|yes\"]"+a+";nwr[amenity~\"restaurant|cafe\"][\"diet:vegan\"~\"only\"]"+a+";"+
-      "nwr[amenity=place_of_worship][religion=buddhist][denomination~\"zen|rinzai|soto\"]"+a+";nwr[amenity=place_of_worship][religion=buddhist][name]"+a+";"+
-      ");out center tags 120;";
-    return fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}}).then(function(r){return r.json()});
-  }
-  function classify(t){
-    if(t.tourism==="museum")return["🏛","Museum",3];
-    if(t.tourism==="gallery")return["🖼","Gallery",3];
-    if(t.tourism==="artwork")return["🗿","Sculpture / artwork",2];
-    if(t.amenity==="place_of_worship")return["☸","Temple"+(/zen|rinzai|soto/i.test(t.denomination||"")?" (Zen)":""),/zen|rinzai|soto/i.test(t.denomination||"")?3:1];
-    var gf=t["diet:gluten_free"], vg=t["diet:vegan"];
-    var lab=(gf==="only"?"100% gluten-free":gf==="yes"?"Gluten-free options":"")+(vg==="only"?(gf?" · vegan":"100% vegan"):vg==="yes"&&gf?" · vegan options":"");
-    return["🍽",(t.amenity==="cafe"?"Café · ":"")+lab,gf==="only"?4:(gf&&vg==="only")?4:gf?2:1];
-  }
-  function drawNear(h,els){
-    var seen={},list=[];
-    els.forEach(function(e){var t=e.tags||{};if(!t.name&&!t["name:en"])return;
-      var la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);if(la==null)return;
-      var nm=t["name:en"]||t.name,key=nm+"|"+Math.round(la*1e3);if(seen[key])return;seen[key]=1;
-      var c=classify(t),dist=km(h.lat,h.lon,la,lo);
-      list.push({nm:nm,local:t["name:en"]&&t.name!==t["name:en"]?t.name:"",c:c,dist:dist,lat:la,lon:lo,rank:c[2]*2-dist});
-    });
+  /* around me */
+  function hint(t){$("nearHint").textContent=t}
+  function locate(){return new Promise(function(ok,no){if(!navigator.geolocation)return no("none");
+    navigator.geolocation.getCurrentPosition(function(p){here={lat:p.coords.latitude,lon:p.coords.longitude,t:Date.now()};LS.set("radar-here",here);ok(here)},function(e){no(e&&e.code===1?"denied":"failed")},{timeout:15000,maximumAge:600000})})}
+  var DENIED="Location is off for Radar. Turn it on in Settings, Privacy & Security, Location Services, Safari Websites.";
+  function overpass(h){var a="(around:2500,"+h.lat+","+h.lon+")";
+    var q="[out:json][timeout:20];(nwr[tourism=museum]"+a+";nwr[tourism=gallery]"+a+";nwr[tourism=artwork][artwork_type~\"sculpture|installation|land_art\"]"+a+";nwr[amenity~\"restaurant|cafe\"][\"diet:gluten_free\"~\"only|yes\"]"+a+";nwr[amenity~\"restaurant|cafe\"][\"diet:vegan\"=only]"+a+";nwr[amenity=place_of_worship][religion=buddhist][name]"+a+";);out center tags 120;";
+    return fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}}).then(function(r){return r.json()})}
+  function classify(t){if(t.tourism==="museum")return["🏛","Museum",3];if(t.tourism==="gallery")return["🖼","Gallery",3];if(t.tourism==="artwork")return["🗿","Sculpture or artwork",2];
+    if(t.amenity==="place_of_worship"){var z=/zen|rinzai|soto/i.test(t.denomination||"");return["☸",z?"Zen temple":"Temple",z?3:1]}
+    var gf=t["diet:gluten_free"],vg=t["diet:vegan"],l=[];if(gf==="only")l.push("Fully gluten-free");else if(gf==="yes")l.push("Gluten-free options");if(vg==="only")l.push(l.length?"vegan":"Vegan");
+    return["🍽",(t.amenity==="cafe"?"Café, ":"")+l.join(", "),gf==="only"?4:gf?2:1]}
+  function drawNear(h,els){var seen={},list=[];
+    els.forEach(function(e){var t=e.tags||{},nm=t["name:en"]||t.name;if(!nm)return;var la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);if(la==null)return;
+      var key=nm+Math.round(la*1e3);if(seen[key])return;seen[key]=1;var c=classify(t),dist=km(h.lat,h.lon,la,lo);
+      list.push({nm:nm,local:t["name:en"]&&t.name!==t["name:en"]?t.name:"",c:c,dist:dist,lat:la,lon:lo,rank:c[2]*2-dist})});
     list.sort(function(a,b){return b.rank-a.rank});
-    var box=$("nearList");
-    if(!list.length){box.innerHTML='<div class="hint">Nothing tagged nearby. OpenStreetMap coverage varies; try again somewhere more central.</div>';return}
-    box.innerHTML=list.slice(0,15).map(function(x){
-      var link="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.nm)+"&query_place_id=&center="+x.lat+","+x.lon;
-      link="https://www.google.com/maps/search/?api=1&query="+x.lat+"%2C"+x.lon;
-      return '<a class="ni" href="'+link+'" target="_blank" rel="noopener"><span class="ic">'+x.c[0]+'</span><span><b>'+esc(x.nm)+'</b>'+(x.local?' <span class="t">'+esc(x.local)+'</span>':'')+'<br><span class="t">'+esc(x.c[1])+'</span></span><span class="km">'+(x.dist<1?Math.round(x.dist*1000)+" m":x.dist.toFixed(1)+" km")+'</span></a>'}).join("");
-    nearMsg("From OpenStreetMap: unrated, so check reviews. Food marked 'options' is not a dedicated kitchen; ask about oats, dairy and eggs.");
-  }
-  $("nearBtn").onclick=function(){
-    nearMsg("Finding you…");
-    locate().then(function(h){nearMsg("Looking around…");$("nearUpd").textContent="within 2.5 km";drawFeed();return overpass(h).then(function(r){drawNear(h,r.elements||[])})})
-    .catch(function(e){nearMsg(e==="denied"?"Location is off for Radar. Allow it in Settings → Privacy & Security → Location Services → Safari Websites.":"Couldn't search right now. Try again in a moment.")});
-  };
-  $("hereBtn").onclick=function(){
-    nearMsg("Finding your city…");
+    $("nearList").innerHTML=list.slice(0,15).map(function(x){return '<a class="ni" href="https://www.google.com/maps/search/?api=1&query='+x.lat+'%2C'+x.lon+'" target="_blank" rel="noopener"><span class="g">'+x.c[0]+'</span><span><b>'+esc(x.nm)+'</b><small>'+esc(x.c[1])+(x.local?", "+esc(x.local):"")+'</small></span><span class="km">'+(x.dist<1?Math.round(x.dist*1000)+" m":x.dist.toFixed(1)+" km")+'</span></a>'}).join("");
+    hint(list.length?"From OpenStreetMap, so unrated. Places with gluten-free options aren't dedicated kitchens; ask about oats, dairy and eggs.":"Nothing tagged within 2.5 km. OpenStreetMap is thinner outside city centres.")}
+  $("nearBtn").onclick=function(){hint("Finding you…");locate().then(function(h){hint("Looking around…");drawAll();return overpass(h).then(function(r){drawNear(h,r.elements||[])})})
+    .catch(function(e){hint(e==="denied"?DENIED:"The search didn't respond. Try again in a minute.")})};
+  $("hereBtn").onclick=function(){hint("Finding your city…");
     locate().then(function(h){return fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat="+h.lat+"&lon="+h.lon).then(function(r){return r.json()})})
     .then(function(g){var a=g.address||{},city=a.city||a.town||a.village||a.municipality||a.county||"",place=[city,a.state,a.country].filter(Boolean).join(", ");
-      var until=prompt("Scouting "+place+". Until when are you here? (optional, e.g. 5 Oct)","");
-      if(until===null){nearMsg("Cancelled.");return}
-      window.open(REPO+"/issues/new?labels=radar-location&title="+encodeURIComponent("I'm in "+place+(until?" until "+until:""))+"&body="+encodeURIComponent("Radar: focus research on "+place+(until?" until "+until:"")+".\nCity level only; no exact location is shared."),"_blank");
-      nearMsg("Submit the note that opened, and the next update scouts "+city+".");
-    }).catch(function(e){nearMsg(e==="denied"?"Location is off for Radar. Allow it in Settings → Privacy & Security → Location Services → Safari Websites.":"Couldn't find your city. Try again.")});
-  };
+      var until=prompt("Scout "+place+"? Until when are you here? (optional, like 5 Oct)","");if(until===null){hint("Scouting cancelled.");return}
+      window.open(REPO+"/issues/new?labels=radar-location&title="+encodeURIComponent("I'm in "+place+(until?" until "+until:""))+"&body="+encodeURIComponent("Radar: focus research on "+place+(until?" until "+until:"")+".\nCity only; no exact location is shared."),"_blank");
+      hint("Submit the note that opened, and tomorrow's update scouts "+city+".")}).catch(function(e){hint(e==="denied"?DENIED:"Couldn't work out your city. Try again.")})};
 
-  /* ---------------- feed ---------------- */
-  var KINDS=[["all","All"],["saved","★ Saved"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["work","Work"],["news","News"]];
-  var KLABEL={concert:"Music",release:"Music",exhibition:"Art",restaurant:"Food",story:"Books & film",meditation:"Meditation",work:"Work",news:"News"};
-  var REGIONS=[["all","Everywhere"],["nl","Netherlands"],["near","BE · DE · EU"],["jp","Japan"]];
-  function regionMatch(it){if(state.region==="all")return true;var r=it.region;
-    if(state.region==="near")return r==="be"||r==="de"||r==="eu"||r==="uk";return r===state.region||r==="all"}
-  function d(s){return s?new Date(s+"T12:00:00"):null}
-  function status(it){
-    var s=d(it.start),e=d(it.end),out=[];
-    var found=d(it.found); if(found&&(today-found)/864e5<=3)out.push(["b-new","New"]);
-    if(it.pick)out.push(["b-pick","Pick"]);
-    if(e&&e>=today&&(e-today)/864e5<=14&&(!s||s<=today))out.push(["b-soon","Ends soon"]);
-    else if(s&&s<=today&&(!e||e>=today)&&it.kind!=="restaurant")out.push(["b-now","On now"]);
-    return out;
-  }
-  function past(it){var e=d(it.end)||(it.kind==="concert"?d(it.start):null);return e&&e<today}
-  function when(it){var s=d(it.start),e=d(it.end),f=function(x){return x.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
-    if(s&&e&&+s!==+e)return f(s)+" – "+f(e); if(s)return f(s); if(e)return "until "+f(e); return ""}
-  function score(it){
-    var sc=0, r=reactions[it.id]; if(r)sc+=r.v*50; if(saved[it.id])sc+=40;
-    var st=status(it).map(function(x){return x[1]});
-    if(st.indexOf("New")>=0)sc+=30; if(st.indexOf("Ends soon")>=0)sc+=25;
-    var s=d(it.start); if(s&&s>=today)sc+=Math.max(0,20-(s-today)/864e5/3);
-    if(here&&it.lat!=null){var dk=km(here.lat,here.lon,it.lat,it.lon);sc+=dk<5?25:dk<30?15:dk<100?5:0}
-    (TASTE.more||[]).forEach(function(m){if((it.title+" "+it.why+" "+it.summary).toLowerCase().indexOf(String(m).toLowerCase())>=0)sc+=15});
-    (TASTE.less||[]).forEach(function(m){if((it.title+" "+it.why+" "+it.summary).toLowerCase().indexOf(String(m).toLowerCase())>=0)sc-=15});
-    return sc;
-  }
-  function chips(boxId, list, key){
-    var box=$(boxId); box.innerHTML="";
-    list.forEach(function(c){var b=document.createElement("button");b.type="button";b.className="chip"+(state[key]===c[0]?" on":"");b.textContent=c[1];
-      b.onclick=function(){state[key]=c[0];state.all=false;chips(boxId,list,key);drawFeed()};box.appendChild(b)});
-  }
-  function drawFeed(){
-    var box=$("feed"); box.innerHTML="";
-    var items=FEED.items.filter(function(it){
-      if(past(it))return false;
-      var F=CONFIG.focus; if(it.region==="jp"&&!(F&&/japan/i.test(F.place)&&(!F.until||d(F.until)>=today)))return false;
-      if(hidden[it.id]&&!state.showHidden)return false;
-      if(state.kind==="saved")return !!saved[it.id];
-      if(state.kind!=="all"&&it.kind!==state.kind&&!(state.kind==="concert"&&it.kind==="release"))return false;
-      return regionMatch(it);
-    }).sort(function(a,b){return score(b)-score(a)});
-    if(!items.length){box.innerHTML='<div class="empty">Nothing here yet. The daily update will fill this in.</div>';return}
-    var limit=state.all?items.length:12, rest=items.length-limit;
-    items.slice(0,limit).forEach(function(it){
-      var r=reactions[it.id], el=document.createElement("div"); el.className="card";
-      var badges=status(it).map(function(b){return '<span class="badge '+b[0]+'">'+b[1]+'</span>'}).join("");
-      var w=when(it), place=[it.place,it.city].filter(Boolean).join(", ");
-      if(here&&it.lat!=null){var dk=km(here.lat,here.lon,it.lat,it.lon);place+=(place?" · ":"")+(dk<10?dk.toFixed(1):Math.round(dk))+" km away"}
-      el.innerHTML='<div class="meta"><span class="kind">'+esc(KLABEL[it.kind]||it.kind)+'</span>'+(w?'<span>'+esc(w)+'</span>':'')+badges+'</div>'+
-        '<h3>'+esc(it.title)+'</h3>'+(place?'<div class="where">'+esc(place)+'</div>':'')+
-        '<p>'+esc(it.summary)+'</p>'+(it.why?'<div class="why">Because: '+esc(it.why)+'</div>':'')+
-        (it.flags&&it.flags.length?'<div class="flags">'+it.flags.map(function(f){return '<span class="flag">'+esc(f)+'</span>'}).join("")+'</div>':'')+
-        '<div class="acts">'+(it.url?'<a href="'+esc(it.url)+'" target="_blank" rel="noopener">Details ↗</a>':'<span style="margin-right:auto"></span>')+
-        '<button class="ib'+(r&&r.v>0?" on":"")+'" data-a="up" aria-label="More like this">👍</button>'+
-        '<button class="ib'+(r&&r.v<0?" on":"")+'" data-a="down" aria-label="Less like this">👎</button>'+
-        '<button class="ib'+(saved[it.id]?" on":"")+'" data-a="save" aria-label="Save">'+(saved[it.id]?"★":"☆")+'</button>'+
-        '<button class="ib" data-a="hide" aria-label="Hide">'+(hidden[it.id]?"↺":"✕")+'</button></div>';
-      el.querySelectorAll(".ib").forEach(function(b){b.onclick=function(){act(it,b.dataset.a)}});
-      box.appendChild(el);
-    });
-    if(rest>0){var m=document.createElement("button");m.className="btn more";m.type="button";m.textContent="Show "+rest+" more";m.onclick=function(){state.all=true;drawFeed()};box.appendChild(m)}
-  }
-  function act(it,a){
-    if(a==="save"){if(saved[it.id])delete saved[it.id];else saved[it.id]=1;LS.set("radar-saved",saved)}
-    else if(a==="hide"){if(hidden[it.id])delete hidden[it.id];else{hidden[it.id]=1;react(it,-1,true)}LS.set("radar-hidden",hidden)}
-    else react(it,a==="up"?1:-1);
-    drawFeed(); fbBar();
-  }
-  function react(it,v,soft){
-    var r=reactions[it.id];
-    if(r&&r.v===v&&!soft){delete reactions[it.id]}
-    else if(!(soft&&r)){reactions[it.id]={v:v,t:Date.now(),title:it.title,kind:it.kind,why:it.why||"",sent:false}}
-    LS.set("radar-reactions",reactions);
-  }
-  function pending(){return Object.keys(reactions).filter(function(k){return !reactions[k].sent})}
-  function fbBar(){var p=pending();$("fbBar").classList.toggle("show",p.length>0);
-    $("fbText").textContent=p.length+" reaction"+(p.length>1?"s":"")+" to teach Radar"}
-  $("fbSend").onclick=function(){
-    var p=pending(); if(!p.length)return;
-    var body="Radar feedback, sent from the app.\n\n"+p.map(function(k){var r=reactions[k];
-      return (r.v>0?"+1":"-1")+" | "+r.kind+" | "+r.title+" | because: "+r.why+" | id: "+k}).join("\n")+
-      "\n\n(Optional) Add a note about why, e.g. 'love anything by Ando, less street photography':\n";
-    var url=REPO+"/issues/new?labels=radar-feedback&title="+encodeURIComponent("Radar feedback "+new Date().toISOString().slice(0,10))+"&body="+encodeURIComponent(body);
-    p.forEach(function(k){reactions[k].sent=true}); LS.set("radar-reactions",reactions); fbBar();
-    window.open(url,"_blank");
-  };
-  $("addBtn").onclick=function(){
-    var t=prompt("What should Radar watch? (e.g. 'Fred again.. concerts', 'padel tournaments in Den Haag', 'new Noguchi exhibitions')");
-    if(!t)return;
-    window.open(REPO+"/issues/new?labels=radar-interest&title="+encodeURIComponent("Add interest: "+t)+"&body="+encodeURIComponent("Please add to Radar: "+t+"\n\n(Anything specific? Where, how often, what counts as worth a notification.)"),"_blank");
-  };
-  $("showHidden").onclick=function(){state.showHidden=!state.showHidden;this.textContent=state.showHidden?"Hide hidden":"Show hidden";drawFeed()};
-
-  function ago(iso){var t=new Date(iso),h=(Date.now()-t)/36e5;if(h<1)return"just now";if(h<24)return Math.round(h)+" h ago";return Math.round(h/24)+" d ago"}
-
-  Promise.all([fetchJSON("interests.json"),fetchJSON("feed.json"),fetchJSON("taste.json").catch(function(){return {learned:[]}})]).then(function(a){
-    CONFIG=a[0]; FEED=a[1]; TASTE=a[2];
-    LS.set("radar-cache",{c:CONFIG,f:FEED,t:TASTE});
-    start();
-  }).catch(function(){var c=LS.get("radar-cache",null);if(c){CONFIG=c.c;FEED=c.f;TASTE=c.t;start()}else $("feed").innerHTML='<div class="empty">Offline and nothing cached yet.</div>'});
-
-  function start(){
-    $("feedUpd").textContent="updated "+ago(FEED.updated);
-    $("learned").innerHTML=(TASTE.learned||[]).map(function(l){return "<li>"+esc(l)+"</li>"}).join("")||"<li>Nothing yet: use 👍 and 👎.</li>";
-    $("tasteUpd").textContent=TASTE.updated?("updated "+TASTE.updated):"";
-    var F=CONFIG.focus, inJP=F&&/japan/i.test(F.place)&&(!F.until||d(F.until)>=today); if(!inJP)REGIONS=REGIONS.filter(function(r){return r[0]!=="jp"});
-    chips("kinds",KINDS,"kind"); chips("regions",REGIONS,"region");
-    drawFeed(); fbBar(); loadWind();
-  }
+  Promise.all([fetchJSON("interests.json"),fetchJSON("feed.json"),fetchJSON("taste.json").catch(function(){return {learned:[]}})]).then(function(a){CONFIG=a[0];FEED=a[1];TASTE=a[2];LS.set("radar-cache",{c:CONFIG,f:FEED,t:TASTE});start()})
+    .catch(function(){var c=LS.get("radar-cache",null);if(c){CONFIG=c.c;FEED=c.f;TASTE=c.t;start()}else $("lead").textContent="Radar needs a connection the first time you open it."});
+  function start(){FEED.items.forEach(function(it){byId[it.id]=it});if(!inJapan())REGIONS=REGIONS.filter(function(r){return r[0]!=="jp"});
+    segs("kinds",KINDS,"kind");segs("regions",REGIONS,"region");drawAll();loadWind()}
   if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
 })();
 </script>

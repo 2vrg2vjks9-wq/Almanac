@@ -19,20 +19,6 @@
    "lon": 13.5257
   },
   {
-   "id": "boniver-status",
-   "kind": "news",
-   "region": "all",
-   "title": "Bon Iver is off tour",
-   "place": "",
-   "city": "",
-   "start": null,
-   "end": null,
-   "summary": "No concerts listed for 2026 or 2027. Radar checks daily and will tell you the moment dates appear.",
-   "why": "Bon Iver",
-   "url": "https://www.songkick.com/artists/590705-bon-iver/calendar",
-   "found": "2026-09-27"
-  },
-  {
    "id": "langen-under-one-sky",
    "kind": "exhibition",
    "region": "de",

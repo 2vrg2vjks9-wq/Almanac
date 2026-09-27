@@ -148,5 +148,9 @@
   "until": "2026-10-09",
   "since": "2026-09-27"
  },
- "afterFocus": "Back home in the Netherlands from 2026-10-10: no Japan recommendations after that date; remove jp items then."
+ "afterFocus": "Back home in the Netherlands from 2026-10-10: no Japan recommendations after that date; remove jp items then.",
+ "_rules": [
+  "Only add items that are actionable or new. Never add 'no news' items such as an artist having no tour dates.",
+  "From 2026-10-10 he is back in the Netherlands: no Japan items after that."
+ ]
 }
