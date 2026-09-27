@@ -577,7 +577,7 @@
       '<h3>'+escapeHtml(p.title)+'</h3>' +
       '<p class="author">'+escapeHtml(p.author)+(p.mine ? ' · added by you' : '')+'</p>' +
       '<p class="excerpt">'+escapeHtml(firstLine(p))+'</p>' +
-      '<div class="tags">'+(p.themes||[]).slice(0,3).map(function(t){ return '<span class="tag">'+t+'</span>'; }).join('')+'</div>' +
+      '<div class="tags">'+(p.themes||[]).slice(0,3).map(function(t){ return '<span class="tag">'+escapeHtml(t)+'</span>'; }).join('')+'</div>' +
       '</div>';
   }
 
@@ -686,7 +686,7 @@
       '<h2>'+escapeHtml(p.title)+'</h2>' +
       '<p class="meta">'+(p.year ? escapeHtml(p.year) : '')+(p.note ? ' · ' + escapeHtml(p.note) : '')+'</p>' +
       '<div class="poem-body">'+body+'</div>' +
-      '<div class="tags">'+(p.themes||[]).map(function(t){ return '<span class="tag-pill">'+t+'</span>'; }).join('')+'</div>' +
+      '<div class="tags">'+(p.themes||[]).map(function(t){ return '<span class="tag-pill">'+escapeHtml(t)+'</span>'; }).join('')+'</div>' +
       '<div class="reading-nav">' +
         '<button id="prevBtn" type="button" '+(state.readingIndex<=0?'disabled':'')+'>&larr; previous</button>' +
         '<button id="nextBtn" type="button" '+(state.readingIndex>=list.length-1?'disabled':'')+'>next &rarr;</button>' +
@@ -727,7 +727,7 @@
       author: String(obj.author),
       year: obj.year ? String(obj.year) : '',
       note: obj.note ? String(obj.note) : '',
-      themes: Array.isArray(obj.themes) ? obj.themes : [],
+      themes: Array.isArray(obj.themes) ? obj.themes.map(String).slice(0, 10) : [],
       lines: obj.lines.map(String)
     };
     added.push(newPoem);
