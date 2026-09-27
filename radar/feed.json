@@ -478,6 +478,20 @@
    "url": "https://www.google.com/search?q=kuri+gohan+season",
    "found": "2026-09-27",
    "pick": true
+  },
+  {
+   "id": "freelance-eu-expert-register",
+   "kind": "freelance",
+   "region": "eu",
+   "title": "Register as an EU funding expert evaluator",
+   "place": "European Commission, Funding & Tenders portal",
+   "city": "Remote",
+   "start": null,
+   "end": null,
+   "summary": "Paid remote work evaluating Horizon Europe and EIC proposals, including climate-adaptation calls. Registration is open year-round; profiles with startup-finance and adaptation expertise get picked for relevant calls.",
+   "why": "Climate adaptation finance, startup financing",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/work-as-an-expert",
+   "found": "2026-09-27"
   }
  ]
 }

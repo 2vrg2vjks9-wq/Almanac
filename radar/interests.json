@@ -152,5 +152,17 @@
  "_rules": [
   "Only add items that are actionable or new. Never add 'no news' items such as an artist having no tour dates.",
   "From 2026-10-10 he is back in the Netherlands: no Japan items after that."
- ]
+ ],
+ "freelance": {
+  "profile": "Climate innovation and adaptation finance specialist; startup financing; led accelerators bringing Japanese startups to Europe; background in blockchain and competition economics.",
+  "look_for": [
+   "paid advisory or consulting on climate/adaptation finance",
+   "accelerator mentor, coach or jury roles (NL, EU, Japan)",
+   "EU/Horizon/EIC expert evaluator calls",
+   "paid speaking or moderating at climate-finance events",
+   "short research or due-diligence assignments (climate tech, blockchain for climate, competition economics)"
+  ],
+  "where": "Remote, Netherlands, EU; Japan-Europe bridge roles",
+  "rule": "Include rate or budget when stated; skip unpaid volunteer roles unless prestigious (e.g. major jury)."
+ }
 }
