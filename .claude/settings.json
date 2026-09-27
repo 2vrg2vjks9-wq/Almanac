@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Artifact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/tools/after_publish.sh",
+            "timeout": 120,
+            "statusMessage": "Pushing Curiosity Almanac to GitHub"
+          }
+        ]
+      }
+    ]
+  }
+}
