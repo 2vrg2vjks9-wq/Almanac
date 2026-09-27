@@ -2,18 +2,12 @@
  "_about": "What Radar watches. Edit this file (or ask Claude) to add or change interests. The daily update reads it.",
  "home": "Netherlands",
  "regions": [
-  "Den Haag / Rotterdam",
+  "South Holland",
   "Netherlands + BE/DE",
-  "Japan (while travelling)"
+  "Current travel destination"
  ],
  "diet": {
-  "avoid": [
-   "gluten",
-   "lactose / dairy",
-   "oats",
-   "eggs"
-  ],
-  "note": "Prefer 100% gluten-free kitchens that are also vegan (covers dairy and eggs). Always flag oat milk / oat flour risk."
+  "note": "Strict dietary restrictions apply (kept in the private daily-task instructions). Always flag any doubt about food safety."
  },
  "wind": {
   "sports": {
@@ -73,7 +67,7 @@
    {
     "id": "amstelmeer",
     "name": "Amstelmeer",
-    "sub": "Westerland, ~30 min from Groet",
+    "sub": "Westerland, lake",
     "lat": 52.8896,
     "lon": 4.9116,
     "good": [
@@ -82,7 +76,7 @@
       360
      ]
     ],
-    "note": "Guessed as your lake near Groet, all directions for now. Tell Claude your launch side to refine."
+    "note": "All directions for now; refine once the launch side is known."
    }
   ]
  },
@@ -106,7 +100,7 @@
   ]
  },
  "restaurants": {
-  "rule": "High ratings (4.4+), and genuinely safe for gluten-free, dairy-free, egg-free and oat-free eating.",
+  "rule": "High ratings (4.4+) and genuinely safe for his dietary restrictions (see private instructions); flag any doubt.",
   "extras": [
    "new openings that suit the diet",
    "seasonal food where you are"
@@ -137,7 +131,7 @@
  },
  "meditation": {
   "what": "Zen and silent retreats, meditation classes and meetups",
-  "where": "Den Haag / Rotterdam, Netherlands, and Japan while travelling"
+  "where": "South Holland, Netherlands, and the current travel destination"
  },
  "work": {
   "what": "Climate adaptation finance: events, conferences, calls for startups, accelerator and grant deadlines",
@@ -148,13 +142,12 @@
   "until": "2026-10-09",
   "since": "2026-09-27"
  },
- "afterFocus": "Back home in the Netherlands from 2026-10-10: no Japan recommendations after that date; remove jp items then.",
  "_rules": [
   "Only add items that are actionable or new. Never add 'no news' items such as an artist having no tour dates.",
-  "From 2026-10-10 he is back in the Netherlands: no Japan items after that."
+  "Only research the focus place while focus.until has not passed; then remove its items."
  ],
  "freelance": {
-  "profile": "Climate innovation and adaptation finance specialist; startup financing; led accelerators bringing Japanese startups to Europe; background in blockchain and competition economics.",
+  "profile": "Climate innovation and adaptation finance; startup financing and accelerators; background in blockchain and competition economics.",
   "look_for": [
    "paid advisory or consulting on climate/adaptation finance",
    "accelerator mentor, coach or jury roles (NL, EU, Japan)",

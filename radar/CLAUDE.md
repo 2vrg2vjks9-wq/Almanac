@@ -1,6 +1,6 @@
 # Radar — brief for Claude Code
 
-Radar is Guus's personal "interest radar": a fullscreen home-screen web app on his iPhone that shows
+Radar is a personal "interest radar": a fullscreen home-screen web app on his iPhone that shows
 wind for his windsports spots, and a curated feed of things he'd like (music, art, food, books & film,
 meditation, climate-work opportunities). Live at https://2vrg2vjks9-wq.github.io/Almanac/radar/
 
@@ -37,14 +37,13 @@ meditation, climate-work opportunities). Live at https://2vrg2vjks9-wq.github.io
   sentence case, no all-caps labels, no identical boxed cards, no decorative gradients.
 - Bottom tab bar: Today · Wind · Explore · Saved. Mobile-first (390 px), safe-area insets, 44 px tap targets.
 
-## About Guus (only what the app needs)
+## About the user (only what the app needs)
 
-Wingfoils (10–20 kn) and windsurfs (20–30 kn) at Scheveningen, Oostvoornse Meer and a lake near Groet
-(currently guessed as Amstelmeer). Diet: gluten-, dairy-, egg- and oat-free — any food suggestion must be
-flagged when safety is uncertain. Loves contemplative art in nature and strong architecture (Ando, Noguchi,
-Karavan, Turrell, Murou Art Forest, D.T. Suzuki Museum), Bon Iver / Ben Howard / Nick Mulvey, Ted Chiang,
-Arrival, Shantaram, Eastern Body Western Mind, zen/meditation retreats; works in climate-adaptation finance.
-In Japan until 9 Oct 2026, back in the Netherlands (Den Haag/Rotterdam area) from 10 Oct.
+Wingfoils (10–20 kn) and windsurfs (20–30 kn) at the spots in `interests.json`. Has strict dietary
+restrictions: never claim a place is safe unless the data says so, and always show flags. Loves
+contemplative art in nature and strong architecture, the artists and stories listed in `interests.json`,
+zen/meditation; works in climate-adaptation finance. Travel is handled by `interests.json` `focus`.
+Don't add personal details to this public repo.
 
 ## Freelance
 
