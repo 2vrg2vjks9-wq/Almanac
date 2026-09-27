@@ -1,0 +1,1583 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Polder">
+<meta name="theme-color" content="#f1f2ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11141a" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script>
+/* Carry over what was kept, read and written in the Claude artifact — only on first open. */
+(function(){try{var seed={"polder-almanac-kept":[],"polder-almanac-seen":[112,62,63,100,104,61,57,59,60,58,66,65,64],"polder-almanac-written":[]};
+for(var k in seed){if(localStorage.getItem(k)===null)localStorage.setItem(k,JSON.stringify(seed[k]));}}catch(e){}
+if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});})();
+</script><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Polder Almanac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f1f2ee;
+    --panel:#ffffff;
+    --ink:#14171c;
+    --ink-soft:#3d434c;
+    --delft:#1a4a8c;
+    --delft-soft:#4a75ad;
+    --orange:#c8611a;
+    --grey:#6c7480;
+    --rule:rgba(20,23,28,0.15);
+    --rule-strong:rgba(20,23,28,0.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --paper:#11141a;
+      --panel:#181c23;
+      --ink:#e8eae5;
+      --ink-soft:#b6bcc5;
+      --delft:#7fa9e4;
+      --delft-soft:#5b82bb;
+      --orange:#e89a52;
+      --grey:#8b939f;
+      --rule:rgba(232,234,229,0.16);
+      --rule-strong:rgba(232,234,229,0.32);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --paper:#11141a;
+    --panel:#181c23;
+    --ink:#e8eae5;
+    --ink-soft:#b6bcc5;
+    --delft:#7fa9e4;
+    --delft-soft:#5b82bb;
+    --orange:#e89a52;
+    --grey:#8b939f;
+    --rule:rgba(232,234,229,0.16);
+    --rule-strong:rgba(232,234,229,0.32);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    padding:clamp(24px,5vw,56px) 20px calc(48px + env(safe-area-inset-bottom,0px));
+    min-height:100%;
+    display:flex;
+    justify-content:center;
+    overflow-x:hidden;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:620px;
+  }
+
+  /* masthead */
+  header{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    padding-bottom:16px;
+    border-bottom:2px solid var(--ink);
+    margin-bottom:0;
+  }
+  .mark{ width:42px; height:42px; flex:none; display:block; }
+  .masthead{ flex:1; min-width:0; }
+  h1{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-weight:700;
+    font-size:clamp(1.5rem,5.5vw,2rem);
+    letter-spacing:-0.02em;
+    line-height:1;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  .strap{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.68rem;
+    font-weight:500;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--grey);
+  }
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.68rem;
+    font-weight:500;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--grey);
+    padding:10px 0;
+    border-bottom:1px solid var(--rule);
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* fact panel */
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--rule);
+    border-top:4px solid var(--delft);
+    padding:clamp(22px,4.5vw,34px);
+    margin-top:clamp(22px,4vw,32px);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .place-tag{ color:var(--delft); }
+  .place-tag .sub{ color:var(--grey); font-weight:500; }
+  .head-right{ display:flex; align-items:baseline; gap:10px; }
+  .fresh{
+    color:var(--orange);
+    border:1px solid var(--orange);
+    padding:2px 6px;
+    letter-spacing:.12em;
+  }
+  .index{ color:var(--grey); font-variant-numeric:tabular-nums; }
+
+  .fact{
+    font-size:clamp(1.2rem,3.6vw,1.45rem);
+    line-height:1.55;
+    font-weight:400;
+  }
+  .fact em{ font-style:italic; color:var(--delft); }
+
+  .panel-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    padding-top:4px;
+    border-top:1px solid var(--rule);
+  }
+  .keep-btn, .story-btn{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.68rem;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    background:transparent;
+    cursor:pointer;
+    padding:8px 0;
+    border:none;
+    color:var(--ink-soft);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .keep-btn .box{
+    width:11px; height:11px;
+    border:1.5px solid currentColor;
+    flex:none;
+  }
+  .keep-btn:hover, .story-btn:hover{ color:var(--delft); }
+  .keep-btn.kept{ color:var(--orange); }
+  .keep-btn.kept .box{ background:var(--orange); border-color:var(--orange); }
+  .story-btn{ text-decoration:underline; text-decoration-color:var(--rule-strong); text-underline-offset:4px; }
+  .keep-btn:focus-visible, .story-btn:focus-visible{ outline:2px solid var(--delft); outline-offset:3px; }
+
+  .deep-wrap{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .4s ease;
+  }
+  .deep-wrap.open{ grid-template-rows:1fr; }
+  .deep-inner{ overflow:hidden; }
+  .deep{
+    border-top:1px solid var(--rule);
+    padding-top:16px;
+    font-size:.98rem;
+    line-height:1.7;
+    color:var(--ink-soft);
+  }
+  .deep .cap{
+    display:block;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.64rem;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--grey);
+    margin-bottom:9px;
+  }
+  .deep em{ font-style:italic; color:var(--delft-soft); }
+
+  /* controls */
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin-top:clamp(20px,4vw,28px);
+  }
+  .nav-btn{
+    width:36px; height:36px; flex:none;
+    border:1px solid var(--rule-strong);
+    background:transparent;
+    color:var(--ink-soft);
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.95rem;
+    cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .nav-btn:hover:not(:disabled){ border-color:var(--delft); color:var(--delft); }
+  .nav-btn:disabled{ opacity:.25; cursor:default; }
+  button.next{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.72rem;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--panel);
+    background:var(--delft);
+    border:1px solid var(--delft);
+    padding:12px 24px;
+    cursor:pointer;
+  }
+  button.next:hover:not(:disabled){ background:var(--ink); border-color:var(--ink); }
+  button.next:disabled{ opacity:.4; cursor:default; }
+  .nav-btn:focus-visible, button.next:focus-visible{ outline:2px solid var(--orange); outline-offset:3px; }
+
+  .progress{
+    margin-top:14px;
+    text-align:center;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem;
+    font-weight:500;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--grey);
+    font-variant-numeric:tabular-nums;
+  }
+  .remove-place, .saved-toggle{
+    display:block;
+    margin:8px auto 0;
+    background:transparent;
+    border:none;
+    font-family:'Source Serif 4', serif;
+    font-size:.86rem;
+    color:var(--grey);
+    cursor:pointer;
+    text-decoration:underline;
+    text-decoration-color:var(--rule);
+    text-underline-offset:3px;
+    padding:2px 4px;
+  }
+  .remove-place:hover, .saved-toggle:hover{ color:var(--delft); }
+  .remove-place:focus-visible, .saved-toggle:focus-visible{ outline:2px solid var(--delft); outline-offset:2px; }
+
+  .exhausted{
+    margin:14px auto 0;
+    max-width:440px;
+    border:1px solid var(--rule);
+    border-left:3px solid var(--orange);
+    padding:14px 16px;
+    font-size:.92rem;
+    line-height:1.6;
+    color:var(--ink-soft);
+    text-align:left;
+  }
+  .exhausted-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+  .small-btn{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--delft);
+    background:transparent;
+    border:1px solid var(--delft);
+    padding:8px 14px;
+    cursor:pointer;
+  }
+  .small-btn:hover{ background:var(--delft); color:var(--panel); }
+  .small-btn:focus-visible{ outline:2px solid var(--orange); outline-offset:2px; }
+
+  /* kept list */
+  .saved-panel{ margin-top:clamp(22px,4vw,30px); border-top:1px solid var(--rule); padding-top:18px; }
+  .saved-panel h2{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.7rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--grey); margin:0 0 12px;
+  }
+  .saved-item{
+    display:flex; align-items:flex-start; gap:12px;
+    padding:13px 0; border-bottom:1px solid var(--rule);
+  }
+  .saved-item:first-of-type{ border-top:1px solid var(--rule); }
+  .saved-item .txt{
+    flex:1; background:transparent; border:none; text-align:left;
+    font-family:'Source Serif 4', serif; font-size:.96rem; line-height:1.55;
+    color:var(--ink); cursor:pointer; padding:0;
+  }
+  .saved-item .txt:hover{ color:var(--delft); }
+  .saved-item .txt:focus-visible{ outline:2px solid var(--delft); outline-offset:3px; }
+  .saved-item .txt em{ font-style:italic; color:var(--delft-soft); }
+  .saved-item .rm{
+    flex:none; width:22px; height:22px; line-height:1;
+    background:transparent; border:1px solid var(--rule-strong);
+    color:var(--grey); cursor:pointer; font-size:.8rem;
+  }
+  .saved-item .rm:hover{ color:var(--orange); border-color:var(--orange); }
+  .saved-empty{ color:var(--grey); font-size:.9rem; }
+
+  /* places */
+  .places{ margin-top:clamp(26px,5vw,38px); border-top:2px solid var(--ink); padding-top:18px; }
+  .places-label{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--grey); margin-bottom:14px;
+  }
+  .chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{
+    display:inline-flex; align-items:baseline; gap:6px;
+    background:transparent;
+    border:1px solid var(--rule-strong);
+    padding:6px 10px;
+    cursor:pointer;
+    font-family:'Archivo', system-ui, sans-serif;
+    color:var(--ink-soft);
+  }
+  .chip-name{ font-size:.78rem; font-weight:600; letter-spacing:.01em; }
+  .chip-sub{ font-size:.62rem; font-weight:500; color:var(--grey); letter-spacing:.06em; text-transform:uppercase; }
+  .chip:hover{ border-color:var(--delft); color:var(--delft); }
+  .chip.active{ background:var(--delft); border-color:var(--delft); color:var(--panel); }
+  .chip.active .chip-sub{ color:var(--panel); opacity:.8; }
+  .chip.done{ opacity:.45; }
+  .chip.done.active{ opacity:1; }
+  .chip.custom{ border-style:dashed; }
+  .chip:focus-visible{ outline:2px solid var(--orange); outline-offset:2px; }
+
+  .add-place{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+  .add-input{
+    flex:1 1 220px; max-width:340px;
+    background:transparent; border:none; border-bottom:1px solid var(--rule-strong);
+    color:var(--ink); font-family:'Source Serif 4', serif; font-size:.95rem; padding:7px 2px;
+  }
+  .add-input::placeholder{ color:var(--grey); font-style:italic; }
+  .add-input:focus{ outline:none; border-bottom-color:var(--delft); }
+  .add-btn{
+    flex:none;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); background:transparent; border:1px solid var(--rule-strong);
+    padding:8px 14px; cursor:pointer;
+  }
+  .add-btn:hover:not(:disabled){ border-color:var(--delft); color:var(--delft); }
+  .add-btn:focus-visible{ outline:2px solid var(--delft); outline-offset:2px; }
+  .add-note{ margin-top:10px; font-size:.86rem; font-style:italic; color:var(--grey); }
+  .add-note.bad{ color:var(--orange); }
+
+  footer{
+    margin-top:clamp(26px,5vw,36px);
+    padding-top:14px;
+    border-top:1px solid var(--rule);
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.64rem; font-weight:500; letter-spacing:.1em;
+    color:var(--grey); line-height:1.8;
+  }
+  .sync-note{ color:var(--grey); }
+  .sync-note.synced{ color:var(--delft); }
+
+  @media (prefers-reduced-motion: reduce){
+    .deep-wrap{ transition:none; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <svg class="mark" viewBox="0 0 42 42" aria-hidden="true">
+      <rect x="0" y="0" width="42" height="42" fill="none" stroke="var(--ink)" stroke-width="2"/>
+      <rect x="2" y="2" width="22" height="16" fill="var(--delft)"/>
+      <rect x="26" y="22" width="14" height="18" fill="var(--orange)"/>
+      <line x1="0" y1="20" x2="42" y2="20" stroke="var(--ink)" stroke-width="2"/>
+      <line x1="24" y1="0" x2="24" y2="42" stroke="var(--ink)" stroke-width="2"/>
+    </svg>
+    <div class="masthead">
+      <h1>Polder Almanac</h1>
+      <div class="strap">Facts from a country below sea level</div>
+    </div>
+  </header>
+
+  <div class="meta-row">
+    <span id="datebar"></span>
+    <span id="corpusCount"></span>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <span class="place-tag" id="placeTag">Across the Netherlands</span>
+      <span class="head-right">
+        <span class="fresh" id="freshTag" hidden>newly written</span>
+        <span class="index" id="indexTag">&numero; 000</span>
+      </span>
+    </div>
+
+    <div class="fact" id="fact">Loading a fact&hellip;</div>
+
+    <div class="panel-actions">
+      <button class="keep-btn" id="keepBtn" type="button" aria-pressed="false">
+        <span class="box"></span>
+        <span id="keepLabel">Keep this one</span>
+      </button>
+      <button class="story-btn" id="storyBtn" type="button" aria-expanded="false">
+        <span id="storyLabel">Read the full story</span>
+      </button>
+    </div>
+
+    <div class="deep-wrap" id="deepWrap">
+      <div class="deep-inner">
+        <div class="deep" id="deepText"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="nav-btn" id="backBtn" type="button" aria-label="Previous fact" title="Previous fact" disabled>&#8592;</button>
+    <button class="next" id="nextBtn" type="button">Another fact</button>
+    <button class="nav-btn" id="fwdBtn" type="button" aria-label="Forward" title="Forward" disabled>&#8594;</button>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <button class="remove-place" id="removePlaceBtn" type="button" hidden>Remove this place</button>
+
+  <div class="exhausted" id="exhausted" hidden>
+    <span id="exhaustedText"></span>
+    <div class="exhausted-actions">
+      <button class="small-btn" id="retryBtn" type="button" hidden>Try writing more again</button>
+      <button class="small-btn" id="resetBtn" type="button">Start this set over</button>
+    </div>
+  </div>
+
+  <button class="saved-toggle" id="savedToggle" type="button">Kept facts (0)</button>
+
+  <div class="saved-panel" id="savedPanel" hidden>
+    <h2>Kept facts</h2>
+    <div class="saved-list" id="savedList"></div>
+  </div>
+
+  <div class="places">
+    <div class="places-label">Tap where you are</div>
+    <div class="chips" id="chips"></div>
+    <form class="add-place" id="addPlaceForm">
+      <input class="add-input" id="addPlaceInput" type="text" maxlength="40" autocomplete="off"
+        placeholder="Add a place &mdash; Deventer, Alkmaar, Twente&hellip;" aria-label="Add a place in the Netherlands">
+      <button class="add-btn" id="addPlaceBtn" type="submit">Add</button>
+    </form>
+    <div class="add-note" id="addNote" hidden></div>
+  </div>
+
+  <footer>
+    <span class="sync-note" id="syncNote">Kept facts and progress are saved on this iPhone</span><br>
+    Facts are gathered, not guaranteed. Ones marked newly written have not been checked.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PLACES = [
+    {key:"amsterdam", name:"Amsterdam", sub:"Noord-Holland"},
+    {key:"haarlem", name:"Haarlem", sub:"Noord-Holland"},
+    {key:"leiden", name:"Leiden", sub:"Zuid-Holland"},
+    {key:"denhaag", name:"Den Haag", sub:"Zuid-Holland"},
+    {key:"delft", name:"Delft", sub:"Zuid-Holland"},
+    {key:"rotterdam", name:"Rotterdam", sub:"Zuid-Holland"},
+    {key:"utrecht", name:"Utrecht", sub:"Utrecht"},
+    {key:"flevoland", name:"Flevoland", sub:"The new land"},
+    {key:"veluwe", name:"De Veluwe", sub:"Gelderland"},
+    {key:"nijmegen", name:"Nijmegen & Arnhem", sub:"Gelderland"},
+    {key:"eindhoven", name:"Eindhoven & Brabant", sub:"Noord-Brabant"},
+    {key:"maastricht", name:"Maastricht & Limburg", sub:"Limburg"},
+    {key:"zeeland", name:"Zeeland", sub:"Delta"},
+    {key:"friesland", name:"Friesland", sub:"Fryslân"},
+    {key:"groningen", name:"Groningen", sub:"Stad & Ommeland"},
+    {key:"wadden", name:"De Wadden", sub:"Waddenzee"}
+  ];
+
+  var FACTS = [
+    // --- Across the Netherlands ---
+    {tag:"general", text:"Roughly a quarter of the Netherlands sits below sea level, and about sixty per cent of it would flood without active defences &mdash; which means the country is less a place than an ongoing engineering operation.",
+      deep:"The lowest point, in the Zuidplaspolder near Rotterdam, is about 6.8 metres under sea level. Keeping that land dry takes a permanent system of dunes, dikes, storm surge barriers, canals and thousands of pumps that never stop. Water is lifted stage by stage from polder ditches into higher canals and eventually out to sea. Switch the pumps off and much of the economy is underwater within months."},
+    {tag:"general", text:"The Dutch water boards are the country's oldest democratic institutions, older than the national parliament, and you still vote for them in their own elections &mdash; a separate ballot about drainage, dikes and water quality.",
+      deep:"The first <em>waterschappen</em> date from the 13th century, formed when villages that shared a dike realised no single landowner could maintain it alone. They levy their own taxes and run their own budgets to this day. It is the institutional root of the so-called polder model: if the water does not care whose land it floods, agreement is not optional."},
+    {tag:"general", text:"Holland is not the Netherlands. It is two of the twelve provinces, and in 2020 the government formally dropped &ldquo;Holland&rdquo; from its international branding because using the richest corner's name for the whole country annoyed the other ten provinces.",
+      deep:"North and South Holland hold Amsterdam, Rotterdam, The Hague and most of the economy, which is how the shorthand spread abroad in the first place. The rebrand replaced a tulip-and-windmill logo with a plain orange NL, partly to spread tourism beyond Amsterdam. Whether anyone outside the country noticed is another matter, but inside it the distinction is felt."},
+    {tag:"general", text:"The storm surge barrier protecting Rotterdam closes itself. Two steel arms, each about as long as the Eiffel Tower is tall, swing shut when a computer decides the forecast warrants it &mdash; with no human authorised to make the call.",
+      deep:"The Maeslantkering was deliberately automated to remove hesitation from the decision: a person weighing the disruption of closing a major port against a forecast might wait too long. The system monitors sea level and weather and acts on its own criteria. The arms float out on the tide, fill with water, sink onto the riverbed, and are tested once a year in public."},
+    {tag:"general", text:"On the night of 31 January 1953 a storm surge broke the dikes in the south-west and killed 1,836 people in their sleep. Almost everything the Netherlands has built against the sea since then dates from the fortnight that followed.",
+      deep:"Warnings existed but there was no way to reach sleeping villages on a Saturday night; radio stations were off air. Within twenty days the government appointed a Delta Commission, and its plan reshaped the entire coastline over the next forty years. The disaster is why Dutch flood policy is calculated in centuries and why a flood probability of one in ten thousand years is considered a normal design target."},
+    {tag:"general", text:"Dutch people are the tallest on earth, and they were not always. In the 19th century Dutch men were among the shorter Europeans and noticeably shorter than Americans; the whole rise happened in about 150 years.",
+      deep:"Average height climbed roughly twenty centimetres, overtaking the United States around the 1950s and never slowing until recently. The usual explanations are wealth, an exceptionally dairy-heavy diet and universal healthcare reaching every child. One much-discussed study also found taller Dutch men had more surviving children, hinting at ongoing selection. Measurements now suggest the trend has finally stalled, or even reversed slightly."},
+    {tag:"general", text:"The world's first publicly traded company, its first stock exchange, and its first recorded bear raid all appeared in Amsterdam within a few years of 1602 &mdash; along with the first pamphlet complaining that speculators were ruining everything.",
+      deep:"The Dutch East India Company issued tradable shares to fund voyages, and a secondary market sprang up immediately, complete with forwards, options and short selling. A trader named Isaac le Maire organised a syndicate to drive the share price down in 1609, prompting the first regulation of short selling anywhere. Joseph de la Vega's 1688 book on the exchange still reads like a description of modern markets."},
+    {tag:"general", text:"The English language is full of insults using the word Dutch &mdash; Dutch courage, going Dutch, double Dutch, a Dutch uncle &mdash; nearly all of them fossils of 17th-century naval rivalry, when England and the Republic fought three wars in twenty years.",
+      deep:"Each phrase implies stinginess, incoherence or fake bravery, which is what propaganda does to a rival trading power. The rivalry also gave English a pile of borrowed Dutch words in the opposite direction: yacht, skipper, cruise, dock, keel, smuggle, brandy, cookie. One vocabulary is what England thought of the Dutch; the other is what England learned from them at sea."},
+    {tag:"general", text:"The Dutch bicycle network was not inherited from a gentler past. It was won in the 1970s by street protests after traffic deaths peaked at over three thousand a year, including hundreds of children, under the slogan &ldquo;Stop the child murder.&rdquo;",
+      deep:"Dutch cities were being rebuilt for cars like everywhere else, and Amsterdam had plans to fill canals with motorways. The <em>Stop de Kindermoord</em> campaign, the oil crisis and organised occupations of streets pushed policy the other way. The separated lanes, priority junctions and bike-first traffic law are all political decisions from that decade, which is why other countries can copy them and sometimes do."},
+    {tag:"general", text:"Gouda and Edam are named after market towns, not production areas. Under medieval staple rights those towns held the legal monopoly on trading cheese from the surrounding countryside, so the cheese took the name of the scales it was weighed on.",
+      deep:"A staple right obliged goods passing through a region to be offered for sale in a specific town first, which is how small towns grew rich on other people's produce. The cheese market in Gouda still runs as a summer performance of the old ritual, complete with hand-clap price haggling. Neither name is protected in the way French appellations are, which is why Gouda is now made everywhere."},
+    {tag:"general", text:"The Dutch invented the auction that counts downwards. At the flower auctions a clock starts high and falls until a buyer stops it, so the first bid wins &mdash; a format now used worldwide for everything from treasury bonds to share offerings.",
+      deep:"A descending clock forces fast decisions and moves perishable stock at speed, which is what a country shifting billions of cut stems a year needs. The auction halls at Aalsmeer occupy one of the largest buildings on earth by floor area, with trolleys of flowers moving through it on an internal rail network. Flowers picked in Kenya can clear the clock and be in a German shop the next morning."},
+    {tag:"general", text:"Dutch law has a formal concept for choosing not to enforce a law: <em>gedoogbeleid</em>, or tolerance policy. It is written policy, published by ministries, stating which illegal things the state has decided to leave alone and under what conditions.",
+      deep:"Cannabis sold in coffeeshops is the famous case: still illegal to produce and supply, yet tolerated at the point of sale under strict rules. The mechanism has been applied to squatting, euthanasia before it was legalised, and fireworks. Critics call it a way of avoiding difficult legislation; defenders call it honest about the gap between the statute book and what a society will actually police."},
+    {tag:"general", text:"Every 4 May at eight in the evening the whole country stops for two minutes. Trains halt, television goes silent, motorway traffic pulls over, and people stand still in the street to remember the war dead.",
+      deep:"The silence is national, simultaneous and observed with a seriousness that surprises visitors who expect a ceremony rather than a country pausing. The King lays a wreath on Dam Square. The following day, 5 May, is Liberation Day and the mood flips entirely to festivals. Placing mourning and celebration back to back on consecutive days is a deliberate and very Dutch piece of calendar design."},
+    {tag:"general", text:"On King's Day, one day a year, anyone in the Netherlands may sell anything on the street without a permit. Children sit on blankets with their outgrown toys, and a national free market breaks out across every pavement.",
+      deep:"The <em>vrijmarkt</em> suspends the ordinary licensing that governs street trade, which in a country otherwise fond of permits is a notable annual exception. Families claim pitches the night before with chalk and tape. Alongside the junk stalls you get children charging for lemonade, amateur music and improvised games, all of it untaxed and unregulated for twenty-four hours before the regime returns."},
+    {tag:"general", text:"For 123 years, until 2013, the Netherlands had only queens. Three women reigned in succession, which meant almost nobody alive in the country had experienced a Dutch king until Willem-Alexander took the throne.",
+      deep:"Wilhelmina, Juliana and Beatrix each reigned for decades, and each abdicated rather than died in office, making handover a planned political event instead of a funeral. The anthem had to swap a word and the national holiday moved from Beatrix's mother's birthday to the new King's. Dutch monarchs abdicate as a matter of custom, which is rare among European royal houses."},
+    {tag:"general", text:"Dutch is the closest major relative of English, and the Frisian spoken in the north is closer still &mdash; close enough that the old test sentence &ldquo;butter, bread and green cheese is good English and good Fries&rdquo; works in both languages at once.",
+      deep:"All three descend from West Germanic, with Frisian and English sharing sound changes Dutch did not make. The word Dutch itself comes from the same root as Deutsch, a relic of when the term covered all Germanic speakers on the continent and English had not yet split the two apart. Afrikaans, meanwhile, descends from 17th-century Dutch and remains partly mutually intelligible with it."},
+    {tag:"general", text:"During the Second World War the Dutch resistance used the place name Scheveningen as a password. The initial sound is almost impossible for a German speaker to produce naturally, which made the word a working test of nationality.",
+      deep:"Dutch pairs a guttural fricative with a following consonant cluster in a way German does not, so an infiltrator tends to soften it into something like <em>Sheveningen</em>. Whether it caught many spies is uncertain, but the story persists because every Dutch person recognises the sound as the border of their language. Visitors attempting it produce reliable amusement to this day."},
+    {tag:"general", text:"At a Dutch birthday party you congratulate everyone in the room, not just the person whose birthday it is. Guests shake hands with the aunts, the neighbours and the colleagues, each time saying congratulations on someone else's birth.",
+      deep:"The logic is that the family and friends are also to be congratulated on having this person around, which is either charming or baffling depending on how many relatives are present. The related institution is the birthday calendar hung inside the toilet door, listing every family birthday, so nobody can claim they forgot. Both customs survive largely unchanged in the era of phone reminders."},
+    {tag:"general", text:"The Netherlands is the second-largest agricultural exporter in the world by value, from a country roughly the size of Maryland &mdash; and a large share of that is not food at all but seeds, breeding stock and greenhouse technology.",
+      deep:"Yields per hectare in Dutch glasshouses are among the highest anywhere, achieved with computer-controlled climate, recycled water and far less pesticide than open-field farming. The country dominates trade in seed potatoes and flower bulbs specifically, selling the genetics rather than the crop. A further chunk of the headline figure is re-export: goods landing in Rotterdam, being processed lightly and leaving again."},
+    {tag:"general", text:"Dutch trains have run on wind power since 2017. The national railway buys the entire output of a set of wind farms, so a train crossing the country is, on the books, moving on the same weather that is delaying it.",
+      deep:"The contract was arranged with an energy supplier that built new capacity to meet it, meaning the demand added turbines rather than reshuffling existing green power. About 600,000 passengers a day travel on it. The claim is an accounting one, as all grid electricity is mixed, but the underlying purchase is real and was reached a year ahead of schedule."},
+    {tag:"general", text:"The Netherlands has the highest rate of part-time work in the developed world. Working four days is unremarkable, including for men, and asking for a four-day week is a normal negotiation rather than a favour.",
+      deep:"The pattern took hold from the 1980s, when part-time work was used to bring women into the labour market without expanding childcare, and it was then given legal protection: part-time employees have the same rights per hour as full-timers, and employees can request reduced hours. The consequence is a country with high employment, short average hours, and a long-running argument about whether it entrenched unequal careers."},
+    {tag:"general", text:"Dutch children rank near the top of international wellbeing surveys, and the explanations researchers keep landing on are unglamorous: they sleep more, they cycle themselves to school unsupervised, and almost nobody is pushed academically before about the age of six.",
+      deep:"Primary school starts with play, formal reading instruction comes late by international standards, and homework in the early years is minimal. Children travel independently from a young age because the infrastructure makes it safe, which builds a kind of ordinary autonomy. Dutch parents also report relatively low stress themselves, and the two findings are probably not unrelated."},
+    {tag:"general", text:"The Dutch do not close their curtains. Walk any residential street after dark and you can see straight into living rooms, a habit often traced to a Calvinist principle that an honest household has nothing to conceal.",
+      deep:"How much of that is real theology and how much is retrospective explanation is disputed, but the behaviour is measurable and visitors consistently notice it. Large windows were also a practical response to a dark, wet climate and a tax history that favoured light over depth. The result is a country where the evening walk includes an unhurried survey of other people's interior decoration."},
+    {tag:"general", text:"Van Gogh's reputation was built by his brother's widow. Jo van Gogh-Bonger inherited hundreds of unsold paintings and a stack of letters, and spent the rest of her life placing them in exhibitions and getting the correspondence published.",
+      deep:"Theo died six months after Vincent, leaving Jo with an infant, a failed painter's estate and no obvious market. She lent works to shows across Europe, sold selectively to build prices rather than dumping the stock, and edited the letters that created the popular image of the artist. Art historians increasingly treat her as the reason the work survived as a body rather than scattering."},
+    {tag:"general", text:"The Dutch have a verb for going out into foul weather on purpose to clear your head: <em>uitwaaien</em>, roughly to be blown out. It is a recommended activity, usually performed on a beach in a gale.",
+      deep:"The word assumes wind is a resource rather than a problem, which in a flat country on the North Sea is a sensible adaptation. Related vocabulary includes a specific term for the cosy indoor opposite, and a noun for the particular gloom of a grey afternoon. The habit is real: coastal car parks fill in bad weather with people who have come specifically to walk into it."},
+    {tag:"general", text:"The Netherlands legalised same-sex marriage in 2001, the first country to do so, and the first four couples married in Amsterdam city hall one minute after midnight with the mayor officiating.",
+      deep:"The law was reached incrementally rather than by referendum: registered partnerships came first in 1998, and the full marriage act followed after a parliamentary committee concluded the distinction could not be justified. The same period produced a set of firsts that defined the country's international image, for better and worse, including regulated euthanasia in 2002 under conditions of unbearable suffering and multiple medical opinions."},
+    {tag:"general", text:"Dutch spatial planning keeps an area in the middle of the country deliberately empty. The Green Heart is the farmland ringed by Amsterdam, Rotterdam, The Hague and Utrecht, protected from building so the four cities never merge into one.",
+      deep:"The ring of cities is called the Randstad, meaning rim city, and treating the space between them as the thing to preserve is the founding idea of postwar Dutch planning. It is why one of the densest countries in Europe still looks agricultural from a train window. The policy is under constant pressure from a housing shortage, and every election produces a fresh argument about building in it."},
+    {tag:"general", text:"Herring made the Dutch rich before spices did. A 14th-century technique for gutting and salting the catch on board meant fleets could stay at sea for weeks, and the resulting export trade financed the ships that later went to Asia.",
+      deep:"The method, <em>haringkaken</em>, removes the gills and part of the gut while leaving the pancreas, whose enzymes cure the flesh from within. Barrels of it fed and paid for much of northern Europe. The season still opens with a ceremonial first barrel auctioned for charity, and the fish is eaten raw, held by the tail, with chopped onion, in a posture visitors find difficult to adopt gracefully."},
+    {tag:"general", text:"Dutch sailors named Australia New Holland and mapped three quarters of its coast, then declined to claim it. Their reports described a dry, unpromising place with nothing worth trading, so the Republic moved on.",
+      deep:"Willem Janszoon made the first recorded European landing in 1606, Abel Tasman charted the north and found Tasmania and New Zealand, and the name New Holland stayed on European maps into the 19th century. The Company was a business, and a coast with no visible market had no value to it. Several wrecks off Western Australia are the main physical trace left of the whole enterprise."},
+    {tag:"general", text:"The oldest national anthem in the world is Dutch, and it is written in the first person as the voice of a man who died in 1584 &mdash; William of Orange addressing the nation, in an acrostic whose verses spell out his name.",
+      deep:"The <em>Wilhelmus</em> dates from the 1570s revolt against Spain, though it was only made official in 1932. Fifteen stanzas exist; the first and sixth are sung. It is oddly unmartial for a rebellion song, with the speaker professing loyalty to the King of Spain even while fighting him, and the melody was borrowed from a French soldiers' tune of the period."},
+    {tag:"general", text:"The Netherlands exports its flood engineering as a service. Dutch firms and state agencies have advised on defences in New Orleans, Jakarta, Ho Chi Minh City and the Thames, selling four centuries of accumulated experience in not drowning.",
+      deep:"After Hurricane Katrina, American engineers studied Dutch storm surge barriers and design standards directly, and Dutch consultancies were hired on the rebuild. The pitch is partly technical and partly institutional: the Netherlands also exports the idea of a long-horizon water authority with its own budget and taxing power. There is a national Delta Commissioner whose job is to plan to the year 2100."},
+    {tag:"general", text:"Dutch is written with an official spelling fixed by treaty between the Netherlands and Belgium, revised roughly every decade, and published as a small green book that settles arguments about hyphens with the force of law for government use.",
+      deep:"The <em>Woordenlijst Nederlandse Taal</em>, known as the Green Booklet, is produced by the Dutch Language Union, a joint institution with Flanders and Suriname. Its rulings on compound words and the notorious intrusive letter between them are binding on schools and officials. Each revision produces a genuine public row, and at least one newspaper has refused to adopt a new edition on principle."},
+    {tag:"general", text:"The country's highest point is 322 metres and sits in a corner shared with Belgium and Germany, which means the Dutch national summit has a border crossing, a maze and a souvenir shop on it.",
+      deep:"The Vaalserberg is a hill by any other country's standards, and it only became the high point in 1962 when Dutch New Guinea, with real mountains, ceased to be Dutch territory. Between 1830 and 1919 the spot was a four-country point, thanks to Neutral Moresnet, a tiny sliver of disputed zinc-mining territory that briefly tried to adopt Esperanto as its national language."},
+    {tag:"general", text:"Almost every Dutch person can swim, because school swimming lessons are a near-universal institution in a country where falling into water is a realistic daily hazard rather than an exotic one.",
+      deep:"Children work through a graded diploma system, with the later levels requiring them to swim in clothes and shoes, tread water, and get out of a pool without using the steps. The reasoning is explicit: with canals, ditches and rivers everywhere, the relevant skill is not sport but survival after an accident. Drowning statistics among Dutch children are correspondingly low."},
+    {tag:"general", text:"Dutch cyclists mostly do not wear helmets, and the country has among the lowest cycling death rates per kilometre in the world &mdash; a pairing that road safety researchers spend a great deal of time explaining.",
+      deep:"The usual account is safety in numbers plus separated infrastructure: with so many cyclists, drivers expect them, and most journeys never share space with fast traffic. Dutch cycling law also places a strong presumption of liability on the motorist. Helmet campaigns are resisted partly on the grounds that they make cycling look dangerous, which would reduce numbers and make it genuinely so."},
+    {tag:"general", text:"Dutch addresses put the house number after the street and often add a letter, because canal houses were subdivided so many times that the numbering ran out. A flat can legitimately be at number 42-II, three floors up.",
+      deep:"Roman numerals indicate the storey in older cities, so an address can encode both position on the street and height above it. The system reflects buildings designed as single merchant houses and later carved into apartments, each with its own front door on the same stoop. Postal codes, introduced in the 1970s, are precise enough that a code plus a house number identifies an address without the street name."},
+    {tag:"general", text:"Sinterklaas, not Christmas, is the main gift-giving event, it falls on 5 December, and the saint's arrival by boat weeks earlier is broadcast live on national television as a news event with a reporter on the quayside.",
+      deep:"He arrives, by tradition, from Spain, a detail nobody satisfactorily explains. Children leave a shoe out overnight and receive small presents and spiced biscuits; adults exchange rhyming poems that are expected to tease the recipient. The evening itself involves a sack appearing at the door and a great deal of orchestrated confusion about who knocked, maintained by parents with straight faces."},
+    {tag:"general", text:"Dutch coffee consumption is among the highest per person on earth, and the standard office offer is not a question but a rhythm: coffee arrives, it keeps arriving, and refusing the second cup requires a reason.",
+      deep:"The habit has a colonial root, since the Dutch East India Company was central to moving coffee out of Yemen and into plantations on Java, giving Amsterdam an early hold on the European trade. Domestic culture settled on filter coffee in large quantities rather than small strong servings. A biscuit accompanies the first cup only; taking a second biscuit is a small and closely observed transgression."},
+    {tag:"general", text:"The Netherlands runs one of the world's densest railway networks and publishes its punctuality to the minute, which has produced a national pastime of complaining about a train system that most countries would consider enviable.",
+      deep:"Trains between the big cities run frequently enough that timetables are close to irrelevant for short hops. Because the network is dense, flat and busy, a single failure propagates fast, and leaves on the line genuinely do cause delays by reducing braking traction. The state publishes performance figures which hover around ninety per cent for trains within five minutes of schedule."},
+    {tag:"general", text:"A large share of Dutch households still keep a paper calendar of family birthdays hanging in the toilet, which is the only room every visitor enters alone and reads whatever is on the wall.",
+      deep:"The calendar is undated by year, so it is reused indefinitely, and it doubles as an archive of a family's social obligations. Its placement is entirely practical in a culture where forgetting a birthday is a real breach. Foreign guests tend to discover it mid-visit and emerge with unexpected knowledge of when the host's cousin was born."},
+
+    // --- Amsterdam ---
+    {tag:"place", place:"amsterdam", text:"Amsterdam's canal houses lean forward on purpose. The tilt, plus the hoisting beam in the gable, let furniture be winched up the outside of the building without scraping the facade, because the staircases were always too narrow to carry anything up.",
+      deep:"A forward lean of a few degrees keeps a hanging load clear of the windows below. The beam at the top still works, and Dutch removal firms still use it, with a pulley and a rope through the window. Some leaning is intentional and some is subsidence, which is why residents distinguish between a house that was built tilted and one that is merely going."},
+    {tag:"place", place:"amsterdam", text:"Amsterdam taxed houses on their width, so merchants built narrow and deep. The narrowest facade in the city is about a metre across &mdash; roughly the width of a door &mdash; and the house behind it widens out as soon as it is out of sight.",
+      deep:"Frontage was the taxable dimension, and canal plots were sold by it, so the rational move was a thin street face and a long interior running back to a garden or courtyard. The pattern is the same logic that produced Kyoto's eel-bed townhouses, arrived at independently. It also explains the steep staircases, the deep hallways, and the persistent Dutch expertise in moving sofas through windows."},
+    {tag:"place", place:"amsterdam", text:"Amsterdam is built on trees. The whole city stands on wooden piles hammered down through peat and clay into a firm sand layer, and the Royal Palace alone sits on about 13,600 of them.",
+      deep:"Piles driven below the water table survive indefinitely because bacteria that rot wood need oxygen. Lower the groundwater, expose the tops, and they decay, which is exactly what has happened in parts of the city: thousands of buildings, bridges and quay walls now need foundation replacement at enormous expense. Amsterdam maintains its groundwater level partly as a structural measure."},
+    {tag:"place", place:"amsterdam", text:"The canal ring was a single planned expansion, not organic growth. In the early 1600s the city laid out three concentric canals at once, sold the plots by social rank, and quadrupled its own size in one of the largest urban projects in Europe.",
+      deep:"Herengracht was for the richest, then Keizersgracht, then Prinsengracht, with the workers' Jordaan on a different, cheaper street grid outside. Radial canals connected the rings and the whole scheme was drained, dug and built plot by plot over decades to a fixed plan. The area is now UNESCO listed specifically as a work of hydraulic and urban engineering rather than as pretty architecture."},
+    {tag:"place", place:"amsterdam", text:"Amsterdam fishes between twelve and fifteen thousand bicycles out of its canals every year. A boat with a hydraulic claw works the bottom, and the haul is so routine it has its own municipal contract.",
+      deep:"Bikes end up in the water through theft, drunken enthusiasm, vandalism and canal-side parking that fails. The dredging is necessary because the accumulated metal fouls boat propellers and silts the beds. Recovered frames are almost always beyond use and go for scrap. The city has roughly as many bikes as residents, so the annual loss to the water is a small fraction of the stock."},
+    {tag:"place", place:"amsterdam", text:"The house where Anne Frank hid is preserved with its rooms deliberately empty. The furniture was removed by the Nazis after the arrest, and when the building became a museum the decision was made not to refurnish it.",
+      deep:"Otto Frank, the only one of the eight to survive, insisted the rooms stay bare, on the grounds that the emptiness was part of what happened there. Her diary survived because Miep Gies gathered the loose pages from the floor after the arrest and kept them unread until Otto returned. The pencil marks charting the children's height are still on the wall."},
+    {tag:"place", place:"amsterdam", text:"Amsterdam's pavement carries small brass plaques set into the stones outside ordinary front doors, each engraved with the name of a person deported from that address and the camp where they were killed.",
+      deep:"The <em>Stolpersteine</em> project, begun by a German artist, places the memorial at the last freely chosen home rather than at a central monument, so remembrance happens on the way to the shops. Each stone is the size of a cobble and sits slightly proud of the surface. There are thousands across the Netherlands, and residents of the buildings often clean their own."},
+
+    // --- Haarlem ---
+    {tag:"place", place:"haarlem", text:"Harlem in New York is named after Haarlem. The Dutch colonists of New Amsterdam named a settlement on Manhattan after the city, and the name outlasted Dutch rule by more than three centuries.",
+      deep:"Nieuw Haarlem was founded in 1658 on the northern part of the island, and the English kept the name while dropping a letter. Dutch place names survive all over the area: Brooklyn from Breukelen, Flushing from Vlissingen, the Bronx from a Dutch settler's surname, Harlem from Haarlem, and Coney Island possibly from the Dutch for rabbit."},
+    {tag:"place", place:"haarlem", text:"Schiphol Airport sits on the bed of a drained lake, and its name means roughly ship hole &mdash; a reference to the vessels wrecked in the storms that used to sweep across that water before it was pumped away.",
+      deep:"The Haarlemmermeer was a large, shallow, dangerous lake that kept eating land and shipping until it was pumped dry in the 1850s using steam engines, one of which still stands as a museum. The runways are now about four metres below sea level, which makes Schiphol one of the lowest major airports in the world, kept dry by the same drainage system that created the polder."},
+    {tag:"place", place:"haarlem", text:"The oldest museum in the Netherlands is in Haarlem and has barely been touched since it opened in the 1780s &mdash; an Enlightenment cabinet of fossils, instruments, minerals and paintings, still arranged as its founder's will required.",
+      deep:"Teylers Museum was funded by a wealthy Mennonite silk merchant who left his fortune to the advancement of art and science. Its oval hall of glass cases and wooden galleries is lit only by daylight, because electric light was never installed in it. The collection includes an enormous 18th-century electrostatic generator and drawings by Michelangelo and Raphael."},
+    {tag:"place", place:"haarlem", text:"Mozart played the organ in Haarlem's great church at the age of ten. The instrument was the largest in the world when it was built, and its reputation drew composers across Europe to try it.",
+      deep:"The M&uuml;ller organ of 1738 has around five thousand pipes, some of them thirty feet long, in a case that dominates the nave of the Grote Kerk. Handel and later Mendelssohn also played it. The church itself is oversized for the city, a leftover from an era when Haarlem expected to be more important than it turned out to be, and the acoustics are the main reason the organ sounds as it does."},
+    {tag:"place", place:"haarlem", text:"Tulip mania was largely a Haarlem phenomenon, and much of it happened in taverns. Traders met in back rooms, bought bulbs still in the ground on paper contracts, and settled up with wine rather than cash.",
+      deep:"The trade in these <em>colleges</em> was closer to gambling on futures than horticulture, and it collapsed in February 1637 when an auction found no bidders. Recent historians argue the episode was smaller and less economically destructive than legend claims, mostly affecting a narrow circle of speculators. The story's staying power says more about later moralising than about 17th-century finance."},
+
+    // --- Leiden ---
+    {tag:"place", place:"leiden", text:"Leiden's university was a reward for not surrendering. William of Orange founded it in 1575, a year after the city survived a Spanish siege, and the anniversary of the relief is still celebrated more fiercely there than any national holiday.",
+      deep:"The siege was broken by deliberately flooding the surrounding land and sailing a relief fleet across it, arriving with herring and white bread for a starving population. On 3 October the city eats hutspot, herring and white bread, and the university closes. Offering a university rather than tax relief was a calculated move: the new Republic needed Protestant-trained lawyers and ministers of its own."},
+    {tag:"place", place:"leiden", text:"The Pilgrims spent over a decade in Leiden before sailing for America. They were economic migrants in the Dutch Republic first, working in the textile trade, and the Mayflower voyage began as an attempt to leave the Netherlands rather than England.",
+      deep:"They had left England for religious freedom, found it in Leiden, and then worried their children were becoming Dutch and irreligious in a tolerant city. A first ship, the Speedwell, carried the Leiden group to England to join the Mayflower. Several of the family names on the passenger list appear in Leiden's municipal records, and the congregation's pastor never made the crossing."},
+    {tag:"place", place:"leiden", text:"Leiden has more than a hundred poems painted on its walls, in their original languages and scripts &mdash; Russian, Arabic, Chinese, Sanskrit, Yiddish &mdash; put up quietly by a private foundation without civic fanfare.",
+      deep:"The <em>muurgedichten</em> project began in 1992 with a poem by Marina Tsvetaeva and grew into a walking route without ever becoming an official city scheme. Each is painted directly on brick, in the alphabet of the original, so most residents cannot read most of them. The intended effect is encountering a poem you cannot understand on the way home, which is arguably what poetry does anyway."},
+    {tag:"place", place:"leiden", text:"Some of the first tulips in the Netherlands were planted in Leiden's botanical garden by a Flemish botanist who had been given bulbs from the Ottoman court, which makes the national flower a diplomatic gift that escaped.",
+      deep:"Carolus Clusius took charge of the Hortus Botanicus in 1593 and brought his bulb collection with him. He distributed bulbs to correspondents across Europe, which is how the plant spread and how the trade began. The garden, founded in 1590, is among the oldest in the world and still contains a reconstruction of his original planting plan."},
+    {tag:"place", place:"leiden", text:"Rembrandt was born in Leiden, the son of a miller, and left for Amsterdam at about twenty-six. The city has almost none of his work: it has the mill sites, the Latin school, and the register of his baptism.",
+      deep:"He enrolled at the university at fourteen and abandoned it quickly for a painter's workshop. His early Leiden pictures are small, dark and obsessively detailed, closer to the local fijnschilder tradition than to the broad handling he developed later. He also ran a studio there with Jan Lievens, and telling their earliest work apart is a standing problem in attribution."},
+
+    // --- Den Haag ---
+    {tag:"place", place:"denhaag", text:"The Dutch government does not sit in the capital. Amsterdam is the capital by constitution, but parliament, the ministries, the Supreme Court and the King's working palace are all in The Hague, which holds no such title.",
+      deep:"The split is a historical accident of the Republic, when the States General met at the counts' old court in The Hague while Amsterdam was the commercial centre. The constitution names Amsterdam, so the monarch is inaugurated there, in a church, and then returns to work. The Hague is still officially a city that grew from a village and for centuries had no city rights at all."},
+    {tag:"place", place:"denhaag", text:"The Peace Palace was paid for by an American steel magnate. Andrew Carnegie funded the building that now houses the International Court of Justice, after a Russian tsar's disarmament conference chose The Hague as neutral ground.",
+      deep:"The 1899 conference produced the Permanent Court of Arbitration and no disarmament. Carnegie put up one and a half million dollars for a home for it, and nations contributed the interior: a Japanese silk tapestry, Danish fountains, Swiss clocks. It opened in 1913, a year before the continent went to war, which is the kind of timing that makes the building's ambition legible from a distance."},
+    {tag:"place", place:"denhaag", text:"Dutch parliament meets beside a 13th-century hall built by a count as a banqueting room, which makes the Binnenhof one of the oldest seats of government still in use anywhere in Europe.",
+      deep:"The Ridderzaal, with its high wooden roof like an upturned ship, is used for the annual state opening, when the King arrives by coach and reads the government's plans. The complex grew around a hunting lodge in a hedge, which is what the city's name means. A long renovation recently pushed the whole parliament out into temporary offices for years."},
+    {tag:"place", place:"denhaag", text:"The Girl with a Pearl Earring is not a portrait of anyone, and the pearl is probably not a pearl. It is a <em>tronie</em>, a study of a type rather than a person, and the earring is too large to be a real pearl of that period.",
+      deep:"Scholars suspect glass or polished tin, since a natural pearl that size would have been a famous object in its own right. Technical study of the painting has found no eyelashes, a green background that has degraded from a translucent glaze, and no evidence of a specific sitter. The name is modern; for centuries the picture was catalogued simply as a girl in a turban."},
+    {tag:"place", place:"denhaag", text:"Madurodam, the miniature Netherlands, is a war memorial. It was funded by the parents of a young officer who died in Dachau, on the condition that the profits go to a foundation for students with tuberculosis.",
+      deep:"George Maduro was a Jewish law student from Cura&ccedil;ao who fought in the 1940 defence of the Netherlands, was decorated for it, joined the resistance and died in the camp. His parents put up the money for the park in his name. It still operates as a charitable enterprise, and the model city has grown into a compressed catalogue of Dutch engineering pride."},
+
+    // --- Delft ---
+    {tag:"place", place:"delft", text:"Delft blue is a forgery. Dutch potters could not make true porcelain, so when civil war in China cut off imports in the 1640s they imitated it in tin-glazed earthenware, painting cobalt on a white surface to fake a material they could not produce.",
+      deep:"The white glaze hid the yellowish clay underneath, and the blue was applied over it before a second firing, which allowed no correction. Delft workshops moved into abandoned breweries, inheriting their kilns, water rights and names. When Chinese exports resumed the local industry survived by inventing its own designs, which is why Delftware eventually looks Dutch rather than Chinese."},
+    {tag:"place", place:"delft", text:"Vermeer and the man who discovered microorganisms were born in the same small town in the same year, and when the painter died bankrupt it was the microscopist who was appointed to settle his estate.",
+      deep:"Antonie van Leeuwenhoek was a draper with no scientific training who ground lenses of extraordinary quality and kept his method secret to his death. Whether he and Vermeer were friends is unknown, but the coincidence has fuelled long speculation that Vermeer used optical devices, which the paintings' handling of focus and highlight does little to discourage."},
+    {tag:"place", place:"delft", text:"Vermeer was forgotten for two centuries. Barely thirty-five paintings are attributed to him, many were catalogued under other artists' names, and his reputation was rebuilt in the 1860s by a French critic who went looking for the maker of pictures he could not place.",
+      deep:"Th&eacute;ophile Thor&eacute;-B&uuml;rger published a study that assembled the scattered work into a single career and called him the Sphinx of Delft. Vermeer worked slowly, sold locally, and left his widow with eleven children and a mountain of debt. The scarcity that makes the paintings valuable is the same scarcity that let the work disappear in the first place."},
+    {tag:"place", place:"delft", text:"In 1654 the national gunpowder store in Delft exploded and levelled a large part of the city. Among the dead was Carel Fabritius, Rembrandt's most gifted pupil, and most of his work went with him.",
+      deep:"The Thunderclap was heard a hundred kilometres away and left a crater where a convent had stood. Fewer than a dozen paintings by Fabritius survive; one of them, a small study of a chained goldfinch, is now among the most famous pictures in the Netherlands. The blast is also why central Delft has open squares where dense streets used to be."},
+    {tag:"place", place:"delft", text:"William of Orange was shot dead in Delft in 1584, which is generally counted as the first assassination of a head of state with a handgun. The bullet holes are still shown in the wall of the house where he fell.",
+      deep:"Balthasar G&eacute;rard bought the wheel-lock pistol with money he had obtained from the Prince's own staff and fired at close range on the stairs. Philip II of Spain had offered a bounty for the killing. Orange was buried in Delft rather than the family seat in Breda, which was in Spanish hands, and the Nieuwe Kerk there has been the royal burial vault ever since."},
+
+    // --- Rotterdam ---
+    {tag:"place", place:"rotterdam", text:"Rotterdam has a skyline because its centre was destroyed. German bombers flattened it in May 1940, and a line of lights set into the pavement now traces the exact boundary of the resulting fire.",
+      deep:"The <em>Brandgrens</em> runs for twelve kilometres and can be walked, which makes the shape of the loss legible on foot. Rebuilding chose modern architecture deliberately rather than reconstructing what was lost, a decision still argued about. The consequence is the one large Dutch city that does not look Dutch, and a local identity built on having started again."},
+    {tag:"place", place:"rotterdam", text:"Rotterdam was the busiest port in the world for over three decades, and when Asian ports overtook it the response was to build more land: Maasvlakte 2 was constructed out into the North Sea using sand dredged from the seabed.",
+      deep:"The extension added about two thousand hectares of terminal, rail and quay, designed for container ships too large for older docks. Much of it runs on automated cranes and driverless vehicles. The port area now stretches some forty kilometres from the city centre to open water, which is why Rotterdam's economy is enormous and its waterfront is mostly not where anyone lives."},
+    {tag:"place", place:"rotterdam", text:"Rotterdam has a district of houses tilted forty-five degrees onto their corners. Thirty-eight cubes balanced on concrete stalks, built in the 1970s as an experiment in stacking a village above a busy road.",
+      deep:"Piet Blom's <em>Kubuswoningen</em> put every wall on a slant, so about a quarter of the floor area is unusable and the windows point at the sky or the pavement. Residents commission custom furniture. One cube is open as a show home, and another is a hostel, which means the standard reaction &mdash; wondering how anyone lives in it &mdash; can be tested overnight."},
+    {tag:"place", place:"rotterdam", text:"Hundreds of thousands of Europeans left for America from a single Rotterdam quay, and the shipping line's head office is now a hotel where you can sleep in the room the company's directors used.",
+      deep:"The Holland America Line ran the crossing from Wilhelminakade, and the building on the pier handled the paperwork, the medical inspections and the farewells. Emigrants came from across central and eastern Europe by train to board there. The pier is now a restaurant and hotel, with the original panelling and clocks, at the point where the Nieuwe Maas opens toward the sea."},
+    {tag:"place", place:"rotterdam", text:"There is a Dutch saying that money is earned in Rotterdam, distributed in The Hague and spent in Amsterdam &mdash; and Rotterdam has adopted its half of the insult as a civic identity built on rolled-up sleeves.",
+      deep:"The city's self-image is anti-decorative and suspicious of Amsterdam's charm, which shows up in its architecture, its football culture and a local reputation for bluntness even by Dutch standards. Erasmus was born here and remains the most-invoked local name, which gives a working port city a humanist patron saint. The bridge, the university and the main hospital all carry his name."},
+
+    // --- Utrecht ---
+    {tag:"place", place:"utrecht", text:"Utrecht's cathedral tower stands alone because a tornado tore the nave down in 1674 and nobody rebuilt it. The gap between the tower and the surviving choir is now a public square, sitting exactly where the church used to be.",
+      deep:"The nave had been structurally weak for centuries, its flying buttresses never properly finished for lack of money. The storm finished the argument. The outline of the vanished columns is marked in the paving of the Domplein, and the tower, at 112 metres, is still the tallest church tower in the country. Climbing it involves 465 steps and a guide."},
+    {tag:"place", place:"utrecht", text:"Utrecht's canals have two levels. The water runs well below street height with a continuous wharf and cellar system at water level, so goods could be unloaded straight into storage under the houses.",
+      deep:"The <em>werven</em> and <em>werfkelders</em> were built when the river level was lowered in the Middle Ages, leaving a strip of quay below the street and vaulted cellars running back under the buildings to the front doors above. The cellars are now cafes and workshops, which means the city has a second, lower street layer that only appears when you go down the steps."},
+    {tag:"place", place:"utrecht", text:"The world's largest bicycle parking garage is under Utrecht's railway station, with space for about 12,500 bikes on three levels, and a display at the entrance showing how many places are still free.",
+      deep:"It works like a car park, with counters, one-way ramps wide enough to ride, and a section for oversized cargo bikes. The scale follows from the rail geography: Utrecht sits at the centre of the network and almost every intercity route passes through it, so a large share of the country changes trains here and a large share of those people arrive on a bicycle."},
+    {tag:"place", place:"utrecht", text:"Miffy was invented in Utrecht, and the city treats her as a civic figure: a traffic light for pedestrians shaped like her, a museum across the road from the fine art museum, and a statue in a square.",
+      deep:"Dick Bruna drew the rabbit in 1955 for his young son and went on to make well over a hundred books, working in a small studio in the city for decades and cycling to it. The style is a deliberate reduction: flat colour, thick black outline, no perspective, a face of two dots and a cross. He cited De Stijl and Matisse as the reasons the drawings look the way they do."},
+    {tag:"place", place:"utrecht", text:"The treaty that ended the War of the Spanish Succession was signed in Utrecht, and a century and a half earlier the union that founded the Dutch Republic was signed there too &mdash; the city has a habit of hosting other people's settlements.",
+      deep:"The Union of Utrecht in 1579 bound the rebelling provinces together and is treated as a founding document, including an early clause on freedom of conscience. The Peace of Utrecht in 1713 redrew Europe and handed Gibraltar to Britain. The city's central position made it the practical meeting point, which is the same reason its railway station is now the busiest in the country."},
+
+    // --- Flevoland ---
+    {tag:"place", place:"flevoland", text:"Flevoland is younger than the pop charts. The entire province was the bottom of an inland sea until it was pumped dry in the 20th century, and it only became a province in 1986, which makes it the newest land in Europe.",
+      deep:"The Zuiderzee was closed off by a dam in 1932, turning salt sea into a freshwater lake, and then drained in stages to create polders for farming and housing. Roads, towns and forests were laid out on a blank sheet, which is why the landscape is ruler-straight and the trees are all the same age. Lelystad, the capital, is named after the engineer who planned the whole thing."},
+    {tag:"place", place:"flevoland", text:"There is an island in the middle of Flevoland that has not been an island since the 1940s. Schokland was evacuated in 1859 because the sea was taking it, and the drained land has left it standing as a low mound in a field.",
+      deep:"The inhabitants were moved off by royal decree when the island became too dangerous to live on. When the surrounding water was pumped away, the ground revealed the island's edges, its church, and archaeology going back to the Stone Age. It became the first Dutch site on the UNESCO World Heritage list, as a record of a thousand years of losing and then taking back land."},
+    {tag:"place", place:"flevoland", text:"On reclaimed seabed in Flevoland the Dutch created a wilderness on purpose, released large grazing herds into it, and then spent years in a bitter public argument about whether the animals should be fed in hard winters.",
+      deep:"The Oostvaardersplassen was set aside as an accidental nature reserve and turned into an experiment in rewilding without predators, with cattle, deer and horses managed as a self-regulating system. Mass winter deaths triggered national outrage, protests at the fences, and eventually a policy change toward culling and shelter. It remains the most-cited European case study in how rewilding meets public opinion."},
+    {tag:"place", place:"flevoland", text:"The fishing town of Urk sat on an island for centuries and its community stayed distinct after the water was removed. It now has a fleet, no coastline, and a dialect and religious culture unlike anywhere around it.",
+      deep:"Urk was joined to the mainland in 1939 when the polder around it was drained. The fleet relocated its base but the town kept the trade, and Urk boats still land a large share of the Dutch catch from ports elsewhere. Sunday observance remains strict, church attendance is exceptionally high by Dutch standards, and residents distinguish sharply between Urkers and everyone else."},
+    {tag:"place", place:"flevoland", text:"A full-size wooden East India Company ship was built from scratch in Lelystad by trainees using 17th-century methods, because no original survived and the only way to study one was to make one.",
+      deep:"The Batavia took a decade, employed young people learning shipwright trades, and involved reconstructing the design from written specifications, paintings and wrecks. It sailed to Australia for the Sydney Olympics. Building a replica is now a recognised research method: the process forces you to solve problems the original builders solved, which written sources usually do not record."},
+
+    // --- De Veluwe ---
+    {tag:"place", place:"veluwe", text:"The sand drifts on the Veluwe are man-made. Medieval overgrazing and turf cutting stripped the vegetation until the soil blew away, creating bare dunes inland that later generations mistook for natural desert.",
+      deep:"Sheep were kept in huge numbers for wool and manure, and heathland was cut for fuel, until the topsoil lost its cover and the wind moved it. Villages were buried. Foresters spent the 19th century planting pine to hold the sand down, which is why so much of the Veluwe is conifer plantation. The remaining open drift is now protected as a rare habitat in its own right."},
+    {tag:"place", place:"veluwe", text:"At the national park on the Veluwe you ride a free white bicycle. Around 1,800 of them stand unlocked at the gates, you take one and leave it wherever you finish, which has worked without a deposit system for decades.",
+      deep:"The Hoge Veluwe park has no through traffic and long sandy avenues, so the bike is the practical way to cross it. The same park holds the Kr&ouml;ller-M&uuml;ller Museum, built around Helene Kr&ouml;ller-M&uuml;ller's collection of nearly ninety Van Gogh paintings, the second largest anywhere, assembled while he was still unfashionable and cheap."},
+    {tag:"place", place:"veluwe", text:"Deer and wild boar on the Veluwe cross the motorway on their own bridges. The Netherlands has built dozens of wildlife overpasses, and one of them is among the widest in the world at about 800 metres across.",
+      deep:"An <em>ecoduct</em> is a landscaped bridge, planted and shaped so animals do not perceive it as a structure, built to reconnect habitat split by roads and rail. Camera studies show badgers, deer, boar and smaller mammals using them heavily within a few years. In a country this fragmented, the alternative is isolated populations too small to survive, so the bridges are cheaper than the loss."},
+    {tag:"place", place:"veluwe", text:"In the middle of the Veluwe forest stands an enormous windowless concrete hall built in the 1920s to talk to the Dutch East Indies by radio &mdash; a cathedral of a building erected in the woods because the transmitter needed space and quiet.",
+      deep:"Radio Kootwijk carried telegraph and later telephone traffic to Java, closing a communication gap that had previously taken weeks by ship. The building's blank expressionist mass, nicknamed the cathedral, was designed to impress as much as to function. The technology was obsolete within decades; the hall survives as a monument, standing in heath that is now grazed to keep it open."},
+    {tag:"place", place:"veluwe", text:"The royal palace on the Veluwe has a garden that was buried for two centuries. A later king covered the Baroque parterres with an English landscape park, and they were excavated and replanted only in the 1970s.",
+      deep:"Het Loo was built for William III, who became king of England, and its gardens were laid out with strict symmetry, fountains and clipped hedges. Nineteenth-century taste preferred lawns and clumps of trees, so the whole thing was grassed over. The restoration used old engravings and archaeology to rebuild it, which means the garden visitors walk today is a reconstruction of a design under a demolished fashion."},
+
+    // --- Nijmegen & Arnhem ---
+    {tag:"place", place:"nijmegen", text:"Nijmegen is the oldest city in the Netherlands. The Romans built a camp and then a town here, it held market rights before the country existed, and it celebrated its two thousandth anniversary in 2005.",
+      deep:"Legions were stationed on the hill above the Waal from around the first century BC, and the settlement received Roman town rights under Trajan, whose name survives in the local Latin form Ulpia Noviomagus. Charlemagne later built a palace here. The claim to seniority is disputed by Maastricht, which is also Roman, and the argument is conducted with a seriousness visitors find endearing."},
+    {tag:"place", place:"nijmegen", text:"The Allied airborne operation of September 1944 was meant to end the war by Christmas by seizing a chain of bridges. It took Nijmegen's and failed at Arnhem's, which left the northern Netherlands under occupation for another winter.",
+      deep:"Operation Market Garden dropped thousands of paratroopers behind the lines to open a corridor into Germany. The Arnhem bridge was held by a British division that was cut off and largely destroyed. The consequence for Dutch civilians was the Hunger Winter, in which thousands starved in the still-occupied west, with people walking to farms to trade possessions for food."},
+    {tag:"place", place:"nijmegen", text:"Nijmegen was bombed by its own allies. In February 1944 American aircraft struck the city centre by mistake, apparently taking it for a German town, and around eight hundred people were killed.",
+      deep:"The aircraft were returning from an aborted mission over Germany and released their loads on what they believed was a legitimate target across the border. A school was hit during class. The event was barely discussed for decades, partly because criticising the liberators was awkward, and it received a proper memorial and public account only long afterwards."},
+    {tag:"place", place:"nijmegen", text:"The largest walking event in the world happens here every July: tens of thousands of people walk 30, 40 or 50 kilometres a day for four consecutive days, watched by crowds who line the route with music and fruit.",
+      deep:"The Vierdaagse began in 1909 as a military fitness march and became an international civilian event, with soldiers from many countries still taking part in uniform and full pack. Finishing earns a medal, and repeat finishers accumulate them. The city effectively shuts down for the week, and the final day's entry into Nijmegen along a road strewn with gladioli is a genuine spectacle."},
+    {tag:"place", place:"nijmegen", text:"At Nijmegen the Dutch moved a dike backwards and dug a second channel for the river, deliberately creating an island in the middle of the city to give the water somewhere to go.",
+      deep:"Room for the River reversed centuries of policy: instead of building dikes higher, give the river more space so peak flows have room to spread. The Waal's bottleneck here was widened by relocating the dike several hundred metres and excavating a side channel, with a new urban park and beaches on the resulting island. It is the flagship example of Dutch flood policy after the near-misses of the 1990s."},
+
+    // --- Eindhoven & Brabant ---
+    {tag:"place", place:"eindhoven", text:"The compact cassette and, with Sony, the compact disc were both developed in Eindhoven. Philips ran a physics laboratory there that produced the formats the 20th century listened to music on.",
+      deep:"Philips released the cassette in 1963 and, crucially, licensed it free of royalties to establish it as a standard rather than a proprietary product. The CD followed in the early 1980s as a joint specification with Sony, settling everything from disc diameter to error correction. The company also made the light bulbs that built the city, the shaver, and the first affordable X-ray tubes."},
+    {tag:"place", place:"eindhoven", text:"Every advanced computer chip on earth is made with machines from one company just outside Eindhoven. ASML is the only manufacturer of extreme ultraviolet lithography systems, which makes a Brabant industrial estate a genuine chokepoint in the world economy.",
+      deep:"An EUV machine costs well over a hundred million euros, ships in multiple aircraft, and works by vaporising tin droplets with a laser to produce light at 13.5 nanometres, focused by mirrors polished to atomic smoothness. It grew out of a Philips joint venture that nearly failed repeatedly. Export licences for these machines are now a standing item in international politics."},
+    {tag:"place", place:"eindhoven", text:"Carnival divides the country along a line that has not moved much since the Reformation. The southern provinces spend days in costume and parades while the north goes to work, and the boundary is a Catholic-Protestant fault visible on a modern map.",
+      deep:"In Brabant and Limburg towns elect a Prince Carnival, hand him a symbolic key to the city, and suspend normal life for the days before Lent. Above the rivers, the same days are ordinary. The split follows the historic frontier where the Protestant Republic's advance stopped, leaving the south Catholic, and it still shows up in voting patterns, school types and how people say hello."},
+    {tag:"place", place:"eindhoven", text:"Van Gogh painted The Potato Eaters in a Brabant village near Eindhoven, working in a peasant cottage with the family sitting for him, and considered it the first painting where he had really done something.",
+      deep:"He spent about two years in Nuenen, produced hundreds of drawings and paintings there, and used a deliberately muddy palette he compared to the colour of a dusty unpeeled potato. His mother lived in the village and the relationship was difficult. The picture was criticised at once for its distorted anatomy, which Van Gogh defended on the grounds that peasants should not look like drawing-room models."},
+    {tag:"place", place:"eindhoven", text:"One of the oldest theme parks in the world is in Brabant and predates Disneyland. It opened in 1952 around a wood of illustrated fairy tales, and it still leads with storytelling rather than rides.",
+      deep:"De Efteling began as a sports park with a fairy-tale forest designed by the illustrator Anton Pieck, whose deliberately old-fashioned style set the visual tone for everything built since. It has grown into one of Europe's largest parks while keeping the original wood at its centre. Several attractions are built around specifically Dutch and Central European folk tales rather than anything American."},
+
+    // --- Maastricht & Limburg ---
+    {tag:"place", place:"maastricht", text:"The euro is named in a treaty signed in Maastricht. The 1992 agreement that created the European Union and set the path to a single currency was negotiated and signed in this city on the Meuse.",
+      deep:"Maastricht held the rotating presidency at the right moment, and its position on the border made the symbolism convenient. The treaty established European citizenship, the three-pillar structure, and the convergence criteria that member states still argue about. Ratification was nearly derailed when Danish voters rejected it, which is why the word Maastricht appears in political arguments across the continent to this day."},
+    {tag:"place", place:"maastricht", text:"When the Netherlands had to hide Rembrandt's Night Watch from the Germans, it went into a marl cave in Limburg &mdash; rolled off its frame and stored in a climate-controlled bunker inside a hill quarried since Roman times.",
+      deep:"The Sint-Pietersberg caves are a man-made maze of hundreds of kilometres of galleries cut for building stone, with a stable temperature and humidity that happen to suit paintings. A purpose-built shelter was constructed inside. The same tunnels have sheltered civilians in several wars, hold centuries of charcoal graffiti, and are cold enough that guides warn visitors to bring a coat in August."},
+    {tag:"place", place:"maastricht", text:"The highest point in the European Netherlands is a 322-metre hill where three countries meet, so you can stand in the Netherlands, Belgium and Germany within a few paces and then queue for a pancake.",
+      deep:"The Vaalserberg only became the national high point in 1962, when Dutch New Guinea and its real mountains left Dutch sovereignty. Until 1919 the same spot was a four-country point, thanks to Neutral Moresnet, a disputed zinc-mining territory that had no clear owner and briefly attracted a scheme to make it an Esperanto-speaking state."},
+    {tag:"place", place:"maastricht", text:"Maastricht's name means Meuse crossing. It marks the point where a Roman road forded the river, and the city has been a crossing, a garrison and a border town ever since, besieged more than twenty times.",
+      deep:"Its strategic value made it one of the most heavily fortified places in Europe, with layers of walls, bastions and underground tunnels dug so defenders could mine beneath attackers. The fortifications were dismantled in the 19th century once they were militarily obsolete, but long stretches survive as city park. Being fought over so often is also why the city's culture faces south rather than north."},
+    {tag:"place", place:"maastricht", text:"Limburg was a coal region until the mines were shut in the 1960s and 70s, closed deliberately and quickly after the Groningen gas field made them uneconomic, which is why a Dutch province has a rust belt.",
+      deep:"Around 45,000 jobs went in about a decade. The government promised replacement industry and the transition was rougher than advertised, leaving long-term unemployment and a sense of having been sacrificed to a national windfall found elsewhere. Former shaft sites are now business parks and a museum, and the regional identity still carries the mines as a reference point."},
+
+    // --- Zeeland ---
+    {tag:"place", place:"zeeland", text:"The storm surge barrier across the Eastern Scheldt was supposed to be a solid dam. Protests over the loss of a tidal ecosystem forced a redesign into sixty-two vast gates that stay open most of the time and close only in a storm.",
+      deep:"The original plan would have killed the salt marsh, the oyster beds and the fishery. Fishermen and environmentalists pushed a compromise that cost far more and took far longer: piers sunk onto prepared mattresses on the seabed, with steel gates lowered between them. It is the point where Dutch water engineering stopped treating the sea purely as an enemy to be excluded."},
+    {tag:"place", place:"zeeland", text:"Zeeland took the worst of the 1953 flood. The sea came through the dikes at night across the islands, and the response is that the province now lives behind the largest flood defence system ever built.",
+      deep:"Whole villages were cut off for days, rescue came by small boat, and some areas stayed under water for months. The Delta Works that followed closed off estuaries, shortened the coastline by hundreds of kilometres and raised standards everywhere. A memorial museum sits in a caisson used to plug the final breach, which is an unusually direct way to house the story of a disaster."},
+    {tag:"place", place:"zeeland", text:"The first known patent application for a telescope was filed in Middelburg in 1608 by a local spectacle maker, and it was refused on the grounds that the device was too easy to copy.",
+      deep:"Hans Lippershey demonstrated an instrument that made distant things appear near, and the States General declined the monopoly while paying him to build binocular versions. Word reached Italy within months, where Galileo built his own and pointed it at Jupiter. Two other claimants in the same small town muddied the credit, which is roughly what happens when an idea is ready to be had."},
+    {tag:"place", place:"zeeland", text:"There is a drowned village under the tidal marsh at Saeftinghe. A flood in 1570 took the land, the sea kept it, and local legend blames the inhabitants' arrogance rather than the dikes.",
+      deep:"The Drowned Land of Saeftinghe is now a large brackish marsh cut by creeks, crossed only with a licensed guide because the channels fill fast and the mud holds. The story of the rich village punished for its pride is the kind of moral narrative that tends to attach to Dutch flood events, where the engineering explanation and the folk explanation have coexisted for centuries."},
+    {tag:"place", place:"zeeland", text:"Most Dutch oysters and mussels come through one small Zeeland town, where shellfish from several countries are relaid in the local tidal water to clean and finish before sale.",
+      deep:"Yerseke sits on the Eastern Scheldt, and the barrier that kept the estuary tidal is precisely what keeps the industry alive. Mussels are grown on the seabed, dredged, then held in <em>mosselpercelen</em>, leased plots of water, to purge sand. The trade runs on an auction and a strict seasonal opening, and the Dutch argue with the Belgians every year about who eats them properly."},
+
+    // --- Friesland ---
+    {tag:"place", place:"friesland", text:"Friesland has its own official language, and it is the closest living relative of English. The old test phrase &ldquo;bread, butter and green cheese is good English and good Fries&rdquo; is nearly identical in both.",
+      deep:"Frisian is used in schools, courts and local government, and the province's official name is Frysl&acirc;n. It shares sound changes with English that Dutch never made, which is why some words look uncannily familiar to an English reader and not at all familiar to a Dutch one. Roughly half a million speakers remain, and the language has its own literature and broadcaster."},
+    {tag:"place", place:"friesland", text:"The Netherlands has a 200-kilometre ice skating race across eleven Frisian cities that can only be held when the natural ice is thick enough everywhere. It has run fifteen times in a century and not once since 1997.",
+      deep:"The Elfstedentocht needs at least fifteen centimetres of ice along the whole route, judged by inspectors walking it. When conditions look possible the country enters a state of collective anticipation, with newsreaders discussing ice thickness and employers braced for absence. Warmer winters have made it increasingly unlikely, which has turned the race into a kind of national climate indicator."},
+    {tag:"place", place:"friesland", text:"Frisians compete at vaulting over canals with a pole. You sprint at a pole standing in the water, climb it while it falls, and try to land on the far bank; the record is over twenty-two metres.",
+      deep:"<em>Fierljeppen</em> began as a practical way for farmers to cross ditches and became a codified sport with leagues, national championships and specialised carbon poles up to thirteen metres long. The skill is in climbing fast enough while the pole tips, which is why competitors are typically light, tall and unafraid. Failed attempts end in the canal, on camera, which is part of the appeal."},
+    {tag:"place", place:"friesland", text:"The black and white dairy cow that dominates milk production worldwide is Frisian. The Holstein-Friesian was bred on these clay pastures and exported so successfully that it is now the default cow on several continents.",
+      deep:"Centuries of selection on rich reclaimed grassland produced an animal that converts grass into an exceptional volume of milk. Dutch and German breeders kept herd books, and American breeding later pushed yields further still. The Frisian horse, a heavy black riding and carriage breed, comes from the same province and nearly died out in the 20th century before being deliberately rebuilt."},
+    {tag:"place", place:"friesland", text:"Frisians spent centuries insisting they had no lord. The tradition of Frisian Freedom held that they answered to the emperor directly and to no count in between, and it shaped a province of villages and mounds rather than castles.",
+      deep:"The claim rested on a supposed privilege from Charlemagne and functioned as a working political arrangement for a long period, with local assemblies and elected judges instead of feudal hierarchy. It also meant no strong central authority when neighbours arrived with one. The absence of castles in the Frisian landscape, compared with the rest of the country, is the physical trace of it."},
+
+    // --- Groningen ---
+    {tag:"place", place:"groningen", text:"Under Groningen lies one of the largest natural gas fields ever found. It paid for decades of Dutch welfare spending, gave economics the term Dutch disease, and caused earthquakes that cracked thousands of houses.",
+      deep:"Discovered in 1959, the field made the country rich and its currency strong enough to damage other exports, which is what Dutch disease names. Extraction also caused the ground to subside and the rock to slip, producing shallow tremors that broke homes never built for seismic loads. After years of damage claims, protest and a parliamentary inquiry that found residents had been treated shamefully, production was ended."},
+    {tag:"place", place:"groningen", text:"Before dikes existed, people here lived on artificial hills. Villages in the northern clay were built on <em>wierden</em>, mounds raised by hand over generations to keep houses, livestock and the church above the tide.",
+      deep:"Each mound grew as inhabitants added earth, dung and rubbish, so a cross-section is a stratigraphy of the settlement's own life, sometimes several metres deep and centuries old. Many are still visible as villages standing improbably above flat fields, with the church at the summit. They are the oldest Dutch answer to water: not keeping it out, but getting above it."},
+    {tag:"place", place:"groningen", text:"Groningen is one of the youngest cities in Europe by average age, because a university of some 35,000 students sits in a city of around 230,000 people and empties out every summer.",
+      deep:"The university was founded in 1614, making it among the oldest in the country, and the student population has shaped the housing market, the nightlife and the politics. The effect is visible in the demographics: the city's average age is markedly lower than the national one, and its population turns over constantly as one cohort graduates and another arrives in September."},
+    {tag:"place", place:"groningen", text:"Groningen rebuilt its street network in 1977 to make driving across the centre impossible. The plan was pushed through overnight, generated furious protest, and turned the city into the most-cycled in the Netherlands.",
+      deep:"The traffic circulation plan divided the centre into sectors that cars could enter but not cross, forcing drivers back out to a ring road while bikes went straight through. Shopkeepers predicted ruin and some sued. Around six in ten trips in the city are now made by bicycle, one of the highest shares anywhere, and planners from other countries visit specifically to study what was done."},
+    {tag:"place", place:"groningen", text:"The tower over Groningen's main square has been struck by lightning, burned, and rebuilt repeatedly, and the city bought it from the church in the 1590s &mdash; so the bell tower belongs to the municipality, not the parish.",
+      deep:"The Martinitoren is about 97 metres tall and was intended to be higher before the money and structural confidence ran out. Municipal ownership made sense when the tower doubled as a lookout for fires and approaching armies. Its carillon is played by a city carillonneur, and the climb up passes the bell chamber, which is an unnerving place to be near the hour."},
+
+    // --- De Wadden ---
+    {tag:"place", place:"wadden", text:"The Wadden Sea is the largest unbroken system of intertidal sand and mud flats in the world, and twice a day a substantial part of it stops being sea at all and becomes walkable ground.",
+      deep:"The flats stretch along the coast from the Netherlands through Germany to Denmark and are UNESCO listed as a natural site. The tidal cycle exposes enormous feeding grounds that make the area critical for migratory birds: millions use it as a refuelling stop between Africa and the Arctic. The whole system moves, with channels shifting position year on year."},
+    {tag:"place", place:"wadden", text:"You can legally walk from the mainland to the islands across the seabed, with a licensed guide, timing the crossing against the tide. Going without one is both illegal in places and a reliable way to require rescue.",
+      deep:"<em>Wadlopen</em> means hours of wading through mud and chest-deep channels, navigating by compass and knowledge of where the gullies run. Guides are certified, weather calls are absolute, and the return is not an option once the tide turns. The reward is standing on the floor of the North Sea with no land in sight, listening to birds, an hour from the nearest road."},
+    {tag:"place", place:"wadden", text:"The last fighting in Europe in the Second World War happened on a Dutch island, and it continued for two weeks after the German surrender. Georgian soldiers on Texel rose against their German officers and the battle ran on to 20 May 1945.",
+      deep:"The Georgians were prisoners of war pressed into German service who revolted in April 1945 hoping the Allies would land. No landing came. Germans retook the island in brutal fighting; hundreds of Georgians, Germans and Dutch islanders died, and farms were burned. Canadian troops only arrived after the general surrender, which is why the episode is sometimes called Europe's last battle."},
+    {tag:"place", place:"wadden", text:"The Texel sheep is one of the world's most widely used meat breeds, exported from a single Dutch island to farms across Europe, the Americas and New Zealand, where it is crossed into local flocks for the muscling.",
+      deep:"The island's salt-influenced pasture and long isolation produced a stocky animal with an exceptional meat-to-bone ratio. Lambs on Texel outnumber people in spring. The local product sold as salt-meadow lamb comes from grazing on ground washed by seawater, which is claimed to season the meat from the inside, a claim nobody on the island is inclined to examine too closely."},
+    {tag:"place", place:"wadden", text:"Two of the Dutch Wadden islands have no inhabitants and no visitors. Rottumerplaat and Rottumeroog are left to the birds and the sand, with access forbidden and the coastline allowed to move as it likes.",
+      deep:"For years a warden was posted to Rottumerplaat each summer, a job so isolated that the writer Jan Wolkers took it and produced a diary of the experience. The practice has largely ended and the islands are now monitored remotely. They are among the very few places in a crowded country where the policy is explicitly to do nothing and see what happens."}
+  ];
+
+  FACTS.forEach(function(f, i){ f.id = i; });
+
+  // Curated facts carry numeric ids; ones Claude writes later carry string ids.
+  var genFacts = [];
+  var ALL = FACTS.slice();
+  var factById = {};
+  function reindex(){
+    ALL = FACTS.concat(genFacts);
+    factById = {};
+    ALL.forEach(function(f){ factById[f.id] = f; });
+  }
+  reindex();
+
+  var KEPT_KEY = "polder-almanac-kept";
+  var SEEN_KEY = "polder-almanac-seen";
+  var FILTER_KEY = "polder-almanac-filter";
+  var GEN_KEY = "polder-almanac-written";
+  var PLACES_KEY = "polder-almanac-places";
+
+  function validId(n){
+    return Number.isInteger(n) || (typeof n === "string" && n.length > 0);
+  }
+  function readLocal(key){
+    try{
+      var raw = window.localStorage.getItem(key);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.filter(validId) : [];
+    } catch(e){ return []; }
+  }
+  function readJsonLocal(key){
+    try{
+      var raw = window.localStorage.getItem(key);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeLocal(key, value){
+    try{ window.localStorage.setItem(key, JSON.stringify(value)); } catch(e){ /* private mode: stay in memory */ }
+  }
+
+  // Generated text is rendered as HTML, so allow only the markup this page uses.
+  function safeHtml(s){
+    var out = String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    out = out.replace(/&lt;em&gt;/g, "<em>").replace(/&lt;\/em&gt;/g, "</em>");
+    out = out.replace(/&amp;(mdash|ndash|ldquo|rdquo|lsquo|rsquo|hellip|nbsp|numero);/g, "&$1;");
+    return out;
+  }
+
+  var keptIds = readLocal(KEPT_KEY);
+  var seenIds = readLocal(SEEN_KEY);
+
+  var docs = { kept:null, seen:null };
+  var writeState = { kept:{busy:false,queued:false}, seen:{busy:false,queued:false} };
+
+  function push(which){
+    var ref = docs[which];
+    if(!ref) return;
+    var st = writeState[which];
+    if(st.busy){ st.queued = true; return; }
+    st.busy = true;
+    ref.set({ ids: (which === "kept" ? keptIds : seenIds).slice() })["catch"](function(){})
+      .then(function(){
+        st.busy = false;
+        if(st.queued){ st.queued = false; push(which); }
+      });
+  }
+  function saveKept(){ writeLocal(KEPT_KEY, keptIds); push("kept"); }
+
+  var seenTimer = null;
+  function saveSeen(immediate){
+    writeLocal(SEEN_KEY, seenIds);
+    if(seenTimer){ clearTimeout(seenTimer); seenTimer = null; }
+    if(immediate){ push("seen"); return; }
+    seenTimer = setTimeout(function(){ seenTimer = null; push("seen"); }, 1200);
+  }
+
+  var factEl = document.getElementById("fact");
+  var placeTag = document.getElementById("placeTag");
+  var indexTag = document.getElementById("indexTag");
+  var freshTag = document.getElementById("freshTag");
+  var btn = document.getElementById("nextBtn");
+  var backBtn = document.getElementById("backBtn");
+  var fwdBtn = document.getElementById("fwdBtn");
+  var keepBtn = document.getElementById("keepBtn");
+  var keepLabel = document.getElementById("keepLabel");
+  var storyBtn = document.getElementById("storyBtn");
+  var storyLabel = document.getElementById("storyLabel");
+  var deepWrap = document.getElementById("deepWrap");
+  var deepText = document.getElementById("deepText");
+  var savedToggle = document.getElementById("savedToggle");
+  var savedPanel = document.getElementById("savedPanel");
+  var savedList = document.getElementById("savedList");
+  var chipsEl = document.getElementById("chips");
+  var progressEl = document.getElementById("progress");
+  var exhaustedEl = document.getElementById("exhausted");
+  var exhaustedText = document.getElementById("exhaustedText");
+  var resetBtn = document.getElementById("resetBtn");
+  var retryBtn = document.getElementById("retryBtn");
+  var addPlaceForm = document.getElementById("addPlaceForm");
+  var addPlaceInput = document.getElementById("addPlaceInput");
+  var addNote = document.getElementById("addNote");
+  var removePlaceBtn = document.getElementById("removePlaceBtn");
+  var corpusCount = document.getElementById("corpusCount");
+
+  var current = null;
+
+  var BASE_PLACES = PLACES;
+  var customPlaces = readJsonLocal(PLACES_KEY).filter(function(p){
+    return p && typeof p.key === "string" && typeof p.name === "string";
+  });
+
+  var placeByKey = {};
+  var CHIPS = [];
+  function rebuildPlaces(){
+    PLACES = BASE_PLACES.concat(customPlaces);
+    placeByKey = {};
+    PLACES.forEach(function(p){ placeByKey[p.key] = p; });
+    CHIPS = [{key:null, name:"Everything", sub:"All"}].concat(PLACES);
+  }
+  rebuildPlaces();
+
+  var storedFilter = null;
+  try{ storedFilter = window.localStorage.getItem(FILTER_KEY); } catch(e){ storedFilter = null; }
+
+  var filter = null;
+  function validFilter(key){
+    if(!key) return false;
+    for(var i=0;i<CHIPS.length;i++){
+      if(CHIPS[i].key && CHIPS[i].key === key) return true;
+    }
+    return false;
+  }
+  if(validFilter(storedFilter)){ filter = storedFilter; }
+
+  function inPool(f){
+    if(!filter) return true;
+    return f.place === filter;
+  }
+  function poolFacts(){ return ALL.filter(inPool); }
+  function unseenFacts(){
+    return poolFacts().filter(function(f){ return seenIds.indexOf(f.id) === -1; });
+  }
+  function unseenCountFor(key){
+    var n = 0;
+    for(var i=0;i<ALL.length;i++){
+      var f = ALL[i];
+      if((key === null || f.place === key) && seenIds.indexOf(f.id) === -1){ n++; }
+    }
+    return n;
+  }
+  function filterLabel(){
+    if(!filter) return "the whole almanac";
+    var p = placeByKey[filter];
+    return p ? p.name : "this set";
+  }
+
+  // ---- New facts, written by Claude when a set runs dry ----
+  var sampleFn = null;
+  var samplingOff = false;
+  var genCollection = null;
+  var genBusy = {};
+  var genFailed = {};
+  var dbBatches = [];
+  var localBatches = readJsonLocal(GEN_KEY);
+  var stuck = false;
+
+  function poolKey(key){ return key === null ? "_all" : key; }
+  function canGenerate(){ return !!sampleFn && !samplingOff; }
+
+  function factsFromBatches(batches){
+    var out = [];
+    batches.forEach(function(b){
+      if(!b || !Array.isArray(b.facts)) return;
+      b.facts.forEach(function(f, i){
+        if(!f || !f.text) return;
+        var entry = {
+          id: "g:" + b.id + ":" + i,
+          text: safeHtml(f.text),
+          deep: safeHtml(f.deep || ""),
+          gen: true
+        };
+        if(b.place){ entry.tag = "place"; entry.place = b.place; }
+        else { entry.tag = "general"; }
+        out.push(entry);
+      });
+    });
+    return out;
+  }
+
+  function rebuildGen(){
+    genFacts = factsFromBatches(dbBatches).concat(factsFromBatches(localBatches));
+    reindex();
+    updateChips();
+    updateProgress();
+    if(stuck && unseenFacts().length){
+      stuck = false;
+      nextFact();
+    }
+  }
+
+  function stripMarkup(s){
+    return String(s).replace(/<[^>]*>/g, "").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim();
+  }
+
+  function buildPrompt(key, count){
+    var place = key ? placeByKey[key] : null;
+    var subject;
+    if(!place){
+      subject = "the Netherlands as a whole, not tied to any one city or region";
+    } else if(place.custom){
+      subject = place.name + ", a place in the Netherlands";
+    } else {
+      subject = place.name + " (" + place.sub + "), in the Netherlands";
+    }
+    var needsSub = !!(place && place.custom && !place.sub);
+    var existing = ALL
+      .filter(function(f){ return key === null ? f.tag === "general" : f.place === key; })
+      .map(function(f){ return "- " + stripMarkup(f.text).slice(0, 130); })
+      .slice(-60)
+      .join("\n");
+
+    return [
+      "You are writing new entries for a carefully curated almanac of facts about the Netherlands. Write " + count + " new entries about " + subject + ".",
+      "",
+      "House style, follow exactly:",
+      "- Each entry has two fields: text and deep.",
+      "- text: one or two sentences, 35 to 55 words, stating a single concrete and genuinely surprising fact.",
+      "- deep: 60 to 90 words giving the fuller story behind it: the origin, the mechanism, the consequence, or a vivid specific detail.",
+      "- Pitch it at a well-read person, including Dutch readers, who already knows the obvious things. No tulips-and-windmills cliches, nothing about clogs, nothing a first-time visitor learns on day one.",
+      "- Favour mechanisms, origins, institutional quirks, water engineering, odd laws, and specific strangeness over scenic description.",
+      "- State only what you are confident is true. If unsure of a name, date or number, write the entry without it rather than guessing.",
+      "- Markup: <em> and </em> around Dutch or foreign terms, &mdash; for dashes, &ldquo; and &rdquo; for quotation marks. No other HTML, no markdown.",
+      "- Do not repeat, paraphrase or overlap with any existing entry listed below.",
+      "",
+      existing ? "Existing entries, do not repeat or restate these:\n" + existing : "",
+      "",
+      (place && place.custom
+        ? "If the name above is not a recognizable place in the Netherlands, or you cannot tell what it refers to, reply with only {\"notInCountry\":true} and no entries.\n"
+        : ""),
+      "Reply with only JSON in exactly this shape:",
+      (needsSub
+        ? "{\"sub\":\"the province it is in\",\"facts\":[{\"text\":\"...\",\"deep\":\"...\"}]}"
+        : "{\"facts\":[{\"text\":\"...\",\"deep\":\"...\"}]}")
+    ].join("\n");
+  }
+
+  function storeBatch(key, facts){
+    var place = key || "";
+    if(genCollection){
+      return genCollection.add({ place: place, facts: facts, createdAt: new Date().toISOString() });
+    }
+    localBatches.push({ id: "local-" + Date.now(), place: place, facts: facts });
+    writeLocal(GEN_KEY, localBatches);
+    rebuildGen();
+    return Promise.resolve();
+  }
+
+  function generateFor(key){
+    var pk = poolKey(key);
+    if(!canGenerate() || genBusy[pk]) return;
+    genBusy[pk] = true;
+    genFailed[pk] = null;
+    updateProgress();
+
+    var place = key ? placeByKey[key] : null;
+    var firstRun = !!(place && place.custom && !place.sub);
+
+    sampleFn.json(buildPrompt(key, 8), { modelTier: "default", cache: false })
+      .then(function(data){
+        if(data && data.notInCountry){ return Promise.reject({ code: "not_in_country" }); }
+        var list = (data && Array.isArray(data.facts)) ? data.facts : [];
+        var cleaned = [];
+        list.forEach(function(item){
+          if(item && typeof item.text === "string" && item.text.trim()){
+            cleaned.push({ text: item.text.trim(), deep: typeof item.deep === "string" ? item.deep.trim() : "" });
+          }
+        });
+        if(!cleaned.length){ return Promise.reject({ code: "empty_completion" }); }
+        if(place && place.custom && !place.sub && typeof data.sub === "string" && data.sub.trim()){
+          place.sub = data.sub.trim().slice(0, 24);
+          savePlaces();
+          applyPlaces();
+        }
+        return storeBatch(key, cleaned);
+      })
+      .then(function(){
+        genBusy[pk] = false;
+        if(firstRun && place){ addNoteSay(place.name + " added, with its first facts.", false); }
+        updateChips();
+        updateProgress();
+      })
+      ["catch"](function(e){
+        genBusy[pk] = false;
+        var code = (e && e.code) || "upstream_error";
+        if(code === "not_in_country"){
+          if(place && place.custom){
+            addNoteSay("Couldn't place " + place.name + " in the Netherlands — check the spelling and try again.", true);
+            removePlace(place.key);
+            return;
+          }
+        }
+        if(code === "not_granted" || code === "sampling_disabled" || code === "not_declared" ||
+           code === "capability_disabled" || code === "capability_removed"){
+          samplingOff = true;
+        } else {
+          genFailed[pk] = code;
+        }
+        if(firstRun && place){
+          addNoteSay("Added " + place.name + ", but writing its facts didn't work just now.", true);
+        }
+        updateProgress();
+      });
+  }
+
+  // ---- Places you add yourself ----
+  var placesDoc = null;
+
+  function savePlaces(){
+    writeLocal(PLACES_KEY, customPlaces);
+    if(placesDoc){ placesDoc.set({ items: customPlaces })["catch"](function(){}); }
+  }
+
+  function applyPlaces(){
+    rebuildPlaces();
+    buildChips();
+    if(!filter && validFilter(storedFilter)){ filter = storedFilter; }
+    if(filter && !validFilter(filter)){ filter = null; }
+    updateChips();
+    updateProgress();
+    updateRemoveBtn();
+  }
+
+  function updateRemoveBtn(){
+    var p = filter ? placeByKey[filter] : null;
+    removePlaceBtn.hidden = !(p && p.custom);
+  }
+
+  function slugFor(name){
+    var base = "c:" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    if(base === "c:"){ base = "c:place"; }
+    var key = base, n = 2;
+    while(placeByKey[key]){ key = base + "-" + n; n++; }
+    return key;
+  }
+
+  function addNoteSay(msg, bad){
+    addNote.textContent = msg || "";
+    addNote.classList.toggle("bad", !!bad);
+    addNote.hidden = !msg;
+  }
+
+  function addPlace(rawName){
+    var name = rawName.replace(/\s+/g, " ").trim();
+    if(!name) return;
+    if(name.length > 40){ name = name.slice(0, 40); }
+
+    var existing = null;
+    PLACES.forEach(function(p){
+      if(p.name.toLowerCase() === name.toLowerCase()){ existing = p; }
+    });
+    if(existing){
+      addNoteSay(existing.name + " is already on the list.", false);
+      setFilter(existing.key);
+      return;
+    }
+    if(!canGenerate()){
+      addNoteSay("Adding a place needs Claude to write its facts, which isn't available here.", true);
+      return;
+    }
+
+    var place = { key: slugFor(name), name: name, sub: "", custom: true };
+    customPlaces.push(place);
+    savePlaces();
+    applyPlaces();
+    addPlaceInput.value = "";
+    addNoteSay("Writing the first facts about " + place.name + "…", false);
+    setFilter(place.key);
+  }
+
+  function removePlace(key){
+    customPlaces = customPlaces.filter(function(p){ return p.key !== key; });
+    savePlaces();
+    if(filter === key){ filter = null; }
+    try{ window.localStorage.removeItem(FILTER_KEY); } catch(e){ /* ignore */ }
+    storedFilter = null;
+    applyPlaces();
+    addNoteSay("Removed. Facts already written for it stay in Everything.", false);
+    var f = pickFact();
+    if(f){ visit(f); }
+  }
+
+  function maybeTopUp(threshold){
+    if(!canGenerate()) return;
+    if(genFailed[poolKey(filter)]) return;
+    if(unseenFacts().length > threshold) return;
+    generateFor(filter);
+  }
+
+  function buildChips(){
+    chipsEl.innerHTML = "";
+    CHIPS.forEach(function(c){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = c.custom ? "chip custom" : "chip";
+      b.setAttribute("data-key", c.key === null ? "" : c.key);
+      var n = document.createElement("span");
+      n.className = "chip-name";
+      n.textContent = c.name;
+      b.appendChild(n);
+      if(c.sub){
+        var s = document.createElement("span");
+        s.className = "chip-sub";
+        s.textContent = c.sub;
+        b.appendChild(s);
+      }
+      b.addEventListener("click", function(){ setFilter(c.key); });
+      chipsEl.appendChild(b);
+    });
+  }
+  buildChips();
+
+  function updateChips(){
+    var nodes = chipsEl.querySelectorAll(".chip");
+    for(var i=0;i<nodes.length;i++){
+      var key = nodes[i].getAttribute("data-key") || null;
+      var active = key === filter;
+      nodes[i].classList.toggle("active", active);
+      nodes[i].classList.toggle("done", unseenCountFor(key) === 0);
+      nodes[i].setAttribute("aria-pressed", active ? "true" : "false");
+    }
+    corpusCount.textContent = ALL.length + " facts";
+  }
+
+  function updateProgress(){
+    var total = poolFacts().length;
+    var left = unseenFacts().length;
+    var pk = poolKey(filter);
+    var writing = !!genBusy[pk];
+    progressEl.textContent = (total - left) + " of " + total + " read · " + filterLabel() +
+      (writing ? " · writing more" : "");
+
+    var done = left === 0;
+    btn.disabled = done;
+    exhaustedEl.hidden = !done;
+    if(!done) return;
+
+    var label = filterLabel();
+    if(writing){
+      exhaustedText.textContent = "That's every fact in " + label + ". Claude is writing more now — usually under a minute.";
+    } else if(genFailed[pk] === "rate_limited"){
+      exhaustedText.textContent = "That's every fact in " + label + ". New ones couldn't be written just now: your Claude usage limit was reached.";
+    } else if(genFailed[pk]){
+      exhaustedText.textContent = "That's every fact in " + label + ". Writing new ones didn't work just now.";
+    } else if(canGenerate()){
+      exhaustedText.textContent = "That's every fact in " + label + ". More are on the way.";
+    } else {
+      exhaustedText.textContent = "You've read every fact in " + label + ". Nothing repeats until you reset this set.";
+    }
+    retryBtn.hidden = !(canGenerate() && !writing && genFailed[pk]);
+  }
+
+  function setFilter(key){
+    filter = key;
+    try{
+      if(key === null){ window.localStorage.removeItem(FILTER_KEY); }
+      else { window.localStorage.setItem(FILTER_KEY, key); }
+    } catch(e){ /* ignore */ }
+    updateChips();
+    updateProgress();
+    updateRemoveBtn();
+    var fact = pickFact();
+    if(fact){ visit(fact); }
+    else { stuck = true; maybeTopUp(2); }
+    window.scrollTo({ top:0, behavior:"smooth" });
+  }
+
+  (function setDatebar(){
+    var opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+    document.getElementById("datebar").textContent = new Date().toLocaleDateString('en-GB', opts);
+  })();
+
+  function pickFact(){
+    var pool = unseenFacts();
+    if(!pool.length) return null;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function updateKeepBtn(){
+    var isKept = current && keptIds.indexOf(current.id) !== -1;
+    keepBtn.classList.toggle("kept", !!isKept);
+    keepBtn.setAttribute("aria-pressed", isKept ? "true" : "false");
+    keepLabel.textContent = isKept ? "Kept" : "Keep this one";
+  }
+
+  function renderSavedList(){
+    savedToggle.textContent = "Kept facts (" + keptIds.length + ")";
+    savedList.innerHTML = "";
+    if(keptIds.length === 0){
+      var empty = document.createElement("p");
+      empty.className = "saved-empty";
+      empty.textContent = "Nothing kept yet. The box under a fact saves it here.";
+      savedList.appendChild(empty);
+      return;
+    }
+    keptIds.forEach(function(id){
+      var fact = factById[id];
+      if(!fact) return;
+      var row = document.createElement("div");
+      row.className = "saved-item";
+
+      var txt = document.createElement("button");
+      txt.type = "button";
+      txt.className = "txt";
+      txt.innerHTML = fact.text;
+      txt.addEventListener("click", function(){ visit(fact); window.scrollTo({top:0, behavior:"smooth"}); });
+
+      var rm = document.createElement("button");
+      rm.type = "button";
+      rm.className = "rm";
+      rm.setAttribute("aria-label","Remove from kept facts");
+      rm.textContent = "×";
+      rm.addEventListener("click", function(){
+        keptIds = keptIds.filter(function(n){ return n !== id; });
+        saveKept();
+        renderSavedList();
+        updateKeepBtn();
+      });
+
+      row.appendChild(txt);
+      row.appendChild(rm);
+      savedList.appendChild(row);
+    });
+  }
+
+  function closeStory(){
+    deepWrap.classList.remove("open");
+    storyBtn.setAttribute("aria-expanded", "false");
+    storyLabel.textContent = "Read the full story";
+  }
+
+  function pad(n){ return n < 10 ? "00" + n : (n < 100 ? "0" + n : "" + n); }
+
+  function render(fact){
+    current = fact;
+    factEl.innerHTML = fact.text;
+    freshTag.hidden = !fact.gen;
+    indexTag.innerHTML = "&numero; " + (typeof fact.id === "number" ? pad(fact.id + 1) : "NEW");
+    updateKeepBtn();
+    deepText.innerHTML = '<span class="cap">The fuller story</span>' + (fact.deep || "");
+    closeStory();
+
+    if(fact.tag === "general"){
+      placeTag.innerHTML = "Across the Netherlands";
+    } else {
+      var place = placeByKey[fact.place];
+      if(place){
+        placeTag.innerHTML = place.name + (place.sub ? ' <span class="sub">' + place.sub + '</span>' : "");
+      } else {
+        placeTag.innerHTML = "Somewhere in the Netherlands";
+      }
+    }
+  }
+
+  var trail = [];
+  var cursor = -1;
+
+  function updateNav(){
+    backBtn.disabled = cursor <= 0;
+    fwdBtn.disabled = cursor >= trail.length - 1;
+  }
+
+  function visit(fact){
+    trail = trail.slice(0, cursor + 1);
+    trail.push(fact);
+    if(trail.length > 100){ trail.shift(); }
+    cursor = trail.length - 1;
+    render(fact);
+    updateNav();
+    if(seenIds.indexOf(fact.id) === -1){
+      seenIds.push(fact.id);
+      saveSeen(false);
+      updateChips();
+    }
+    updateProgress();
+    maybeTopUp(2);
+  }
+
+  function step(delta){
+    var target = cursor + delta;
+    if(target < 0 || target >= trail.length) return;
+    cursor = target;
+    render(trail[cursor]);
+    updateNav();
+  }
+
+  function nextFact(){
+    var fact = pickFact();
+    if(!fact){ stuck = true; maybeTopUp(2); updateProgress(); return; }
+    visit(fact);
+  }
+
+  btn.addEventListener("click", nextFact);
+  backBtn.addEventListener("click", function(){ step(-1); });
+  fwdBtn.addEventListener("click", function(){ step(1); });
+
+  document.addEventListener("keydown", function(e){
+    if(e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if(e.key === "ArrowLeft"){ step(-1); }
+    else if(e.key === "ArrowRight"){ step(1); }
+  });
+
+  keepBtn.addEventListener("click", function(){
+    if(!current) return;
+    var idx = keptIds.indexOf(current.id);
+    if(idx === -1){ keptIds.push(current.id); }
+    else { keptIds.splice(idx, 1); }
+    saveKept();
+    updateKeepBtn();
+    renderSavedList();
+  });
+
+  storyBtn.addEventListener("click", function(){
+    var willOpen = !deepWrap.classList.contains("open");
+    deepWrap.classList.toggle("open", willOpen);
+    storyBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    storyLabel.textContent = willOpen ? "Close the story" : "Read the full story";
+  });
+
+  savedToggle.addEventListener("click", function(){
+    savedPanel.hidden = !savedPanel.hidden;
+    if(!savedPanel.hidden){ renderSavedList(); }
+  });
+
+  retryBtn.addEventListener("click", function(){ generateFor(filter); });
+
+  addPlaceForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    addPlace(addPlaceInput.value);
+  });
+
+  removePlaceBtn.addEventListener("click", function(){
+    var p = filter ? placeByKey[filter] : null;
+    if(p && p.custom){ removePlace(p.key); }
+  });
+
+  resetBtn.addEventListener("click", function(){
+    var poolIds = poolFacts().map(function(f){ return f.id; });
+    seenIds = seenIds.filter(function(id){ return poolIds.indexOf(id) === -1; });
+    saveSeen(true);
+    updateChips();
+    nextFact();
+  });
+
+  // opening state
+  applyPlaces();
+  rebuildGen();
+  var opening = pickFact();
+  if(opening){ visit(opening); }
+  else { stuck = true; updateProgress(); }
+  renderSavedList();
+
+  var syncNote = document.getElementById("syncNote");
+  var firstKept = true;
+  var firstSeen = true;
+
+  function union(a, b){
+    var out = a.slice();
+    b.forEach(function(id){ if(out.indexOf(id) === -1){ out.push(id); } });
+    return out;
+  }
+
+  function adoptKept(serverIds){
+    if(firstKept){
+      firstKept = false;
+      var merged = union(serverIds, keptIds);
+      keptIds = merged;
+      writeLocal(KEPT_KEY, keptIds);
+      if(merged.length !== serverIds.length){ push("kept"); }
+    } else {
+      keptIds = serverIds;
+      writeLocal(KEPT_KEY, keptIds);
+    }
+    renderSavedList();
+    updateKeepBtn();
+  }
+
+  function adoptSeen(serverIds){
+    if(firstSeen){
+      firstSeen = false;
+      var merged = union(serverIds, seenIds);
+      seenIds = merged;
+      writeLocal(SEEN_KEY, seenIds);
+      if(merged.length !== serverIds.length){ push("seen"); }
+    } else {
+      seenIds = serverIds;
+      writeLocal(SEEN_KEY, seenIds);
+    }
+    updateChips();
+    updateProgress();
+  }
+
+  (function connectStore(){
+    if(!(window.claude && window.claude.use)) return;
+
+    Promise.resolve(window.claude.use("sample")).then(function(s){
+      sampleFn = s || null;
+      updateProgress();
+      maybeTopUp(0);
+    })["catch"](function(){});
+
+    Promise.resolve(window.claude.use("db")).then(function(db){
+      if(!db) return;
+      docs.kept = db.doc("kept/list");
+      docs.seen = db.doc("progress/seen");
+      genCollection = db.collection("generated");
+      placesDoc = db.doc("places/custom");
+
+      placesDoc.onSnapshot(function(snap){
+        var body = snap.exists ? snap.data() : null;
+        var items = (body && Array.isArray(body.items)) ? body.items : [];
+        var clean = [];
+        items.forEach(function(p){
+          if(p && typeof p.key === "string" && typeof p.name === "string" && p.key.indexOf("c:") === 0){
+            clean.push({
+              key: p.key,
+              name: String(p.name).slice(0, 40),
+              sub: typeof p.sub === "string" ? p.sub.slice(0, 24) : "",
+              custom: true
+            });
+          }
+        });
+        var folded = false;
+        customPlaces.forEach(function(local){
+          var known = clean.some(function(p){ return p.key === local.key; });
+          if(!known){ clean.push(local); folded = true; }
+        });
+        customPlaces = clean;
+        writeLocal(PLACES_KEY, customPlaces);
+        if(folded){ placesDoc.set({ items: customPlaces })["catch"](function(){}); }
+        applyPlaces();
+      }, function(){ placesDoc = null; });
+
+      genCollection.onSnapshot(function(snap){
+        dbBatches = snap.docs.map(function(d){
+          var body = d.data() || {};
+          return {
+            id: d.id,
+            place: typeof body.place === "string" ? body.place : "",
+            facts: Array.isArray(body.facts) ? body.facts : []
+          };
+        });
+        rebuildGen();
+      }, function(){ genCollection = null; });
+
+      syncNote.textContent = "Kept facts, progress and newly written facts follow you across devices";
+      syncNote.classList.add("synced");
+
+      function lost(){
+        syncNote.textContent = "Kept facts and progress are saved on this iPhone";
+        syncNote.classList.remove("synced");
+        docs.kept = null;
+        docs.seen = null;
+      }
+
+      docs.kept.onSnapshot(function(snap){
+        var body = snap.exists ? snap.data() : null;
+        adoptKept((body && Array.isArray(body.ids)) ? body.ids.filter(validId) : []);
+      }, lost);
+
+      docs.seen.onSnapshot(function(snap){
+        var body = snap.exists ? snap.data() : null;
+        adoptSeen((body && Array.isArray(body.ids)) ? body.ids.filter(validId) : []);
+      }, lost);
+    })["catch"](function(){});
+  })();
+})();
+</script>
+
+</body></html>
