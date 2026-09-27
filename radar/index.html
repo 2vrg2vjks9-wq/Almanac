@@ -137,6 +137,21 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
 .react{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:14px}
 .react .ib{width:auto;height:auto;min-height:54px;flex-direction:column;gap:3px;font-size:12px;color:var(--slate)}
 @media (prefers-reduced-motion:reduce){.scrim,.panel{transition:none}}
+.welcome{position:fixed;inset:0;z-index:30;background:var(--mist);display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 16px) 22px calc(env(safe-area-inset-bottom) + 20px)}
+.welcome.show{display:flex}.welcome:focus{outline:none}
+.welcome .skip{align-self:flex-end;min-height:44px;padding:0 6px;color:var(--slate);font-size:15px}
+.wcards{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -22px;scrollbar-width:none}
+.wcards::-webkit-scrollbar{display:none}
+.wcard{flex:0 0 100%;scroll-snap-align:center;padding:0 22px;display:flex;flex-direction:column;justify-content:center;max-width:none}
+.wcard > div{max-width:480px;margin:0 auto;width:100%}
+.wcard .wart{height:76px;display:flex;align-items:flex-end;gap:3px;margin-bottom:26px}
+.wcard .wart i{width:9px;border-radius:2px 2px 0 0;background:var(--calm)}.wcard .wart i.k{background:var(--kelp)}.wcard .wart i.b{background:var(--buoy)}
+.wcard h2{font:700 30px/1.1 var(--ui);letter-spacing:-.02em;margin:0}
+.wcard p{font:17px/1.6 var(--read);color:var(--slate);margin:14px 0 0}
+.wcard code{font:600 15px/1.4 var(--ui);background:var(--foam);color:var(--deep);border-radius:8px;padding:3px 8px;word-break:break-all;user-select:all;-webkit-user-select:all}
+.wdots{display:flex;justify-content:center;gap:8px;margin:14px 0 18px}
+.wdots i{width:7px;height:7px;border-radius:50%;background:var(--calm)}.wdots i.on{background:var(--deep)}
+.welcome .btn{flex:none;min-height:50px;max-width:480px;width:100%;margin:0 auto}
 .tabs{position:fixed;left:0;right:0;bottom:0;padding:6px 10px calc(env(safe-area-inset-bottom) + 6px);background:var(--tab);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-top:1px solid var(--rule);z-index:6}
 .tabs .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
 .tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:11px;font-weight:500;color:var(--haze)}
@@ -210,6 +225,25 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
 <div class="dlg" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="scrim" id="scrim"></div>
   <div class="panel" id="panel" tabindex="-1"><div class="grab" aria-hidden="true"></div><div id="sheetBody"></div></div>
+</div>
+
+<div class="welcome" id="welcome" tabindex="-1" role="dialog" aria-modal="true" aria-label="Welcome to Radar">
+  <button class="skip" id="wSkip" type="button">Skip</button>
+  <div class="wcards" id="wcards">
+    <section class="wcard" aria-label="1 of 3"><div><div class="wart" aria-hidden="true"><i class="" style="height:18%"></i><i class="" style="height:26%"></i><i class="k" style="height:40%"></i><i class="k" style="height:52%"></i><i class="k" style="height:60%"></i><i class="b" style="height:74%"></i><i class="b" style="height:88%"></i><i class="b" style="height:80%"></i><i class="k" style="height:62%"></i><i class="k" style="height:48%"></i><i class="" style="height:30%"></i><i class="" style="height:22%"></i></div>
+      <h2>Your wind and your world, on one screen</h2>
+      <p>Radar checks the wind at your spots every time you open it, and each morning Claude researches concerts, art, food, books, meditation and work that fit you.</p></div></section>
+    <section class="wcard" aria-label="2 of 3"><div>
+      <h2>Thumbs teach it</h2>
+      <p>Tap thumbs up for more like this and thumbs down for less. When you're ready, tap Send: a short note opens on GitHub, and the next morning's update learns from it.</p>
+      <p>Tap any title to see the full story, a map and Add to calendar.</p></div></section>
+    <section class="wcard" aria-label="3 of 3"><div>
+      <h2>Keep it close</h2>
+      <p>In Safari, tap Share, then Add to Home Screen, so Radar opens full screen.</p>
+      <p>For a morning wind alert, install the free ntfy app and subscribe to <code>radar-wind-f13296657ff9</code></p></div></section>
+  </div>
+  <div class="wdots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+  <button class="btn" id="wNext" type="button">Next</button>
 </div>
 
 <nav class="tabs" aria-label="Sections"><div class="in">
@@ -489,6 +523,16 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       window.open(REPO+"/issues/new?labels=radar-location&title="+encodeURIComponent("I'm in "+place+(until?" until "+until:""))+"&body="+encodeURIComponent("Radar: focus research on "+place+(until?" until "+until:"")+".\nCity only; no exact location is shared."),"_blank");
       hint("Submit the note that opened, and tomorrow's update scouts "+city+".")}).catch(function(e){hint(e==="denied"?DENIED:"Couldn't work out your city. Try again.")})};
 
+  /* first-run welcome */
+  (function(){if(LS.get("radar-welcomed",false))return;var w=$("welcome"),cards=$("wcards"),next=$("wNext"),dots=w.querySelectorAll(".wdots i"),n=dots.length;
+    function idx(){return Math.round(cards.scrollLeft/Math.max(1,cards.clientWidth))}
+    function paint(){var i=idx();dots.forEach(function(x,j){x.classList.toggle("on",j===i)});next.textContent=i>=n-1?"Start":"Next"}
+    function done(){LS.set("radar-welcomed",true);w.classList.remove("show");document.body.style.overflow="";var t=document.querySelector(".tab.on");if(t)t.focus({preventScroll:true})}
+    cards.addEventListener("scroll",paint,{passive:true});
+    next.onclick=function(){var i=idx();if(i>=n-1)return done();var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+      cards.scrollTo({left:(i+1)*cards.clientWidth,behavior:reduce?"auto":"smooth"});setTimeout(paint,reduce?0:400)};
+    $("wSkip").onclick=done;w.addEventListener("keydown",function(e){if(e.key==="Escape")done()});
+    w.classList.add("show");document.body.style.overflow="hidden";w.focus({preventScroll:true})})();
   /* loading, refresh and freshness */
   var net={feed:null,wind:null,windAt:null,started:false,busy:false};
   function stamp(t){if(!t)return "earlier";var x=new Date(t),k=new Date(t);k.setHours(0,0,0,0);var n=Math.round((today-k)/864e5);
