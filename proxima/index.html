@@ -1,0 +1,715 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Proxima">
+<meta name="theme-color" content="#e9ecf3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c0f1e" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script>if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});</script><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Proxima</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#e9ecf3;
+    --card:#f8f9fc;
+    --ink:#14172b;
+    --ink-soft:#474d68;
+    --muted:#7b8199;
+    --line:rgba(20,23,43,0.13);
+    --accent:#2d56f0;
+    --accent-ink:#ffffff;
+    --accent-wash:rgba(45,86,240,0.10);
+    --signal:#c46f12;
+    --meter-off:rgba(20,23,43,0.12);
+    --fringe:45,86,240;
+    --display:'Michroma','Eurostile','Segoe UI',system-ui,sans-serif;
+    --serif:'Source Serif 4',Georgia,'Times New Roman',serif;
+    --mono:'Martian Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0c0f1e;
+      --card:#141a2e;
+      --ink:#e4e8f6;
+      --ink-soft:#a9b0cb;
+      --muted:#6f7693;
+      --line:rgba(228,232,246,0.12);
+      --accent:#86a0ff;
+      --accent-ink:#0c0f1e;
+      --accent-wash:rgba(134,160,255,0.13);
+      --signal:#f0a445;
+      --meter-off:rgba(228,232,246,0.13);
+      --fringe:134,160,255;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0c0f1e;
+    --card:#141a2e;
+    --ink:#e4e8f6;
+    --ink-soft:#a9b0cb;
+    --muted:#6f7693;
+    --line:rgba(228,232,246,0.12);
+    --accent:#86a0ff;
+    --accent-ink:#0c0f1e;
+    --accent-wash:rgba(134,160,255,0.13);
+    --signal:#f0a445;
+    --meter-off:rgba(228,232,246,0.13);
+    --fringe:134,160,255;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit}
+  button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .wrap{max-width:640px;margin:0 auto;padding-inline:18px;padding-block:14px 48px;display:flex;flex-direction:column;gap:18px}
+
+  /* ---------- masthead ---------- */
+  .mast{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--card);min-height:170px;display:flex;flex-direction:column;justify-content:flex-end;padding:56px 18px 18px}
+  .mast canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .mast > *:not(canvas){position:relative}
+  .mast-top{position:absolute;top:14px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .mono-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .theme-btn{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+  .wordmark{font-family:var(--display);font-weight:400;font-size:clamp(30px,9vw,44px);letter-spacing:.14em;line-height:1;margin:0}
+  .strap{margin:8px 0 0;color:var(--ink-soft);font-size:16px;max-width:36ch;text-wrap:balance}
+
+  /* ---------- nav + chips ---------- */
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+  .tab{border:0;background:transparent;border-radius:9px;padding:9px 6px;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft)}
+  .tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+  .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-inline:-18px;padding-inline:18px}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px 6px 9px;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--ink-soft);white-space:nowrap}
+  .chip svg{width:15px;height:15px}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .chip .n{opacity:.65}
+
+  /* ---------- glyphs ---------- */
+  .glyph{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .glyph .dot{fill:currentColor;stroke:none}
+
+  /* ---------- specimen card ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 20px 20px;display:flex;flex-direction:column;gap:18px}
+  .card-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .field-tag{display:inline-flex;align-items:center;gap:7px;color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .field-tag svg{width:18px;height:18px}
+  .name{font-family:var(--display);font-weight:400;font-size:clamp(21px,6vw,27px);line-height:1.25;letter-spacing:.02em;margin:0;text-wrap:balance}
+  .tagline{font-size:20px;line-height:1.4;margin:-6px 0 0;color:var(--ink-soft);text-wrap:pretty}
+
+  .spec{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:12px}
+  .spec > div{padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+  .spec > div + div{border-left:1px solid var(--line)}
+  .spec .v{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .meter{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;height:6px}
+  .meter i{border-radius:1px;background:var(--meter-off)}
+  .meter i.on{background:var(--signal)}
+  .plaus{align-self:flex-start;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid currentColor}
+  .plaus.p1{color:var(--accent)}
+  .plaus.p2{color:var(--signal)}
+  .plaus.p3{color:var(--ink-soft);border-style:dashed}
+
+  .sec{display:flex;flex-direction:column;gap:5px}
+  .sec p{margin:0;max-width:62ch}
+  .vignette{border-left:2px solid var(--accent);padding:2px 0 2px 14px}
+  .vignette p{font-style:italic}
+  .vignette .where{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.04em}
+  .seeds{background:var(--accent-wash);border-radius:12px;padding:12px 14px}
+  .seeds p{font-size:15.5px}
+
+  .actions{display:grid;grid-template-columns:auto 1fr auto;gap:8px}
+  .btn{border:1px solid var(--line);background:transparent;border-radius:12px;padding:11px 14px;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.05em}
+  .btn:disabled{opacity:.35;cursor:default}
+  .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .btn.kept{color:var(--signal);border-color:var(--signal)}
+
+  /* ---------- timeline / kept lists ---------- */
+  .decade{display:flex;flex-direction:column;gap:2px}
+  .decade h2{font-family:var(--display);font-size:13px;letter-spacing:.14em;margin:8px 0 6px;color:var(--muted);font-weight:400}
+  .row{display:grid;grid-template-columns:52px 20px 1fr auto;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--line);padding:11px 2px;cursor:pointer}
+  .row:hover .row-name{color:var(--accent)}
+  .row .yr{font-family:var(--mono);font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+  .row svg{width:18px;height:18px;color:var(--accent)}
+  .row-name{font-size:16.5px;line-height:1.3}
+  .row-name small{display:block;font-size:13.5px;color:var(--muted)}
+  .row .meter{width:54px;height:5px}
+  .row.seen .row-name{color:var(--ink-soft)}
+  .empty{color:var(--muted);text-align:center;padding:30px 10px;font-style:italic}
+
+  .foot{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px;color:var(--ink-soft);font-size:14.5px}
+  .foot p{margin:0;max-width:62ch}
+  .foot b{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+
+  @media (prefers-reduced-motion: no-preference){
+    .card.enter{animation:rise .35s ease-out}
+    @keyframes rise{from{transform:translateY(6px);opacity:.4}to{transform:none;opacity:1}}
+  }
+  @media (max-width:420px){
+    .spec > div{padding:9px 9px}
+    .spec .v{font-size:12.5px}
+    .actions .btn{padding-inline:11px}
+  }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <canvas id="fringes" aria-hidden="true"></canvas>
+    <div class="mast-top">
+      <span class="mono-label" id="countLine">Catalogue of the not-yet</span>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch colour theme">Auto</button>
+    </div>
+    <h1 class="wordmark">PROXIMA</h1>
+    <p class="strap">Technologies that don’t exist yet, built on science that does.</p>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-view="discover" aria-selected="true" type="button">Discover</button>
+    <button class="tab" role="tab" data-view="timeline" aria-selected="false" type="button">Timeline</button>
+    <button class="tab" role="tab" data-view="kept" aria-selected="false" type="button">Kept<span id="keptN"></span></button>
+  </nav>
+
+  <div class="chips" id="chips" aria-label="Filter by field"></div>
+
+  <main id="view"></main>
+
+  <footer class="foot">
+    <p><b>Readiness</b> uses NASA’s Technology Readiness Level scale as it stands today: TRL 1 means the basic principle has been observed, TRL 4 a lab prototype works, TRL 9 the thing has flown or shipped.</p>
+    <p><b>Plausibility</b> says what stands in the way. <span class="plaus p1">Engineering</span> means known physics suffices and it is a matter of cost and effort. <span class="plaus p2">Breakthrough</span> means at least one scientific discovery is still missing. <span class="plaus p3">Frontier</span> means it sits at the edge of known physics and may never work.</p>
+    <p><b>First light</b> is a guess at the year the first working version appears. The “Seeds today” notes describe real research.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  /* Entry ids are array positions and are stored in readers' kept/seen lists:
+     append new inventions at the end, never insert or reorder. */
+  var FIELDS = {
+    quantum:{label:"Quantum"},
+    matter:{label:"Matter & energy"},
+    life:{label:"Life"},
+    space:{label:"Space"},
+    mind:{label:"Mind & machine"},
+    climate:{label:"Climate"}
+  };
+  var PLAUS = {1:"Engineering",2:"Breakthrough",3:"Frontier"};
+
+  var ALL = [
+    {f:"quantum", name:"Entanglement Post", year:2038, trl:4, p:1,
+     tag:"Mail that arrives as a quantum state, readable by exactly one person.",
+     idea:"A continent-wide network that hands out entangled photon pairs the way the postal service hands out letters. Any two addresses can share a secret key that physics guarantees nobody else has seen, and quantum computers in different cities can pool their qubits as if they sat in one room.",
+     how:"Satellites beam entangled photons down to ground stations. Quantum repeaters, small memories that catch a photon's state and swap entanglement onward, stitch short links into long ones without ever copying the state, which the no-cloning theorem forbids.",
+     where:"Groningen, 2044",
+     day:"Your mortgage papers arrive at 03:12, when the satellite clears the horizon. The bank's signature is a correlation between two photons, one here and one in Frankfurt. Anyone who had tried to look at it in transit would have left a mark in the statistics.",
+     block:"Quantum memories still lose their grip within seconds and catch too few photons. A useful repeater needs both high efficiency and long storage at once.",
+     seeds:"In 2017 China's Micius satellite distributed entangled photon pairs to ground stations 1,200 km apart. Delft's QuTech has linked three quantum nodes into a small network, and metropolitan quantum-key fibres already run in several cities."},
+
+    {f:"quantum", name:"Ghost Compass", year:2034, trl:6, p:1,
+     tag:"Navigation that works when every satellite goes dark.",
+     idea:"A shoebox sensor that tells a ship, plane or lorry exactly where it is by reading the faint magnetic fingerprint of the rocks beneath it. It cannot be jammed or spoofed because it doesn't listen for any signal.",
+     how:"Defects in diamond, a nitrogen atom beside a missing carbon, have electron spins that shift in energy with the magnetic field. Shine green light on them and the red glow they give back measures the field to a few billionths of a tesla. Software matches the readings against magnetic anomaly maps of the crust.",
+     where:"North Sea, 2036",
+     day:"The GPS on the ferry has shown the same wrong position for two hours, courtesy of someone's jammer. Nobody on the bridge is worried. The magnetic track on the second screen is drawing the coastline of Norfolk in lines of old volcanic rock.",
+     block:"The vehicle itself is a magnet: engines, wiring and steel drown the signal from the ground. Clean compensation and finer anomaly maps of the oceans are the hard part.",
+     seeds:"Quantum magnetometers flown on aircraft since 2024 have navigated on magnetic maps alone, with errors of a few hundred metres over long flights. NV-diamond sensors already fit on a chip."},
+
+    {f:"quantum", name:"Clock-Quake Warning", year:2042, trl:3, p:1,
+     tag:"A network of clocks that feels magma rising before the ground moves.",
+     idea:"Optical atomic clocks placed around volcanoes and fault lines, tuned so finely that they notice when mass shifts underground. Gravity changes the rate at which time passes, and these clocks can read the change.",
+     how:"General relativity says a clock deeper in a gravitational well ticks slower. Clocks that count the optical vibrations of trapped strontium atoms are stable to one part in 10¹⁸, which corresponds to a height change of about a centimetre. Rising magma adds mass beneath a clock and slows it measurably.",
+     where:"Campi Flegrei, 2045",
+     day:"The regional authority's dashboard has a line for each clock in the caldera. At the Pozzuoli station the line has bent: time there has run 4 × 10⁻¹⁸ slower for a week. The ground hasn't lifted yet. The evacuation drill is moved forward.",
+     block:"Today's best clocks fill a laboratory and need frequent care. Comparing them over long distances needs phase-stable fibre links, which are rare outside Europe.",
+     seeds:"In 2022 JILA measured time running at different rates across a millimetre-tall cloud of atoms. Optical clocks linked by fibre between Paris, London and Braunschweig have already been used for relativistic geodesy."},
+
+    {f:"quantum", name:"Nitrogen Oracle", year:2041, trl:2, p:2,
+     tag:"A quantum computer that designs a better way to make fertiliser.",
+     idea:"Half the nitrogen in your body passed through a Haber–Bosch plant, which runs at 450 °C and hundreds of atmospheres and burns 1–2% of the world's energy. Soil bacteria do the same job at room temperature. The oracle works out how.",
+     how:"The bacterial enzyme nitrogenase has a metal cluster called FeMoco whose electrons are so strongly correlated that no classical computer can simulate it exactly. A fault-tolerant quantum computer with a few thousand logical qubits could, and then search for synthetic catalysts that copy the trick.",
+     where:"Wageningen, 2047",
+     day:"The first bag of cold-process ammonia fertiliser is on sale at the co-op, made in a shed beside a wind turbine. The label credits a catalyst that was found in a simulation run on a machine in Zurich.",
+     block:"It needs error-corrected qubits in the thousands and physical qubits in the millions. Even then, knowing the mechanism doesn't guarantee a stable catalyst can be built.",
+     seeds:"In 2024 Google's Willow chip showed errors falling as the error-correcting code grew larger, the threshold result the field had waited for. Resource estimates for simulating FeMoco have dropped a hundredfold since 2017."},
+
+    {f:"quantum", name:"Unforgeable Coin", year:2055, trl:2, p:2,
+     tag:"Cash that physics itself prevents anyone from copying.",
+     idea:"A banknote carrying a string of quantum states. The bank knows how each one was prepared; a forger who doesn't know must measure them to copy them, and measuring destroys what they are trying to copy.",
+     how:"Each state is a photon or spin prepared in one of two bases chosen at random. Only the issuer knows the bases. The no-cloning theorem guarantees that no device can duplicate an unknown quantum state, so any counterfeit fails verification with high probability.",
+     where:"Amsterdam, 2058",
+     day:"The coin looks like a slightly thick token. At the market stall the reader asks the bank to check it, and 256 tiny states line up as expected. Your grandfather's paper guilders are in a frame on the wall.",
+     block:"The states must survive days or years in a pocket at room temperature, and today's best quantum memories need a cryostat. Checking also needs a live link to the bank, unless public-key quantum money can be made secure.",
+     seeds:"Stephen Wiesner described quantum money around 1970; it was so far ahead of its time that it went unpublished until 1983 and inspired quantum cryptography. In 2015 nuclear spins in a europium-doped crystal kept their quantum state for six hours."},
+
+    {f:"quantum", name:"Gravity Glasses", year:2036, trl:5, p:1,
+     tag:"See pipes, caves and buried walls by the pull they exert.",
+     idea:"A portable gravity camera that maps what lies under the ground without digging. Every hollow and every dense stone slightly changes how fast things fall, and a cold-atom sensor can feel it.",
+     how:"A cloud of atoms is cooled to a millionth of a degree above absolute zero and dropped. Laser pulses split each atom into two paths and bring them back together; the interference pattern reveals how strongly the atoms accelerated. Two clouds, one above the other, cancel out vibration and measure the gravity gradient.",
+     where:"Utrecht, 2037",
+     day:"The water company's van drives down the street at walking pace. On its screen the old medieval cellar under number 14 shows as a blue hole, and the lost 1920s water main as a thin red line that no drawing recorded.",
+     block:"Measurements still take minutes per point, and the laser systems are fragile. The instrument must shrink to backpack size and work while moving.",
+     seeds:"In 2022 a University of Birmingham team used a quantum gravity gradiometer to detect a tunnel buried under a road, the first such measurement outside a laboratory."},
+
+    {f:"quantum", name:"Blind Cloud", year:2040, trl:3, p:1,
+     tag:"Rent a quantum computer that cannot see what it is computing.",
+     idea:"Your medical data, your company's secrets, your election count can be processed on someone else's quantum hardware without the owner ever learning the input, the program or the output.",
+     how:"You send the server qubits prepared in states only you know, then tell it which measurements to make, each disguised by a random angle you keep secret. The server faithfully follows instructions that look like noise to it. Only you can decode the result.",
+     where:"Rotterdam, 2043",
+     day:"The hospital's cancer model runs overnight on a quantum cloud in another country. The provider's logs show a job of 40,000 random-looking measurements and nothing else. The patient data never left the hospital in readable form.",
+     block:"The client must be able to send individual qubits, which needs the quantum network to reach it. The overhead also makes every computation larger.",
+     seeds:"Blind quantum computing was first demonstrated with photons in Vienna in 2012. Protocols for verifying that the server did the work honestly have since been tested on trapped-ion machines."},
+
+    {f:"quantum", name:"Fog Seer", year:2039, trl:3, p:2,
+     tag:"A camera that sees a boat through fog by sending light that remembers its twin.",
+     idea:"A rescue camera that picks a faint reflection out of blinding glare. It keeps one photon of each pair and sends the other out; returning photons that match their partners are signal, everything else is noise.",
+     how:"Quantum illumination uses entangled pairs. Even when noise destroys the entanglement itself, the correlations that remain make a weak echo stand out better than any classical light of the same brightness. The advantage is largest exactly where noise is worst.",
+     where:"Waddenzee, 2041",
+     day:"The lifeboat crew can't see the bow of their own boat. The sensor on the mast shows a blob at 600 metres that sunlight glinting on waves could never produce: the upturned hull of a sailing dinghy, still reflecting paired photons.",
+     block:"The advantage requires storing the kept photon until its twin returns, and delay lines that long are lossy. Microwave versions need cryogenic hardware.",
+     seeds:"Seth Lloyd proposed quantum illumination in 2008. Optical versions were demonstrated in 2013, and a microwave version, a step towards quantum radar, in 2020 at IST Austria."},
+
+    {f:"quantum", name:"Time-Crystal Memory", year:2060, trl:2, p:3,
+     tag:"Memory that ticks forever without being wound up.",
+     idea:"A storage cell made of a phase of matter that repeats in time rather than in space. It holds its rhythm against disturbances, so the information encoded in that rhythm could, in principle, hold too.",
+     how:"When a chain of spins is kicked periodically, certain disordered systems settle into flipping at twice the kick period, and stay locked there even if the kicks are slightly off. That robustness is what a memory needs. Nobody yet knows how to write and read one without breaking it.",
+     where:"Laboratory notebook, 2061",
+     day:"The prototype has been holding the same 64-bit pattern for eleven months, in a cube of crystal at 4 kelvin, while the lab around it has been renovated twice. The team is arguing about whether this counts as a product.",
+     block:"Time crystals exist only in isolated quantum systems, and all real systems eventually heat up. It is unclear whether any useful memory can be built on them at all.",
+     seeds:"Frank Wilczek proposed time crystals in 2012. Discrete time crystals were observed in trapped ions and diamond defects in 2017, and in 2021 on Google's Sycamore processor."},
+
+    {f:"quantum", name:"Certified Dice", year:2031, trl:6, p:1,
+     tag:"Randomness you can prove nobody fixed.",
+     idea:"A public lottery, jury draw or audit sample whose randomness comes with a proof. Anyone can check that the numbers came from a quantum process no one could have predicted, not even the operator.",
+     how:"A remote quantum computer is asked to sample from random circuits so quickly that no classical supercomputer could have faked the answer in time. Checking a portion of the samples classically certifies that fresh randomness must have been generated.",
+     where:"The Hague, 2033",
+     day:"The municipal council draws twelve residents for the citizens' assembly. The draw is streamed; the certificate appears beside it, and a retired physicist from Scheveningen spends the evening confirming it on her laptop.",
+     block:"Verification still needs expensive classical computation, and the certificate is only as strong as the assumptions about what classical computers can do.",
+     seeds:"In 2025 a team using a Quantinuum trapped-ion computer published certified random bits, verified using about an exaflop of classical supercomputing."},
+
+    {f:"quantum", name:"Radical-Pair Sense", year:2065, trl:1, p:3,
+     tag:"An implant that lets you feel north, the way a robin does.",
+     idea:"A sixth sense of direction borrowed from migrating birds. You don't look at anything; you simply know which way is north, as a faint visual shading or a pressure behind the eyes.",
+     how:"In a robin's eye a light-sensitive protein called cryptochrome forms a pair of molecules with unpaired electrons. Earth's weak magnetic field nudges the pair's quantum spin state, which changes the chemistry that follows. An implant would copy the chemistry and feed its output to nerves.",
+     where:"Scottish Highlands, 2066",
+     day:"The trail markers have been buried by snow since noon. You close your eyes: the left side of the world feels slightly brighter. North is over there, and the bothy is north.",
+     block:"Nobody fully understands how birds keep the spin state coherent long enough in a warm, wet cell. Wiring a new sense into the human brain is its own unsolved problem.",
+     seeds:"In 2021 researchers showed that cryptochrome 4 from European robins is magnetically sensitive in the lab. Humans have already been taught new senses through vibrating belts and tongue displays."},
+
+    {f:"quantum", name:"Casimir Motors", year:2050, trl:2, p:3,
+     tag:"Machines too small for gears, pushed around by empty space.",
+     idea:"Micro-machines that use the pressure of the vacuum itself. Two surfaces nanometres apart feel a force from quantum fluctuations, and by shaping and choosing the materials, engineers could make parts that levitate or push without touching.",
+     how:"Empty space is full of fleeting electromagnetic fluctuations. Between two close plates only some wavelengths fit, so there is more pressure outside than inside. With the right materials in a fluid the force turns repulsive, which could keep frictionless parts floating.",
+     where:"Eindhoven, 2052",
+     day:"The hearing implant has a pump smaller than a grain of sand. Its rotor never touches its housing; it hovers on a Casimir cushion, and it has turned about four billion times without wearing out.",
+     block:"The forces are tiny and fall off steeply with distance. Controlling surfaces at nanometre precision, without stiction pulling them together, is very hard.",
+     seeds:"Steve Lamoreaux measured the Casimir force accurately in 1997. In 2009 a Harvard team measured a repulsive version between gold and silica in a liquid."},
+
+    {f:"matter", name:"Cold Copper", year:2048, trl:2, p:2,
+     tag:"Power lines with no resistance, at room temperature.",
+     idea:"A superconductor that works without cooling. Electricity from Moroccan sun and North Sea wind would travel thousands of kilometres without loss, motors would shrink, and MRI scanners would cost as much as a fridge.",
+     how:"In a superconductor electrons pair up and move through the crystal without scattering. Hydrogen-rich compounds squeezed to a million atmospheres already superconduct near room temperature; the goal is a structure that keeps that behaviour at ordinary pressure.",
+     where:"Tangier–Rotterdam, 2052",
+     day:"The new cable across the Bay of Biscay is thinner than a garden hose and carries the output of three power stations. At the landing site in Brittany it feels no warmer than the sand.",
+     block:"No known material superconducts above about −130 °C at normal pressure. Theory can't yet predict which compounds will, so the search is partly luck.",
+     seeds:"Lanthanum hydride superconducts at about −23 °C under 1.7 million atmospheres (2019). The 2023 claim that LK-99 superconducted at room temperature fell apart within weeks, but the search it set off was a reminder of how much the prize is worth."},
+
+    {f:"matter", name:"Orbital Sunpipe", year:2045, trl:4, p:1,
+     tag:"Solar panels in orbit that beam power down at night.",
+     idea:"A kilometre-wide solar array in high orbit, where the sun never sets, beams its power to a field of antennas on the ground. It supplies clean electricity through the night and through winter.",
+     how:"The array converts sunlight to microwaves and focuses them with a phased antenna: thousands of small emitters whose timing steers the beam. On the ground a rectenna turns microwaves back into current. The beam is spread so wide that its intensity is below sunlight.",
+     where:"Flevoland, 2049",
+     day:"The rectenna field outside Lelystad looks like a gauze tent over sheep pasture. At midnight in January it delivers 1 gigawatt. The sheep are unaffected; the farmer is paid by the hectare.",
+     block:"Launch costs, assembly in orbit and end-to-end efficiency all need to improve several times over before the power is affordable.",
+     seeds:"In 2023 Caltech's MAPLE experiment beamed power wirelessly in space and sent a detectable signal to Earth. Reusable rockets have cut launch costs roughly tenfold since 2010."},
+
+    {f:"matter", name:"Container Star", year:2039, trl:4, p:1,
+     tag:"A fusion power plant that ships on a lorry.",
+     idea:"A compact fusion reactor that fits in a few shipping containers and powers a town. Fuel comes from seawater and lithium, and there is no long-lived waste or meltdown risk.",
+     how:"A tokamak confines plasma hotter than the sun's core in a magnetic cage. Magnets made of high-temperature superconducting tape give a much stronger field, and doubling the field lets the reactor be about 16 times smaller for the same output.",
+     where:"Harlingen, 2044",
+     day:"The harbour's fusion unit arrived on three trucks and was connected in six weeks. The only sign it's running is a faint hum and the steam plume from the district heating plant.",
+     block:"Materials must survive intense neutron bombardment for years, and the reactor must breed its own tritium. Nobody has yet run a fusion plant that produces net electricity.",
+     seeds:"In 2021 Commonwealth Fusion Systems and MIT tested a 20-tesla superconducting magnet. In December 2022 the National Ignition Facility produced more fusion energy than its lasers delivered to the target."},
+
+    {f:"matter", name:"Living Dikes", year:2032, trl:7, p:1,
+     tag:"Concrete that closes its own cracks.",
+     idea:"Dikes, bridges and tunnels that repair themselves. When water seeps into a crack it wakes bacteria sleeping in the concrete, and they fill the gap with limestone.",
+     how:"Spores of limestone-producing Bacillus bacteria and their food are mixed into the concrete. They can lie dormant for decades. Water through a crack revives them, and they convert the food into calcium carbonate, sealing cracks up to about a millimetre wide.",
+     where:"Zeeland, 2034",
+     day:"The inspector's drone flies the length of the storm-surge barrier and finds forty new hairline cracks since last year, all already white with fresh calcite. The maintenance budget has been cut by a third.",
+     block:"Self-healing concrete costs more up front, and cracks wider than about a millimetre still need human repair. Long-term data on structures is only now arriving.",
+     seeds:"Henk Jonkers at TU Delft developed bacterial self-healing concrete in the 2000s, and it has been sold commercially since the late 2010s."},
+
+    {f:"matter", name:"Desert Well", year:2033, trl:6, p:1,
+     tag:"A box that pulls drinking water from dry desert air.",
+     idea:"A solar-powered harvester that makes water from air with 10% humidity, enough for a family, with no pipes and no electricity grid.",
+     how:"Metal–organic frameworks are crystals full of pores, with a surface of thousands of square metres per gram. At night one type grabs water molecules from the air; the morning sun warms it gently and it releases them as liquid.",
+     where:"Atacama, 2035",
+     day:"The school's water comes from a row of shoebox-sized cartridges on the roof, each giving about three litres a day. The lorry that used to bring bottled water twice a week has stopped coming.",
+     block:"The crystals must be made cheaply by the tonne and survive thousands of cycles with dust and pollution.",
+     seeds:"Omar Yaghi's group harvested water from Arizona desert air with MOF-303. Yaghi, Susumu Kitagawa and Richard Robson won the 2025 Nobel Prize in Chemistry for metal–organic frameworks."},
+
+    {f:"matter", name:"Sky Rope", year:2090, trl:1, p:3,
+     tag:"An elevator from the equator to orbit.",
+     idea:"A cable stretching 36,000 km from an ocean platform to a counterweight beyond geostationary orbit. Climbers ride it up on electric motors, and the cost of reaching space falls to that of a long train journey.",
+     how:"The cable is held taut by Earth's rotation: the counterweight moves faster than an orbit at its height would, so it pulls outward. Climbers are powered by lasers or by the cable itself. Only one kind of material could be strong and light enough: carbon nanotubes or similar.",
+     where:"Equatorial Pacific, 2094",
+     day:"The climber leaves the platform at dawn. Five days later the Earth fills the window as a blue marble, and the cargo of satellites is released without a rocket.",
+     block:"The cable needs a strength of well over 50 gigapascals along its entire length. Nanotubes reach that only in flawless pieces centimetres long; a single defect ruins a kilometre.",
+     seeds:"In 2018 Tsinghua University made carbon nanotube bundles a few centimetres long with a tensile strength of about 80 gigapascals, still far from a 36,000 km rope."},
+
+    {f:"matter", name:"Diamond Heart", year:2037, trl:4, p:1,
+     tag:"A battery that runs for 5,000 years.",
+     idea:"A tiny power source for pacemakers, sensors and deep-space probes that never needs replacing. It won't run a phone, but it will run a heart monitor for the rest of the patient's life, and their grandchildren's.",
+     how:"Radioactive carbon-14 is locked inside a synthetic diamond. Its beta decay knocks electrons loose in the diamond, which acts as a semiconductor and turns them into current. Carbon-14's half-life is 5,730 years, and diamond stops the radiation escaping.",
+     where:"Bristol, 2040",
+     day:"The pacemaker's battery icon has a new symbol, a small hourglass, because it will never need replacing. The surgeon mentions this and moves on.",
+     block:"Power is measured in microwatts. Making enough carbon-14 cheaply, for example from graphite in old reactors, is still being worked out.",
+     seeds:"In 2024 the UK Atomic Energy Authority and the University of Bristol unveiled the first carbon-14 diamond battery."},
+
+    {f:"life", name:"Reset Therapy", year:2045, trl:3, p:2,
+     tag:"Winding back the clock in a cell without erasing what it is.",
+     idea:"A treatment that makes old tissue behave young again: skin that heals like a child's, eyes that recover, joints that rebuild. It rolls back the chemical tags on DNA that accumulate with age.",
+     how:"Four genes, the Yamanaka factors, can turn an adult cell back into a stem cell. Switched on only briefly, they seem to reset the cell's age markers without erasing its identity: a skin cell stays a skin cell but acts younger.",
+     where:"Kyoto, 2050",
+     day:"The ophthalmologist injects a gene switch into your left eye. For three weeks you take a pill every night that turns it on. The glaucoma damage in that eye starts to reverse; the right eye goes next.",
+     block:"Too much reprogramming causes tumours, and the effects on whole bodies over many years are unknown.",
+     seeds:"Shinya Yamanaka won the 2012 Nobel Prize for these factors. In 2016 the Salk Institute extended the lives of prematurely ageing mice by switching them on in short cycles, and in 2020 restored sight in mice with damaged optic nerves."},
+
+    {f:"life", name:"Printed Kidney", year:2042, trl:3, p:2,
+     tag:"A transplant grown from your own cells, so no waiting list.",
+     idea:"Organs printed to order from a patient's own cells. No donor, no waiting years on dialysis and no lifelong drugs to prevent rejection.",
+     how:"The patient's cells are reprogrammed into stem cells, grown into the right cell types and deposited layer by layer with a scaffold. The hardest part is the blood supply: a kidney needs millions of tiny vessels and filters.",
+     where:"Leiden, 2046",
+     day:"Six weeks after the blood sample, the kidney is ready in a bioreactor that has been pumping nutrients through it. It already produces urine. The transplant is scheduled for Tuesday.",
+     block:"Printing working capillaries at scale is unsolved. Printed tissue so far survives only in thin layers or small pieces.",
+     seeds:"Bioprinted skin, cartilage and bladders have been tested in people. In 2024 surgeons in Boston transplanted a gene-edited pig kidney into a living patient, a different path to the same goal."},
+
+    {f:"life", name:"Gut Sentinel", year:2035, trl:4, p:1,
+     tag:"A swallowed capsule of bacteria that texts you when something is wrong.",
+     idea:"A pill of engineered bacteria and electronics that settles in the gut and watches for early signs of bleeding, inflammation or cancer, reporting to your phone.",
+     how:"Bacteria are given genetic circuits that make them glow when they detect a target molecule, such as heme from blood. A tiny chip in the capsule measures the light and transmits the result wirelessly.",
+     where:"Nijmegen, 2037",
+     day:"The notification arrives after breakfast: a trace of blood detected in the small intestine. A doctor calls before noon. The ulcer is found and treated while still small.",
+     block:"The capsule needs to stay put for weeks, and engineered bacteria must be stable and unable to spread.",
+     seeds:"In 2018 MIT researchers built an ingestible capsule containing engineered bacteria and an electronic reader that detected bleeding in pigs."},
+
+    {f:"life", name:"Deep Sleep Berth", year:2060, trl:2, p:2,
+     tag:"Hibernation for people, for surgery and long spaceflights.",
+     idea:"Controlled torpor: a patient or astronaut enters a state of lowered body temperature and metabolism for weeks. It would buy time after an accident and shrink the food and oxygen a Mars crew needs.",
+     how:"Animals like bears and ground squirrels lower their metabolism through a group of neurons in the brain. Stimulating the matching region in non-hibernating animals, with drugs or ultrasound, can trigger a similar state.",
+     where:"Transit to Mars, 2063",
+     day:"The ship's medic checks the berths every morning. Four crew are at 32 °C, breathing six times a minute. They went to sleep past the Moon; they will wake up in Mars orbit.",
+     block:"Humans aren't hibernators. Long torpor risks muscle and bone loss, blood clots and brain damage.",
+     seeds:"In 2023 a team at Washington University in St. Louis used ultrasound on the brain to put mice into a reversible torpor-like state."},
+
+    {f:"life", name:"Fast Leaf", year:2036, trl:5, p:1,
+     tag:"Crops that photosynthesise a third more efficiently.",
+     idea:"Rice, wheat and potatoes redesigned to fix carbon more efficiently. Yields increase without extra land, water or fertiliser, which matters for feeding ten billion people.",
+     how:"The plant enzyme RuBisCO often grabs oxygen instead of carbon dioxide, and the plant spends energy cleaning up the waste. Engineered shortcuts for that clean-up, along with faster recovery from shade, give the plant more energy for growth.",
+     where:"Punjab, 2040",
+     day:"This season's wheat looks like any other. It was sown on the same land with the same water, and the harvest is 25% bigger. The seed is a public variety.",
+     block:"Field results vary with weather, and gains in one crop don't automatically carry to others. Regulation of genetically modified crops is slow in many countries.",
+     seeds:"In 2019 a photorespiration bypass increased tobacco biomass by up to 40% in field trials. Similar work on soybean and rice is under way."},
+
+    {f:"space", name:"Starchip to Proxima", year:2060, trl:3, p:2,
+     tag:"A gram-weight probe sailing to the nearest star on a laser beam.",
+     idea:"Thousands of chip-sized spacecraft with light sails metres wide, pushed by a huge laser array to a fifth of the speed of light. Twenty years later they fly past Proxima b, the nearest known exoplanet, and photograph it.",
+     how:"A 100-gigawatt ground laser shines on each sail for a few minutes, accelerating it at thousands of g. The sail must reflect almost all the light and radiate the tiny remainder as heat. The chip carries a camera, a laser for communication and a battery.",
+     where:"Atacama, 2084",
+     day:"The signal is so faint it takes months to assemble a single picture. When it arrives it shows a pale red crescent: the dayside of Proxima b, lit by its small red sun.",
+     block:"The laser array, the ultra-thin sail and receiving data from 4.24 light-years away are each beyond current technology.",
+     seeds:"Breakthrough Starshot was launched in 2016, the same year Proxima b was discovered. Nanophotonic sail materials are being tested in the lab."},
+
+    {f:"space", name:"Shadow Mine", year:2038, trl:5, p:1,
+     tag:"Mining ice from craters on the Moon where the sun never shines.",
+     idea:"Robots harvest ice from the Moon's polar craters and split it into drinking water, oxygen and rocket fuel. The Moon becomes a filling station.",
+     how:"At the lunar poles some crater floors have been in shadow for billions of years and stay colder than −230 °C. Water ice has built up there. Rovers heat the soil, collect the vapour and electrolyse it into hydrogen and oxygen.",
+     where:"Shackleton crater, 2041",
+     day:"Robot rovers bring in the week's ice. The depot has filled another tanker with liquid oxygen; the next Mars ship will refuel here instead of carrying it up from Earth.",
+     block:"Nobody knows how concentrated the ice is or how easy it is to dig at −230 °C. Machines must survive abrasive dust and darkness.",
+     seeds:"In 2009 NASA's LCROSS mission crashed a rocket stage into Cabeus crater and detected water in the plume. Several missions to the lunar south pole are planned this decade."},
+
+    {f:"space", name:"Neutrino Radio", year:2070, trl:2, p:3,
+     tag:"A message sent straight through the Earth.",
+     idea:"Communication that goes through the planet rather than around it. Neutrinos pass through rock and seawater almost untouched, so a submarine on the other side of the world could receive a message without a cable or satellite.",
+     how:"A particle accelerator makes a beam of neutrinos and switches it on and off to encode bits. A huge detector on the other side registers the few neutrinos that happen to interact. Because they barely interact, both the beam and the detector must be enormous.",
+     where:"Pacific, 2074",
+     day:"The submarine's detector has been counting flashes in its tank for twenty minutes. The message, sent from Switzerland through the planet's core, reads: “Return to port.”",
+     block:"The data rate is very low and the equipment is gigantic. A receiver small enough to carry would need a new detection method.",
+     seeds:"In 2012 Fermilab sent the word “neutrino” through 240 metres of rock using a neutrino beam and its MINERvA detector, at about 0.1 bits per second."},
+
+    {f:"space", name:"L1 Parasol", year:2070, trl:2, p:3,
+     tag:"A sunshade between Earth and Sun, dimming sunlight by 2%.",
+     idea:"A swarm of thin transparent flyers at the point where Earth's and Sun's gravity balance, deflecting a small fraction of sunlight. It could offset global warming without adding anything to the atmosphere, and could be steered away.",
+     how:"At the Lagrange point L1, 1.5 million km from Earth, an object stays between us and the Sun. Trillions of disc-shaped flyers each a metre across would bend sunlight so it misses the Earth. Blocking about 1.8% of sunlight offsets a doubling of CO₂.",
+     where:"L1, 2075",
+     day:"From the ground there is nothing to see. In the climate reports the line of global temperature has flattened, and there's a heated argument in the UN about who controls the steering.",
+     block:"The total mass is millions of tonnes, which is far beyond any launch capability. It doesn't address ocean acidification, and it raises difficult questions about who decides.",
+     seeds:"Astronomer Roger Angel published a detailed design for a cloud of small L1 flyers in 2006. Solar sails have been flown by Japan's IKAROS since 2010."},
+
+    {f:"mind", name:"Voice Bridge", year:2030, trl:6, p:1,
+     tag:"Speech restored straight from the brain to a speaker.",
+     idea:"For people who have lost speech to stroke or ALS: an implant that reads the brain's attempts to speak and says the words aloud, in their own voice, at conversational speed.",
+     how:"Electrode arrays on the speech motor cortex record the signals for tongue, lip and jaw movements. A neural network translates them into sounds or words and a synthesiser trained on old recordings speaks them.",
+     where:"Maastricht, 2031",
+     day:"Her husband hasn't heard her voice in four years. At breakfast she complains about the weather, in her own slightly raspy voice, about half a second after she forms the words.",
+     block:"Implants need surgery and can degrade over years. Decoding must work reliably without daily recalibration.",
+     seeds:"In 2023 teams at UCSF and Stanford decoded attempted speech at 60–80 words a minute. In 2024 a UC Davis patient with ALS spoke through an implant with 97% accuracy."},
+
+    {f:"mind", name:"Mind Helmet", year:2034, trl:6, p:1,
+     tag:"A brain scanner you can wear while you walk around.",
+     idea:"A lightweight helmet that measures brain activity at millisecond resolution while you move, play, talk or meditate. Children with epilepsy could be scanned while playing instead of lying still in a tube.",
+     how:"Neurons produce tiny magnetic fields when they fire. Optically pumped magnetometers, vapour cells whose atoms are spin-aligned by laser, can sense them without cryogenic cooling, so they can sit right on the head.",
+     where:"Nottingham, 2035",
+     day:"The girl is playing a video game with her mother in a shielded room. The helmet on her head is recording the spot in her left temporal lobe where her seizures start.",
+     block:"The Earth's magnetic field is about a hundred million times stronger than the brain's, so the room must be magnetically shielded. Making it work outdoors is still far off.",
+     seeds:"In 2018 the University of Nottingham demonstrated wearable MEG with optically pumped magnetometers, and it has since been used clinically for epilepsy."},
+
+    {f:"mind", name:"Cold Logic", year:2040, trl:3, p:2,
+     tag:"Computers that recycle almost all the energy they use.",
+     idea:"Chips that barely heat up because they don't throw away information. A data centre would need a fraction of today's electricity, and a phone could run for weeks on one charge.",
+     how:"Landauer's principle says that erasing one bit must release a minimum amount of heat. Ordinary logic erases bits all the time. Reversible logic keeps every bit it could need to run backwards, so the energy can be recovered, like a pendulum swinging back.",
+     where:"Eindhoven, 2044",
+     day:"The server room of the new data centre has no air conditioning, just a few fans. The chips inside run at a hundredth of the power of older machines doing the same work.",
+     block:"Reversible circuits are slower and more complex, and every piece of the software stack would need redesigning.",
+     seeds:"Rolf Landauer described the principle in 1961. In 2012 French researchers measured the heat of erasing a single bit, confirming the limit, and startups are now building adiabatic reversible chips."},
+
+    {f:"mind", name:"DNA Library", year:2035, trl:5, p:1,
+     tag:"All the world's data in a shoebox, readable in 10,000 years.",
+     idea:"Archives written into synthetic DNA, compact and durable. It never goes obsolete, because as long as there is life there will be ways to read DNA.",
+     how:"Binary data is translated into sequences of A, C, G and T and synthesised into short strands. Reading uses ordinary DNA sequencing. Dried and sealed, DNA can survive thousands of years.",
+     where:"Svalbard, 2040",
+     day:"The national archive's entire digital collection is stored in a glass vial the size of a pencil stub, deep in the Arctic permafrost next to the seed vault.",
+     block:"Writing DNA is still slow and expensive, far too costly for anything but deep archives.",
+     seeds:"In 2017 researchers at Columbia showed that DNA can store 215 petabytes per gram. Microsoft and the University of Washington have automated writing and reading."},
+
+    {f:"mind", name:"Dream Recorder", year:2055, trl:3, p:3,
+     tag:"Waking up with pictures of what you dreamed.",
+     idea:"A headband that records brain activity during sleep and reconstructs rough images of dreams. You wake up with a gallery of what you dreamed last night.",
+     how:"Brain activity while seeing a picture follows patterns that AI can learn to decode. Dreams activate similar visual areas. With enough data from a person, an image generator could sketch what their visual cortex was showing.",
+     where:"Tokyo, 2057",
+     day:"This morning's reel shows a blurry corridor, a red door and a dog that's almost your childhood dog. You tag it and go to breakfast.",
+     block:"Today's decoding needs an MRI scanner and hours of training per person. Nobody knows if dream activity matches waking activity closely enough.",
+     seeds:"In 2023 Yu Takagi and Shinji Nishimoto reconstructed recognisable images from fMRI data using a diffusion image model. In 2013 Japanese researchers decoded dream content categories from sleeping volunteers."},
+
+    {f:"climate", name:"Cloud Brighteners", year:2035, trl:4, p:2,
+     tag:"Ships that make clouds whiter to cool the sea below.",
+     idea:"Unmanned vessels spray fine seawater mist into the air over the ocean. Tiny salt particles make low clouds brighter, reflecting more sunlight and cooling the water beneath, for example over a coral reef in a heatwave.",
+     how:"Clouds made of more, smaller droplets reflect more sunlight. Salt crystals from sea spray make good seeds for droplets. Accidental evidence came from ship tracks: bright lines in clouds behind ships.",
+     where:"Great Barrier Reef, 2037",
+     day:"The heatwave forecast is bad. Twelve spray barges leave port and anchor in a line upwind of the reef. For three weeks the clouds over the reef are a little whiter and the water a degree cooler.",
+     block:"It's unclear how reliable the effect is, and local cooling could change rainfall elsewhere. Who is allowed to do this is unresolved.",
+     seeds:"Small field tests have been run over the Great Barrier Reef since 2020. In 2024 a University of Washington test in Alameda was halted by the city."},
+
+    {f:"climate", name:"Glacier Curtain", year:2050, trl:2, p:2,
+     tag:"An underwater barrier to keep warm water away from glaciers.",
+     idea:"A flexible curtain anchored to the seabed in front of Antarctic glaciers like Thwaites, blocking the warm deep water that melts them from below. It could slow sea level rise by decades.",
+     how:"Warm, salty ocean water flows along the seabed under the ice shelves and melts them from underneath. A buoyant curtain 100 km long and hundreds of metres high would divert it, letting the ice shelf thicken again.",
+     where:"Amundsen Sea, 2055",
+     day:"The curtain has held through its fifth winter. Sensors under Thwaites show the water beneath the ice shelf two degrees colder than before. In Rotterdam the sea-level projections are revised downwards.",
+     block:"No one has built anything at this scale in the harshest ocean on Earth. Icebergs, storms and the unknown effects on ecosystems are all serious risks.",
+     seeds:"Glaciologists Michael Wolovick and John Moore proposed seabed barriers in 2018. Small curtain prototypes have been tested in Cambridge and Norway."}
+  ];
+
+  /* ---------- storage ---------- */
+  var KEPT_KEY="proxima-kept", SEEN_KEY="proxima-seen", FIELD_KEY="proxima-field", VIEW_KEY="proxima-view", THEME_KEY="proxima-theme";
+  function get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function set(k,v){ try{ if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} }
+  function getIds(k){ try{ var a=JSON.parse(localStorage.getItem(k)||"[]"); return Array.isArray(a)?a.filter(function(n){return n>=0&&n<ALL.length;}):[]; }catch(e){ return []; } }
+  function setIds(k,s){ set(k, JSON.stringify(Array.from(s))); }
+
+  var kept = new Set(getIds(KEPT_KEY));
+  var seen = new Set(getIds(SEEN_KEY));
+  var field = get(FIELD_KEY); if(!FIELDS[field]) field = null;
+  var view = get(VIEW_KEY); if(["discover","timeline","kept"].indexOf(view)<0) view = "discover";
+  var history = [], pos = -1;
+
+  /* ---------- theme ---------- */
+  var root=document.documentElement, themeBtn=document.getElementById("themeBtn");
+  function applyTheme(){
+    var t=get(THEME_KEY);
+    if(t==="dark"||t==="light"){ root.setAttribute("data-theme",t); themeBtn.textContent=t==="dark"?"Dark":"Light"; }
+    else { root.removeAttribute("data-theme"); themeBtn.textContent="Auto"; }
+    drawFringes(phase);
+  }
+  themeBtn.addEventListener("click",function(){
+    var t=get(THEME_KEY); set(THEME_KEY, t==="light"?"dark":(t==="dark"?null:"light")); applyTheme();
+  });
+
+  /* ---------- glyphs ---------- */
+  var GLYPH = {
+    quantum:'<circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="8.5" ry="3.2"/><path d="M12 12l4.2-6.4"/><circle class="dot" cx="16.2" cy="5.6" r="1.6"/>',
+    matter:'<path d="M12 3.5l7.4 4.25v8.5L12 20.5l-7.4-4.25v-8.5z"/><path d="M12 3.5v8.5l7.4 4.25M12 12l-7.4 4.25"/>',
+    life:'<path d="M8 3c0 6 8 6 8 12 0 3-1 4.5-2 6M16 3c0 6-8 6-8 12 0 3 1 4.5 2 6"/><path d="M9.2 7h5.6M9.2 17h5.6"/>',
+    space:'<circle cx="12" cy="12" r="3.2"/><ellipse cx="12" cy="12" rx="9.5" ry="4.5" transform="rotate(-25 12 12)"/><circle class="dot" cx="20" cy="8" r="1.5"/>',
+    mind:'<circle cx="12" cy="12" r="2.6"/><path d="M12 9.4V3.5M14.3 13.3l5.1 3M9.7 13.3l-5.1 3M12 3.5l-2.5-1M12 3.5l2.5-1M19.4 16.3l.4 2.5M4.6 16.3l-.4 2.5"/>',
+    climate:'<path d="M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 14c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 19c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>'
+  };
+  function glyph(f){ return '<svg class="glyph" viewBox="0 0 24 24" aria-hidden="true">'+GLYPH[f]+'</svg>'; }
+  function meter(n){ var s='<div class="meter" aria-hidden="true">'; for(var i=1;i<=9;i++) s+='<i'+(i<=n?' class="on"':'')+'></i>'; return s+'</div>'; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+  function num(id){ return "No. "+String(id+1).padStart(2,"0"); }
+
+  /* ---------- pool + picking ---------- */
+  function pool(){ var out=[]; ALL.forEach(function(e,i){ if(!field||e.f===field) out.push(i); }); return out; }
+  function pickNext(){
+    var p=pool(), cur=history[pos];
+    var fresh=p.filter(function(i){ return !seen.has(i) && i!==cur; });
+    var from=fresh.length?fresh:p.filter(function(i){ return i!==cur; });
+    if(!from.length) from=p;
+    return from[Math.floor(Math.random()*from.length)];
+  }
+  function show(id){
+    history=history.slice(0,pos+1); history.push(id); pos=history.length-1;
+    markSeen(id);
+  }
+  function markSeen(id){ if(!seen.has(id)){ seen.add(id); setIds(SEEN_KEY,seen); } updateCount(); }
+
+  /* ---------- render ---------- */
+  var viewEl=document.getElementById("view");
+  function updateCount(){
+    document.getElementById("countLine").textContent = ALL.length+" entries · "+seen.size+" seen";
+    document.getElementById("keptN").textContent = kept.size?" ("+kept.size+")":"";
+  }
+
+  function renderChips(){
+    var counts={}; ALL.forEach(function(e){ counts[e.f]=(counts[e.f]||0)+1; });
+    var html='<button class="chip" type="button" data-f="" aria-pressed="'+(!field)+'">All <span class="n">'+ALL.length+'</span></button>';
+    Object.keys(FIELDS).forEach(function(k){
+      html+='<button class="chip" type="button" data-f="'+k+'" aria-pressed="'+(field===k)+'">'+glyph(k)+FIELDS[k].label+' <span class="n">'+counts[k]+'</span></button>';
+    });
+    document.getElementById("chips").innerHTML=html;
+  }
+  document.getElementById("chips").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    field=b.getAttribute("data-f")||null; set(FIELD_KEY,field);
+    renderChips();
+    if(view==="discover"){
+      var cur=history[pos];
+      if(cur===undefined || (field && ALL[cur].f!==field)) show(pickNext());
+    }
+    render(true);
+  });
+
+  function renderCard(animate){
+    var id=history[pos], e=ALL[id], isKept=kept.has(id);
+    viewEl.innerHTML =
+      '<article class="card'+(animate?' enter':'')+'" aria-live="polite">'+
+        '<div class="card-head"><span class="field-tag">'+glyph(e.f)+FIELDS[e.f].label+'</span><span class="mono-label">'+num(id)+'</span></div>'+
+        '<h2 class="name">'+esc(e.name)+'</h2>'+
+        '<p class="tagline">'+esc(e.tag)+'</p>'+
+        '<div class="spec">'+
+          '<div><span class="mono-label">First light</span><span class="v">c. '+e.year+'</span></div>'+
+          '<div><span class="mono-label">Readiness</span><span class="v">TRL '+e.trl+'</span>'+meter(e.trl)+'</div>'+
+          '<div><span class="mono-label">Plausibility</span><span class="plaus p'+e.p+'">'+PLAUS[e.p]+'</span></div>'+
+        '</div>'+
+        '<section class="sec"><span class="mono-label">The idea</span><p>'+esc(e.idea)+'</p></section>'+
+        '<section class="sec"><span class="mono-label">How it would work</span><p>'+esc(e.how)+'</p></section>'+
+        '<section class="sec vignette"><span class="where">'+esc(e.where)+'</span><p>'+esc(e.day)+'</p></section>'+
+        '<section class="sec"><span class="mono-label">What stands in the way</span><p>'+esc(e.block)+'</p></section>'+
+        '<section class="sec seeds"><span class="mono-label">Seeds today</span><p>'+esc(e.seeds)+'</p></section>'+
+        '<div class="actions">'+
+          '<button class="btn" type="button" id="prevBtn"'+(pos>0?'':' disabled')+' aria-label="Previous invention">←</button>'+
+          '<button class="btn'+(isKept?' kept':'')+'" type="button" id="keepBtn" aria-pressed="'+isKept+'">'+(isKept?'★ Kept':'☆ Keep')+'</button>'+
+          '<button class="btn primary" type="button" id="nextBtn">Next →</button>'+
+        '</div>'+
+      '</article>';
+    document.getElementById("prevBtn").onclick=function(){ if(pos>0){ pos--; render(true); window.scrollTo({top:0}); } };
+    document.getElementById("nextBtn").onclick=function(){
+      if(pos<history.length-1) pos++; else show(pickNext());
+      render(true); viewEl.scrollIntoView({block:"start"});
+    };
+    document.getElementById("keepBtn").onclick=function(){
+      if(kept.has(id)) kept.delete(id); else kept.add(id);
+      setIds(KEPT_KEY,kept); updateCount(); renderCard(false);
+    };
+  }
+
+  function rowHtml(i){
+    var e=ALL[i];
+    return '<button class="row'+(seen.has(i)?' seen':'')+'" type="button" data-id="'+i+'">'+
+      '<span class="yr">'+e.year+'</span>'+glyph(e.f)+
+      '<span class="row-name">'+esc(e.name)+'<small>'+esc(e.tag)+'</small></span>'+meter(e.trl)+'</button>';
+  }
+  function renderTimeline(){
+    var ids=pool().sort(function(a,b){ return ALL[a].year-ALL[b].year || a-b; });
+    var html='', dec=null;
+    ids.forEach(function(i){
+      var d=Math.floor(ALL[i].year/10)*10;
+      if(d!==dec){ if(dec!==null) html+='</div>'; html+='<div class="decade"><h2>'+d+'s</h2>'; dec=d; }
+      html+=rowHtml(i);
+    });
+    if(dec!==null) html+='</div>';
+    viewEl.innerHTML=html||'<p class="empty">Nothing in this field yet.</p>';
+  }
+  function renderKept(){
+    var ids=Array.from(kept).filter(function(i){ return !field||ALL[i].f===field; })
+      .sort(function(a,b){ return ALL[a].year-ALL[b].year; });
+    viewEl.innerHTML = ids.length ? '<div class="decade">'+ids.map(rowHtml).join('')+'</div>'
+      : '<p class="empty">'+(kept.size?'None of your kept inventions are in this field.':'Tap ☆ Keep on an invention to collect it here.')+'</p>';
+  }
+  viewEl.addEventListener("click",function(e){
+    var r=e.target.closest(".row"); if(!r) return;
+    show(+r.getAttribute("data-id")); setView("discover"); window.scrollTo({top:0});
+  });
+
+  function render(animate){
+    if(view==="discover") renderCard(animate);
+    else if(view==="timeline") renderTimeline();
+    else renderKept();
+  }
+  function setView(v){
+    view=v; set(VIEW_KEY,v);
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(t){ t.setAttribute("aria-selected", t.getAttribute("data-view")===v); });
+    render(true);
+  }
+  document.getElementById("tabs").addEventListener("click",function(e){
+    var t=e.target.closest(".tab"); if(t) setView(t.getAttribute("data-view"));
+  });
+
+  /* ---------- masthead: a double-slit interference pattern ---------- */
+  var cv=document.getElementById("fringes"), cx=cv.getContext("2d"), phase=0;
+  var still=window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function drawFringes(t){
+    var r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    var W=Math.max(1,Math.round(r.width*dpr)), H=Math.max(1,Math.round(r.height*dpr));
+    if(cv.width!==W||cv.height!==H){ cv.width=W; cv.height=H; }
+    var rgb=getComputedStyle(root).getPropertyValue("--fringe").trim()||"45,86,240";
+    cx.clearRect(0,0,W,H);
+    // Two slits sit off the right edge; bright bands fan out where the paths differ by whole wavelengths.
+    var sx=W*1.08, s1=H*0.5-18*dpr, s2=H*0.5+18*dpr, k=0.19/dpr, step=Math.max(2,Math.round(3*dpr));
+    for(var y=0;y<H;y+=step){
+      for(var x=0;x<W*0.9;x+=step){
+        var d1=Math.hypot(sx-x,y-s1), d2=Math.hypot(sx-x,y-s2);
+        var amp=Math.cos((d1-d2)*k*6 + t)*0.5+0.5;
+        var fall=Math.pow(1-x/(W*0.9),1.4);
+        var a=amp*amp*fall*0.7;
+        if(a>0.02){ cx.fillStyle="rgba("+rgb+","+a.toFixed(3)+")"; cx.fillRect(x,y,step*0.55,step*0.55); }
+      }
+    }
+  }
+  var lastFrame=0;
+  function loop(ts){
+    if(ts-lastFrame>70){ phase+=0.05; drawFringes(phase); lastFrame=ts; }
+    requestAnimationFrame(loop);
+  }
+  window.addEventListener("resize",function(){ drawFringes(phase); });
+
+  /* ---------- start ---------- */
+  applyTheme();
+  renderChips();
+  show(pickNext());
+  setView(view);
+  if(!still) requestAnimationFrame(loop);
+})();
+</script>
+
+</body></html>

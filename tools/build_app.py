@@ -5,7 +5,7 @@ app.html is exactly what gets published as the Claude artifact. The site version
 home-screen wrapper already at the top of index.html (icons, manifest, service worker, and
 for Curiosity the one-time progress import) and swaps any wording that only makes sense on a phone.
 
-Usage: python3 tools/build_app.py curiosity|enso
+Usage: python3 tools/build_app.py curiosity|enso|proxima
 """
 import pathlib
 import sys
@@ -22,6 +22,10 @@ APPS = {
     },
     "enso": {
         "start": "<title>Ensō</title>",
+        "replacements": [],
+    },
+    "proxima": {
+        "start": "<title>Proxima</title>",
         "replacements": [],
     },
 }

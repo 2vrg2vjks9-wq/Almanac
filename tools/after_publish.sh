@@ -8,6 +8,7 @@ file=$(jq -r '.tool_input.file_path // empty')
 case "$file" in
   */curiosity/app.html|curiosity/app.html) app=curiosity; label="Curiosity Almanac"; extra="" ;;
   */enso/app.html|enso/app.html)           app=enso;      label="Ensō";              extra="enso/poems.json" ;;
+  */proxima/app.html|proxima/app.html)     app=proxima;   label="Proxima";           extra="" ;;
   *) exit 0 ;;
 esac
 
