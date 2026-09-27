@@ -1,0 +1,3351 @@
+{
+ "poems": [
+  {
+   "id": 1,
+   "author": "Emily Dickinson",
+   "title": "“Hope” is the thing with feathers",
+   "year": "c. 1861",
+   "themes": [
+    "resilience",
+    "nature"
+   ],
+   "lines": [
+    "“Hope” is the thing with feathers -",
+    "That perches in the soul -",
+    "And sings the tune without the words -",
+    "And never stops - at all -",
+    "",
+    "And sweetest - in the Gale - is heard -",
+    "And sore must be the storm -",
+    "That could abash the little Bird",
+    "That kept so many warm -",
+    "",
+    "I've heard it in the chillest land -",
+    "And on the strangest Sea -",
+    "Yet - never - in Extremity,",
+    "It asked a crumb - of me."
+   ]
+  },
+  {
+   "id": 2,
+   "author": "Emily Dickinson",
+   "title": "I'm Nobody! Who are you?",
+   "year": "c. 1861",
+   "themes": [
+    "simplicity",
+    "solitude"
+   ],
+   "lines": [
+    "I'm Nobody! Who are you?",
+    "Are you - Nobody - too?",
+    "Then there's a pair of us!",
+    "Don't tell! they'd advertise - you know!",
+    "",
+    "How dreary - to be - Somebody!",
+    "How public - like a Frog -",
+    "To tell one's name - the livelong June -",
+    "To an admiring Bog!"
+   ]
+  },
+  {
+   "id": 3,
+   "author": "Emily Dickinson",
+   "title": "Because I could not stop for Death",
+   "year": "c. 1863",
+   "themes": [
+    "mortality",
+    "impermanence"
+   ],
+   "lines": [
+    "Because I could not stop for Death -",
+    "He kindly stopped for me -",
+    "The Carriage held but just Ourselves -",
+    "And Immortality.",
+    "",
+    "We slowly drove - He knew no haste",
+    "And I had put away",
+    "My labor and my leisure too,",
+    "For His Civility -",
+    "",
+    "We passed the School, where Children strove",
+    "At Recess - in the Ring -",
+    "We passed the Fields of Gazing Grain -",
+    "We passed the Setting Sun -",
+    "",
+    "Or rather - He passed Us -",
+    "The Dews drew quivering and chill -",
+    "For only Gossamer, my Gown -",
+    "My Tippet - only Tulle -",
+    "",
+    "We paused before a House that seemed",
+    "A Swelling of the Ground -",
+    "The Roof was scarcely visible -",
+    "The Cornice - in the Ground -",
+    "",
+    "Since then - 'tis Centuries - and yet",
+    "Feels shorter than the Day",
+    "I first surmised the Horses' Heads",
+    "Were toward Eternity -"
+   ]
+  },
+  {
+   "id": 4,
+   "author": "Emily Dickinson",
+   "title": "A Bird, came down the Walk",
+   "year": "c. 1862",
+   "themes": [
+    "nature",
+    "stillness"
+   ],
+   "lines": [
+    "A Bird, came down the Walk -",
+    "He did not know I saw -",
+    "He bit an Angle Worm in halves",
+    "And ate the fellow, raw,",
+    "",
+    "And then he drank a Dew",
+    "From a convenient Grass -",
+    "And then hopped sidewise to the Wall",
+    "To let a Beetle pass -",
+    "",
+    "He glanced with rapid eyes",
+    "That hurried all around -",
+    "They looked like frightened Beads, I thought -",
+    "He stirred his Velvet Head",
+    "",
+    "Like one in danger, Cautious,",
+    "I offered him a Crumb",
+    "And he unrolled his feathers",
+    "And rowed him softer home -",
+    "",
+    "Than Oars divide the Ocean,",
+    "Too silver for a seam -",
+    "Or Butterflies, off Banks of Noon",
+    "Leap, plashless as they swim."
+   ]
+  },
+  {
+   "id": 5,
+   "author": "Emily Dickinson",
+   "title": "There's a certain Slant of light",
+   "year": "c. 1861",
+   "themes": [
+    "stillness",
+    "impermanence"
+   ],
+   "lines": [
+    "There's a certain Slant of light,",
+    "Winter Afternoons -",
+    "That oppresses, like the Heft",
+    "Of Cathedral Tunes -",
+    "",
+    "Heavenly Hurt, it gives us -",
+    "We can find no scar,",
+    "But internal difference,",
+    "Where the Meanings, are -",
+    "",
+    "None may teach it - Any -",
+    "'Tis the Seal Despair -",
+    "An imperial affliction",
+    "Sent us of the Air -",
+    "",
+    "When it comes, the Landscape listens -",
+    "Shadows - hold their breath -",
+    "When it goes, 'tis like the Distance",
+    "On the look of Death -"
+   ]
+  },
+  {
+   "id": 6,
+   "author": "Emily Dickinson",
+   "title": "The Soul selects her own Society",
+   "year": "c. 1862",
+   "themes": [
+    "solitude",
+    "simplicity"
+   ],
+   "lines": [
+    "The Soul selects her own Society -",
+    "Then - shuts the Door -",
+    "To her divine Majority -",
+    "Present no more -",
+    "",
+    "Unmoved - she notes the Chariots - pausing -",
+    "At her low Gate -",
+    "Unmoved - an Emperor be kneeling",
+    "Upon her Mat -",
+    "",
+    "I've known her - from an ample nation -",
+    "Choose One -",
+    "Then - close the Valves of her attention -",
+    "Like Stone -"
+   ]
+  },
+  {
+   "id": 7,
+   "author": "Emily Dickinson",
+   "title": "I heard a Fly buzz - when I died",
+   "year": "c. 1862",
+   "themes": [
+    "mortality",
+    "stillness"
+   ],
+   "lines": [
+    "I heard a Fly buzz - when I died -",
+    "The Stillness in the Room",
+    "Was like the Stillness in the Air -",
+    "Between the Heaves of Storm -",
+    "",
+    "The Eyes around - had wrung them dry -",
+    "And Breaths were gathering firm",
+    "For that last Onset - when the King",
+    "Be witnessed - in the Room -",
+    "",
+    "I willed my Keepsakes - Signed away",
+    "What portion of me be",
+    "Assignable - and then it was",
+    "There interposed a Fly -",
+    "",
+    "With Blue - uncertain stumbling Buzz -",
+    "Between the light - and me -",
+    "And then the Windows failed - and then",
+    "I could not see to see -"
+   ]
+  },
+  {
+   "id": 8,
+   "author": "Emily Dickinson",
+   "title": "Tell all the Truth but tell it slant",
+   "year": "c. 1868",
+   "themes": [
+    "simplicity"
+   ],
+   "lines": [
+    "Tell all the Truth but tell it slant -",
+    "Success in Circuit lies",
+    "Too bright for our infirm Delight",
+    "The Truth's superb surprise",
+    "",
+    "As Lightning to the Children eased",
+    "With explanation kind",
+    "The Truth must dazzle gradually",
+    "Or every man be blind -"
+   ]
+  },
+  {
+   "id": 9,
+   "author": "Emily Dickinson",
+   "title": "A narrow Fellow in the Grass",
+   "year": "c. 1865",
+   "themes": [
+    "nature",
+    "solitude"
+   ],
+   "lines": [
+    "A narrow Fellow in the Grass",
+    "Occasionally rides -",
+    "You may have met him - did you not",
+    "His notice sudden is -",
+    "",
+    "The Grass divides as with a Comb -",
+    "A spotted shaft is seen -",
+    "And then it closes at your feet",
+    "And opens further on -",
+    "",
+    "He likes a Boggy Acre",
+    "A Floor too cool for Corn -",
+    "Yet when a Boy, and Barefoot -",
+    "I more than once at Noon",
+    "",
+    "Have passed, I thought, a Whip lash",
+    "Unbraiding in the Sun",
+    "When stooping to secure it",
+    "It wrinkled, and was gone -",
+    "",
+    "Several of Nature's People",
+    "I know, and they know me -",
+    "I feel for them a transport",
+    "Of cordiality -",
+    "",
+    "But never met this Fellow",
+    "Attended, or alone",
+    "Without a tighter breathing",
+    "And Zero at the Bone -"
+   ]
+  },
+  {
+   "id": 10,
+   "author": "Emily Dickinson",
+   "title": "Success is counted sweetest",
+   "year": "c. 1859",
+   "themes": [
+    "simplicity"
+   ],
+   "lines": [
+    "Success is counted sweetest",
+    "By those who ne'er succeed.",
+    "To comprehend a nectar",
+    "Requires sorest need.",
+    "",
+    "Not one of all the purple Host",
+    "Who took the Flag today",
+    "Can tell the definition",
+    "So clear of Victory",
+    "",
+    "As he defeated - dying -",
+    "On whose forbidden ear",
+    "The distant strains of triumph",
+    "Burst agonized and clear!"
+   ]
+  },
+  {
+   "id": 11,
+   "author": "Emily Dickinson",
+   "title": "I died for Beauty - but was scarce",
+   "year": "c. 1862",
+   "themes": [
+    "mortality",
+    "stillness"
+   ],
+   "lines": [
+    "I died for Beauty - but was scarce",
+    "Adjusted in the Tomb",
+    "When One who died for Truth, was lain",
+    "In an adjoining Room -",
+    "",
+    "He questioned softly “Why I failed”?",
+    "“For Beauty”, I replied -",
+    "“And I - for Truth - Themself are One -",
+    "We Brethren, are”, He said -",
+    "",
+    "And so, as Kinsmen, met a Night -",
+    "We talked between the Rooms -",
+    "Until the Moss had reached our lips -",
+    "And covered up - our names -"
+   ]
+  },
+  {
+   "id": 12,
+   "author": "Emily Dickinson",
+   "title": "The Brain - is wider than the Sky",
+   "year": "c. 1862",
+   "themes": [
+    "wonder"
+   ],
+   "lines": [
+    "The Brain - is wider than the Sky -",
+    "For - put them side by side -",
+    "The one the other will contain",
+    "With ease - and You - beside -",
+    "",
+    "The Brain is deeper than the sea -",
+    "For - hold them - Blue to Blue -",
+    "The one the other will absorb -",
+    "As Sponges - Buckets - do -",
+    "",
+    "The Brain is just the weight of God -",
+    "For - Heft them - Pound for Pound -",
+    "And they will differ - if they do -",
+    "As Syllable from Sound -"
+   ]
+  },
+  {
+   "id": 13,
+   "author": "Emily Dickinson",
+   "title": "Wild nights - Wild nights!",
+   "year": "c. 1861",
+   "themes": [
+    "love"
+   ],
+   "lines": [
+    "Wild nights - Wild nights!",
+    "Were I with thee",
+    "Wild nights should be",
+    "Our luxury!",
+    "",
+    "Futile - the winds -",
+    "To a Heart in port -",
+    "Done with the Compass -",
+    "Done with the Chart!",
+    "",
+    "Rowing in Eden -",
+    "Ah, the Sea!",
+    "Might I but moor - Tonight -",
+    "In Thee!"
+   ]
+  },
+  {
+   "id": 14,
+   "author": "Emily Dickinson",
+   "title": "If I can stop one Heart from breaking",
+   "year": "c. 1864",
+   "themes": [
+    "simplicity"
+   ],
+   "lines": [
+    "If I can stop one Heart from breaking",
+    "I shall not live in vain",
+    "If I can ease one Life the Aching",
+    "Or cool one Pain",
+    "",
+    "Or help one fainting Robin",
+    "Unto his Nest again",
+    "I shall not live in Vain."
+   ]
+  },
+  {
+   "id": 15,
+   "author": "Emily Dickinson",
+   "title": "I taste a liquor never brewed",
+   "year": "c. 1861",
+   "themes": [
+    "wonder",
+    "nature"
+   ],
+   "lines": [
+    "I taste a liquor never brewed -",
+    "From Tankards scooped in Pearl -",
+    "Not all the Frankfort Berries",
+    "Yield such an Alcohol!",
+    "",
+    "Inebriate of Air - am I -",
+    "And Debauchee of Dew -",
+    "Reeling - thro endless summer days -",
+    "From inns of Molten Blue -",
+    "",
+    "When “Landlords” turn the drunken Bee",
+    "Out of the Foxglove's door -",
+    "When Butterflies - renounce their “drams” -",
+    "I shall but drink the more!",
+    "",
+    "Till Seraphs swing their snowy Hats -",
+    "And Saints - to windows run -",
+    "To see the little Tippler",
+    "Leaning against the - Sun!"
+   ]
+  },
+  {
+   "id": 16,
+   "author": "Emily Dickinson",
+   "title": "Much Madness is divinest Sense",
+   "year": "c. 1862",
+   "themes": [
+    "simplicity"
+   ],
+   "lines": [
+    "Much Madness is divinest Sense -",
+    "To a discerning Eye -",
+    "Much Sense - the starkest Madness -",
+    "'Tis the Majority",
+    "In this, as All, prevail -",
+    "Assent - and you are sane -",
+    "Demur - you're straightway dangerous -",
+    "And handled with a Chain -"
+   ]
+  },
+  {
+   "id": 17,
+   "author": "Emily Dickinson",
+   "title": "My life closed twice before its close",
+   "year": "c. 1896",
+   "themes": [
+    "mortality",
+    "impermanence"
+   ],
+   "lines": [
+    "My life closed twice before its close -",
+    "It yet remains to see",
+    "If Immortality unveil",
+    "A third event to me",
+    "",
+    "So huge, so hopeless to conceive",
+    "As these that twice befell.",
+    "Parting is all we know of heaven,",
+    "And all we need of hell."
+   ]
+  },
+  {
+   "id": 18,
+   "author": "Emily Dickinson",
+   "title": "This is my letter to the World",
+   "year": "c. 1862",
+   "themes": [
+    "nature",
+    "simplicity"
+   ],
+   "lines": [
+    "This is my letter to the World",
+    "That never wrote to Me -",
+    "The simple News that Nature told -",
+    "With tender Majesty",
+    "",
+    "Her Message is committed",
+    "To Hands I cannot see -",
+    "For love of Her - Sweet - countrymen -",
+    "Judge tenderly - of Me"
+   ]
+  },
+  {
+   "id": 19,
+   "author": "Emily Dickinson",
+   "title": "I felt a Funeral, in my Brain",
+   "year": "c. 1861",
+   "themes": [
+    "mortality",
+    "stillness"
+   ],
+   "lines": [
+    "I felt a Funeral, in my Brain,",
+    "And Mourners to and fro",
+    "Kept treading - treading - till it seemed",
+    "That Sense was breaking through -",
+    "",
+    "And when they all were seated,",
+    "A Service, like a Drum -",
+    "Kept beating - beating - till I thought",
+    "My mind was going numb -",
+    "",
+    "And then I heard them lift a Box",
+    "And creak across my Soul",
+    "With those same Boots of Lead, again,",
+    "Then Space - began to toll,",
+    "",
+    "As all the Heavens were a Bell,",
+    "And Being, but an Ear,",
+    "And I, and Silence, some strange Race",
+    "Wrecked, solitary, here -",
+    "",
+    "And then a Plank in Reason, broke,",
+    "And I dropped down, and down -",
+    "And hit a World, at every plunge,",
+    "And Finished knowing - then -"
+   ]
+  },
+  {
+   "id": 20,
+   "author": "Emily Dickinson",
+   "title": "After great pain, a formal feeling comes",
+   "year": "c. 1862",
+   "themes": [
+    "impermanence",
+    "mortality"
+   ],
+   "lines": [
+    "After great pain, a formal feeling comes -",
+    "The Nerves sit ceremonious, like Tombs -",
+    "The stiff Heart questions was it He, that bore,",
+    "And Yesterday, or Centuries before?",
+    "",
+    "The Feet, mechanical, go round -",
+    "A Wooden way",
+    "Of Ground, or Air, or Ought -",
+    "Regardless grown,",
+    "A Quartz contentment, like a stone -",
+    "",
+    "This is the Hour of Lead -",
+    "Remembered, if outlived,",
+    "As Freezing persons, recollect the Snow -",
+    "First - Chill - then Stupor - then the letting go -"
+   ]
+  },
+  {
+   "id": 21,
+   "author": "Emily Dickinson",
+   "title": "I dwell in Possibility",
+   "year": "c. 1862",
+   "themes": [
+    "wonder",
+    "simplicity"
+   ],
+   "lines": [
+    "I dwell in Possibility -",
+    "A fairer House than Prose -",
+    "More numerous of Windows -",
+    "Superior - for Doors -",
+    "",
+    "Of Chambers as the Cedars -",
+    "Impregnable of eye -",
+    "And for an everlasting Roof",
+    "The Gambrels of the Sky -",
+    "",
+    "Of Visitors - the fairest -",
+    "For Occupation - This -",
+    "The spreading wide my narrow Hands",
+    "To gather Paradise -"
+   ]
+  },
+  {
+   "id": 22,
+   "author": "Emily Dickinson",
+   "title": "As imperceptibly as Grief",
+   "year": "c. 1865",
+   "themes": [
+    "impermanence",
+    "nature"
+   ],
+   "lines": [
+    "As imperceptibly as Grief",
+    "The Summer lapsed away -",
+    "Too imperceptible at last",
+    "To seem like Perfidy -",
+    "",
+    "A Quietness distilled",
+    "As Twilight long begun,",
+    "Or Nature spending with herself",
+    "Sequestered Afternoon -",
+    "",
+    "The Dusk drew earlier in -",
+    "The Morning foreign shone -",
+    "A courteous, yet harrowing Grace,",
+    "As Guest, that would be gone -",
+    "",
+    "And thus, without a Wing",
+    "Or service of a Keel",
+    "Our Summer made her light escape",
+    "Into the Beautiful."
+   ]
+  },
+  {
+   "id": 23,
+   "author": "Emily Dickinson",
+   "title": "The Bustle in a House",
+   "year": "c. 1866",
+   "themes": [
+    "mortality",
+    "stillness"
+   ],
+   "lines": [
+    "The Bustle in a House",
+    "The Morning after Death",
+    "Is solemnest of industries",
+    "Enacted upon Earth -",
+    "",
+    "The Sweeping up the Heart",
+    "And putting Love away",
+    "We shall not want to use again",
+    "Until Eternity -"
+   ]
+  },
+  {
+   "id": 24,
+   "author": "Emily Dickinson",
+   "title": "A Light exists in Spring",
+   "year": "c. 1864",
+   "themes": [
+    "nature",
+    "impermanence"
+   ],
+   "lines": [
+    "A Light exists in Spring",
+    "Not present on the Year",
+    "At any other period -",
+    "When March is scarcely here",
+    "",
+    "A Color stands abroad",
+    "On Solitary Fields",
+    "That Science cannot overtake",
+    "But Human Nature feels.",
+    "",
+    "It waits upon the Lawn,",
+    "It shows the furthest Tree",
+    "Upon the furthest Slope you know",
+    "It almost speaks to you.",
+    "",
+    "Then as Horizons step",
+    "Or Noons report away",
+    "Without the Formula of sound",
+    "It passes and we stay -",
+    "",
+    "A quality of loss",
+    "Affecting our Content",
+    "As Trade had suddenly encroached",
+    "Upon a Sacrament."
+   ]
+  },
+  {
+   "id": 25,
+   "author": "Emily Dickinson",
+   "title": "To make a prairie",
+   "year": "c. 1896",
+   "themes": [
+    "simplicity",
+    "nature"
+   ],
+   "lines": [
+    "To make a prairie it takes a clover and one bee,",
+    "One clover, and a bee,",
+    "And revery.",
+    "The revery alone will do,",
+    "If bees are few."
+   ]
+  },
+  {
+   "id": 26,
+   "author": "William Blake",
+   "title": "The Tyger",
+   "year": "1794",
+   "themes": [
+    "wonder",
+    "nature"
+   ],
+   "lines": [
+    "Tyger Tyger, burning bright,",
+    "In the forests of the night;",
+    "What immortal hand or eye,",
+    "Could frame thy fearful symmetry?",
+    "",
+    "In what distant deeps or skies,",
+    "Burnt the fire of thine eyes?",
+    "On what wings dare he aspire?",
+    "What the hand, dare seize the fire?",
+    "",
+    "And what shoulder, & what art,",
+    "Could twist the sinews of thy heart?",
+    "And when thy heart began to beat,",
+    "What dread hand? & what dread feet?",
+    "",
+    "What the hammer? what the chain,",
+    "In what furnace was thy brain?",
+    "What the anvil? what dread grasp,",
+    "Dare its deadly terrors clasp?",
+    "",
+    "When the stars threw down their spears",
+    "And water'd heaven with their tears:",
+    "Did he smile his work to see?",
+    "Did he who made the Lamb make thee?",
+    "",
+    "Tyger Tyger burning bright,",
+    "In the forests of the night:",
+    "What immortal hand or eye,",
+    "Dare frame thy fearful symmetry?"
+   ]
+  },
+  {
+   "id": 27,
+   "author": "William Blake",
+   "title": "The Lamb",
+   "year": "1789",
+   "themes": [
+    "simplicity",
+    "nature"
+   ],
+   "lines": [
+    "Little Lamb who made thee",
+    "Dost thou know who made thee",
+    "Gave thee life & bid thee feed.",
+    "By the stream & o'er the mead;",
+    "Gave thee clothing of delight,",
+    "Softest clothing wooly bright;",
+    "Gave thee such a tender voice,",
+    "Making all the vales rejoice!",
+    "Little Lamb who made thee",
+    "Dost thou know who made thee",
+    "",
+    "Little Lamb I'll tell thee,",
+    "Little Lamb I'll tell thee!",
+    "He is called by thy name,",
+    "For he calls himself a Lamb:",
+    "He is meek & he is mild,",
+    "He became a little child:",
+    "I a child & thou a lamb,",
+    "We are called by his name.",
+    "Little Lamb God bless thee.",
+    "Little Lamb God bless thee."
+   ]
+  },
+  {
+   "id": 28,
+   "author": "William Blake",
+   "title": "The Sick Rose",
+   "year": "1794",
+   "themes": [
+    "impermanence",
+    "imperfection"
+   ],
+   "lines": [
+    "O Rose thou art sick.",
+    "The invisible worm,",
+    "That flies in the night",
+    "In the howling storm:",
+    "",
+    "Has found out thy bed",
+    "Of crimson joy:",
+    "And his dark secret love",
+    "Does thy life destroy."
+   ]
+  },
+  {
+   "id": 29,
+   "author": "William Blake",
+   "title": "A Poison Tree",
+   "year": "1794",
+   "themes": [
+    "imperfection"
+   ],
+   "lines": [
+    "I was angry with my friend;",
+    "I told my wrath, my wrath did end.",
+    "I was angry with my foe:",
+    "I told it not, my wrath did grow.",
+    "",
+    "And I water'd it in fears,",
+    "Night & morning with my tears:",
+    "And I sunned it with smiles,",
+    "And with soft deceitful wiles.",
+    "",
+    "And it grew both day and night,",
+    "Till it bore an apple bright.",
+    "And my foe beheld it shine,",
+    "And he knew that it was mine.",
+    "",
+    "And into my garden stole,",
+    "When the night had veil'd the pole;",
+    "In the morning glad I see;",
+    "My foe outstretched beneath the tree."
+   ]
+  },
+  {
+   "id": 30,
+   "author": "William Blake",
+   "title": "Ah! Sun-flower",
+   "year": "1794",
+   "themes": [
+    "impermanence",
+    "wonder"
+   ],
+   "lines": [
+    "Ah, Sun-flower! weary of time,",
+    "Who countest the steps of the Sun:",
+    "Seeking after that sweet golden clime",
+    "Where the travellers journey is done.",
+    "",
+    "Where the Youth pined away with desire,",
+    "And the pale Virgin shrouded in snow:",
+    "Arise from their graves and aspire,",
+    "Where my Sun-flower wishes to go."
+   ]
+  },
+  {
+   "id": 31,
+   "author": "William Blake",
+   "title": "Auguries of Innocence (opening)",
+   "year": "c. 1803",
+   "themes": [
+    "wonder",
+    "simplicity"
+   ],
+   "lines": [
+    "To see a World in a Grain of Sand",
+    "And a Heaven in a Wild Flower,",
+    "Hold Infinity in the palm of your hand",
+    "And Eternity in an hour."
+   ]
+  },
+  {
+   "id": 32,
+   "author": "Christina Rossetti",
+   "title": "Song",
+   "year": "1848",
+   "themes": [
+    "mortality",
+    "impermanence"
+   ],
+   "lines": [
+    "When I am dead, my dearest,",
+    "Sing no sad songs for me;",
+    "Plant thou no roses at my head,",
+    "Nor shady cypress tree:",
+    "Be the green grass above me",
+    "With showers and dewdrops wet;",
+    "And if thou wilt, remember,",
+    "And if thou wilt, forget.",
+    "",
+    "I shall not see the shadows,",
+    "I shall not feel the rain;",
+    "I shall not hear the nightingale",
+    "Sing on, as if in pain:",
+    "And dreaming through the twilight",
+    "That doth not rise nor set,",
+    "Haply I may remember,",
+    "And haply may forget."
+   ]
+  },
+  {
+   "id": 33,
+   "author": "Christina Rossetti",
+   "title": "Remember",
+   "year": "1849",
+   "themes": [
+    "mortality",
+    "love"
+   ],
+   "lines": [
+    "Remember me when I am gone away,",
+    "Gone far away into the silent land;",
+    "When you can no more hold me by the hand,",
+    "Nor I half turn to go yet turning stay.",
+    "Remember me when no more day by day",
+    "You tell me of our future that you plann'd:",
+    "Only remember me; you understand",
+    "It will be late to counsel then or pray.",
+    "Yet if you should forget me for a while",
+    "And afterwards remember, do not grieve:",
+    "For if the darkness and corruption leave",
+    "A vestige of the thoughts that once I had,",
+    "Better by far you should forget and smile",
+    "Than that you should remember and be sad."
+   ]
+  },
+  {
+   "id": 34,
+   "author": "Christina Rossetti",
+   "title": "Up-Hill",
+   "year": "1858",
+   "themes": [
+    "impermanence",
+    "simplicity"
+   ],
+   "lines": [
+    "Does the road wind up-hill all the way?",
+    "Yes, to the very end.",
+    "Will the day's journey take the whole long day?",
+    "From morn to night, my friend.",
+    "",
+    "But is there for the night a resting-place?",
+    "A roof for when the slow dark hours begin.",
+    "May not the darkness hide it from my face?",
+    "You cannot miss that inn.",
+    "",
+    "Shall I meet other wayfarers at night?",
+    "Those who have gone before.",
+    "Then must I knock, or call when just in sight?",
+    "They will not keep you standing at that door.",
+    "",
+    "Shall I find comfort, travel-sore and weak?",
+    "Of labour you shall find the sum.",
+    "Will there be beds for me and all who seek?",
+    "Yea, beds for all who come."
+   ]
+  },
+  {
+   "id": 35,
+   "author": "Christina Rossetti",
+   "title": "A Birthday",
+   "year": "1857",
+   "themes": [
+    "love",
+    "wonder"
+   ],
+   "lines": [
+    "My heart is like a singing bird",
+    "Whose nest is in a watered shoot;",
+    "My heart is like an apple-tree",
+    "Whose boughs are bent with thickset fruit;",
+    "My heart is like a rainbow shell",
+    "That paddles in a halcyon sea;",
+    "My heart is gladder than all these",
+    "Because my love is come to me.",
+    "",
+    "Raise me a dais of silk and down;",
+    "Hang it with vair and purple dyes;",
+    "Carve it in doves and pomegranates,",
+    "And peacocks with a hundred eyes;",
+    "Work it in gold and silver grapes,",
+    "In leaves and silver fleurs-de-lys;",
+    "Because the birthday of my life",
+    "Is come, my love is come to me."
+   ]
+  },
+  {
+   "id": 36,
+   "author": "Christina Rossetti",
+   "title": "Echo",
+   "year": "1854",
+   "themes": [
+    "impermanence",
+    "love"
+   ],
+   "lines": [
+    "Come to me in the silence of the night;",
+    "Come in the speaking silence of a dream;",
+    "Come with soft rounded cheeks and eyes as bright",
+    "As sunlight on a stream;",
+    "Come back in tears,",
+    "O memory, hope, love of finished years.",
+    "",
+    "O dream how sweet, too sweet, too bitter sweet,",
+    "Whose wakening should have been in Paradise,",
+    "Where souls brimful of love abide and meet;",
+    "Where thirsting longing eyes",
+    "Watch the slow door",
+    "That opening, letting in, lets out no more.",
+    "",
+    "Yet come to me in dreams, that I may live",
+    "My very life again tho' cold in death:",
+    "Come back to me in dreams, that I may give",
+    "Pulse for pulse, breath for breath:",
+    "Speak low, lean low,",
+    "As long ago, my love, how long ago."
+   ]
+  },
+  {
+   "id": 37,
+   "author": "Sara Teasdale",
+   "title": "Barter",
+   "year": "1917",
+   "themes": [
+    "wonder",
+    "simplicity"
+   ],
+   "lines": [
+    "Life has loveliness to sell,",
+    "All beautiful and splendid things,",
+    "Blue waves whitened on a cliff,",
+    "Climbing fire that sways and sings,",
+    "And children's faces looking up",
+    "Holding wonder like a cup.",
+    "",
+    "Life has loveliness to sell,",
+    "Music like a curve of gold,",
+    "Scent of pine trees in the rain,",
+    "Eyes that love you, arms that hold,",
+    "And for your spirit's still delight,",
+    "Holy thoughts that star the night.",
+    "",
+    "Spend all you have for loveliness,",
+    "Buy it and never count the cost;",
+    "For one white singing hour of peace",
+    "Count many a year of strife well lost,",
+    "And for a breath of ecstasy",
+    "Give all you have been, or could be."
+   ]
+  },
+  {
+   "id": 38,
+   "author": "Sara Teasdale",
+   "title": "I Am Not Yours",
+   "year": "1915",
+   "themes": [
+    "love",
+    "solitude"
+   ],
+   "lines": [
+    "I am not yours, not lost in you,",
+    "Not lost, although I long to be",
+    "Lost as a candle lit at noon,",
+    "Lost as a snowflake in the sea.",
+    "",
+    "You love me, and I find you still",
+    "A spirit beautiful and bright,",
+    "Yet I am I, who long to be",
+    "Lost as a light is lost in light.",
+    "",
+    "Oh plunge me deep in love -- put out",
+    "My senses, leave me deaf and blind,",
+    "Swept by the tempest of your love,",
+    "A taper in a rushing wind."
+   ]
+  },
+  {
+   "id": 39,
+   "author": "Sara Teasdale",
+   "title": "There Will Come Soft Rains",
+   "year": "1918",
+   "themes": [
+    "impermanence",
+    "nature"
+   ],
+   "lines": [
+    "There will come soft rains and the smell of the ground,",
+    "And swallows circling with their shimmering sound;",
+    "",
+    "And frogs in the pools singing at night,",
+    "And wild plum trees in tremulous white;",
+    "",
+    "Robins will wear their feathery fire,",
+    "Whistling their whims on a low fence-wire;",
+    "",
+    "And not one will know of the war, not one",
+    "Will care at last when it is done.",
+    "",
+    "Not one would mind, neither bird nor tree,",
+    "If mankind perished utterly;",
+    "",
+    "And Spring herself, when she woke at dawn",
+    "Would scarcely know that we were gone."
+   ]
+  },
+  {
+   "id": 40,
+   "author": "Sara Teasdale",
+   "title": "Alchemy",
+   "year": "1915",
+   "themes": [
+    "resilience",
+    "nature"
+   ],
+   "lines": [
+    "I lift my heart as spring lifts up",
+    "A yellow daisy to the rain;",
+    "My heart will be a lovely cup",
+    "Altho' it holds but pain.",
+    "",
+    "For I shall learn from flower and leaf",
+    "That color every drop they hold,",
+    "To change the lifeless wine of grief",
+    "To living gold."
+   ]
+  },
+  {
+   "id": 41,
+   "author": "Sara Teasdale",
+   "title": "Wild Asters",
+   "year": "1911",
+   "themes": [
+    "impermanence",
+    "nature"
+   ],
+   "lines": [
+    "In the spring, I asked the daisies",
+    "If his words were true,",
+    "And the clever, clear-eyed daisies",
+    "Always knew.",
+    "",
+    "Now the fields are brown and barren,",
+    "Bitter autumn blows,",
+    "And of all the stupid asters",
+    "Not one knows."
+   ]
+  },
+  {
+   "id": 42,
+   "author": "Sara Teasdale",
+   "title": "February Twilight",
+   "year": "1915",
+   "themes": [
+    "solitude",
+    "stillness"
+   ],
+   "lines": [
+    "I stood beside a hill",
+    "Smooth with new-laid snow,",
+    "A single star looked out",
+    "From the cold evening glow.",
+    "",
+    "There was no other creature",
+    "That saw what I could see --",
+    "I stood and watched the evening star",
+    "As long as it watched me."
+   ]
+  },
+  {
+   "id": 43,
+   "author": "Walt Whitman",
+   "title": "A Noiseless Patient Spider",
+   "year": "1868",
+   "themes": [
+    "solitude",
+    "wonder"
+   ],
+   "lines": [
+    "A noiseless patient spider,",
+    "I mark'd where on a little promontory it stood isolated,",
+    "Mark'd how to explore the vacant vast surrounding,",
+    "It launch'd forth filament, filament, filament, out of itself,",
+    "Ever unreeling them, ever tirelessly speeding them.",
+    "",
+    "And you O my soul where you stand,",
+    "Surrounded, detached, in measureless oceans of space,",
+    "Ceaselessly musing, venturing, throwing, seeking the spheres to connect them,",
+    "Till the bridge you will need be form'd, till the ductile anchor hold,",
+    "Till the gossamer thread you fling catch somewhere, O my soul."
+   ]
+  },
+  {
+   "id": 44,
+   "author": "Walt Whitman",
+   "title": "When I Heard the Learn'd Astronomer",
+   "year": "1865",
+   "themes": [
+    "stillness",
+    "wonder"
+   ],
+   "lines": [
+    "When I heard the learn'd astronomer,",
+    "When the proofs, the figures, were ranged in columns before me,",
+    "When I was shown the charts and diagrams, to add, divide, and measure them,",
+    "When I sitting heard the astronomer where he lectured with much applause in the lecture-room,",
+    "How soon unaccountable I became tired and sick,",
+    "Till rising and gliding out I wander'd off by myself,",
+    "In the mystical moist night-air, and from time to time,",
+    "Look'd up in perfect silence at the stars."
+   ]
+  },
+  {
+   "id": 45,
+   "author": "Walt Whitman",
+   "title": "O Me! O Life!",
+   "year": "1867",
+   "themes": [
+    "simplicity",
+    "wonder"
+   ],
+   "lines": [
+    "Oh me! Oh life! of the questions of these recurring,",
+    "Of the endless trains of the faithless, of cities fill'd with the foolish,",
+    "Of myself forever reproaching myself, (for who more foolish, or more faithless than I?)",
+    "Of eyes that vainly crave the light, of the objects mean, of the struggle ever renew'd,",
+    "Of the poor results of all, of the plodding and sordid crowds I see around me,",
+    "Of the empty and useless years of the rest, with the rest me intertwined,",
+    "The question, O me! so sad, recurring—What good amid these, O me, O life?",
+    "",
+    "Answer.",
+    "That you are here—that life exists and identity,",
+    "That the powerful play goes on, and you may contribute a verse."
+   ]
+  },
+  {
+   "id": 46,
+   "author": "Walt Whitman",
+   "title": "I Hear America Singing",
+   "year": "1860",
+   "themes": [
+    "simplicity",
+    "wonder"
+   ],
+   "lines": [
+    "I hear America singing, the varied carols I hear,",
+    "Those of mechanics, each one singing his as it should be blithe and strong,",
+    "The carpenter singing his as he measures his plank or beam,",
+    "The mason singing his as he makes ready for work, or leaves off work,",
+    "The boatman singing what belongs to him in his boat, the deckhand singing on the steamboat deck,",
+    "The shoemaker singing as he sits on his bench, the hatter singing as he stands,",
+    "The wood-cutter's song, the ploughboy's on his way in the morning, or at noon intermission or at sundown,",
+    "The delicious singing of the mother, or of the young wife at work, or of the girl sewing or washing,",
+    "Each singing what belongs to him or her and to none else,",
+    "The day what belongs to the day—at night the party of young fellows, robust, friendly,",
+    "Singing with open mouths their strong melodious songs."
+   ]
+  },
+  {
+   "id": 47,
+   "author": "John Keats",
+   "title": "Bright Star",
+   "year": "1819",
+   "themes": [
+    "love",
+    "impermanence"
+   ],
+   "lines": [
+    "Bright star, would I were steadfast as thou art—",
+    "Not in lone splendour hung aloft the night,",
+    "And watching, with eternal lids apart,",
+    "Like nature's patient sleepless Eremite,",
+    "The moving waters at their priestlike task",
+    "Of pure ablution round earth's human shores,",
+    "Or gazing on the new soft-fallen mask",
+    "Of snow upon the mountains and the moors—",
+    "No—yet still steadfast, still unchangeable,",
+    "Pillow'd upon my fair love's ripening breast,",
+    "To feel for ever its soft fall and swell,",
+    "Awake for ever in a sweet unrest,",
+    "Still, still to hear her tender-taken breath,",
+    "And so live ever—or else swoon to death."
+   ]
+  },
+  {
+   "id": 48,
+   "author": "John Keats",
+   "title": "When I Have Fears That I May Cease to Be",
+   "year": "1818",
+   "themes": [
+    "mortality",
+    "impermanence"
+   ],
+   "lines": [
+    "When I have fears that I may cease to be",
+    "Before my pen has glean'd my teeming brain,",
+    "Before high-piled books, in charact'ry,",
+    "Hold like rich garners the full ripen'd grain;",
+    "When I behold, upon the night's starr'd face,",
+    "Huge cloudy symbols of a high romance,",
+    "And think that I may never live to trace",
+    "Their shadows, with the magic hand of chance;",
+    "And when I feel, fair creature of an hour,",
+    "That I shall never look upon thee more,",
+    "Never have relish in the faery power",
+    "Of unreflecting love;—then on the shore",
+    "Of the wide world I stand alone, and think",
+    "Till love and fame to nothingness do sink."
+   ]
+  },
+  {
+   "id": 49,
+   "author": "William Wordsworth",
+   "title": "I Wandered Lonely as a Cloud",
+   "year": "1807",
+   "themes": [
+    "nature",
+    "solitude"
+   ],
+   "lines": [
+    "I wandered lonely as a cloud",
+    "That floats on high o'er vales and hills,",
+    "When all at once I saw a crowd,",
+    "A host, of golden daffodils;",
+    "Beside the lake, beneath the trees,",
+    "Fluttering and dancing in the breeze.",
+    "",
+    "Continuous as the stars that shine",
+    "And twinkle on the milky way,",
+    "They stretched in never-ending line",
+    "Along the margin of a bay:",
+    "Ten thousand saw I at a glance,",
+    "Tossing their heads in sprightly dance.",
+    "",
+    "The waves beside them danced; but they",
+    "Out-did the sparkling waves in glee:",
+    "A poet could not but be gay,",
+    "In such a jocund company:",
+    "I gazed—and gazed—but little thought",
+    "What wealth the show to me had brought:",
+    "",
+    "For oft, when on my couch I lie",
+    "In vacant or in pensive mood,",
+    "They flash upon that inward eye",
+    "Which is the bliss of solitude;",
+    "And then my heart with pleasure fills,",
+    "And dances with the daffodils."
+   ]
+  },
+  {
+   "id": 50,
+   "author": "William Wordsworth",
+   "title": "The World Is Too Much with Us",
+   "year": "1807",
+   "themes": [
+    "simplicity",
+    "nature"
+   ],
+   "lines": [
+    "The world is too much with us; late and soon,",
+    "Getting and spending, we lay waste our powers:",
+    "Little we see in Nature that is ours;",
+    "We have given our hearts away, a sordid boon!",
+    "This Sea that bares her bosom to the moon;",
+    "The winds that will be howling at all hours,",
+    "And are up-gathered now like sleeping flowers;",
+    "For this, for everything, we are out of tune;",
+    "It moves us not.—Great God! I'd rather be",
+    "A Pagan suckled in a creed outworn;",
+    "So might I, standing on this pleasant lea,",
+    "Have glimpses that would make me less forlorn;",
+    "Have sight of Proteus rising from the sea;",
+    "Or hear old Triton blow his wreathed horn."
+   ]
+  },
+  {
+   "id": 51,
+   "author": "William Wordsworth",
+   "title": "My Heart Leaps Up",
+   "year": "1802",
+   "themes": [
+    "wonder",
+    "simplicity"
+   ],
+   "lines": [
+    "My heart leaps up when I behold",
+    "A rainbow in the sky:",
+    "So was it when my life began;",
+    "So is it now I am a man;",
+    "So be it when I shall grow old,",
+    "Or let me die!",
+    "The Child is father of the Man;",
+    "And I could wish my days to be",
+    "Bound each to each by natural piety."
+   ]
+  },
+  {
+   "id": 52,
+   "author": "Ralph Waldo Emerson",
+   "title": "The Rhodora",
+   "year": "1839",
+   "themes": [
+    "nature",
+    "simplicity"
+   ],
+   "lines": [
+    "In May, when sea-winds pierced our solitudes,",
+    "I found the fresh Rhodora in the woods,",
+    "Spreading its leafless blooms in a damp nook,",
+    "To please the desert and the sluggish brook.",
+    "The purple petals, fallen in the pool,",
+    "Made the black water with their beauty gay;",
+    "Here might the red-bird come his plumes to cool,",
+    "And court the flower that cheapens his array.",
+    "Rhodora! if the sages ask thee why",
+    "This charm is wasted on the earth and sky,",
+    "Tell them, dear, that if eyes were made for seeing,",
+    "Then Beauty is its own excuse for being:",
+    "Why thou wert there, O rival of the rose!",
+    "I never thought to ask, I never knew:",
+    "But, in my simple ignorance, suppose",
+    "The self-same Power that brought me there brought you."
+   ]
+  },
+  {
+   "id": 53,
+   "author": "Ralph Waldo Emerson",
+   "title": "Days",
+   "year": "1857",
+   "themes": [
+    "impermanence",
+    "simplicity"
+   ],
+   "lines": [
+    "Daughters of Time, the hypocritic Days,",
+    "Muffled and dumb like barefoot dervishes,",
+    "And marching single in an endless file,",
+    "Bring diadems and fagots in their hands.",
+    "To each they offer gifts after his will,",
+    "Bread, kingdoms, stars, and sky that holds them all.",
+    "I, in my pleached garden, watched the pomp,",
+    "Forgot my morning wishes, hastily",
+    "Took a few herbs and apples, and the Day",
+    "Turned and departed silent. I, too late,",
+    "Under her solemn fillet saw the scorn."
+   ]
+  },
+  {
+   "id": 54,
+   "author": "Omar Khayyam",
+   "title": "Rubáiyát, I",
+   "year": "1859",
+   "themes": [
+    "impermanence",
+    "wonder"
+   ],
+   "note": "trans. Edward FitzGerald",
+   "lines": [
+    "Awake! for Morning in the Bowl of Night",
+    "Has flung the Stone that puts the Stars to Flight:",
+    "And Lo! the Hunter of the East has caught",
+    "The Sultan's Turret in a Noose of Light."
+   ]
+  },
+  {
+   "id": 55,
+   "author": "Omar Khayyam",
+   "title": "Rubáiyát, XII",
+   "year": "1859",
+   "themes": [
+    "simplicity",
+    "wonder"
+   ],
+   "note": "trans. Edward FitzGerald",
+   "lines": [
+    "A Book of Verses underneath the Bough,",
+    "A Jug of Wine, a Loaf of Bread—and Thou",
+    "Beside me singing in the Wilderness—",
+    "Oh, Wilderness were Paradise enow!"
+   ]
+  },
+  {
+   "id": 56,
+   "author": "Omar Khayyam",
+   "title": "Rubáiyát, LXXI",
+   "year": "1859",
+   "themes": [
+    "impermanence",
+    "mortality"
+   ],
+   "note": "trans. Edward FitzGerald",
+   "lines": [
+    "The Moving Finger writes; and, having writ,",
+    "Moves on: nor all your Piety nor Wit",
+    "Shall lure it back to cancel half a Line,",
+    "Nor all your Tears wash out a Word of it."
+   ]
+  },
+  {
+   "id": 57,
+   "author": "Omar Khayyam",
+   "title": "Rubáiyát, LXXIII",
+   "year": "1859",
+   "themes": [
+    "imperfection",
+    "wonder"
+   ],
+   "note": "trans. Edward FitzGerald",
+   "lines": [
+    "Ah, Love! could thou and I with Fate conspire",
+    "To grasp this sorry Scheme of Things entire,",
+    "Would not we shatter it to bits—and then",
+    "Re-mould it nearer to the Heart's Desire!"
+   ]
+  },
+  {
+   "id": 58,
+   "author": "Omar Khayyam",
+   "title": "Rubáiyát, XIV",
+   "year": "1859",
+   "themes": [
+    "impermanence"
+   ],
+   "note": "trans. Edward FitzGerald",
+   "lines": [
+    "The Worldly Hope men set their Hearts upon",
+    "Turns Ashes—or it prospers; and anon,",
+    "Like Snow upon the Desert's dusty Face",
+    "Lighting a little Hour or two—is gone."
+   ]
+  },
+  {
+   "id": 59,
+   "author": "Omar Khayyam",
+   "title": "Rubáiyát, XX",
+   "year": "1859",
+   "themes": [
+    "impermanence",
+    "simplicity"
+   ],
+   "note": "trans. Edward FitzGerald",
+   "lines": [
+    "Yesterday This Day's Madness did prepare;",
+    "Tomorrow's Silence, Triumph, or Despair:",
+    "Drink! for you know not whence you came, nor why:",
+    "Drink! for you know not why you go, nor where."
+   ]
+  },
+  {
+   "id": 60,
+   "author": "Rabindranath Tagore",
+   "title": "Stray Birds, XXXVI",
+   "year": "1916",
+   "themes": [
+    "impermanence",
+    "nature"
+   ],
+   "lines": [
+    "Let life be beautiful like summer flowers",
+    "and death like autumn leaves."
+   ]
+  },
+  {
+   "id": 61,
+   "author": "Rabindranath Tagore",
+   "title": "Stray Birds, LXIV",
+   "year": "1916",
+   "themes": [
+    "love",
+    "wonder"
+   ],
+   "lines": [
+    "The world puts off its mask of vastness to its lover.",
+    "It becomes small as one song,",
+    "as one kiss of the eternal."
+   ]
+  },
+  {
+   "id": 62,
+   "author": "Rabindranath Tagore",
+   "title": "Stray Birds, IX",
+   "year": "1916",
+   "themes": [
+    "wonder",
+    "stillness"
+   ],
+   "lines": [
+    "If you shed tears when you miss the sun,",
+    "you also miss the stars."
+   ]
+  },
+  {
+   "id": 63,
+   "author": "Rabindranath Tagore",
+   "title": "Stray Birds, XVIII",
+   "year": "1916",
+   "themes": [
+    "impermanence",
+    "simplicity"
+   ],
+   "lines": [
+    "I leave no trace of wings in the air,",
+    "but I am glad I have had my flight."
+   ]
+  },
+  {
+   "id": 64,
+   "author": "Rabindranath Tagore",
+   "title": "Stray Birds, XXII",
+   "year": "1916",
+   "themes": [
+    "imperfection",
+    "resilience"
+   ],
+   "lines": [
+    "It is the tears of the earth",
+    "that keep her smiles in bloom."
+   ]
+  },
+  {
+   "id": 65,
+   "author": "Rabindranath Tagore",
+   "title": "Stray Birds, XIII",
+   "year": "1916",
+   "themes": [
+    "wonder",
+    "simplicity"
+   ],
+   "lines": [
+    "The stars are not afraid",
+    "to appear like fireflies."
+   ]
+  },
+  {
+   "id": 66,
+   "author": "Kahlil Gibran",
+   "title": "On Joy and Sorrow (excerpt)",
+   "year": "1923",
+   "themes": [
+    "impermanence",
+    "resilience"
+   ],
+   "note": "from The Prophet",
+   "lines": [
+    "Your joy is your sorrow unmasked.",
+    "And the selfsame well from which your laughter rises",
+    "was oftentimes filled with your tears.",
+    "And how else can it be?",
+    "The deeper that sorrow carves into your being,",
+    "the more joy you can contain."
+   ]
+  },
+  {
+   "id": 67,
+   "author": "Kahlil Gibran",
+   "title": "On Children (excerpt)",
+   "year": "1923",
+   "themes": [
+    "love",
+    "impermanence"
+   ],
+   "note": "from The Prophet",
+   "lines": [
+    "Your children are not your children.",
+    "They are the sons and daughters of Life's longing for itself.",
+    "They come through you but not from you,",
+    "And though they are with you, yet they belong not to you."
+   ]
+  },
+  {
+   "id": 68,
+   "author": "Emily Brontë",
+   "title": "No Coward Soul Is Mine",
+   "year": "1846",
+   "themes": [
+    "resilience",
+    "mortality"
+   ],
+   "lines": [
+    "No coward soul is mine,",
+    "No trembler in the world's storm-troubled sphere:",
+    "I see Heaven's glories shine,",
+    "And Faith shines equal, arming me from Fear.",
+    "",
+    "O God within my breast,",
+    "Almighty, ever-present Deity!",
+    "Life, that in me has rest,",
+    "As I—undying Life—have power in Thee!",
+    "",
+    "Vain are the thousand creeds",
+    "That move men's hearts, unutterably vain,",
+    "Worthless as withered weeds,",
+    "Or idlest froth amid the boundless main,",
+    "",
+    "To waken doubt in one",
+    "Holding so fast by thine infinity,",
+    "So surely anchored on",
+    "The steadfast rock of immortality.",
+    "",
+    "With wide-embracing love",
+    "Thy spirit animates eternal years,",
+    "Pervades and broods above,",
+    "Changes, sustains, dissolves, creates, and rears.",
+    "",
+    "Though earth and moon were gone,",
+    "And suns and universes ceased to be,",
+    "And Thou wert left alone,",
+    "Every existence would exist in thee.",
+    "",
+    "There is not room for Death,",
+    "Nor atom that his might could render void:",
+    "Since thou art Being and Breath,",
+    "And what thou art may never be destroyed."
+   ]
+  },
+  {
+   "id": 69,
+   "author": "Robert Herrick",
+   "title": "To the Virgins, to Make Much of Time",
+   "year": "1648",
+   "themes": [
+    "impermanence",
+    "resilience"
+   ],
+   "lines": [
+    "Gather ye rosebuds while ye may,",
+    "Old Time is still a-flying:",
+    "And this same flower that smiles today",
+    "Tomorrow will be dying.",
+    "",
+    "The glorious Lamp of Heaven, the Sun,",
+    "The higher he's a-getting,",
+    "The sooner will his race be run,",
+    "And nearer he's to setting.",
+    "",
+    "That age is best, which is the first,",
+    "When youth and blood are warmer;",
+    "But being spent, the worse, and worst",
+    "Times, still succeed the former.",
+    "",
+    "Then be not coy, but use your time,",
+    "And while ye may, go marry:",
+    "For having lost but once your prime,",
+    "You may forever tarry."
+   ]
+  },
+  {
+   "id": 70,
+   "author": "William Shakespeare",
+   "title": "Sonnet 73",
+   "year": "1609",
+   "themes": [
+    "impermanence",
+    "mortality"
+   ],
+   "lines": [
+    "That time of year thou mayst in me behold",
+    "When yellow leaves, or none, or few, do hang",
+    "Upon those boughs which shake against the cold,",
+    "Bare ruin'd choirs, where late the sweet birds sang.",
+    "In me thou see'st the twilight of such day",
+    "As after sunset fadeth in the west,",
+    "Which by and by black night doth take away,",
+    "Death's second self, that seals up all in rest.",
+    "In me thou see'st the glowing of such fire",
+    "That on the ashes of his youth doth lie,",
+    "As the death-bed whereon it must expire,",
+    "Consumed with that which it was nourish'd by.",
+    "This thou perceiv'st, which makes thy love more strong,",
+    "To love that well which thou must leave ere long."
+   ]
+  },
+  {
+   "id": 71,
+   "author": "William Shakespeare",
+   "title": "Sonnet 18",
+   "year": "1609",
+   "themes": [
+    "love",
+    "impermanence"
+   ],
+   "lines": [
+    "Shall I compare thee to a summer's day?",
+    "Thou art more lovely and more temperate:",
+    "Rough winds do shake the darling buds of May,",
+    "And summer's lease hath all too short a date:",
+    "Sometime too hot the eye of heaven shines,",
+    "And often is his gold complexion dimm'd;",
+    "And every fair from fair sometime declines,",
+    "By chance, or nature's changing course, untrimm'd;",
+    "But thy eternal summer shall not fade,",
+    "Nor lose possession of that fair thou ow'st;",
+    "Nor shall death brag thou wander'st in his shade,",
+    "When in eternal lines to time thou grow'st:",
+    "So long as men can breathe, or eyes can see,",
+    "So long lives this, and this gives life to thee."
+   ]
+  },
+  {
+   "id": 72,
+   "author": "John Donne",
+   "title": "Death, be not proud",
+   "year": "1633",
+   "themes": [
+    "mortality",
+    "resilience"
+   ],
+   "lines": [
+    "Death, be not proud, though some have called thee",
+    "Mighty and dreadful, for thou art not so;",
+    "For those whom thou think'st thou dost overthrow",
+    "Die not, poor Death, nor yet canst thou kill me.",
+    "From rest and sleep, which but thy pictures be,",
+    "Much pleasure, then from thee much more must flow,",
+    "And soonest our best men with thee do go,",
+    "Rest of their bones, and soul's delivery.",
+    "Thou art slave to fate, chance, kings, and desperate men,",
+    "And dost with poison, war, and sickness dwell,",
+    "And poppy or charms can make us sleep as well",
+    "And better than thy stroke; why swell'st thou then?",
+    "One short sleep past, we wake eternally,",
+    "And death shall be no more; Death, thou shalt die."
+   ]
+  },
+  {
+   "id": 73,
+   "author": "Matsuo Bashō",
+   "title": "old pond",
+   "year": "c. 1686",
+   "themes": [
+    "stillness",
+    "nature"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "old pond —",
+    "a frog leaps in,",
+    "the sound of water"
+   ]
+  },
+  {
+   "id": 74,
+   "author": "Matsuo Bashō",
+   "title": "on a bare branch",
+   "year": "c. 1680",
+   "themes": [
+    "stillness",
+    "impermanence"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "on a bare branch",
+    "a crow has settled —",
+    "autumn dusk"
+   ]
+  },
+  {
+   "id": 75,
+   "author": "Matsuo Bashō",
+   "title": "the first cold rain",
+   "year": "c. 1684",
+   "themes": [
+    "imperfection",
+    "nature"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "the first cold rain —",
+    "even the monkey seems to want",
+    "a small straw coat"
+   ]
+  },
+  {
+   "id": 76,
+   "author": "Matsuo Bashō",
+   "title": "how quiet it is",
+   "year": "c. 1689",
+   "themes": [
+    "stillness",
+    "nature"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "how quiet it is! —",
+    "sinking into the rocks,",
+    "the cicada's cry"
+   ]
+  },
+  {
+   "id": 77,
+   "author": "Matsuo Bashō",
+   "title": "along this road",
+   "year": "c. 1694",
+   "themes": [
+    "solitude",
+    "impermanence"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "along this road",
+    "no one else is walking —",
+    "this autumn evening"
+   ]
+  },
+  {
+   "id": 78,
+   "author": "Matsuo Bashō",
+   "title": "the temple bell fades",
+   "year": "c. 1680",
+   "themes": [
+    "impermanence",
+    "stillness"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "the temple bell fades —",
+    "but the sound keeps ringing",
+    "out of the flowers"
+   ]
+  },
+  {
+   "id": 79,
+   "author": "Matsuo Bashō",
+   "title": "summer grasses",
+   "year": "1689",
+   "themes": [
+    "impermanence",
+    "mortality"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "summer grasses —",
+    "all that remains",
+    "of soldiers' dreams"
+   ]
+  },
+  {
+   "id": 80,
+   "author": "Kobayashi Issa",
+   "title": "a world of dew",
+   "year": "c. 1819",
+   "themes": [
+    "impermanence",
+    "resilience"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "a world of dew,",
+    "and within every dewdrop",
+    "a world of struggle"
+   ]
+  },
+  {
+   "id": 81,
+   "author": "Kobayashi Issa",
+   "title": "O snail",
+   "year": "c. 1815",
+   "themes": [
+    "resilience",
+    "simplicity"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "O snail,",
+    "climb Mount Fuji,",
+    "but slowly, slowly"
+   ]
+  },
+  {
+   "id": 82,
+   "author": "Kobayashi Issa",
+   "title": "don't worry, spiders",
+   "year": "c. 1816",
+   "themes": [
+    "imperfection",
+    "simplicity"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "don't worry, spiders,",
+    "I keep house",
+    "carelessly"
+   ]
+  },
+  {
+   "id": 83,
+   "author": "Kobayashi Issa",
+   "title": "this world of dew",
+   "year": "1819",
+   "themes": [
+    "impermanence",
+    "mortality"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "this world of dew",
+    "is only a world of dew —",
+    "and yet, and yet"
+   ]
+  },
+  {
+   "id": 84,
+   "author": "Kobayashi Issa",
+   "title": "even with insects",
+   "year": "c. 1812",
+   "themes": [
+    "imperfection",
+    "nature"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "even with insects —",
+    "some can sing,",
+    "some cannot"
+   ]
+  },
+  {
+   "id": 85,
+   "author": "Kobayashi Issa",
+   "title": "napped half the day",
+   "year": "c. 1810",
+   "themes": [
+    "simplicity",
+    "resilience"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "napped half the day;",
+    "no one",
+    "punished me"
+   ]
+  },
+  {
+   "id": 86,
+   "author": "Kobayashi Issa",
+   "title": "the snow is melting",
+   "year": "c. 1814",
+   "themes": [
+    "impermanence",
+    "nature"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "the snow is melting",
+    "and the village is flooded",
+    "with children"
+   ]
+  },
+  {
+   "id": 87,
+   "author": "Yosa Buson",
+   "title": "the short night",
+   "year": "c. 1770",
+   "themes": [
+    "impermanence",
+    "nature"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "the short night —",
+    "on the hairy caterpillar,",
+    "beads of dew"
+   ]
+  },
+  {
+   "id": 88,
+   "author": "Yosa Buson",
+   "title": "I go, you stay",
+   "year": "c. 1777",
+   "themes": [
+    "solitude",
+    "impermanence"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "I go,",
+    "you stay:",
+    "two autumns"
+   ]
+  },
+  {
+   "id": 89,
+   "author": "Yosa Buson",
+   "title": "lighting one candle",
+   "year": "c. 1770",
+   "themes": [
+    "stillness",
+    "simplicity"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "lighting one candle",
+    "with another candle —",
+    "a spring evening"
+   ]
+  },
+  {
+   "id": 90,
+   "author": "Yosa Buson",
+   "title": "calligraphy of geese",
+   "year": "c. 1775",
+   "themes": [
+    "wonder",
+    "stillness"
+   ],
+   "note": "traditional rendering",
+   "lines": [
+    "calligraphy of geese",
+    "against the sky —",
+    "the moon seals it"
+   ]
+  },
+  {
+   "id": 91,
+   "author": "Hanshan (Cold Mountain)",
+   "title": "People ask the way to Cold Mountain",
+   "year": "Tang dynasty",
+   "themes": [
+    "zen",
+    "solitude",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "People ask the way to Cold Mountain.",
+    "No road reaches Cold Mountain.",
+    "In summer the ice has not melted;",
+    "the sun comes up in a blur of mist.",
+    "",
+    "How did someone like me get here?",
+    "My heart is not the same as yours.",
+    "If your heart were like mine,",
+    "you would be here in the middle of it."
+   ]
+  },
+  {
+   "id": 92,
+   "author": "Hanshan (Cold Mountain)",
+   "title": "My mind is like the autumn moon",
+   "year": "Tang dynasty",
+   "themes": [
+    "zen",
+    "stillness",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "My mind is like the autumn moon",
+    "shining clean and clear in a green pool.",
+    "Nothing can compare with it —",
+    "tell me, how could I explain?"
+   ]
+  },
+  {
+   "id": 93,
+   "author": "Hanshan (Cold Mountain)",
+   "title": "Dim and far, the Cold Mountain road",
+   "year": "Tang dynasty",
+   "themes": [
+    "zen",
+    "solitude",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Dim and far, the Cold Mountain road;",
+    "bleak and scattered, the cold creek's banks.",
+    "Chirp, chirp — there are always birds;",
+    "silent, silent — no people at all.",
+    "",
+    "Whish, whish — the wind blows in my face;",
+    "flake by flake, snow piles on my body.",
+    "Morning after morning, no sun;",
+    "year after year, no knowing spring."
+   ]
+  },
+  {
+   "id": 94,
+   "author": "Hanshan (Cold Mountain)",
+   "title": "If you want a place to settle",
+   "year": "Tang dynasty",
+   "themes": [
+    "zen",
+    "solitude",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "If you want a place to settle,",
+    "Cold Mountain will keep you a long time.",
+    "A light wind stirs the dark pines;",
+    "the closer you listen, the finer it sounds.",
+    "",
+    "Beneath them sits a greying man",
+    "mumbling his way through Huang and Lao.",
+    "Ten years now he hasn't gone home;",
+    "he's forgotten the road he came by."
+   ]
+  },
+  {
+   "id": 95,
+   "author": "Hanshan (Cold Mountain)",
+   "title": "Laughable, the Cold Mountain road",
+   "year": "Tang dynasty",
+   "themes": [
+    "zen",
+    "solitude",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Laughable, the Cold Mountain road —",
+    "no tracks of carriage or horse.",
+    "Linked streams, hard to remember their bends;",
+    "piled ridges, who knows how many.",
+    "",
+    "Dew weeps on a thousand kinds of grass;",
+    "the wind hums through pines all alike.",
+    "Here, where I've lost the path,",
+    "my body asks my shadow: which way?"
+   ]
+  },
+  {
+   "id": 96,
+   "author": "Wang Wei",
+   "title": "Deer Park",
+   "year": "c. 750",
+   "themes": [
+    "zen",
+    "stillness",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Empty mountain, no one to be seen,",
+    "only the echo of voices heard.",
+    "Late sunlight enters the deep wood",
+    "and shines again on the green moss."
+   ]
+  },
+  {
+   "id": 97,
+   "author": "Wang Wei",
+   "title": "Bamboo Grove Lodge",
+   "year": "c. 750",
+   "themes": [
+    "zen",
+    "solitude",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Sitting alone in the dark bamboo,",
+    "I play the zither and whistle long.",
+    "Deep in the wood, no one knows —",
+    "the bright moon comes to shine on me."
+   ]
+  },
+  {
+   "id": 98,
+   "author": "Wang Wei",
+   "title": "Birds Calling in the Ravine",
+   "year": "c. 750",
+   "themes": [
+    "zen",
+    "stillness",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "People at rest, cassia flowers falling;",
+    "the night still, the spring mountain empty.",
+    "The moon comes out and startles the mountain birds;",
+    "now and then they call in the spring ravine."
+   ]
+  },
+  {
+   "id": 99,
+   "author": "Wang Wei",
+   "title": "My Retreat at Zhongnan",
+   "year": "c. 740",
+   "themes": [
+    "zen",
+    "simplicity",
+    "solitude"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "In middle age I came to love the Way;",
+    "late in life I made my home at the foot of South Mountain.",
+    "When the mood comes I go off alone;",
+    "the fine things I find, only I know.",
+    "",
+    "I walk to where the water ends",
+    "and sit and watch the clouds rise.",
+    "By chance I meet an old man of the woods;",
+    "we talk and laugh and forget to go home."
+   ]
+  },
+  {
+   "id": 100,
+   "author": "Wang Wei",
+   "title": "Magnolia Hollow",
+   "year": "c. 750",
+   "themes": [
+    "zen",
+    "impermanence",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "At the tips of the branches, lotus-like blossoms",
+    "put out red buds in the mountains.",
+    "By the ravine hut, silent, no one —",
+    "one after another they open and fall."
+   ]
+  },
+  {
+   "id": 101,
+   "author": "Wang Wei",
+   "title": "Farewell",
+   "year": "c. 740",
+   "themes": [
+    "zen",
+    "solitude",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "I get off my horse and give you wine,",
+    "and ask where you are going.",
+    "You say the world has not gone your way;",
+    "you'll go home to lie at the foot of South Mountain.",
+    "",
+    "Then go, and I'll ask no more —",
+    "the white clouds have no end."
+   ]
+  },
+  {
+   "id": 102,
+   "author": "Li Bai",
+   "title": "Sitting Alone on Jingting Mountain",
+   "year": "c. 753",
+   "themes": [
+    "zen",
+    "solitude",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "The birds have flown high and vanished;",
+    "a lone cloud drifts off at ease.",
+    "Gazing at each other, never tiring —",
+    "only Jingting Mountain and I."
+   ]
+  },
+  {
+   "id": 103,
+   "author": "Li Bai",
+   "title": "Question and Answer in the Mountains",
+   "year": "c. 730",
+   "themes": [
+    "zen",
+    "simplicity",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "You ask why I live in the green mountains.",
+    "I smile and don't answer; my heart is at ease.",
+    "Peach blossoms on the flowing water drift far away —",
+    "there is another heaven and earth, not the human world."
+   ]
+  },
+  {
+   "id": 104,
+   "author": "Li Bai",
+   "title": "Quiet Night Thoughts",
+   "year": "c. 726",
+   "themes": [
+    "zen",
+    "solitude",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Before my bed, bright moonlight —",
+    "I wonder if it's frost on the ground.",
+    "I raise my head and gaze at the bright moon,",
+    "lower my head and think of home."
+   ]
+  },
+  {
+   "id": 105,
+   "author": "Liu Zongyuan",
+   "title": "River Snow",
+   "year": "c. 806",
+   "themes": [
+    "zen",
+    "solitude",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "A thousand mountains, no birds in flight;",
+    "ten thousand paths, no human tracks.",
+    "In a lone boat, an old man in straw cape and hat",
+    "fishes alone in the cold river snow."
+   ]
+  },
+  {
+   "id": 106,
+   "author": "Meng Haoran",
+   "title": "Spring Dawn",
+   "year": "c. 720",
+   "themes": [
+    "zen",
+    "impermanence",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Spring sleep, unaware of dawn;",
+    "everywhere I hear birds singing.",
+    "In the night, the sound of wind and rain —",
+    "who knows how many blossoms fell?"
+   ]
+  },
+  {
+   "id": 107,
+   "author": "Jia Dao",
+   "title": "Looking for the Recluse and Not Finding Him",
+   "year": "c. 800",
+   "themes": [
+    "zen",
+    "solitude",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Under the pines I ask the boy;",
+    "he says his master's gone gathering herbs.",
+    "He's somewhere on this mountain,",
+    "but the clouds are so deep, I don't know where."
+   ]
+  },
+  {
+   "id": 108,
+   "author": "Su Shi",
+   "title": "Written on the Wall at West Forest Temple",
+   "year": "1084",
+   "themes": [
+    "zen",
+    "wonder",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Seen from the side, a ridge; from the end, a peak;",
+    "near or far, high or low, each view is different.",
+    "I can't know Mount Lu's true face",
+    "simply because I'm standing on the mountain."
+   ]
+  },
+  {
+   "id": 109,
+   "author": "Su Shi",
+   "title": "Misty rain on Mount Lu",
+   "year": "11th century",
+   "themes": [
+    "zen",
+    "simplicity",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Misty rain on Mount Lu, the tide at Zhejiang —",
+    "until you've been, a thousand regrets won't fade.",
+    "Having gone and come back, nothing special:",
+    "misty rain on Mount Lu, the tide at Zhejiang."
+   ]
+  },
+  {
+   "id": 110,
+   "author": "Shenxiu",
+   "title": "The body is the bodhi tree",
+   "year": "c. 670",
+   "themes": [
+    "zen",
+    "stillness",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "The body is the bodhi tree,",
+    "the mind is like a bright mirror's stand.",
+    "Wipe it diligently, time after time,",
+    "and let no dust alight."
+   ]
+  },
+  {
+   "id": 111,
+   "author": "Huineng",
+   "title": "Bodhi is originally no tree",
+   "year": "c. 670",
+   "themes": [
+    "zen",
+    "simplicity",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Bodhi is originally no tree,",
+    "the bright mirror has no stand.",
+    "From the beginning, not one thing exists —",
+    "where could the dust alight?"
+   ]
+  },
+  {
+   "id": 112,
+   "author": "Wumen Huikai",
+   "title": "Spring has its hundred flowers",
+   "year": "1228",
+   "themes": [
+    "zen",
+    "simplicity",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Spring has its hundred flowers, autumn its moon,",
+    "summer its cool breeze, winter its snow.",
+    "If no idle matters hang upon your mind,",
+    "every season is a good season for you."
+   ]
+  },
+  {
+   "id": 113,
+   "author": "Wumen Huikai",
+   "title": "The Great Way has no gate",
+   "year": "1228",
+   "themes": [
+    "zen",
+    "wonder",
+    "solitude"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "The Great Way has no gate;",
+    "there are a thousand roads to it.",
+    "If you pass through this barrier,",
+    "you walk alone between heaven and earth."
+   ]
+  },
+  {
+   "id": 114,
+   "author": "Layman Pang",
+   "title": "Drawing water, carrying firewood",
+   "year": "c. 800",
+   "themes": [
+    "zen",
+    "simplicity",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "My daily affairs are nothing special;",
+    "I simply keep in harmony with them.",
+    "Grasping nothing, rejecting nothing,",
+    "nowhere any obstacle or conflict.",
+    "",
+    "Who cares about the purple and scarlet of rank?",
+    "The hills and mountains are free of dust.",
+    "My supernatural power and marvelous activity:",
+    "drawing water and carrying firewood."
+   ]
+  },
+  {
+   "id": 115,
+   "author": "Sengcan (attributed)",
+   "title": "The Great Way is not difficult",
+   "year": "c. 600",
+   "themes": [
+    "zen",
+    "stillness",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "The Great Way is not difficult",
+    "for those who have no preferences.",
+    "When love and hate are both absent,",
+    "everything becomes clear and undisguised.",
+    "",
+    "Make the smallest distinction,",
+    "and heaven and earth are set infinitely apart."
+   ]
+  },
+  {
+   "id": 116,
+   "author": "Dōgen",
+   "title": "In spring, cherry blossoms",
+   "year": "13th century",
+   "themes": [
+    "zen",
+    "nature",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "In spring, cherry blossoms;",
+    "in summer, the cuckoo;",
+    "in autumn, the moon;",
+    "in winter, snow,",
+    "clear and cold."
+   ]
+  },
+  {
+   "id": 117,
+   "author": "Dōgen",
+   "title": "Water birds",
+   "year": "13th century",
+   "themes": [
+    "zen",
+    "impermanence",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Water birds",
+    "going and coming,",
+    "their traces vanish,",
+    "yet they never",
+    "forget their path."
+   ]
+  },
+  {
+   "id": 118,
+   "author": "Ikkyū",
+   "title": "A short rest",
+   "year": "15th century",
+   "themes": [
+    "zen",
+    "impermanence",
+    "resilience"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Between the world of desire",
+    "and the world beyond it,",
+    "a short rest:",
+    "if it rains, let it rain;",
+    "if the wind blows, let it blow."
+   ]
+  },
+  {
+   "id": 119,
+   "author": "Saigyō",
+   "title": "Let me die in spring",
+   "year": "12th century",
+   "themes": [
+    "zen",
+    "mortality",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "Let me die in spring",
+    "under the blossoms,",
+    "at the full moon",
+    "of the second month."
+   ]
+  },
+  {
+   "id": 120,
+   "author": "Ryōkan",
+   "title": "Too lazy to make my way in the world",
+   "year": "c. 1800",
+   "themes": [
+    "zen",
+    "simplicity",
+    "solitude"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "All my life too lazy to make my way in the world,",
+    "I let things go, trusting to heaven.",
+    "In my bag, three measures of rice;",
+    "by the hearth, a bundle of firewood.",
+    "",
+    "Who asks about traces of delusion or enlightenment?",
+    "What do I know of the dust of fame and gain?",
+    "In the night rain, inside my grass hut,",
+    "I stretch out both legs, at ease."
+   ]
+  },
+  {
+   "id": 121,
+   "author": "Ryōkan",
+   "title": "the thief",
+   "year": "c. 1800",
+   "themes": [
+    "zen",
+    "simplicity",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "the thief",
+    "left it behind —",
+    "the moon at the window"
+   ]
+  },
+  {
+   "id": 122,
+   "author": "Ryōkan",
+   "title": "showing its back",
+   "year": "1831",
+   "themes": [
+    "zen",
+    "mortality",
+    "impermanence"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "showing its back,",
+    "then its front,",
+    "a maple leaf falls"
+   ]
+  },
+  {
+   "id": 123,
+   "author": "Ryōkan",
+   "title": "enough fallen leaves",
+   "year": "c. 1800",
+   "themes": [
+    "zen",
+    "simplicity",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "enough fallen leaves",
+    "for a fire —",
+    "the wind brings them"
+   ]
+  },
+  {
+   "id": 124,
+   "author": "Ryōkan",
+   "title": "What will I leave as a keepsake?",
+   "year": "c. 1800",
+   "themes": [
+    "zen",
+    "mortality",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "What will I leave",
+    "as a keepsake?",
+    "Flowers in spring,",
+    "the cuckoo in the hills,",
+    "maple leaves in autumn."
+   ]
+  },
+  {
+   "id": 125,
+   "author": "Ryōkan (attributed)",
+   "title": "falling cherry blossoms",
+   "year": "c. 1800",
+   "themes": [
+    "zen",
+    "impermanence",
+    "mortality"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "falling cherry blossoms —",
+    "the ones still on the tree",
+    "are falling cherry blossoms"
+   ]
+  },
+  {
+   "id": 126,
+   "author": "Matsuo Bashō",
+   "title": "rough sea —",
+   "year": "1689",
+   "themes": [
+    "zen",
+    "wonder",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "rough sea —",
+    "stretching out over Sado,",
+    "the River of Heaven"
+   ]
+  },
+  {
+   "id": 127,
+   "author": "Matsuo Bashō",
+   "title": "sick on a journey",
+   "year": "1694",
+   "themes": [
+    "zen",
+    "mortality",
+    "solitude"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "sick on a journey,",
+    "my dreams go wandering",
+    "over withered fields"
+   ]
+  },
+  {
+   "id": 128,
+   "author": "Matsuo Bashō",
+   "title": "deep autumn —",
+   "year": "1694",
+   "themes": [
+    "zen",
+    "solitude",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "deep autumn —",
+    "my neighbor,",
+    "what does he do?"
+   ]
+  },
+  {
+   "id": 129,
+   "author": "Matsuo Bashō",
+   "title": "nothing in the cicada's cry",
+   "year": "1690",
+   "themes": [
+    "zen",
+    "mortality",
+    "impermanence"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "nothing in the cicada's cry",
+    "suggests",
+    "it is about to die"
+   ]
+  },
+  {
+   "id": 130,
+   "author": "Matsuo Bashō",
+   "title": "even in Kyoto",
+   "year": "1690",
+   "themes": [
+    "zen",
+    "love",
+    "impermanence"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "even in Kyoto,",
+    "longing for Kyoto —",
+    "the cuckoo's cry"
+   ]
+  },
+  {
+   "id": 131,
+   "author": "Matsuo Bashō",
+   "title": "octopus traps —",
+   "year": "1688",
+   "themes": [
+    "zen",
+    "impermanence",
+    "mortality"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "octopus traps —",
+    "fleeting dreams",
+    "under the summer moon"
+   ]
+  },
+  {
+   "id": 132,
+   "author": "Matsuo Bashō",
+   "title": "coming along the mountain path",
+   "year": "1685",
+   "themes": [
+    "zen",
+    "wonder",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "coming along the mountain path,",
+    "somehow so moving —",
+    "violets"
+   ]
+  },
+  {
+   "id": 133,
+   "author": "Matsuo Bashō",
+   "title": "bleached bones in mind",
+   "year": "1684",
+   "themes": [
+    "zen",
+    "mortality",
+    "resilience"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "bleached bones in mind,",
+    "the wind cuts",
+    "into my body"
+   ]
+  },
+  {
+   "id": 134,
+   "author": "Matsuo Bashō",
+   "title": "harvest moon —",
+   "year": "1686",
+   "themes": [
+    "zen",
+    "wonder",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "harvest moon —",
+    "walking around the pond",
+    "all night long"
+   ]
+  },
+  {
+   "id": 135,
+   "author": "Matsuo Bashō",
+   "title": "even this grass hut",
+   "year": "1689",
+   "themes": [
+    "zen",
+    "impermanence",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "even this grass hut",
+    "changes hands —",
+    "now a house of dolls"
+   ]
+  },
+  {
+   "id": 136,
+   "author": "Matsuo Bashō",
+   "title": "scent of plum blossoms —",
+   "year": "1694",
+   "themes": [
+    "zen",
+    "wonder",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "scent of plum blossoms —",
+    "the sun pops up",
+    "on the mountain path"
+   ]
+  },
+  {
+   "id": 137,
+   "author": "Matsuo Bashō",
+   "title": "come and listen",
+   "year": "1687",
+   "themes": [
+    "zen",
+    "solitude",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "come and listen",
+    "to the bagworm's cry —",
+    "my grass hut"
+   ]
+  },
+  {
+   "id": 138,
+   "author": "Kobayashi Issa",
+   "title": "skinny frog,",
+   "year": "1816",
+   "themes": [
+    "zen",
+    "resilience",
+    "love"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "skinny frog,",
+    "don't give up —",
+    "Issa is here!"
+   ]
+  },
+  {
+   "id": 139,
+   "author": "Kobayashi Issa",
+   "title": "little sparrow,",
+   "year": "1819",
+   "themes": [
+    "zen",
+    "love",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "little sparrow,",
+    "out of the way, out of the way —",
+    "a horse is coming through!"
+   ]
+  },
+  {
+   "id": 140,
+   "author": "Kobayashi Issa",
+   "title": "don't swat it!",
+   "year": "1821",
+   "themes": [
+    "zen",
+    "love",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "don't swat it!",
+    "the fly wrings its hands,",
+    "wrings its feet"
+   ]
+  },
+  {
+   "id": 141,
+   "author": "Kobayashi Issa",
+   "title": "come and play with me",
+   "year": "1814",
+   "themes": [
+    "zen",
+    "solitude",
+    "love"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "come and play with me,",
+    "orphan",
+    "sparrow"
+   ]
+  },
+  {
+   "id": 142,
+   "author": "Kobayashi Issa",
+   "title": "so this, then",
+   "year": "1812",
+   "themes": [
+    "zen",
+    "mortality",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "so this, then,",
+    "is my final home —",
+    "five feet of snow"
+   ]
+  },
+  {
+   "id": 143,
+   "author": "Kobayashi Issa",
+   "title": "sprawled out",
+   "year": "c. 1818",
+   "themes": [
+    "zen",
+    "solitude",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "sprawled out",
+    "like the character for 'big' —",
+    "how cool, how lonely"
+   ]
+  },
+  {
+   "id": 144,
+   "author": "Kobayashi Issa",
+   "title": "my happiness",
+   "year": "1819",
+   "themes": [
+    "zen",
+    "simplicity",
+    "imperfection"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "my happiness",
+    "is middling —",
+    "this spring of mine"
+   ]
+  },
+  {
+   "id": 145,
+   "author": "Kobayashi Issa",
+   "title": "get me that bright moon!",
+   "year": "c. 1819",
+   "themes": [
+    "zen",
+    "wonder",
+    "love"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "'get me that",
+    "bright moon!'",
+    "cries the child"
+   ]
+  },
+  {
+   "id": 146,
+   "author": "Kobayashi Issa",
+   "title": "the cool breeze",
+   "year": "c. 1813",
+   "themes": [
+    "zen",
+    "simplicity",
+    "imperfection"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "the cool breeze",
+    "came to me",
+    "by a winding path"
+   ]
+  },
+  {
+   "id": 147,
+   "author": "Kobayashi Issa",
+   "title": "whatever happens",
+   "year": "1819",
+   "themes": [
+    "zen",
+    "resilience",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "whatever happens,",
+    "I leave it to you —",
+    "the year's end"
+   ]
+  },
+  {
+   "id": 148,
+   "author": "Yosa Buson",
+   "title": "spring sea —",
+   "year": "c. 1763",
+   "themes": [
+    "zen",
+    "stillness",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "spring sea —",
+    "all day long, rising and falling,",
+    "rising and falling"
+   ]
+  },
+  {
+   "id": 149,
+   "author": "Yosa Buson",
+   "title": "rapeseed flowers —",
+   "year": "1774",
+   "themes": [
+    "zen",
+    "wonder",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "rapeseed flowers —",
+    "the moon in the east,",
+    "the sun in the west"
+   ]
+  },
+  {
+   "id": 150,
+   "author": "Yosa Buson",
+   "title": "the peony falls —",
+   "year": "c. 1771",
+   "themes": [
+    "zen",
+    "impermanence",
+    "stillness"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "the peony falls —",
+    "two, three petals",
+    "heaped on one another"
+   ]
+  },
+  {
+   "id": 151,
+   "author": "Yosa Buson",
+   "title": "moon at the zenith —",
+   "year": "c. 1768",
+   "themes": [
+    "zen",
+    "solitude",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "moon at the zenith —",
+    "I pass through",
+    "a poor town"
+   ]
+  },
+  {
+   "id": 152,
+   "author": "Yosa Buson",
+   "title": "on the temple bell",
+   "year": "c. 1768",
+   "themes": [
+    "zen",
+    "stillness",
+    "impermanence"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "on the temple bell",
+    "perched and sleeping,",
+    "a butterfly"
+   ]
+  },
+  {
+   "id": 153,
+   "author": "Yosa Buson",
+   "title": "the joy",
+   "year": "c. 1768",
+   "themes": [
+    "zen",
+    "simplicity",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "the joy",
+    "of crossing a summer river,",
+    "sandals in hand"
+   ]
+  },
+  {
+   "id": 154,
+   "author": "Yosa Buson",
+   "title": "summer rains —",
+   "year": "1777",
+   "themes": [
+    "zen",
+    "solitude",
+    "nature"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "summer rains —",
+    "facing the great river,",
+    "two houses"
+   ]
+  },
+  {
+   "id": 155,
+   "author": "Yosa Buson",
+   "title": "now all my nights",
+   "year": "1783",
+   "themes": [
+    "zen",
+    "mortality",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "now all my nights",
+    "will dawn",
+    "into white plum blossoms"
+   ]
+  },
+  {
+   "id": 156,
+   "author": "Masaoka Shiki",
+   "title": "I bite a persimmon —",
+   "year": "1895",
+   "themes": [
+    "zen",
+    "simplicity",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "I bite a persimmon —",
+    "a bell rings out",
+    "at Hōryū-ji"
+   ]
+  },
+  {
+   "id": 157,
+   "author": "Masaoka Shiki",
+   "title": "again and again",
+   "year": "1896",
+   "themes": [
+    "zen",
+    "solitude",
+    "wonder"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "again and again",
+    "I ask",
+    "how deep the snow is"
+   ]
+  },
+  {
+   "id": 158,
+   "author": "Fukuda Chiyo-ni",
+   "title": "morning glory —",
+   "year": "18th century",
+   "themes": [
+    "zen",
+    "love",
+    "simplicity"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "morning glory —",
+    "it has taken the well bucket;",
+    "I'll borrow water"
+   ]
+  },
+  {
+   "id": 159,
+   "author": "Arakida Moritake",
+   "title": "a fallen blossom",
+   "year": "16th century",
+   "themes": [
+    "zen",
+    "wonder",
+    "impermanence"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "a fallen blossom",
+    "returning to the branch?",
+    "no — a butterfly"
+   ]
+  },
+  {
+   "id": 160,
+   "author": "Mizuta Masahide",
+   "title": "barn's burnt down —",
+   "year": "c. 1700",
+   "themes": [
+    "zen",
+    "imperfection",
+    "resilience"
+   ],
+   "note": "translated for Ensō",
+   "lines": [
+    "barn's burnt down —",
+    "now",
+    "I can see the moon"
+   ]
+  }
+ ]
+}

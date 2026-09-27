@@ -1,0 +1,771 @@
+<title>Ensō</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #ece6d8;
+    --paper-soft: #f4efe4;
+    --paper-raised: #ffffff;
+    --ink: #3a3530;
+    --ink-soft: #6f665a;
+    --ink-faint: #9a917f;
+    --clay: #a9663f;
+    --clay-soft: #c98a5f;
+    --moss: #66735a;
+    --moss-soft: #dfe3d5;
+    --gold: #ab7d43;
+    --border: rgba(58,53,48,0.16);
+    --shadow: rgba(58,53,48,0.16);
+    --card-tilt: -0.35deg;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper: #201d18;
+      --paper-soft: #29251e;
+      --paper-raised: #322d24;
+      --ink: #e9e0cf;
+      --ink-soft: #bdb2a0;
+      --ink-faint: #837a68;
+      --clay: #d98a5e;
+      --clay-soft: #b96c46;
+      --moss: #97a488;
+      --moss-soft: #3a3e32;
+      --gold: #caa168;
+      --border: rgba(233,224,207,0.14);
+      --shadow: rgba(0,0,0,0.45);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper: #201d18;
+    --paper-soft: #29251e;
+    --paper-raised: #322d24;
+    --ink: #e9e0cf;
+    --ink-soft: #bdb2a0;
+    --ink-faint: #837a68;
+    --clay: #d98a5e;
+    --clay-soft: #b96c46;
+    --moss: #97a488;
+    --moss-soft: #3a3e32;
+    --gold: #caa168;
+    --border: rgba(233,224,207,0.14);
+    --shadow: rgba(0,0,0,0.45);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, 'Iowan Old Style', serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family: 'Shippori Mincho B1', 'Shippori Mincho', 'EB Garamond', serif;
+    font-weight: 500;
+    text-wrap: balance;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;}
+  ::selection{ background: var(--clay-soft); color: var(--paper-raised); }
+  :focus-visible{ outline: 2px solid var(--clay); outline-offset: 3px; }
+
+  .grain{
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    filter: url(#grain-filter);
+    opacity: .6;
+  }
+
+  .shell{
+    max-width: 780px;
+    margin: 0 auto;
+    padding: clamp(20px,5vw,40px) 20px 80px;
+    position: relative;
+  }
+
+  /* ---------- header ---------- */
+  header.top{
+    display:flex; align-items:flex-start; justify-content:space-between; gap: 16px;
+    margin-bottom: 8px;
+  }
+  .brand{ display:flex; align-items:center; gap:14px; }
+  .enso-mark{ width:44px; height:44px; flex:none; }
+  .brand-text .eyebrow{
+    font-size: .68rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 0 0 2px;
+  }
+  .brand-text h1{ font-size: clamp(1.5rem,4vw,1.9rem); margin:0; }
+  .theme-toggle{
+    background: none; border: 1px solid var(--border); color: var(--ink-soft);
+    border-radius: 999px; padding: 6px 12px; font-size: .75rem; cursor:pointer;
+    letter-spacing:.04em;
+  }
+  .theme-toggle:hover{ color: var(--ink); border-color: var(--ink-faint); }
+
+  .seam{ width:100%; height:10px; display:block; margin: 18px 0 22px; }
+  .seam path{ stroke: var(--gold); stroke-width:1.4; fill:none; opacity:.65; }
+
+  /* ---------- tabs & search ---------- */
+  nav.tabs{
+    display:flex; gap: 4px; flex-wrap: wrap; margin-bottom: 18px;
+  }
+  nav.tabs button{
+    background: none; border: none; color: var(--ink-faint);
+    font-family: 'Shippori Mincho B1', serif; font-size: .95rem;
+    padding: 6px 4px; cursor: pointer; position: relative;
+    letter-spacing: .02em;
+  }
+  nav.tabs button + button{ margin-left: 6px; }
+  nav.tabs button.active{ color: var(--ink); }
+  nav.tabs button.active::after{
+    content:""; position:absolute; left:2px; right:2px; bottom:-1px; height:2px;
+    background: var(--clay); border-radius: 2px;
+  }
+  nav.tabs .count{ font-size:.7rem; color:var(--ink-faint); margin-left:2px; }
+
+  .search-row{ display:flex; gap:10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .search-box{
+    flex: 1 1 220px; display:flex; align-items:center; gap:8px;
+    background: var(--paper-soft); border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 12px;
+  }
+  .search-box input{
+    border:none; background:none; outline:none; color: var(--ink);
+    font-family:'EB Garamond',serif; font-size: 1rem; width:100%;
+  }
+  .search-box input::placeholder{ color: var(--ink-faint); font-style: italic; }
+  .search-box svg{ width:15px; height:15px; stroke: var(--ink-faint); flex:none; }
+
+  .chip-row{ display:flex; gap:8px; flex-wrap: wrap; margin-bottom: 14px; }
+  select.poet-select{
+    background: var(--paper-soft); color: var(--ink); border:1px solid var(--border);
+    border-radius: 10px; padding: 8px 10px; font-family:'EB Garamond',serif; font-size:.95rem;
+  }
+  .chip{
+    background: var(--paper-soft); border: 1px solid var(--border); color: var(--ink-soft);
+    border-radius: 999px; padding: 5px 13px; font-size: .78rem; cursor: pointer;
+    letter-spacing: .03em;
+  }
+  .chip.active{ background: var(--moss-soft); border-color: var(--moss); color: var(--ink); }
+
+  /* ---------- today's poem ---------- */
+  .today{
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px 4px 16px 16px;
+    padding: 26px 24px 22px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 26px -18px var(--shadow);
+    position: relative;
+    clip-path: polygon(0% 2.4%, 5% 0%, 13% 1.6%, 22% 0%, 33% 2%, 46% 0%, 58% 1.8%, 71% 0%, 83% 2.2%, 92% 0%, 100% 1.6%, 100% 100%, 0% 100%);
+    cursor:pointer;
+  }
+  .today .eyebrow{ font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color: var(--clay); margin:0 0 10px; }
+  .today h2{ margin: 0 0 4px; font-size: clamp(1.3rem,3.6vw,1.6rem); }
+  .today .meta{ font-size:.85rem; color: var(--ink-soft); font-style: italic; margin-bottom: 14px; }
+  .today .first-line{ color: var(--ink-soft); font-style: italic; }
+
+  /* ---------- grid ---------- */
+  .grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 16px; }
+  .poem-card{
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: 3px 3px 12px 12px;
+    padding: 18px 17px 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 18px -16px var(--shadow);
+    transform: rotate(var(--r,-0.3deg));
+    transition: transform .15s ease;
+  }
+  .poem-card:nth-child(3n+1){ --r:-0.5deg; }
+  .poem-card:nth-child(3n+2){ --r:0.3deg; }
+  .poem-card:nth-child(3n){ --r:-0.15deg; }
+  .poem-card:hover{ transform: rotate(0deg) translateY(-2px); }
+  .poem-card h3{ font-size:1.05rem; margin: 0 0 3px; }
+  .poem-card .author{ font-size:.82rem; color: var(--clay); font-style: italic; margin-bottom:8px; }
+  .poem-card .excerpt{ font-size:.9rem; color: var(--ink-soft); font-style: italic; margin: 0 0 10px; }
+  .poem-card .tags{ display:flex; gap:6px; flex-wrap:wrap; }
+  .poem-card .tag{ font-size:.68rem; color: var(--ink-faint); letter-spacing:.03em; text-transform: uppercase; }
+  .poem-card .tag:not(:last-child)::after{ content:"·"; margin-left:6px; color: var(--ink-faint); }
+  .keep-btn{
+    position:absolute; top: 12px; right: 12px; background:none; border:none; cursor:pointer;
+    color: var(--ink-faint); padding:4px;
+  }
+  .keep-btn svg{ width:16px; height:16px; }
+  .keep-btn.kept{ color: var(--clay); }
+  .poem-card{ position: relative; }
+
+  .empty-note{ color: var(--ink-faint); font-style: italic; padding: 30px 4px; text-align:center; }
+
+  /* ---------- reading view ---------- */
+  .reading{
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px 4px 20px 20px;
+    padding: clamp(26px,6vw,44px) clamp(20px,6vw,48px) 36px;
+    position: relative;
+    box-shadow: 0 16px 40px -24px var(--shadow);
+    clip-path: polygon(0% 1.8%, 6% 0%, 16% 1.4%, 27% 0%, 39% 1.8%, 52% 0%, 64% 1.5%, 77% 0%, 88% 1.9%, 100% 0%, 100% 100%, 0% 100%);
+  }
+  .reading-top{ display:flex; justify-content: space-between; align-items:center; margin-bottom: 22px; gap: 10px;}
+  .back-btn{
+    background:none; border:none; color: var(--ink-soft); cursor:pointer; font-size:.85rem;
+    display:flex; align-items:center; gap:6px; padding:4px 2px;
+  }
+  .back-btn:hover{ color: var(--ink); }
+  .reading-actions{ display:flex; gap:14px; align-items:center; }
+  .reading .author{ color: var(--clay); font-style: italic; font-size: 1rem; margin: 0 0 6px; }
+  .reading h2{ font-size: clamp(1.6rem,5vw,2.15rem); margin: 0 0 4px; }
+  .reading .meta{ color: var(--ink-faint); font-size: .82rem; margin-bottom: 26px; }
+  .poem-body{ font-size: 1.22rem; line-height: 1.95; margin-bottom: 30px; }
+  .poem-body p{ margin: 0; line-height: 1.7; padding-left: 1.4em; text-indent: -1.4em; }
+  .poem-body p + p{ margin-top: .35em; }
+  .poem-body .stanza-break{ height: 1.3em; }
+  .reading .tags{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 28px; }
+  .reading .tag-pill{
+    font-size:.72rem; color: var(--moss); background: var(--moss-soft);
+    padding: 4px 11px; border-radius: 999px; letter-spacing:.03em;
+  }
+  .reading-nav{ display:flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top:18px; }
+  .reading-nav button{
+    background:none; border:none; color: var(--ink-soft); cursor:pointer; font-size:.85rem;
+    display:flex; align-items:center; gap:6px;
+  }
+  .reading-nav button:hover{ color: var(--clay); }
+  .reading-nav button:disabled{ opacity:.35; cursor:default; }
+  .reading-nav button:disabled:hover{ color: var(--ink-soft); }
+
+  /* ---------- add / about panels ---------- */
+  .panel{
+    background: var(--paper-raised); border: 1px solid var(--border);
+    border-radius: 4px 4px 16px 16px; padding: 26px clamp(20px,5vw,32px) 30px;
+  }
+  .panel h2{ font-size: 1.4rem; margin: 0 0 6px; }
+  .panel p{ color: var(--ink-soft); margin: 0 0 14px; }
+  .panel p.note{
+    background: var(--moss-soft); border-left: 3px solid var(--moss);
+    padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: .93rem; color: var(--ink);
+  }
+  textarea{
+    width:100%; min-height: 160px; background: var(--paper-soft); color: var(--ink);
+    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+    font-family: 'EB Garamond',serif; font-size: .95rem; resize: vertical;
+  }
+  .form-row{ display:flex; gap:12px; margin-top: 14px; align-items:center; flex-wrap:wrap; }
+  .btn-primary{
+    background: var(--clay); color: var(--paper-raised); border:none; border-radius: 999px;
+    padding: 10px 22px; font-size: .9rem; cursor:pointer; letter-spacing:.03em;
+  }
+  .btn-primary:hover{ background: var(--clay-soft); }
+  .form-status{ font-size:.85rem; color: var(--ink-soft); font-style: italic; }
+  .example-block{
+    background: var(--paper-soft); border:1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; font-size: .8rem; color: var(--ink-soft); overflow-x:auto;
+    white-space: pre; margin-top: 10px; font-family: ui-monospace, Menlo, monospace;
+  }
+  .your-list{ margin-top: 22px; }
+  .your-item{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border); font-size: .92rem;
+  }
+  .your-item .remove{ background:none; border:none; color: var(--ink-faint); cursor:pointer; font-size:.78rem; }
+  .your-item .remove:hover{ color: var(--clay); }
+
+  footer.colophon{
+    margin-top: 44px; text-align:center; color: var(--ink-faint); font-size: .78rem; font-style: italic;
+  }
+
+  [hidden]{ display:none !important; }
+
+  @media (max-width: 520px){
+    .grid{ grid-template-columns: 1fr; }
+    nav.tabs{ gap:2px; }
+    nav.tabs button{ font-size:.85rem; padding:6px 3px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+  }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="grain-filter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="noise"></feTurbulence>
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0"></feColorMatrix>
+    </filter>
+  </defs>
+</svg>
+<div class="grain"></div>
+
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <svg class="enso-mark" viewBox="0 0 200 200" width="44" height="44" aria-hidden="true">
+        <path d="M 129.97 150.35 L 127.79 150.97 L 125.64 151.55 L 123.51 152.14 L 121.42 152.74 L 119.36 153.40 L 117.32 154.12 L 115.30 154.90 L 113.27 155.75 L 111.22 156.64 L 109.13 157.55 L 107.00 158.46 L 104.81 159.32 L 102.57 160.10 L 100.27 160.77 L 97.93 161.30 L 95.55 161.67 L 93.16 161.86 L 90.75 161.87 L 88.35 161.71 L 85.97 161.39 L 83.61 160.93 L 81.28 160.35 L 78.97 159.67 L 76.68 158.92 L 74.42 158.11 L 72.17 157.25 L 69.93 156.34 L 67.69 155.39 L 65.47 154.38 L 63.27 153.32 L 61.09 152.19 L 58.94 150.98 L 56.83 149.69 L 54.77 148.30 L 52.78 146.82 L 50.85 145.24 L 49.00 143.58 L 47.22 141.83 L 45.59 139.95 L 44.04 138.01 L 42.57 136.00 L 41.19 133.94 L 39.91 131.81 L 38.74 129.63 L 37.69 127.39 L 36.77 125.09 L 35.99 122.75 L 35.37 120.37 L 34.90 117.96 L 34.58 115.53 L 34.40 113.09 L 34.34 110.66 L 34.38 108.24 L 34.49 105.84 L 34.65 103.46 L 34.84 101.10 L 35.02 98.76 L 35.18 96.43 L 35.33 94.10 L 35.47 91.76 L 35.61 89.41 L 35.78 87.04 L 36.02 84.67 L 36.35 82.30 L 36.82 79.94 L 37.45 77.62 L 38.27 75.35 L 39.29 73.16 L 40.50 71.07 L 41.90 69.08 L 43.46 67.21 L 45.14 65.44 L 46.91 63.77 L 48.72 62.17 L 50.52 60.61 L 52.30 59.07 L 54.03 57.50 L 55.68 55.87 L 57.27 54.17 L 58.81 52.38 L 60.31 50.50 L 61.82 48.55 L 63.36 46.55 L 64.96 44.54 L 66.67 42.57 L 68.50 40.67 L 70.47 38.91 L 72.57 37.32 L 74.82 35.95 L 77.19 34.81 L 79.66 33.91 L 82.20 33.25 L 84.80 32.82 L 87.43 32.59 L 90.07 32.53 L 92.70 32.59 L 95.30 32.76 L 97.89 32.99 L 100.45 33.26 L 102.99 33.56 L 105.51 33.89 L 108.02 34.25 L 110.52 34.66 L 113.00 35.13 L 115.46 35.68 L 117.89 36.34 L 120.28 37.13 L 122.62 38.05 L 124.89 39.11 L 127.08 40.31 L 129.18 41.63 L 131.20 43.08 L 133.12 44.63 L 134.96 46.25 L 136.71 47.94 L 138.39 49.67 L 140.01 51.43 L 141.57 53.20 L 143.09 54.98 L 144.57 56.77 L 146.01 58.56 L 147.41 60.37 L 148.72 62.24 L 149.99 64.12 L 151.23 66.01 L 152.44 67.91 L 153.64 69.81 L 154.82 71.72 L 156.01 73.65 L 157.20 75.59 L 158.40 77.54 L 159.61 79.52 L 160.81 81.54 L 161.99 83.61 L 163.12 85.72 L 164.19 87.90 L 165.14 90.13 L 165.96 92.43 L 166.61 94.77 L 167.07 97.16 L 167.30 99.57 L 167.32 102.00 L 167.11 104.41 L 166.68 106.80 L 166.06 109.15 L 165.27 111.45 L 164.34 113.69 L 163.32 115.88 L 162.23 118.02 L 161.10 120.12 L 159.96 122.18 L 158.81 124.22 L 157.67 126.23 L 156.53 128.24 L 155.37 130.23 L 154.18 132.21 L 152.94 134.15 L 151.62 136.05 L 150.21 137.88 L 148.69 139.63 L 146.24 137.64 L 147.57 135.89 L 148.77 134.06 L 149.87 132.17 L 150.86 130.23 L 151.76 128.26 L 152.56 126.26 L 153.29 124.24 L 153.96 122.22 L 154.56 120.18 L 155.12 118.15 L 155.63 116.11 L 156.10 114.07 L 156.53 112.03 L 156.93 109.99 L 157.27 107.93 L 157.55 105.87 L 157.75 103.79 L 157.85 101.71 L 157.85 99.63 L 157.70 97.56 L 157.40 95.50 L 156.94 93.46 L 156.30 91.47 L 155.48 89.54 L 154.51 87.67 L 153.39 85.88 L 152.15 84.17 L 150.82 82.54 L 149.45 80.98 L 148.07 79.48 L 146.71 78.02 L 145.41 76.58 L 144.18 75.13 L 143.03 73.66 L 141.97 72.15 L 140.96 70.60 L 140.00 69.00 L 139.04 67.37 L 138.12 65.67 L 137.14 63.98 L 136.05 62.34 L 134.83 60.79 L 133.47 59.36 L 131.97 58.09 L 130.34 56.98 L 128.60 56.04 L 126.76 55.27 L 124.86 54.65 L 122.93 54.15 L 120.99 53.74 L 119.06 53.37 L 117.15 53.01 L 115.28 52.62 L 113.44 52.18 L 111.62 51.66 L 109.81 51.07 L 107.98 50.41 L 106.14 49.70 L 104.26 48.97 L 102.33 48.26 L 100.35 47.61 L 98.33 47.05 L 96.27 46.61 L 94.18 46.32 L 92.08 46.21 L 89.98 46.27 L 87.90 46.51 L 85.85 46.92 L 83.84 47.49 L 81.87 48.19 L 79.96 49.02 L 78.10 49.95 L 76.29 50.96 L 74.54 52.06 L 72.85 53.22 L 71.22 54.45 L 69.65 55.74 L 68.15 57.09 L 66.72 58.50 L 65.37 59.97 L 64.10 61.49 L 62.90 63.06 L 61.78 64.67 L 60.74 66.30 L 59.75 67.96 L 58.82 69.62 L 57.92 71.29 L 57.06 72.95 L 56.22 74.61 L 55.40 76.26 L 54.60 77.92 L 53.82 79.59 L 53.09 81.27 L 52.41 82.97 L 51.80 84.70 L 51.27 86.45 L 50.85 88.22 L 50.53 90.02 L 50.32 91.83 L 50.20 93.64 L 50.17 95.45 L 50.19 97.26 L 50.23 99.05 L 50.28 100.84 L 50.29 102.63 L 50.24 104.44 L 50.11 106.26 L 49.90 108.13 L 49.62 110.05 L 49.29 112.04 L 48.93 114.09 L 48.60 116.20 L 48.34 118.36 L 48.20 120.56 L 48.22 122.76 L 48.46 124.93 L 48.94 127.03 L 49.67 129.05 L 50.66 130.93 L 51.89 132.67 L 53.35 134.26 L 54.98 135.68 L 56.69 137.01 L 58.49 138.21 L 60.34 139.31 L 62.21 140.35 L 64.07 141.35 L 65.89 142.34 L 67.68 143.34 L 69.44 144.36 L 71.17 145.41 L 72.90 146.47 L 74.63 147.53 L 76.39 148.56 L 78.18 149.55 L 80.03 150.46 L 81.93 151.27 L 83.88 151.96 L 85.88 152.50 L 87.91 152.90 L 89.97 153.15 L 92.04 153.26 L 94.11 153.24 L 96.17 153.12 L 98.21 152.91 L 100.24 152.63 L 102.24 152.31 L 104.22 151.97 L 106.18 151.62 L 108.14 151.27 L 110.09 150.94 L 112.05 150.63 L 114.02 150.33 L 116.02 150.04 L 118.04 149.76 L 120.09 149.47 L 122.17 149.16 L 124.28 148.82 L 126.41 148.43 L 128.55 147.97 Z" fill="var(--ink)"/>
+        <g fill="none" stroke="var(--gold)" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 129.26 149.16 L 134.34 150.11 L 141.08 150.56 L 144.95 151.43 L 145.81 147.44 L 145.62 142.94 L 147.47 138.64" stroke-width="3.2"></path>
+          <path d="M 144.95 151.43 L 148.71 156.52 L 151.95 160.43" stroke-width="1.3" opacity="0.8"></path>
+        </g>
+      </svg>
+      <div class="brand-text">
+        <p class="eyebrow">a quiet collection</p>
+        <h1>Ensō</h1>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" type="button">Light</button>
+  </header>
+
+  <svg class="seam" viewBox="0 0 400 12" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,6 L38,5 L54,8 L88,4 L128,7 L168,3 L206,6 L248,9 L288,4 L328,7 L368,5 L400,6"></path>
+  </svg>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="browse" class="active" type="button">Browse</button>
+    <button data-tab="kept" type="button">Kept<span class="count" id="keptCount"></span></button>
+    <button data-tab="add" type="button">Add your own</button>
+    <button data-tab="about" type="button">About</button>
+  </nav>
+
+  <!-- BROWSE -->
+  <section id="view-browse">
+    <div class="today" id="todayCard" tabindex="0" role="button" aria-label="Open today's poem"></div>
+
+    <div class="search-row">
+      <label class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+        <input type="text" id="searchInput" placeholder="search by title, poet, or a line…">
+      </label>
+      <select class="poet-select" id="poetSelect"></select>
+    </div>
+    <div class="chip-row" id="themeChips"></div>
+
+    <div class="grid" id="poemGrid"></div>
+  </section>
+
+  <!-- KEPT -->
+  <section id="view-kept" hidden>
+    <div class="grid" id="keptGrid"></div>
+    <p class="empty-note" id="keptEmpty" hidden>Nothing kept yet — the heart mark on any poem will bring it here.</p>
+  </section>
+
+  <!-- READING -->
+  <section id="view-reading" hidden>
+    <article class="reading" id="readingArticle"></article>
+  </section>
+
+  <!-- ADD -->
+  <section id="view-add" hidden>
+    <div class="panel">
+      <h2>Add your own</h2>
+      <p>This library holds only poems old enough to belong to everyone. If there's a Neruda, a Mary Oliver, or a Rumi translation you love, paste it in from your own book or a licensed edition and it will sit alongside the rest — kept only in this browser, on this device.</p>
+      <p class="note">Poems you add here are stored locally in your browser (not sent anywhere) and marked “added by you” so the collection's public-domain sources stay clear.</p>
+      <textarea id="addTextarea" placeholder='Paste one poem as JSON, e.g.
+{
+  "title": "Keeping Quiet",
+  "author": "Pablo Neruda",
+  "lines": ["Now we will count to twelve", "and we will all keep still", "", "for once on the face of the earth..."]
+}'></textarea>
+      <div class="form-row">
+        <button class="btn-primary" id="addSubmit" type="button">Add to collection</button>
+        <span class="form-status" id="addStatus"></span>
+      </div>
+      <details style="margin-top:14px;">
+        <summary style="cursor:pointer;color:var(--ink-soft);font-size:.85rem;">expected shape</summary>
+        <div class="example-block">{
+  "title": "…",
+  "author": "…",
+  "lines": ["line one", "line two", "", "next stanza…"],
+  "themes": ["impermanence"]   // optional
+}</div>
+      </details>
+      <div class="your-list" id="yourList"></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="view-about" hidden>
+    <div class="panel">
+      <h2>About this collection</h2>
+      <p>Wabi-sabi finds its beauty in what's worn, asymmetrical, and passing — a cracked bowl mended with gold rather than hidden. This library gathers poems that sit close to that feeling: impermanence, plainness, the weather of a life. It leans on poets who wrote in that register long before "wabi-sabi" was an imported word — Emily Dickinson's quiet rooms, Bashō's frogs and ponds, the Rubáiyát's turning cup, Blake's grain of sand.</p>
+      <p><strong>Every poem here is in the public domain</strong> in the United States — mostly work published before 1930, several decades before that. That's a deliberate line, not a taste: it's the only way an app like this can hold full texts without asking permission first.</p>
+      <p class="note">That's also why you won't find Pablo Neruda, Mary Oliver, or the popular English Rumi translations (Coleman Barks and others) bundled in. Neruda's and Oliver's poems are still under copyright — Oliver died in 2019, and Neruda's estate holds rights into the 2040s. And most of the "Rumi" lines that circulate online are modern paraphrases, not translations of anything Rumi actually wrote, which made honest sourcing hard. Use the <strong>Add your own</strong> tab to bring in poems like these from books or editions you already have — they'll stay local to your browser, clearly marked as yours.</p>
+      <p><strong>The Zen poems</strong> — Cold Mountain, Wang Wei, Ryōkan, Dōgen, the Platform Sutra verses, and haiku by Bashō, Issa, Buson and others — were written between the 7th and 19th centuries. Most well-known English versions are recent and still under copyright, so these were translated fresh for this collection from the Chinese and Japanese, keeping close to the plain sense of the originals. They're marked “translated for Ensō”; tap the <em>zen</em> theme to see them together.</p>
+      <p>Texts here are transcribed from memory of standard public-domain editions. For scholarly or exacting use, check them against a primary source — Dickinson's dashes especially vary by editor.</p>
+      <p id="countLine" style="margin-top:20px;color:var(--ink-faint);font-size:.85rem;"></p>
+    </div>
+  </section>
+
+  <footer class="colophon">mended, not hidden</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var THEME_KEY = "enso-theme-pref";
+  var KEPT_KEY = "enso-kept";
+  var ADDED_KEY = "enso-added-poems";
+
+  /* ---------- theme toggle ---------- */
+  var root = document.documentElement;
+  var themeBtn = document.getElementById('themeToggle');
+  function applyThemeLabel(){
+    var pref = safeGet(THEME_KEY);
+    if(pref === 'dark'){ root.setAttribute('data-theme','dark'); themeBtn.textContent = 'Dark'; }
+    else if(pref === 'light'){ root.setAttribute('data-theme','light'); themeBtn.textContent = 'Light'; }
+    else { root.removeAttribute('data-theme'); themeBtn.textContent = 'Auto'; }
+  }
+  themeBtn.addEventListener('click', function(){
+    var pref = safeGet(THEME_KEY);
+    var next = pref === 'light' ? 'dark' : (pref === 'dark' ? null : 'light');
+    safeSet(THEME_KEY, next);
+    applyThemeLabel();
+  });
+  applyThemeLabel();
+
+  function safeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function safeSet(k,v){ try{ if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} }
+  function safeGetJSON(k, fallback){ try{ var v = localStorage.getItem(k); return v? JSON.parse(v) : fallback; }catch(e){ return fallback; } }
+  function safeSetJSON(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+
+  /* ---------- state ---------- */
+  var ALL_THEMES = ["zen","impermanence","imperfection","simplicity","stillness","solitude","nature","mortality","wonder","resilience","love"];
+  var state = {
+    poems: [],
+    tab: 'browse',
+    search: '',
+    poet: 'all',
+    theme: 'all',
+    readingId: null,
+    readingList: []
+  };
+
+  var kept = new Set(safeGetJSON(KEPT_KEY, []));
+  function toggleKeep(id){
+    if(kept.has(id)) kept.delete(id); else kept.add(id);
+    safeSetJSON(KEPT_KEY, Array.from(kept));
+    renderKeptCount();
+  }
+  function renderKeptCount(){
+    document.getElementById('keptCount').textContent = kept.size ? ' (' + kept.size + ')' : '';
+  }
+
+  /* ---------- load poems ---------- */
+  fetch('poems.json').then(function(r){ return r.json(); }).then(function(data){
+    var base = data.poems.map(function(p){ p.mine = false; return p; });
+    var added = safeGetJSON(ADDED_KEY, []);
+    state.poems = base.concat(added);
+    init();
+  }).catch(function(){
+    document.getElementById('poemGrid').innerHTML = '<p class="empty-note">The collection couldn\'t be loaded. Try reopening the page.</p>';
+  });
+
+  function init(){
+    var base = state.poems.filter(function(p){ return !p.mine; });
+    var poets = new Set(base.map(function(p){ return p.author; }));
+    document.getElementById('countLine').textContent =
+      base.length + ' poems, ' + poets.size + ' poets, one imperfect circle.';
+    buildPoetSelect();
+    buildThemeChips();
+    renderKeptCount();
+    renderToday();
+    renderGrid();
+    renderYourList();
+    bindTabs();
+    bindSearch();
+    document.getElementById('addSubmit').addEventListener('click', handleAdd);
+  }
+
+  function idOf(p){ return p.mine ? ('mine-' + p.mine) : p.id; }
+
+  function firstLine(p){
+    for(var i=0;i<p.lines.length;i++){ if(p.lines[i].trim()) return p.lines[i]; }
+    return '';
+  }
+
+  function buildPoetSelect(){
+    var authors = Array.from(new Set(state.poems.map(function(p){ return p.author; }))).sort();
+    var sel = document.getElementById('poetSelect');
+    sel.innerHTML = '<option value="all">every poet</option>' + authors.map(function(a){
+      return '<option value="'+escapeAttr(a)+'">'+escapeHtml(a)+'</option>';
+    }).join('');
+    sel.addEventListener('change', function(){ state.poet = sel.value; renderGrid(); });
+  }
+
+  function buildThemeChips(){
+    var wrap = document.getElementById('themeChips');
+    var chips = ['all'].concat(ALL_THEMES);
+    wrap.innerHTML = chips.map(function(t){
+      var label = t === 'all' ? 'all themes' : t;
+      return '<button class="chip'+(t==='all'?' active':'')+'" data-theme="'+t+'" type="button">'+label+'</button>';
+    }).join('');
+    wrap.addEventListener('click', function(e){
+      var btn = e.target.closest('.chip');
+      if(!btn) return;
+      state.theme = btn.getAttribute('data-theme');
+      Array.from(wrap.children).forEach(function(c){ c.classList.toggle('active', c === btn); });
+      renderGrid();
+    });
+  }
+
+  function bindTabs(){
+    var tabs = document.getElementById('tabs');
+    tabs.addEventListener('click', function(e){
+      var btn = e.target.closest('button[data-tab]');
+      if(!btn) return;
+      setTab(btn.getAttribute('data-tab'));
+    });
+  }
+
+  function setTab(tab){
+    state.tab = tab;
+    ['browse','kept','reading','add','about'].forEach(function(t){
+      document.getElementById('view-' + t).hidden = (t !== tab);
+    });
+    Array.from(document.querySelectorAll('#tabs button')).forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+    });
+    if(tab === 'kept') renderKeptGrid();
+    if(tab !== 'reading') window.scrollTo({top:0, behavior:'auto'});
+  }
+
+  function bindSearch(){
+    var input = document.getElementById('searchInput');
+    input.addEventListener('input', function(){
+      state.search = input.value.trim().toLowerCase();
+      renderGrid();
+    });
+  }
+
+  function matches(p){
+    if(state.poet !== 'all' && p.author !== state.poet) return false;
+    if(state.theme !== 'all' && (!p.themes || p.themes.indexOf(state.theme) === -1)) return false;
+    if(state.search){
+      var hay = (p.title + ' ' + p.author + ' ' + p.lines.join(' ')).toLowerCase();
+      if(hay.indexOf(state.search) === -1) return false;
+    }
+    return true;
+  }
+
+  function renderGrid(){
+    var list = state.poems.filter(matches);
+    var grid = document.getElementById('poemGrid');
+    if(!list.length){
+      grid.innerHTML = '';
+      var note = document.createElement('p');
+      note.className = 'empty-note';
+      note.textContent = 'Nothing matches yet — try a broader search or theme.';
+      grid.appendChild(note);
+      return;
+    }
+    grid.innerHTML = list.map(cardHtml).join('');
+    attachCardHandlers(grid, list);
+  }
+
+  function cardHtml(p){
+    var id = idOf(p);
+    var isKept = kept.has(id);
+    return '<div class="poem-card" data-id="'+escapeAttr(String(id))+'" tabindex="0" role="button" aria-label="Open '+escapeAttr(p.title)+'">' +
+      '<button class="keep-btn'+(isKept?' kept':'')+'" data-keep="'+escapeAttr(String(id))+'" aria-label="'+(isKept?'Remove from kept':'Keep this poem')+'" type="button">'+heartSvg(isKept)+'</button>' +
+      '<h3>'+escapeHtml(p.title)+'</h3>' +
+      '<p class="author">'+escapeHtml(p.author)+(p.mine ? ' · added by you' : '')+'</p>' +
+      '<p class="excerpt">'+escapeHtml(firstLine(p))+'</p>' +
+      '<div class="tags">'+(p.themes||[]).slice(0,3).map(function(t){ return '<span class="tag">'+t+'</span>'; }).join('')+'</div>' +
+      '</div>';
+  }
+
+  function heartSvg(filled){
+    return '<svg viewBox="0 0 24 24" fill="'+(filled?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.3 2 4.5 5.8 4c2-.3 3.8.7 6.2 3 2.4-2.3 4.2-3.3 6.2-3C21.9 4.5 23.7 8.3 22 11.7 19.5 16.4 12 21 12 21z"></path></svg>';
+  }
+
+  function attachCardHandlers(container, list){
+    Array.from(container.querySelectorAll('.poem-card')).forEach(function(card){
+      card.addEventListener('click', function(e){
+        if(e.target.closest('[data-keep]')) return;
+        openReading(card.getAttribute('data-id'), list);
+      });
+      card.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openReading(card.getAttribute('data-id'), list); }
+      });
+    });
+    Array.from(container.querySelectorAll('[data-keep]')).forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var id = btn.getAttribute('data-keep');
+        toggleKeep(isNaN(id) ? id : Number(id));
+        var nowKept = kept.has(isNaN(id) ? id : Number(id));
+        btn.classList.toggle('kept', nowKept);
+        btn.innerHTML = heartSvg(nowKept);
+        if(state.tab === 'kept') renderKeptGrid();
+      });
+    });
+  }
+
+  function renderKeptGrid(){
+    var list = state.poems.filter(function(p){ return kept.has(idOf(p)); });
+    var grid = document.getElementById('keptGrid');
+    var empty = document.getElementById('keptEmpty');
+    if(!list.length){
+      grid.innerHTML = '';
+      empty.hidden = false;
+      return;
+    }
+    empty.hidden = true;
+    grid.innerHTML = list.map(cardHtml).join('');
+    attachCardHandlers(grid, list);
+  }
+
+  function dayIndex(){
+    var d = new Date();
+    var start = new Date(d.getFullYear(),0,0);
+    var diff = d - start;
+    return Math.floor(diff / 86400000);
+  }
+
+  function renderToday(){
+    var card = document.getElementById('todayCard');
+    var open = function(){
+      if(!state.poems.length) return;
+      var p = state.poems[dayIndex() % state.poems.length];
+      openReading(idOf(p), state.poems);
+    };
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } });
+    var render = function(){
+      if(!state.poems.length){ return; }
+      var p = state.poems[dayIndex() % state.poems.length];
+      card.innerHTML = '<p class="eyebrow">today, held still</p>' +
+        '<h2>'+escapeHtml(p.title)+'</h2>' +
+        '<p class="meta">'+escapeHtml(p.author)+'</p>' +
+        '<p class="first-line">'+escapeHtml(firstLine(p))+' …</p>';
+    };
+    var check = setInterval(function(){ if(state.poems.length){ render(); clearInterval(check); } }, 30);
+  }
+
+  /* ---------- reading view ---------- */
+  function openReading(id, list){
+    var key = isNaN(id) ? id : Number(id);
+    state.readingList = list && list.length ? list : state.poems.filter(matches);
+    var idx = state.readingList.findIndex(function(p){ return idOf(p) === key; });
+    if(idx === -1){
+      state.readingList = state.poems;
+      idx = state.readingList.findIndex(function(p){ return idOf(p) === key; });
+    }
+    state.readingIndex = idx;
+    renderReading();
+    setTab('reading');
+    window.scrollTo({top:0, behavior:'auto'});
+  }
+
+  function renderReading(){
+    var list = state.readingList;
+    var p = list[state.readingIndex];
+    if(!p) return;
+    var art = document.getElementById('readingArticle');
+    var id = idOf(p);
+    var isKept = kept.has(id);
+    var body = p.lines.map(function(line){
+      if(line.trim() === '') return '<div class="stanza-break"></div>';
+      return '<p>'+escapeHtml(line)+'</p>';
+    }).join('');
+    art.innerHTML =
+      '<div class="reading-top">' +
+        '<button class="back-btn" id="backBtn" type="button">&larr; back</button>' +
+        '<div class="reading-actions">' +
+          '<button class="keep-btn" id="readKeep" style="position:static;color:'+(isKept?'var(--clay)':'var(--ink-faint)')+'" type="button">'+heartSvg(isKept)+'</button>' +
+        '</div>' +
+      '</div>' +
+      '<p class="author">'+escapeHtml(p.author)+(p.mine ? ' · added by you' : '')+'</p>' +
+      '<h2>'+escapeHtml(p.title)+'</h2>' +
+      '<p class="meta">'+(p.year ? escapeHtml(p.year) : '')+(p.note ? ' · ' + escapeHtml(p.note) : '')+'</p>' +
+      '<div class="poem-body">'+body+'</div>' +
+      '<div class="tags">'+(p.themes||[]).map(function(t){ return '<span class="tag-pill">'+t+'</span>'; }).join('')+'</div>' +
+      '<div class="reading-nav">' +
+        '<button id="prevBtn" type="button" '+(state.readingIndex<=0?'disabled':'')+'>&larr; previous</button>' +
+        '<button id="nextBtn" type="button" '+(state.readingIndex>=list.length-1?'disabled':'')+'>next &rarr;</button>' +
+      '</div>';
+
+    document.getElementById('backBtn').addEventListener('click', function(){ setTab(state._returnTab || 'browse'); });
+    document.getElementById('readKeep').addEventListener('click', function(){
+      toggleKeep(id);
+      renderReading();
+    });
+    document.getElementById('prevBtn').addEventListener('click', function(){ if(state.readingIndex>0){ state.readingIndex--; renderReading(); window.scrollTo({top:0}); } });
+    document.getElementById('nextBtn').addEventListener('click', function(){ if(state.readingIndex<list.length-1){ state.readingIndex++; renderReading(); window.scrollTo({top:0}); } });
+  }
+
+  document.addEventListener('keydown', function(e){
+    if(document.getElementById('view-reading').hidden) return;
+    if(e.key === 'ArrowLeft') document.getElementById('prevBtn').click();
+    if(e.key === 'ArrowRight') document.getElementById('nextBtn').click();
+    if(e.key === 'Escape') document.getElementById('backBtn').click();
+  });
+
+  /* ---------- add your own ---------- */
+  function handleAdd(){
+    var ta = document.getElementById('addTextarea');
+    var status = document.getElementById('addStatus');
+    var raw = ta.value.trim();
+    if(!raw){ status.textContent = 'paste a poem first.'; return; }
+    var obj;
+    try{ obj = JSON.parse(raw); }catch(e){ status.textContent = "that isn't valid JSON — check for a missing comma or quote."; return; }
+    if(!obj.title || !obj.author || !Array.isArray(obj.lines) || !obj.lines.length){
+      status.textContent = 'needs at least a title, author, and a lines array.';
+      return;
+    }
+    var added = safeGetJSON(ADDED_KEY, []);
+    var newPoem = {
+      mine: Date.now(),
+      title: String(obj.title),
+      author: String(obj.author),
+      year: obj.year ? String(obj.year) : '',
+      note: obj.note ? String(obj.note) : '',
+      themes: Array.isArray(obj.themes) ? obj.themes : [],
+      lines: obj.lines.map(String)
+    };
+    added.push(newPoem);
+    safeSetJSON(ADDED_KEY, added);
+    state.poems.push(newPoem);
+    buildPoetSelect();
+    renderGrid();
+    renderYourList();
+    ta.value = '';
+    status.textContent = '“' + newPoem.title + '” added to your collection.';
+  }
+
+  function renderYourList(){
+    var added = safeGetJSON(ADDED_KEY, []);
+    var wrap = document.getElementById('yourList');
+    if(!added.length){ wrap.innerHTML = ''; return; }
+    wrap.innerHTML = '<h3 style="font-size:1rem;margin:0 0 6px;">your additions</h3>' + added.map(function(p){
+      return '<div class="your-item"><span>'+escapeHtml(p.title)+' — '+escapeHtml(p.author)+'</span><button class="remove" data-remove="'+p.mine+'" type="button">remove</button></div>';
+    }).join('');
+    Array.from(wrap.querySelectorAll('[data-remove]')).forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = Number(btn.getAttribute('data-remove'));
+        var added2 = safeGetJSON(ADDED_KEY, []).filter(function(p){ return p.mine !== id; });
+        safeSetJSON(ADDED_KEY, added2);
+        state.poems = state.poems.filter(function(p){ return !(p.mine === id); });
+        renderYourList();
+        renderGrid();
+      });
+    });
+  }
+
+  /* ---------- utils ---------- */
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+})();
+</script>
