@@ -38,7 +38,11 @@ meditation, climate-work opportunities). Live at https://2vrg2vjks9-wq.github.io
 - The one bold element is the **wind ribbon** (one bar per daylight hour, height = strength, colour =
   rideable for which sport, hatched = wrong direction). Everything else stays quiet: grouped sheets,
   sentence case, no all-caps labels, no identical boxed cards, no decorative gradients.
-- Bottom tab bar: Today · Wind · Explore · Saved. Mobile-first (390 px), safe-area insets, 44 px tap targets.
+- Bottom tab bar: Today · Wind · Explore · Work · Saved. Mobile-first (390 px), safe-area insets, 44 px tap targets.
+- **Work** tab holds `work` and `freelance` items (filter: Everything / Jobs & calls / Freelance; freelance sorted by deadline).
+  They are kept out of Explore; Today still surfaces them when a deadline is close.
+- **Reactions:** a new 👍/👎 pops a short notice (fades after 5 s, × closes it, pauses while touched). The lasting place
+  to send them is Saved › Teach it more, flagged by a red dot on the Saved tab. Don't make the notice sticky again.
 
 ## About the user (only what the app needs)
 
