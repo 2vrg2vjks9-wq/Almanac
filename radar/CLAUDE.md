@@ -59,6 +59,8 @@ high and labels them "Good time". A new bucket item is always worth a push notif
 `interests.json` has a `freelance` section (his profile and what to look for). Feed items for it use
 `kind: "freelance"`. The app needs a **Freelance** filter (its own colour dot) and freelance items may
 appear in "Worth your attention" when a deadline is close.
+For freelance items, `end` is the application deadline: the app shows "Apply by …", sorts the Freelance
+filter by it, flags it as "Deadline soon" within 14 days and offers the deadline as a calendar entry.
 
 ## Improvement pass to do now
 

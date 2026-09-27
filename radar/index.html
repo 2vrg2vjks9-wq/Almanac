@@ -21,14 +21,14 @@
   --mist:#e4eae9; --foam:#f7faf9; --deep:#0e2a33; --slate:#4a5f67; --haze:#5b6c72;
   --rule:rgba(14,42,51,.10); --marine:#1b5e7a; --kelp:#2f8660; --buoy:#dba73a; --flag:#b8452f;
   --calm:rgba(14,42,51,.13); --tab:rgba(247,250,249,.82);
-  --kelp-ink:#267352; --buoy-ink:#8c6516; --flag-ink:#a8401f;
+  --kelp-ink:#267352; --buoy-ink:#8c6516; --flag-ink:#a8401f; --reef:#4b5fb0;
   --ui:"Familjen Grotesk",-apple-system,system-ui,sans-serif; --read:"Literata",Georgia,serif;
 }
 @media (prefers-color-scheme:dark){:root{
   --mist:#0b1a20; --foam:#122730; --deep:#e2ebea; --slate:#a9bbbe; --haze:#879ba0;
   --rule:rgba(226,235,234,.10); --marine:#7fc0dc; --kelp:#5fc494; --buoy:#f0c35d; --flag:#ef7c63;
   --calm:rgba(226,235,234,.16); --tab:rgba(18,39,48,.84);
-  --kelp-ink:var(--kelp); --buoy-ink:var(--buoy); --flag-ink:var(--flag);
+  --kelp-ink:var(--kelp); --buoy-ink:var(--buoy); --flag-ink:var(--flag); --reef:#98a3ec;
 }}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--mist);color:var(--deep)}
@@ -82,6 +82,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
 .state{font-weight:600}.state.new{color:var(--marine)}.state.soon{color:var(--flag-ink)}.state.now{color:var(--kelp-ink)}
 .item h3{font:600 18px/1.28 var(--ui);letter-spacing:-.01em;margin:5px 0 0}
 .item.big h3{font-size:21px}
+.due{font-size:14px;font-weight:600;color:var(--reef);margin-top:4px}.due.close{color:var(--flag-ink)}
 .item .where{font-size:14px;color:var(--slate);margin-top:2px}
 .item p{font:15px/1.6 var(--read);color:var(--slate);margin:6px 0 0}
 .flags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -376,9 +377,9 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       .catch(function(){var c=LS.get("radar-wind",null);if(c){net.wind="cache";net.windAt=c.t;drawWind(c.res,true)}else{net.wind=null;$("lead").textContent="The forecast needs a connection. Radar will try again when you're back online."}})}
 
   /* feed */
-  var KINDS=[["all","Everything"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["work","Work"],["bucket","Bucket list"]];
-  var KLABEL={concert:"Music",release:"Music",exhibition:"Art",restaurant:"Food",story:"Books & film",meditation:"Meditation",work:"Work",news:"Music",bucket:"Bucket list"};
-  var KCOLOR={concert:"#7b5ea7",release:"#7b5ea7",news:"#7b5ea7",exhibition:"var(--marine)",restaurant:"var(--buoy)",story:"#a0567a",meditation:"var(--kelp)",work:"var(--slate)",bucket:"var(--flag)"};
+  var KINDS=[["all","Everything"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["work","Work"],["freelance","Freelance"],["bucket","Bucket list"]];
+  var KLABEL={concert:"Music",release:"Music",exhibition:"Art",restaurant:"Food",story:"Books & film",meditation:"Meditation",work:"Work",freelance:"Freelance",news:"Music",bucket:"Bucket list"};
+  var KCOLOR={concert:"#7b5ea7",release:"#7b5ea7",news:"#7b5ea7",exhibition:"var(--marine)",restaurant:"var(--buoy)",story:"#a0567a",meditation:"var(--kelp)",work:"var(--slate)",freelance:"var(--reef)",bucket:"var(--flag)"};
   var REGIONS=[["all","Anywhere"],["nl","Netherlands"],["near","Belgium, Germany, EU"],["jp","Japan"]];
   function km(a,b,c,e){var R=6371,x=(c-a)*Math.PI/180,y=(e-b)*Math.PI/180,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h))}
   function inJapan(){var F=CONFIG.focus;return !!(F&&/japan/i.test(F.place)&&(!F.until||d(F.until)>=today))}
@@ -389,7 +390,10 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     if(f&&(today-f)/864e5<=3)return ["new","New"];
     if(s&&s<=today&&(!e||e>=today)&&it.kind!=="restaurant"&&it.kind!=="story")return ["now","On now"];
     if(it.pick)return ["","Suggestion"];if(it.kind==="bucket")return ["now","Good time"];return null}
+  function dueHTML(it){var e=d(it.end);if(it.kind!=="freelance"||!e)return "";var n=Math.floor((e-today)/864e5);
+    return '<div class="due'+(n<=14?" close":"")+'">Apply by '+e.toLocaleDateString("en-GB",{weekday:n<7?"long":undefined,day:"numeric",month:"long"})+(n===0?", today":n===1?", tomorrow":n<=14?", "+n+" days left":"")+'</div>'}
   function when(it){var s=d(it.start),e=d(it.end),f=function(x){return x.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
+    if(it.kind==="freelance")return s?"From "+f(s):"";
     if(s&&e&&+s!==+e)return f(s)+" to "+f(e);if(s)return f(s);if(e)return "Until "+f(e);return ""}
   function score(it){var sc=0,r=reactions[it.id];if(r)sc+=r.v*50;if(saved[it.id])sc+=40;
     if(it.kind==="bucket")sc+=35;var st=status(it);if(st&&st[0]==="new")sc+=30;if(st&&st[0]==="soon")sc+=25;
@@ -414,8 +418,9 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       '<button class="ib down'+(r&&r.v<0?" on":"")+'" data-a="down" type="button" aria-label="Less like this" aria-pressed="'+!!(r&&r.v<0)+'">'+ICON.down+L("Less")+'</button>'+
       '<button class="ib save'+(saved[it.id]?" on":"")+'" data-a="save" type="button" aria-label="Save" aria-pressed="'+!!saved[it.id]+'">'+(saved[it.id]?ICON.saveOn:ICON.save)+L(saved[it.id]?"Saved":"Save")+'</button>'+
       '<button class="ib" data-a="hide" type="button" aria-label="'+(hidden[it.id]?"Unhide":"Hide")+'">'+(hidden[it.id]?ICON.unhide:ICON.hide)+L(hidden[it.id]?"Unhide":"Hide")+'</button>'}
+  function calable(it){return !!(it.start||(it.kind==="freelance"&&it.end))}
   function itemHTML(it,big){var place=placeOf(it);
-    return '<div class="item'+(big?" big":"")+'" data-id="'+esc(it.id)+'"'+(it.start?' data-cal="1"':'')+'><div class="item-top">'+topLine(it)+'</div><h3><button class="open" type="button" aria-haspopup="dialog">'+esc(it.title)+'</button></h3>'+(place?'<div class="where">'+esc(place)+'</div>':'')+'<p class="clip">'+esc(it.summary)+'</p>'+
+    return '<div class="item'+(big?" big":"")+'" data-id="'+esc(it.id)+'"'+(calable(it)?' data-cal="1"':'')+'><div class="item-top">'+topLine(it)+'</div><h3><button class="open" type="button" aria-haspopup="dialog">'+esc(it.title)+'</button></h3>'+(place?'<div class="where">'+esc(place)+'</div>':'')+dueHTML(it)+'<p class="clip">'+esc(it.summary)+'</p>'+
       flagsHTML(it)+
       '<div class="acts">'+(it.url?'<a class="go" href="'+esc(it.url)+'" target="_blank" rel="noopener">Open details</a>':'<span class="go"></span>')+reactButtons(it,false)+'</div></div>'}
   function mount(box,list,big,empty){box.innerHTML=list.length?list.map(function(it){return itemHTML(it,big)}).join(""):'<div class="empty">'+empty+'</div>';
@@ -427,16 +432,17 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   var sheetItem=null,lastFocus=null;
   function longDate(x){return x.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"long",year:x.getFullYear()!==today.getFullYear()?"numeric":undefined})}
   function sheetHTML(it){var s=d(it.start),e=d(it.end),rows=[],place=placeOf(it);
-    if(s&&e&&+s!==+e)rows.push(["Dates",longDate(s)+" to "+longDate(e)]);else if(s)rows.push(["Date",longDate(s)]);else if(e)rows.push(["Until",longDate(e)]);
+    if(it.kind==="freelance"){if(s)rows.push(["Starts",longDate(s)]);if(e)rows.push(["Apply by",longDate(e),"due"])}
+    else if(s&&e&&+s!==+e)rows.push(["Dates",longDate(s)+" to "+longDate(e)]);else if(s)rows.push(["Date",longDate(s)]);else if(e)rows.push(["Until",longDate(e)]);
     if(it.why)rows.push(["Why it fits",it.why]);
     if(it.found)rows.push(["Found",d(it.found).toLocaleDateString("en-GB",{day:"numeric",month:"long"})]);
     var acts=[];
     if(it.url)acts.push('<a class="btn" href="'+esc(it.url)+'" target="_blank" rel="noopener">Open details</a>');
     if(it.lat!=null&&it.lon!=null)acts.push('<a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query='+it.lat+'%2C'+it.lon+'" target="_blank" rel="noopener">Show on map</a>');
-    if(it.start)acts.push('<button class="btn ghost" type="button" data-a="ics">Add to calendar</button>');
-    return '<div class="item-top">'+topLine(it)+'</div><h2 id="sheetTitle">'+esc(it.title)+'</h2>'+(place?'<div class="where">'+esc(place)+'</div>':'')+
+    if(calable(it))acts.push('<button class="btn ghost" type="button" data-a="ics">'+(it.kind==="freelance"&&it.end?"Add deadline to calendar":"Add to calendar")+'</button>');
+    return '<div class="item-top">'+topLine(it)+'</div><h2 id="sheetTitle">'+esc(it.title)+'</h2>'+(place?'<div class="where">'+esc(place)+'</div>':'')+dueHTML(it)+
       '<p class="full">'+esc(it.summary)+'</p>'+flagsHTML(it)+
-      (rows.length?'<dl class="facts">'+rows.map(function(r){return '<div><dt>'+r[0]+'</dt><dd>'+esc(r[1])+'</dd></div>'}).join("")+'</dl>':'')+
+      (rows.length?'<dl class="facts">'+rows.map(function(r){return '<div><dt>'+r[0]+'</dt><dd'+(r[2]?' class="'+r[2]+'"':'')+'>'+esc(r[1])+'</dd></div>'}).join("")+'</dl>':'')+
       (acts.length?'<div class="sheet-acts">'+acts.join("")+'</div>':'')+
       '<div class="react">'+reactButtons(it,true)+'</div>'}
   function renderSheet(){var it=sheetItem,b=$("sheetBody");b.innerHTML=sheetHTML(it);
@@ -457,11 +463,11 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     pn.addEventListener("touchstart",function(e){y0=pn.scrollTop<=0?e.touches[0].clientY:null;dy=0},{passive:true});
     pn.addEventListener("touchmove",function(e){if(y0==null)return;dy=e.touches[0].clientY-y0;if(dy>0){pn.style.transition="none";pn.style.transform="translateY("+dy+"px)";if(e.cancelable)e.preventDefault()}},{passive:false});
     pn.addEventListener("touchend",function(){if(y0==null)return;pn.style.transition="";y0=null;if(dy>90)closeSheet();else pn.style.transform=""})})();
-  function ics(it){var s=d(it.start),e=d(it.end)||s;if(e<s)e=s;var end=new Date(e);end.setDate(end.getDate()+1);
+  function ics(it){var dead=it.kind==="freelance"&&it.end,s=dead?d(it.end):d(it.start),e=dead?s:(d(it.end)||s);if(e<s)e=s;var end=new Date(e);end.setDate(end.getDate()+1);
     var f=function(x){return x.getFullYear()+pad(x.getMonth()+1)+pad(x.getDate())},t=function(v){return String(v||"").replace(/\\/g,"\\\\").replace(/([,;])/g,"\\$1").replace(/\r?\n/g,"\\n")};
     var now=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
     var lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Radar//EN","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:"+it.id+"@radar","DTSTAMP:"+now,
-      "DTSTART;VALUE=DATE:"+f(s),"DTEND;VALUE=DATE:"+f(end),"SUMMARY:"+t(it.title)];
+      "DTSTART;VALUE=DATE:"+f(s),"DTEND;VALUE=DATE:"+f(end),"SUMMARY:"+t((dead?"Deadline: ":"")+it.title)];
     var loc=[it.place,it.city].filter(Boolean).join(", ");if(loc)lines.push("LOCATION:"+t(loc));
     lines.push("DESCRIPTION:"+t(it.summary+(it.url?"\n\n"+it.url:"")));if(it.url)lines.push("URL:"+it.url);
     if(it.lat!=null)lines.push("GEO:"+it.lat+";"+it.lon);lines.push("END:VEVENT","END:VCALENDAR");
@@ -476,7 +482,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     mount($("top"),list,true,"Nothing urgent. Explore has everything Radar found.")}
   function regionMatch(it){if(state.region==="all")return true;var r=it.region;if(state.region==="near")return ["be","de","eu","uk"].indexOf(r)>=0;return r===state.region||r==="all"}
   function drawFeed(){var items=FEED.items.filter(function(it){if(!visible(it))return false;if(hidden[it.id]&&!state.showHidden)return false;
-      if(state.kind!=="all"&&it.kind!==state.kind&&!(state.kind==="concert"&&(it.kind==="release"||it.kind==="news")))return false;return regionMatch(it)}).sort(function(a,b){return score(b)-score(a)});
+      if(state.kind!=="all"&&it.kind!==state.kind&&!(state.kind==="concert"&&(it.kind==="release"||it.kind==="news")))return false;return regionMatch(it)}).sort(function(a,b){if(state.kind==="freelance"){var x=d(a.end),y=d(b.end);if(x&&y&&+x!==+y)return x-y;if(x&&!y)return -1;if(y&&!x)return 1}return score(b)-score(a)});
     var limit=state.all?items.length:12;
     mount($("feed"),items.slice(0,limit),false,"Nothing here yet. The daily update adds new finds every morning.");
     if(items.length>limit){var m=document.createElement("button");m.className="more";m.type="button";m.textContent="Show "+(items.length-limit)+" more";m.onclick=function(){state.all=true;drawFeed()};$("feed").appendChild(m)}
