@@ -1,0 +1,13 @@
+name: Radar wind alert
+on:
+  schedule:
+    - cron: "25 4 * * *"   # every morning, ~06:25 in the Netherlands (summer time)
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  wind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 radar/tools/wind_alert.py
