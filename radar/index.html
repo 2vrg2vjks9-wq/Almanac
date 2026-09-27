@@ -36,6 +36,14 @@ a{color:var(--marine)}
 :focus-visible{outline:2px solid var(--marine);outline-offset:2px;border-radius:6px}
 .wrap{max-width:620px;margin:0 auto}
 .view{display:none}.view.on{display:block}
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.rbtn{flex:none;width:44px;height:44px;margin:-4px -8px 0 0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--slate)}
+.rbtn svg{width:22px;height:22px}
+.rbtn.spin svg{animation:spin .9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.rbtn.spin svg{animation:none;opacity:.5}}
+.fresh{font-size:13px;color:var(--slate);margin:4px 0 0;min-height:19px}
+.fresh.off{color:var(--flag)}
+.ptr{height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;font-size:13px;color:var(--slate);transition:height .2s ease}
 .title{font:700 34px/1.05 var(--ui);letter-spacing:-.025em;margin:0}
 .sub{color:var(--slate);margin:6px 0 0;font-size:16px}
 h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
@@ -138,8 +146,11 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
 <body>
 <div class="wrap">
   <section class="view on" id="v-today" aria-label="Today">
-    <h1 class="title" id="hello">Today</h1>
+    <div class="ptr" id="ptr" aria-hidden="true"><span id="ptrText">Pull to refresh</span></div>
+    <div class="head"><h1 class="title" id="hello">Today</h1>
+      <button class="rbtn" id="refresh" type="button" aria-label="Refresh feed and wind"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.35-5.65M20 4v5h-5"/></svg></button></div>
     <p class="sub" id="sub"></p>
+    <p class="fresh" id="fresh" role="status" aria-live="polite"></p>
     <p class="lead" id="lead">Reading the wind…</p>
     <div class="sheet" id="todayWind" style="margin-top:14px"></div>
     <h2>Worth your attention</h2>
@@ -246,7 +257,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   function analyse(spot,hourly,W){var days={},order=[],nl=nowNL();
     hourly.time.forEach(function(t,i){var k=t.slice(0,10);if(!days[k]){days[k]=[];order.push(k)}
       days[k].push({h:+t.slice(11,13),kn:hourly.wind_speed_10m[i],g:hourly.wind_gusts_10m[i],d:hourly.wind_direction_10m[i]})});
-    return order.map(function(k){var hrs=days[k],light=hrs.filter(function(x){return x.h>=W.daylight[0]&&x.h<W.daylight[1]});
+    return order.filter(function(k){return k>=nl.day}).map(function(k){var hrs=days[k],light=hrs.filter(function(x){return x.h>=W.daylight[0]&&x.h<W.daylight[1]});
       var usable=light.filter(function(x){return !(k===nl.day&&x.h<nl.h)});
       function run(sport){var s=W.sports[sport],best=[],cur=[];
         usable.concat([{kn:-1}]).forEach(function(x){if(x.kn>=s.min&&x.kn<=s.max&&dirOK(x.d,spot.good))cur.push(x);else{if(cur.length>best.length)best=cur;cur=[]}});
@@ -294,7 +305,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     sessions.sort(function(a,b){return a.D.day<b.D.day?-1:a.D.day>b.D.day?1:b.r.len-a.r.len});var n=sessions[0];
     $("lead").innerHTML=n?esc(dayName(n.D.day,true))+" looks good at "+esc(n.spot.name)+'. <span>'+(n.k==="wing"?"Wingfoil":"Windsurf")+" "+n.r.from+"–"+n.r.to+", around "+n.r.kn+" kn from the "+n.r.dir+".</span>"
       :"No rideable wind this week. <span>You'll get an alert when that changes.</span>";
-    $("windSub").textContent=(stale?"Offline copy. ":"")+"Next 7 days, daylight hours"}
+    $("windSub").textContent=stale?"Offline, forecast from "+stamp(net.windAt)+". Daylight hours.":"Next 7 days, daylight hours"}
   /* water temperature (Open-Meteo Marine); lakes and failures simply show nothing */
   var WATER=LS.get("radar-water",{});
   function suit(c){return c>=22?"boardshorts or a shorty":c>=18?"3/2 wetsuit":c>=15?"4/3 wetsuit":c>=12?"5/4 wetsuit and boots":c>=9?"5/4 or 6/5 with boots and gloves":"6/5 hooded, boots and gloves"}
@@ -310,8 +321,9 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   function loadWind(){var sp=CONFIG.wind.spots;
     var u="https://api.open-meteo.com/v1/forecast?latitude="+sp.map(function(s){return s.lat}).join(",")+"&longitude="+sp.map(function(s){return s.lon}).join(",")+
       "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn&timezone=Europe%2FAmsterdam&forecast_days=7";
-    fetch(u).then(function(r){return r.json()}).then(function(res){if(!Array.isArray(res))res=[res];LS.set("radar-wind",{t:Date.now(),res:res});drawWind(res,false)})
-      .catch(function(){var c=LS.get("radar-wind",null);if(c)drawWind(c.res,true);else $("lead").textContent="The forecast needs a connection."});loadWater()}
+    loadWater();
+    return fetch(u).then(function(r){if(!r.ok)throw r.status;return r.json()}).then(function(res){if(!Array.isArray(res))res=[res];net.wind="live";net.windAt=Date.now();LS.set("radar-wind",{t:net.windAt,res:res});drawWind(res,false)})
+      .catch(function(){var c=LS.get("radar-wind",null);if(c){net.wind="cache";net.windAt=c.t;drawWind(c.res,true)}else{net.wind=null;$("lead").textContent="The forecast needs a connection. Radar will try again when you're back online."}})}
 
   /* feed */
   var KINDS=[["all","Everything"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["work","Work"],["bucket","Bucket list"]];
@@ -447,7 +459,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     bucketSent.push({title:t,good_time:g,added:new Date().toISOString().slice(0,10)});LS.set("radar-bucket-sent",bucketSent);drawBucket();
     window.open(REPO+"/issues/new?labels=radar-bucket&title="+encodeURIComponent("Bucket list: "+t)+"&body="+encodeURIComponent("Add to my Radar bucket list: "+t+"\n\nA good moment would be: "+(g||"(work it out)")+"\n\nFrom where / when I could go (optional):\n"),"_blank")};
   $("showHidden").onclick=function(){state.showHidden=!state.showHidden;this.textContent=state.showHidden?"Hide hidden":"Show hidden";document.querySelector('.tab[data-v="explore"]').click();drawFeed()};
-  function ago(iso){var h=(Date.now()-new Date(iso))/36e5;if(h<1)return "just now";if(h<24)return Math.round(h)+" hours ago";var n=Math.round(h/24);return n===1?"yesterday":n+" days ago"}
+  function ago(iso){var h=(Date.now()-new Date(iso))/36e5;if(h<1)return "just now";if(h<1.5)return "an hour ago";if(h<24)return Math.round(h)+" hours ago";var n=Math.round(h/24);return n===1?"yesterday":n+" days ago"}
 
   /* around me */
   function hint(t){$("nearHint").textContent=t}
@@ -477,10 +489,33 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       window.open(REPO+"/issues/new?labels=radar-location&title="+encodeURIComponent("I'm in "+place+(until?" until "+until:""))+"&body="+encodeURIComponent("Radar: focus research on "+place+(until?" until "+until:"")+".\nCity only; no exact location is shared."),"_blank");
       hint("Submit the note that opened, and tomorrow's update scouts "+city+".")}).catch(function(e){hint(e==="denied"?DENIED:"Couldn't work out your city. Try again.")})};
 
-  Promise.all([fetchJSON("interests.json"),fetchJSON("feed.json"),fetchJSON("taste.json").catch(function(){return {learned:[]}})]).then(function(a){CONFIG=a[0];FEED=a[1];TASTE=a[2];LS.set("radar-cache",{c:CONFIG,f:FEED,t:TASTE});start()})
-    .catch(function(){var c=LS.get("radar-cache",null);if(c){CONFIG=c.c;FEED=c.f;TASTE=c.t;start()}else $("lead").textContent="Radar needs a connection the first time you open it."});
-  function start(){FEED.items.forEach(function(it){byId[it.id]=it});if(!inJapan())REGIONS=REGIONS.filter(function(r){return r[0]!=="jp"});
-    segs("kinds",KINDS,"kind");segs("regions",REGIONS,"region");drawAll();loadWind()}
+  /* loading, refresh and freshness */
+  var net={feed:null,wind:null,windAt:null,started:false,busy:false};
+  function stamp(t){if(!t)return "earlier";var x=new Date(t),k=new Date(t);k.setHours(0,0,0,0);var n=Math.round((today-k)/864e5);
+    return (n===0?"today":n===1?"yesterday":x.toLocaleDateString("en-GB",{weekday:"long"}))+" at "+hm(t)}
+  function hm(t){var x=new Date(t);return pad(x.getHours())+":"+pad(x.getMinutes())}
+  function fresh(){var el=$("fresh");if(!el)return;var off=net.feed==="cache"||net.wind==="cache",t=[];
+    if(FEED&&FEED.updated)t.push("Feed updated "+ago(FEED.updated));
+    if(net.windAt)t.push("wind "+(net.wind==="cache"?"from "+stamp(net.windAt):"checked at "+hm(net.windAt)));
+    el.textContent=(off?"Offline, showing the last copy. ":"")+t.join(", ")+(t.length?".":"");el.classList.toggle("off",off)}
+  function loadAll(){if(net.busy)return;net.busy=true;$("refresh").classList.add("spin");$("refresh").setAttribute("aria-busy","true");
+    var feed=Promise.all([fetchJSON("interests.json"),fetchJSON("feed.json"),fetchJSON("taste.json").catch(function(){return {learned:[]}})])
+      .then(function(a){CONFIG=a[0];FEED=a[1];TASTE=a[2];net.feed="live";LS.set("radar-cache",{c:CONFIG,f:FEED,t:TASTE})})
+      .catch(function(){var c=LS.get("radar-cache",null);if(c&&!FEED){CONFIG=c.c;FEED=c.f;TASTE=c.t}net.feed=FEED?"cache":null});
+    return feed.then(function(){if(!FEED){$("lead").textContent="Radar needs a connection the first time you open it.";return}
+      start();return loadWind()}).then(function(){net.busy=false;$("refresh").classList.remove("spin");$("refresh").removeAttribute("aria-busy");fresh()})}
+  function start(){byId={};FEED.items.forEach(function(it){byId[it.id]=it});
+    if(!net.started){if(!inJapan())REGIONS=REGIONS.filter(function(r){return r[0]!=="jp"});segs("kinds",KINDS,"kind");segs("regions",REGIONS,"region");net.started=true}
+    drawAll();fresh()}
+  $("refresh").onclick=function(){loadAll()};
+  window.addEventListener("online",function(){if(net.feed==="cache"||net.wind==="cache")loadAll()});
+  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&net.windAt&&Date.now()-net.windAt>30*6e4)loadAll()});
+  (function(){var y0=null,dy=0,ptr=$("ptr"),txt=$("ptrText");
+    document.addEventListener("touchstart",function(e){y0=(window.scrollY<=0&&!sheetItem&&$("v-today").classList.contains("on"))?e.touches[0].clientY:null;dy=0},{passive:true});
+    document.addEventListener("touchmove",function(e){if(y0==null)return;dy=e.touches[0].clientY-y0;if(dy<=0){ptr.style.height="0";return}
+      ptr.style.transition="none";ptr.style.height=Math.min(56,dy/2.2)+"px";txt.textContent=dy>110?"Release to refresh":"Pull to refresh"},{passive:true});
+    document.addEventListener("touchend",function(){if(y0==null)return;y0=null;ptr.style.transition="";ptr.style.height="0";if(dy>110)loadAll()})})();
+  loadAll();
   if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
 })();
 </script>
