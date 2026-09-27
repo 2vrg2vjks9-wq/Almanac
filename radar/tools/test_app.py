@@ -119,10 +119,24 @@ def run():
 
             page.click('.tab[data-v="explore"]'); page.wait_for_timeout(200)
             page.screenshot(path=os.path.join(OUT, "explore-%s.png" % scheme), full_page=True)
-            page.click('#kinds .pill:has-text("Freelance")'); page.wait_for_timeout(200)
-            check(page.locator("#feed .item").count() >= 1, "%s: Freelance filter shows items" % scheme)
-            page.screenshot(path=os.path.join(OUT, "explore-freelance-%s.png" % scheme), full_page=True)
-            page.click('#kinds .pill:has-text("Everything")'); page.wait_for_timeout(200)
+            check(page.locator('#kinds .pill:has-text("Freelance")').count() == 0, "%s: work kinds live in Work, not Explore" % scheme)
+
+            # Work tab: work and freelance items, freelance filter
+            page.click('.tab[data-v="work"]'); page.wait_for_timeout(200)
+            check(page.locator("#workFeed .item").count() >= 1, "%s: Work tab lists opportunities" % scheme)
+            page.click('#workKinds .pill:has-text("Freelance")'); page.wait_for_timeout(200)
+            check(page.locator("#workFeed .item").count() >= 1, "%s: Freelance filter shows items" % scheme)
+            page.screenshot(path=os.path.join(OUT, "work-freelance-%s.png" % scheme), full_page=True)
+            page.click('#workKinds .pill:has-text("Everything")'); page.wait_for_timeout(200)
+            page.click('.tab[data-v="explore"]'); page.wait_for_timeout(200)
+
+            # Reactions notice pops up, closes with x, and the send button lives in Saved
+            page.locator("#feed [data-a=up]").first.click(); page.wait_for_timeout(400)
+            check("show" in (page.get_attribute("#fbBar", "class") or ""), "%s: reaction pops the notice" % scheme)
+            page.click("#fbClose"); page.wait_for_timeout(400)
+            check("show" not in (page.get_attribute("#fbBar", "class") or ""), "%s: notice closes with x" % scheme)
+            check(page.locator('.tab[data-v="saved"] .badge').count() == 1, "%s: Saved tab flags unsent reactions" % scheme)
+            page.locator("#feed [data-a=up]").first.click(); page.wait_for_timeout(200)  # undo, keeps later checks clean
 
             # Item detail sheet
             page.locator("#feed .item .open").first.click(); page.wait_for_selector("#sheet.show", timeout=3000)
@@ -148,7 +162,7 @@ def run():
 
             # Narrow screens: no horizontal scroll at 320 px on any tab
             page.set_viewport_size({"width": 320, "height": 640})
-            for v in ("today", "wind", "explore", "saved"):
+            for v in ("today", "wind", "explore", "work", "saved"):
                 page.click('.tab[data-v="%s"]' % v); page.wait_for_timeout(100)
                 w = page.evaluate("document.documentElement.scrollWidth")
                 check(w <= 320, "%s: no horizontal scroll on %s at 320 px (%d)" % (scheme, v, w))
