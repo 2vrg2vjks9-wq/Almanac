@@ -1,5 +1,5 @@
 // Radar offline cache: always try the network first, fall back to the last copy.
-const CACHE='radar-v6';
+const CACHE='radar-v7';
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','index.html','interests.json','feed.json','taste.json','icon-180.png'])))});
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);

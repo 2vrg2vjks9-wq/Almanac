@@ -337,8 +337,9 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     var box=$("windAll");box.innerHTML="";
     all.forEach(function(a){var div=document.createElement("div");div.innerHTML=spotHTML(a.spot,a.days,W,true);var el=div.firstChild;box.appendChild(el);wireDetail(el,a.spot,a.days,W)});
     sessions.sort(function(a,b){return a.D.day<b.D.day?-1:a.D.day>b.D.day?1:b.r.len-a.r.len});var n=sessions[0];
-    $("lead").innerHTML=n?esc(dayName(n.D.day,true))+" looks good at "+esc(n.spot.name)+'. <span>'+(n.k==="wing"?"Wingfoil":"Windsurf")+" "+n.r.from+"–"+n.r.to+", around "+n.r.kn+" kn from the "+n.r.dir+".</span>"
-      :"No rideable wind this week. <span>You'll get an alert when that changes.</span>";
+    var until=n?Math.round((new Date(n.D.day+"T00:00:00")-today)/864e5):0,dl=n?(until<=1?dayName(n.D.day,true):new Date(n.D.day+"T00:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"})):"";
+    $("lead").innerHTML=n?(until<=1?esc(dl)+" looks good at ":"Next good wind: "+esc(dl)+", ")+esc(n.spot.name)+'. <span>'+(n.k==="wing"?"Wingfoil":"Windsurf")+" "+n.r.from+"–"+n.r.to+", around "+n.r.kn+" kn from the "+n.r.dir+(until>1?". That's "+until+" days away":"")+".</span>"
+      :"No rideable wind in the next 7 days. <span>The morning alert tells you when that changes.</span>";
     $("windSub").textContent=stale?"Offline, forecast from "+stamp(net.windAt)+". Daylight hours.":"Next 7 days, daylight hours"}
   /* water temperature (Open-Meteo Marine); lakes and failures simply show nothing */
   var WATER=LS.get("radar-water",{});
@@ -369,8 +370,8 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   function past(it){var e=d(it.end)||(it.kind==="concert"?d(it.start):null);return e&&e<today}
   function visible(it){return !past(it)&&!(it.region==="jp"&&!inJapan())}
   function status(it){var s=d(it.start),e=d(it.end),f=d(it.found);
+    if(endsSoon(it))return ["soon",it.kind==="freelance"?"Deadline soon":"Ends soon"];
     if(f&&(today-f)/864e5<=3)return ["new","New"];
-    if(e&&e>=today&&(e-today)/864e5<=14&&(!s||s<=today))return ["soon","Ends soon"];
     if(s&&s<=today&&(!e||e>=today)&&it.kind!=="restaurant"&&it.kind!=="story")return ["now","On now"];
     if(it.pick)return ["","Suggestion"];if(it.kind==="bucket")return ["now","Good time"];return null}
   function when(it){var s=d(it.start),e=d(it.end),f=function(x){return x.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
@@ -453,7 +454,10 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     a.href=URL.createObjectURL(blob);a.download=(it.id||"radar")+".ics";document.body.appendChild(a);a.click();
     setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}
   function drawAll(){drawTop();drawFeed();drawSaved();fbBar()}
-  function drawTop(){var list=FEED.items.filter(function(it){return visible(it)&&!hidden[it.id]&&!(reactions[it.id]&&reactions[it.id].v<0)}).sort(function(a,b){return score(b)-score(a)}).slice(0,4);
+  function endsSoon(it){var s=d(it.start),e=d(it.end);return !!(e&&e>=today&&(e-today)/864e5<=14&&(!s||s<=today||it.kind==="freelance"))}
+  function drawTop(){var pool=FEED.items.filter(function(it){return visible(it)&&!hidden[it.id]&&!(reactions[it.id]&&reactions[it.id].v<0)});
+    var first=pool.filter(endsSoon).sort(function(a,b){return d(a.end)-d(b.end)||score(b)-score(a)}).slice(0,2);
+    var list=first.concat(pool.filter(function(it){return first.indexOf(it)<0}).sort(function(a,b){return score(b)-score(a)})).slice(0,4);
     mount($("top"),list,true,"Nothing urgent. Explore has everything Radar found.")}
   function regionMatch(it){if(state.region==="all")return true;var r=it.region;if(state.region==="near")return ["be","de","eu","uk"].indexOf(r)>=0;return r===state.region||r==="all"}
   function drawFeed(){var items=FEED.items.filter(function(it){if(!visible(it))return false;if(hidden[it.id]&&!state.showHidden)return false;
