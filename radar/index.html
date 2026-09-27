@@ -413,7 +413,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   function topLine(it){var st=status(it),w=when(it);
     return '<span class="dot" aria-hidden="true" style="background:'+(KCOLOR[it.kind]||"var(--haze)")+'"></span><span>'+esc(KLABEL[it.kind]||it.kind)+'</span>'+(w?'<span>'+esc(w)+'</span>':'')+(st?'<span class="state '+st[0]+'">'+st[1]+'</span>':'')}
   function flagsHTML(it){return it.flags&&it.flags.length?'<div class="flags">'+it.flags.map(function(f){return '<span class="flag">'+esc(f)+'</span>'}).join("")+'</div>':''}
-  function reactButtons(it,labels){var r=reactions[it.id],L=function(t){return labels?'<span>'+t+'</span>':''};
+  function reactButtons(it,labels){var r=reactions[it.id],L=function(t){return labels?'<span>'+esc(t)+'</span>':''};
     return '<button class="ib up'+(r&&r.v>0?" on":"")+'" data-a="up" type="button" aria-label="More like this" aria-pressed="'+!!(r&&r.v>0)+'">'+ICON.up+L("More")+'</button>'+
       '<button class="ib down'+(r&&r.v<0?" on":"")+'" data-a="down" type="button" aria-label="Less like this" aria-pressed="'+!!(r&&r.v<0)+'">'+ICON.down+L("Less")+'</button>'+
       '<button class="ib save'+(saved[it.id]?" on":"")+'" data-a="save" type="button" aria-label="Save" aria-pressed="'+!!saved[it.id]+'">'+(saved[it.id]?ICON.saveOn:ICON.save)+L(saved[it.id]?"Saved":"Save")+'</button>'+
@@ -438,7 +438,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     if(it.found)rows.push(["Found",d(it.found).toLocaleDateString("en-GB",{day:"numeric",month:"long"})]);
     var acts=[];
     if(it.url)acts.push('<a class="btn" href="'+esc(it.url)+'" target="_blank" rel="noopener">Open details</a>');
-    if(it.lat!=null&&it.lon!=null)acts.push('<a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query='+it.lat+'%2C'+it.lon+'" target="_blank" rel="noopener">Show on map</a>');
+    if(it.lat!=null&&it.lon!=null)acts.push('<a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query='+(+it.lat)+'%2C'+(+it.lon)+'" target="_blank" rel="noopener">Show on map</a>');
     if(calable(it))acts.push('<button class="btn ghost" type="button" data-a="ics">'+(it.kind==="freelance"&&it.end?"Add deadline to calendar":"Add to calendar")+'</button>');
     return '<div class="item-top">'+topLine(it)+'</div><h2 id="sheetTitle">'+esc(it.title)+'</h2>'+(place?'<div class="where">'+esc(place)+'</div>':'')+dueHTML(it)+
       '<p class="full">'+esc(it.summary)+'</p>'+flagsHTML(it)+
@@ -466,13 +466,13 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   function ics(it){var dead=it.kind==="freelance"&&it.end,s=dead?d(it.end):d(it.start),e=dead?s:(d(it.end)||s);if(e<s)e=s;var end=new Date(e);end.setDate(end.getDate()+1);
     var f=function(x){return x.getFullYear()+pad(x.getMonth()+1)+pad(x.getDate())},t=function(v){return String(v||"").replace(/\\/g,"\\\\").replace(/([,;])/g,"\\$1").replace(/\r?\n/g,"\\n")};
     var now=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
-    var lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Radar//EN","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:"+it.id+"@radar","DTSTAMP:"+now,
+    var lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Radar//EN","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:"+String(it.id).replace(/[^\w.-]/g,"")+"@radar","DTSTAMP:"+now,
       "DTSTART;VALUE=DATE:"+f(s),"DTEND;VALUE=DATE:"+f(end),"SUMMARY:"+t((dead?"Deadline: ":"")+it.title)];
     var loc=[it.place,it.city].filter(Boolean).join(", ");if(loc)lines.push("LOCATION:"+t(loc));
-    lines.push("DESCRIPTION:"+t(it.summary+(it.url?"\n\n"+it.url:"")));if(it.url)lines.push("URL:"+it.url);
-    if(it.lat!=null)lines.push("GEO:"+it.lat+";"+it.lon);lines.push("END:VEVENT","END:VCALENDAR");
+    lines.push("DESCRIPTION:"+t(it.summary+(it.url?"\n\n"+it.url:"")));var one=function(v){return String(v||"").replace(/[\r\n]+/g," ")};if(it.url)lines.push("URL:"+one(it.url));
+    if(it.lat!=null&&isFinite(it.lat)&&isFinite(it.lon))lines.push("GEO:"+(+it.lat)+";"+(+it.lon));lines.push("END:VEVENT","END:VCALENDAR");
     var blob=new Blob([lines.join("\r\n")+"\r\n"],{type:"text/calendar"}),a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);a.download=(it.id||"radar")+".ics";document.body.appendChild(a);a.click();
+    a.href=URL.createObjectURL(blob);a.download=(String(it.id||"radar").replace(/[^\w.-]/g,"")||"radar")+".ics";document.body.appendChild(a);a.click();
     setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}
   function drawAll(){drawTop();drawFeed();drawSaved();fbBar()}
   function endsSoon(it){var s=d(it.start),e=d(it.end);return !!(e&&e>=today&&(e-today)/864e5<=14&&(!s||s<=today||it.kind==="freelance"))}
