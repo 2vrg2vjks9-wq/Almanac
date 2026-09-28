@@ -570,16 +570,20 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   var ghKey=LS.get("radar-gh-key",""), outbox=LS.get("radar-outbox",[]), sayTimer;
   function say(t){var e=$("say");e.textContent=t;e.classList.add("show");clearTimeout(sayTimer);sayTimer=setTimeout(function(){e.classList.remove("show")},3200)}
   function postIssue(n){return fetch(API+"/issues",{method:"POST",headers:{"Authorization":"Bearer "+ghKey,"Accept":"application/vnd.github+json","Content-Type":"application/json"},
-    body:JSON.stringify({title:n.title,body:n.body,labels:n.labels})}).then(function(r){if(r.status===401||r.status===403||r.status===404)throw "key";if(!r.ok)throw "net";return true})}
-  function flush(){if(!ghKey||!outbox.length||!navigator.onLine)return Promise.resolve();var n=outbox[0];
-    return postIssue(n).then(function(){outbox.shift();LS.set("radar-outbox",outbox);return flush()}).catch(function(e){if(e==="key"){say("Radar's GitHub token stopped working. Reconnect it in Saved.");ghKey="";LS.set("radar-gh-key","");paintConn()}})}
+    body:JSON.stringify({title:n.title,body:n.body,labels:n.labels})}).then(function(r){if(r.status===401)throw "key";if(r.status===403||r.status===404)throw "perm";if(!r.ok)throw "net";return true})}
+  function flush(){if((!ghKey&&!SERVER)||!outbox.length||!navigator.onLine)return Promise.resolve();var n=outbox[0];
+    return (SERVER?fetch("/api/note",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:n.title,body:n.body,label:n.labels[0]})}).then(function(r){if(!r.ok)throw "net";return true}):postIssue(n)).then(function(){outbox.shift();LS.set("radar-outbox",outbox);return flush()}).catch(function(e){if(e==="key"){say("GitHub no longer accepts Radar's token (expired or revoked). Your note is kept; reconnect in Saved.");ghKey="";LS.set("radar-gh-key","");paintConn()}
+      else if(e==="perm"){say("GitHub refused the note: the token needs access to Almanac with Issues set to read and write. Your note is kept.");ghKey="";LS.set("radar-gh-key","");paintConn()}})}
   /* sends a note to the morning update; falls back to opening GitHub when not connected */
+  var SERVER=!/github\.io$/.test(location.hostname)&&location.hostname!=="localhost"&&location.hostname!=="127.0.0.1";
   function note(title,body,label,done){
+    if(SERVER){fetch("/api/note",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:title,body:body,label:label})})
+      .then(function(r){if(!r.ok)throw r.status;say(done)}).catch(function(){outbox.push({title:title,body:body,labels:[label]});LS.set("radar-outbox",outbox);say("Saved. It goes out when Radar can reach the server again.")});return}
     if(!ghKey){window.open(REPO+"/issues/new?labels="+label+"&title="+encodeURIComponent(title)+"&body="+encodeURIComponent(body),"_blank");return}
     outbox.push({title:title,body:body,labels:[label]});LS.set("radar-outbox",outbox);
     if(!navigator.onLine){say("Saved. It goes out when you're back online.");return}
     flush().then(function(){if(ghKey)say(done)})}
-  function paintConn(){$("connState").textContent=ghKey?"Connected. Notes go straight to the morning update"+(outbox.length?" ("+outbox.length+" waiting to send).":"."):"Not connected. Notes open on GitHub for you to submit.";
+  function paintConn(){if(SERVER){$("conn").closest(".sheet").hidden=true;var h=$("conn").closest(".sheet").previousElementSibling;if(h)h.hidden=true;return}$("connState").textContent=ghKey?"Connected. Notes go straight to the morning update"+(outbox.length?" ("+outbox.length+" waiting to send).":"."):"Not connected. Notes open on GitHub for you to submit.";
     $("connOpen").hidden=!!ghKey;$("connOff").hidden=!ghKey;$("connForm").hidden=true;$("connBtns").hidden=false}
   $("connOpen").onclick=function(){$("connForm").hidden=false;$("connBtns").hidden=true;$("connKey").focus()};
   $("connCancel").onclick=paintConn;
