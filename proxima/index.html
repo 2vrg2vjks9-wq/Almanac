@@ -732,7 +732,7 @@
   var KEPT_KEY="proxima-kept", SEEN_KEY="proxima-seen", FIELD_KEY="proxima-field", VIEW_KEY="proxima-view", THEME_KEY="proxima-theme";
   function get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function set(k,v){ try{ if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} }
-  function getIds(k){ try{ var a=JSON.parse(localStorage.getItem(k)||"[]"); return Array.isArray(a)?a.filter(function(n){return n>=0&&n<ALL.length;}):[]; }catch(e){ return []; } }
+  function getIds(k){ try{ var a=JSON.parse(localStorage.getItem(k)||"[]"); return Array.isArray(a)?a.filter(function(n){return Number.isInteger(n)&&n>=0&&n<ALL.length;}):[]; }catch(e){ return []; } }
   function setIds(k,s){ set(k, JSON.stringify(Array.from(s))); }
 
   var kept = new Set(getIds(KEPT_KEY));

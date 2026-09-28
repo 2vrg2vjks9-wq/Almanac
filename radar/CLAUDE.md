@@ -21,10 +21,18 @@ meditation, climate-work opportunities). Live at https://2vrg2vjks9-wq.github.io
   "Around me" from OpenStreetMap Overpass (`overpass-api.de`) and city lookup from Nominatim.
 - **Feedback loop:** 👍/👎/save/hide are stored in `localStorage`; "Send" opens a pre-filled GitHub issue
   (labels `radar-feedback`, `radar-interest`, `radar-location`, `radar-bucket`) which the daily task processes and closes.
-  No tokens on the phone — keep it that way.
+  If the owner connects Radar (Saved tab), notes are POSTed to the GitHub Issues API in the background with a
+  fine-grained token (Almanac only, Issues read/write) that lives only in the phone's localStorage — never
+  commit a token. Unsent notes wait in an outbox and retry when online. Without a token the app falls back to
+  opening the pre-filled issue on GitHub.
 - **Wind alert:** `.github/workflows/radar-wind.yml` runs `radar/tools/wind_alert.py` every morning and
   pushes to ntfy.sh. Keep it working if you touch `interests.json`'s wind section.
 - **Offline:** `radar/sw.js` (network-first, cache fallback). Bump the cache name when you change files.
+- **Version:** bump `APP_VERSION` in `index.html` on every change (e.g. `2026-09-28b`). The app compares it with the live
+  page when opened or brought to the front and reloads itself if newer; the version shows at the bottom of Saved.
+- **Tests:** `python3 radar/tools/test_app.py [screenshot-dir]` serves the repo, mocks every live API, runs each
+  tab in light and dark at 390×844 (plus 320 px overflow and an offline pass), fails on JS errors, and runs
+  `tools/safety_check.py`. Run it before every commit.
 
 ## Design system (keep it; refine, don't replace)
 
@@ -35,7 +43,11 @@ meditation, climate-work opportunities). Live at https://2vrg2vjks9-wq.github.io
 - The one bold element is the **wind ribbon** (one bar per daylight hour, height = strength, colour =
   rideable for which sport, hatched = wrong direction). Everything else stays quiet: grouped sheets,
   sentence case, no all-caps labels, no identical boxed cards, no decorative gradients.
-- Bottom tab bar: Today · Wind · Explore · Saved. Mobile-first (390 px), safe-area insets, 44 px tap targets.
+- Bottom tab bar: Today · Wind · Explore · Work · Saved. Mobile-first (390 px), safe-area insets, 44 px tap targets.
+- **Work** tab holds `work` and `freelance` items (filter: Everything / Jobs & calls / Freelance; freelance sorted by deadline).
+  They are kept out of Explore; Today still surfaces them when a deadline is close.
+- **Reactions:** a new 👍/👎 pops a short notice (fades after 5 s, × closes it, pauses while touched). The lasting place
+  to send them is Saved › Teach it more, flagged by a red dot on the Saved tab. Don't make the notice sticky again.
 
 ## About the user (only what the app needs)
 
@@ -59,6 +71,8 @@ high and labels them "Good time". A new bucket item is always worth a push notif
 `interests.json` has a `freelance` section (his profile and what to look for). Feed items for it use
 `kind: "freelance"`. The app needs a **Freelance** filter (its own colour dot) and freelance items may
 appear in "Worth your attention" when a deadline is close.
+For freelance items, `end` is the application deadline: the app shows "Apply by …", sorts the Freelance
+filter by it, flags it as "Deadline soon" within 14 days and offers the deadline as a calendar entry.
 
 ## Improvement pass to do now
 
