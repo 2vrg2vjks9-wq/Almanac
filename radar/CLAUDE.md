@@ -21,7 +21,10 @@ meditation, climate-work opportunities). Live at https://2vrg2vjks9-wq.github.io
   "Around me" from OpenStreetMap Overpass (`overpass-api.de`) and city lookup from Nominatim.
 - **Feedback loop:** 👍/👎/save/hide are stored in `localStorage`; "Send" opens a pre-filled GitHub issue
   (labels `radar-feedback`, `radar-interest`, `radar-location`, `radar-bucket`) which the daily task processes and closes.
-  No tokens on the phone — keep it that way.
+  If the owner connects Radar (Saved tab), notes are POSTed to the GitHub Issues API in the background with a
+  fine-grained token (Almanac only, Issues read/write) that lives only in the phone's localStorage — never
+  commit a token. Unsent notes wait in an outbox and retry when online. Without a token the app falls back to
+  opening the pre-filled issue on GitHub.
 - **Wind alert:** `.github/workflows/radar-wind.yml` runs `radar/tools/wind_alert.py` every morning and
   pushes to ntfy.sh. Keep it working if you touch `interests.json`'s wind section.
 - **Offline:** `radar/sw.js` (network-first, cache fallback). Bump the cache name when you change files.

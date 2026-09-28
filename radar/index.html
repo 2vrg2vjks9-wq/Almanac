@@ -166,6 +166,12 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
 .tabs .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
 .tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:11px;font-weight:500;color:var(--haze)}
 .tab svg{width:24px;height:24px}.tab.on{color:var(--deep)}
+.say{position:fixed;left:14px;right:14px;top:calc(env(safe-area-inset-top) + 10px);max-width:600px;margin:0 auto;background:var(--deep);color:var(--mist);border-radius:14px;padding:12px 16px;font-size:15px;z-index:9;opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .25s ease,transform .25s ease}
+.say.show{opacity:1;transform:none}
+.conn{padding:12px 0}.conn p{margin:0 0 10px;font:15px/1.5 var(--read);color:var(--slate)}
+.conn input{width:100%;font:15px var(--ui);padding:12px;border-radius:12px;border:1px solid var(--rule);background:var(--mist);color:var(--deep);margin-bottom:10px}
+.conn ol{margin:0 0 12px;padding-left:20px;font:14px/1.55 var(--read);color:var(--slate)}
+@media (prefers-reduced-motion:reduce){.say{transition:none}}
 </style>
 </head>
 <body>
@@ -235,10 +241,25 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       <button class="btn" id="addBtn" type="button">Add an interest</button>
       <button class="btn ghost" id="showHidden" type="button">Show hidden</button>
     </div></div>
-    <p class="fine">Thumbs up and down change what Radar looks for. Sending them opens a pre-filled note on GitHub; submit it and the next morning's update learns from it. The repository is public, so those notes are too. Everything except the wind is researched by Claude, so check details before booking.</p>
+    <h2>Send in the background</h2>
+    <div class="sheet"><div class="conn" id="conn">
+      <p id="connState">Not connected. Notes open on GitHub for you to submit.</p>
+      <div id="connForm" hidden>
+        <ol>
+          <li>On GitHub, open Settings, Developer settings, Fine-grained tokens, Generate new token.</li>
+          <li>Repository access: only <b>Almanac</b>. Permissions: <b>Issues</b>, read and write. Nothing else.</li>
+          <li>Copy the token and paste it here. It stays on this phone.</li>
+        </ol>
+        <input id="connKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…" aria-label="GitHub token">
+        <div class="near-row" style="padding:0"><button class="btn" id="connSave" type="button">Connect</button><button class="btn ghost" id="connCancel" type="button">Cancel</button></div>
+      </div>
+      <div class="near-row" style="padding:0" id="connBtns"><button class="btn" id="connOpen" type="button">Connect Radar</button><button class="btn ghost" id="connOff" type="button" hidden>Disconnect</button></div>
+    </div></div>
+    <p class="fine">Thumbs up and down change what Radar looks for. Once Radar is connected, your notes go straight to the next morning's update; otherwise they open on GitHub for you to submit. The repository is public, so those notes are too. Everything except the wind is researched by Claude, so check details before booking.</p>
   </section>
 </div>
 
+<div class="say" id="say" role="status" aria-live="polite"></div>
 <div class="fb" id="fbBar" role="status" aria-live="polite"><span id="fbText"></span><button type="button" id="fbSend">Send</button><button type="button" class="x" id="fbClose" aria-label="Close">&times;</button></div>
 
 <div class="dlg" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -543,17 +564,42 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   $("fbBar").addEventListener("pointerleave",function(){if($("fbBar").classList.contains("show"))armToast()});
   $("fbBar").addEventListener("focusin",function(){clearTimeout(toastTimer)});
   $("fbBar").addEventListener("focusout",function(){if($("fbBar").classList.contains("show"))armToast()});
+  /* background notes: a GitHub token kept only on this phone */
+  var API="https://api.github.com/repos/2vrg2vjks9-wq/Almanac";
+  var ghKey=LS.get("radar-gh-key",""), outbox=LS.get("radar-outbox",[]), sayTimer;
+  function say(t){var e=$("say");e.textContent=t;e.classList.add("show");clearTimeout(sayTimer);sayTimer=setTimeout(function(){e.classList.remove("show")},3200)}
+  function postIssue(n){return fetch(API+"/issues",{method:"POST",headers:{"Authorization":"Bearer "+ghKey,"Accept":"application/vnd.github+json","Content-Type":"application/json"},
+    body:JSON.stringify({title:n.title,body:n.body,labels:n.labels})}).then(function(r){if(r.status===401||r.status===403||r.status===404)throw "key";if(!r.ok)throw "net";return true})}
+  function flush(){if(!ghKey||!outbox.length||!navigator.onLine)return Promise.resolve();var n=outbox[0];
+    return postIssue(n).then(function(){outbox.shift();LS.set("radar-outbox",outbox);return flush()}).catch(function(e){if(e==="key"){say("Radar's GitHub token stopped working. Reconnect it in Saved.");ghKey="";LS.set("radar-gh-key","");paintConn()}})}
+  /* sends a note to the morning update; falls back to opening GitHub when not connected */
+  function note(title,body,label,done){
+    if(!ghKey){window.open(REPO+"/issues/new?labels="+label+"&title="+encodeURIComponent(title)+"&body="+encodeURIComponent(body),"_blank");return}
+    outbox.push({title:title,body:body,labels:[label]});LS.set("radar-outbox",outbox);
+    if(!navigator.onLine){say("Saved. It goes out when you're back online.");return}
+    flush().then(function(){if(ghKey)say(done)})}
+  function paintConn(){$("connState").textContent=ghKey?"Connected. Notes go straight to the morning update"+(outbox.length?" ("+outbox.length+" waiting to send).":"."):"Not connected. Notes open on GitHub for you to submit.";
+    $("connOpen").hidden=!!ghKey;$("connOff").hidden=!ghKey;$("connForm").hidden=true;$("connBtns").hidden=false}
+  $("connOpen").onclick=function(){$("connForm").hidden=false;$("connBtns").hidden=true;$("connKey").focus()};
+  $("connCancel").onclick=paintConn;
+  $("connOff").onclick=function(){ghKey="";LS.set("radar-gh-key","");paintConn();say("Disconnected. The token is removed from this phone.")};
+  $("connSave").onclick=function(){var k=($("connKey").value||"").trim();if(!k)return;$("connState").textContent="Checking the token…";
+    fetch(API,{headers:{"Authorization":"Bearer "+k,"Accept":"application/vnd.github+json"}}).then(function(r){
+      if(!r.ok){$("connState").textContent="That token can't reach the Almanac repository. Check it has access to Almanac only, with Issues read and write.";return}
+      ghKey=k;LS.set("radar-gh-key",k);$("connKey").value="";paintConn();say("Connected. Notes now send in the background.");flush()})
+      .catch(function(){$("connState").textContent="Couldn't reach GitHub. Try again when you're online."})};
+  window.addEventListener("online",function(){flush().then(paintConn)});
   function sendReactions(){var p=pending();if(!p.length)return;
     var body="Radar feedback, sent from the app.\n\n"+p.map(function(k){var r=reactions[k];return (r.v>0?"+1":"-1")+" | "+r.kind+" | "+r.title+" | because: "+r.why+" | id: "+k}).join("\n")+"\n\nAnything to add about why? Write it here, e.g. 'more Ando, less street photography':\n";
-    window.open(REPO+"/issues/new?labels=radar-feedback&title="+encodeURIComponent("Radar feedback "+new Date().toISOString().slice(0,10))+"&body="+encodeURIComponent(body),"_blank");
+    note("Radar feedback "+new Date().toISOString().slice(0,10),body,"radar-feedback","Sent. Tomorrow morning's update learns from it.");
     p.forEach(function(k){reactions[k].sent=true});LS.set("radar-reactions",reactions);fbBar()}
   $("fbSend").onclick=sendReactions;$("fbSend2").onclick=sendReactions;
   $("addBtn").onclick=function(){var t=prompt("What should Radar keep an eye on? For example: Fred again.. concerts, padel tournaments in Den Haag, new Noguchi exhibitions.");if(!t)return;
-    window.open(REPO+"/issues/new?labels=radar-interest&title="+encodeURIComponent("Add interest: "+t)+"&body="+encodeURIComponent("Please add to Radar: "+t+"\n\nAnything specific? Where, and what's worth a notification:\n"),"_blank")};
+    t=t.trim();if(!t)return;note("Add interest: "+t,"Please add to Radar: "+t,"radar-interest","Added. Radar starts looking for \u201c"+t+"\u201d tomorrow morning.")};
   $("bucketBtn").onclick=function(){var t=prompt("What do you want to do once in your life? For example: see the northern lights, sleep in a mountain forest hut.");if(!t)return;t=t.trim();if(!t)return;
     var g=prompt("What would make it a good moment? For example: flights under €150, clear dark skies, a hut under €60 a night. Leave empty and Radar will work it out.")||"";g=g.trim();
     bucketSent.push({title:t,good_time:g,added:new Date().toISOString().slice(0,10)});LS.set("radar-bucket-sent",bucketSent);drawBucket();
-    window.open(REPO+"/issues/new?labels=radar-bucket&title="+encodeURIComponent("Bucket list: "+t)+"&body="+encodeURIComponent("Add to my Radar bucket list: "+t+"\n\nA good moment would be: "+(g||"(work it out)")+"\n\nFrom where / when I could go (optional):\n"),"_blank")};
+    note("Bucket list: "+t,"Add to my Radar bucket list: "+t+"\n\nA good moment would be: "+(g||"(work it out)"),"radar-bucket","On your bucket list. Radar checks the timing every morning.")};
   $("showHidden").onclick=function(){state.showHidden=!state.showHidden;this.textContent=state.showHidden?"Hide hidden":"Show hidden";document.querySelector('.tab[data-v="explore"]').click();drawFeed();drawWork()};
   function ago(iso){var h=(Date.now()-new Date(iso))/36e5;if(h<1)return "just now";if(h<1.5)return "an hour ago";if(h<24)return Math.round(h)+" hours ago";var n=Math.round(h/24);return n===1?"yesterday":n+" days ago"}
 
@@ -582,8 +628,8 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     locate().then(function(h){return fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat="+h.lat+"&lon="+h.lon).then(function(r){return r.json()})})
     .then(function(g){var a=g.address||{},city=a.city||a.town||a.village||a.municipality||a.county||"",place=[city,a.state,a.country].filter(Boolean).join(", ");
       var until=prompt("Scout "+place+"? Until when are you here? (optional, like 5 Oct)","");if(until===null){hint("Scouting cancelled.");return}
-      window.open(REPO+"/issues/new?labels=radar-location&title="+encodeURIComponent("I'm in "+place+(until?" until "+until:""))+"&body="+encodeURIComponent("Radar: focus research on "+place+(until?" until "+until:"")+".\nCity only; no exact location is shared."),"_blank");
-      hint("Submit the note that opened, and tomorrow's update scouts "+city+".")}).catch(function(e){hint(e==="denied"?DENIED:"Couldn't work out your city. Try again.")})};
+      note("I'm in "+place+(until?" until "+until:""),"Radar: focus research on "+place+(until?" until "+until:"")+".\nCity only; no exact location is shared.","radar-location","Tomorrow's update scouts "+city+".");
+      hint(ghKey?"Sent. Tomorrow's update scouts "+city+".":"Submit the note that opened, and tomorrow's update scouts "+city+".")}).catch(function(e){hint(e==="denied"?DENIED:"Couldn't work out your city. Try again.")})};
 
   /* first-run welcome */
   (function(){if(LS.get("radar-welcomed",false))return;var w=$("welcome"),cards=$("wcards"),next=$("wNext"),dots=w.querySelectorAll(".wdots i"),n=dots.length;
@@ -610,6 +656,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       .catch(function(){var c=LS.get("radar-cache",null);if(c&&!FEED){CONFIG=c.c;FEED=c.f;TASTE=c.t}net.feed=FEED?"cache":null});
     return feed.then(function(){if(!FEED){$("lead").textContent="Radar needs a connection the first time you open it.";return}
       start();return loadWind()}).then(function(){net.busy=false;$("refresh").classList.remove("spin");$("refresh").removeAttribute("aria-busy");fresh()})}
+  paintConn();flush().then(paintConn);
   function start(){byId={};FEED.items.forEach(function(it){byId[it.id]=it});
     if(!net.started){if(!inJapan())REGIONS=REGIONS.filter(function(r){return r[0]!=="jp"});segs("kinds",KINDS,"kind");segs("regions",REGIONS,"region");segs("workKinds",WORK_KINDS,"work");net.started=true}
     drawAll();skeleton();fresh()}
