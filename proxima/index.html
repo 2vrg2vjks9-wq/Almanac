@@ -143,6 +143,22 @@
   .idea .did{font-size:15px;color:var(--ink-soft);border-left:2px solid var(--signal);padding-left:12px}
   .idea .uses{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
   .idea .uses button{border:0;background:var(--accent-wash);color:var(--accent);border-radius:8px;padding:4px 9px;cursor:pointer;font-family:var(--serif);font-size:14px}
+  .ask{border-top:1px solid var(--line);padding-top:16px;gap:10px}
+  .ask-log{display:flex;flex-direction:column;gap:10px}
+  .ask-log:empty{display:none}
+  .msg{border-radius:14px;padding:10px 14px;max-width:92%;font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+  .msg p{margin:0}
+  .msg p + p{margin-top:8px}
+  .msg.user{align-self:flex-end;background:var(--ink);color:var(--paper);border-bottom-right-radius:4px}
+  .msg.assistant{align-self:flex-start;background:var(--accent-wash);border-bottom-left-radius:4px}
+  .thinking{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .ask-sugg{display:flex;flex-wrap:wrap;gap:6px}
+  .ask-sugg button{border:1px dashed var(--accent);background:transparent;color:var(--accent);border-radius:999px;padding:6px 12px;cursor:pointer;font-family:var(--serif);font-size:14.5px;text-align:left}
+  .ask-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+  .ask-form input{min-width:0;width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;padding:11px 13px;font:inherit;font-size:16px}
+  .ask-form input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .ask-note{margin:0;font-size:14px;color:var(--signal)}
+  .ask-hint{margin:0;font-size:13.5px;color:var(--muted)}
   .ideas-intro{margin:0 0 4px;color:var(--ink-soft);font-size:15.5px}
   .seeds p{font-size:15.5px}
 
@@ -814,6 +830,7 @@
         '<section class="sec"><span class="mono-label">Big ideas behind it</span><div class="idea-chips">'+
           e.ideas.map(function(k){ return '<button class="idea-chip" type="button" data-idea="'+k+'" aria-expanded="false">'+esc(IDEAS[k].name)+'</button>'; }).join('')+
         '</div><div class="idea-pop" id="ideaPop" hidden></div></section>'+
+        '<section class="sec ask" id="askBox" hidden></section>'+
         '<div class="actions">'+
           '<button class="btn" type="button" id="prevBtn"'+(pos>0?'':' disabled')+' aria-label="Previous invention">←</button>'+
           '<button class="btn'+(isKept?' kept':'')+'" type="button" id="keepBtn" aria-pressed="'+isKept+'">'+(isKept?'★ Kept':'☆ Keep')+'</button>'+
@@ -836,6 +853,7 @@
         pop.hidden=false;
       };
     });
+    setAsk("inv"+id, cardContext(e), SUGGEST.card);
     document.getElementById("keepBtn").onclick=function(){
       if(kept.has(id)) kept.delete(id); else kept.add(id);
       setIds(KEPT_KEY,kept); updateCount(); renderCard(false);
@@ -869,13 +887,96 @@
     var ids=pool(), used={};
     ids.forEach(function(i){ ALL[i].ideas.forEach(function(k){ (used[k]=used[k]||[]).push(i); }); });
     var keys=Object.keys(IDEAS).filter(function(k){ return used[k]; });
-    viewEl.innerHTML='<div class="ideas"><p class="ideas-intro">The real science the inventions are built on, one idea at a time.</p>'+keys.map(function(k){
+    viewEl.innerHTML='<div class="ideas"><p class="ideas-intro">The real science the inventions are built on, one idea at a time.</p><section class="idea ask" id="askBox" hidden></section>'+keys.map(function(k){
       var d=IDEAS[k];
       return '<article class="idea"><span class="field-tag">'+glyph(d.f)+esc(FIELDS[d.f].label)+'</span>'+
         '<h2>'+esc(d.name)+'</h2><p class="line">'+esc(d.line)+'</p><p>'+esc(d.text)+'</p><p class="did">'+esc(d.try)+'</p>'+
         '<div class="uses"><span class="mono-label">Powers</span>'+used[k].map(function(i){ return '<button type="button" class="row-link" data-id="'+i+'">'+esc(ALL[i].name)+'</button>'; }).join('')+'</div></article>';
     }).join('')+'</div>';
+    setAsk("ideas", ideasContext(), SUGGEST.ideas);
   }
+  /* ---------- ask Claude about what's on screen ---------- */
+  var sampleFn=null, askOff=false, convos={}, askKey=null, askCtx="", askSugg=[];
+  var SUGGEST={
+    card:["Explain it like I’m 12","How close are we really?","What could go wrong?","Is the wow number right?"],
+    ideas:["What’s the difference between superposition and entanglement?","How does a quantum computer actually compute?","Which of these ideas surprised scientists most?"]
+  };
+  var RULES="You are the science guide inside Proxima, a popular-science app about imagined future technologies. A reader is looking at the material below and asks you questions about it.\n"+
+    "- Answer in clear, friendly, plain language for a curious adult without a science background. Use an everyday comparison when it helps.\n"+
+    "- Keep answers short, about 80 to 150 words, unless the reader asks for more.\n"+
+    "- Be accurate. Separate established science, real research happening today, and speculation. The inventions themselves are imagined; the 'seeds today' notes and 'wow' numbers are meant to be real. If the app's text is wrong or oversimplified, say so plainly.\n"+
+    "- If you are unsure of a figure, date or name, say so instead of guessing.\n"+
+    "- Plain text only, no Markdown headings or tables. For a list, put each item on its own line starting with '• '.\n"+
+    "- Stay on science, technology and what they mean for people. If a question is unrelated, answer briefly and steer back.\n\n"+
+    "What the reader is looking at:\n";
+
+  function fmt(t){
+    return esc(String(t).trim()).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").split(/\n{2,}/).map(function(p){ return "<p>"+p.replace(/\n/g,"<br>")+"</p>"; }).join("");
+  }
+  function cardContext(e){
+    var o={name:e.name, field:FIELDS[e.f].label, firstLightGuess:e.year, readinessTRL:e.trl, plausibility:PLAUS[e.p], tagline:e.tag,
+      wowNumber:e.wow[0]+" — "+e.wow[1], imagine:e.idea, inPlainWords:e.plain, theScience:e.how, scene:e.where+": "+e.day,
+      whatStandsInTheWay:e.block, seedsToday:e.seeds,
+      bigIdeas:e.ideas.map(function(k){ return IDEAS[k].name+": "+IDEAS[k].text; })};
+    return JSON.stringify(o,null,1);
+  }
+  function ideasContext(){
+    return "The Ideas tab: short explainers of the science behind the app's inventions.\n\n"+Object.keys(IDEAS).map(function(k){
+      var d=IDEAS[k]; return d.name+" — "+d.line+" "+d.text+" ("+d.try+")"; }).join("\n");
+  }
+  function setAsk(key, ctx, sugg){ askKey=key; askCtx=ctx; askSugg=sugg; mountAsk(); }
+  function convo(key){ return convos[key]||(convos[key]={turns:[],pending:null,ctl:null,note:""}); }
+  function mountAsk(){
+    var box=document.getElementById("askBox"); if(!box) return;
+    if(!sampleFn||askOff||!askKey){ box.hidden=true; return; }
+    var c=convo(askKey), busy=!!c.pending;
+    var html='<span class="mono-label">Ask about this</span><div class="ask-log" id="askLog">';
+    c.turns.forEach(function(t){ html+='<div class="msg '+t.role+'">'+fmt(t.content)+'</div>'; });
+    if(busy) html+='<div class="msg assistant" id="askPending">'+(c.pending.text?fmt(c.pending.text):'<span class="thinking">Thinking…</span>')+'</div>';
+    html+='</div>';
+    if(!c.turns.length&&!busy) html+='<div class="ask-sugg">'+askSugg.map(function(q){ return '<button type="button">'+esc(q)+'</button>'; }).join('')+'</div>';
+    html+='<form class="ask-form" id="askForm"><input id="askInput" type="text" enterkeyhint="send" autocomplete="off" maxlength="500" placeholder="'+(c.turns.length?'Ask a follow-up…':'Ask a question…')+'" aria-label="Your question"'+(busy?' disabled':'')+'>'+
+      '<button class="btn primary" type="submit">'+(busy?'Stop':'Ask')+'</button></form>';
+    if(c.note) html+='<p class="ask-note">'+esc(c.note)+'</p>';
+    else if(!c.turns.length) html+='<p class="ask-hint">Claude answers from what’s on this card and its own knowledge.</p>';
+    box.innerHTML=html; box.hidden=false;
+    Array.prototype.forEach.call(box.querySelectorAll(".ask-sugg button"),function(b){ b.onclick=function(){ ask(b.textContent); }; });
+    document.getElementById("askForm").onsubmit=function(ev){
+      ev.preventDefault();
+      if(c.pending){ if(c.ctl) c.ctl.abort(); return; }
+      var q=document.getElementById("askInput").value.trim(); if(q) ask(q);
+    };
+  }
+  function ask(q){
+    var key=askKey, ctx=askCtx, c=convo(key);
+    if(c.pending) return;
+    c.note=""; c.turns.push({role:"user",content:q}); c.pending={text:""}; c.ctl=new AbortController();
+    mountAsk();
+    var input=[{role:"user",content:RULES+ctx}].concat(c.turns.slice(-12));
+    sampleFn(input,{cache:false, signal:c.ctl.signal, onText:function(u){
+      c.pending.text=u.text;
+      var el=document.getElementById("askPending"); if(el&&askKey===key) el.innerHTML=fmt(u.text);
+    }}).then(function(r){
+      c.turns.push({role:"assistant",content:r.text});
+      if(r.truncated) c.note="The answer was cut short. Ask a narrower question for the rest.";
+    }).catch(function(e){
+      var code=e&&e.code;
+      if(e&&e.text&&code!=="refused") c.turns.push({role:"assistant",content:e.text+" …"});
+      if(["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].indexOf(code)>=0) askOff=true;
+      else if(code==="cancelled") {}
+      else if(code==="rate_limited") c.note="Too many questions at once. Wait a minute, then ask again.";
+      else if(code==="session_expired") c.note="Sign in to Claude again to keep asking.";
+      else if(code==="refused") c.note="Claude couldn’t answer that one. Try asking it another way.";
+      else if(code==="prompt_too_large") c.note="This conversation has grown too long. Open another invention and come back to start fresh.";
+      else c.note="The answer didn’t come through. Try asking again.";
+    }).then(function(){
+      c.pending=null; c.ctl=null;
+      if(askKey===key) mountAsk();
+    });
+  }
+  (window.claude&&window.claude.use ? window.claude.use("sample") : Promise.resolve(null))
+    .then(function(s){ sampleFn=s; mountAsk(); }, function(){});
+
   viewEl.addEventListener("click",function(e){
     var r=e.target.closest(".row, .row-link"); if(!r) return;
     show(+r.getAttribute("data-id")); setView("discover"); window.scrollTo({top:0});
