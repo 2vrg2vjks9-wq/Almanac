@@ -9,6 +9,7 @@ case "$file" in
   */curiosity/app.html|curiosity/app.html) app=curiosity; label="Curiosity Almanac"; extra="" ;;
   */enso/app.html|enso/app.html)           app=enso;      label="Ensō";              extra="enso/poems.json" ;;
   */proxima/app.html|proxima/app.html)     app=proxima;   label="Proxima";           extra="" ;;
+  */loam/app.html|loam/app.html)           app=loam;      label="Loam";              extra="" ;;
   *) exit 0 ;;
 esac
 

@@ -1,0 +1,1017 @@
+<title>Loam</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Federo&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#e8efdf;
+    --ground-2:#dbe6cf;
+    --card:#f8fbf2;
+    --ink:#17281e;
+    --soft:#46594b;
+    --muted:#728573;
+    --line:rgba(23,40,30,.14);
+    --leaf:#2d7a4b;
+    --leaf-ink:#f8fbf2;
+    --sun:#d9961a;
+    --sun-glow:rgba(247,196,72,.42);
+    --sun-core:#f7cd5c;
+    --c-mend:#bf5d36;
+    --c-share:#23879a;
+    --c-remake:#8c6a28;
+    --c-grow:#4d8c2a;
+    --c-power:#d1920f;
+    --c-own:#b0466a;
+    --c-value:#3b6bb0;
+    --tint:.16;
+    --display:'Federo','Optima','Candara',Georgia,serif;
+    --serif:'Alegreya',Georgia,'Times New Roman',serif;
+    --label:'Alegreya Sans','Gill Sans','Segoe UI',system-ui,sans-serif;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0e1812;
+      --ground-2:#132019;
+      --card:#16251c;
+      --ink:#e4eddb;
+      --soft:#a9bba7;
+      --muted:#71846f;
+      --line:rgba(228,237,219,.13);
+      --leaf:#7fcf98;
+      --leaf-ink:#0e1812;
+      --sun:#f2bd45;
+      --sun-glow:rgba(242,189,69,.16);
+      --sun-core:#f2bd45;
+      --c-mend:#ec8a60;
+      --c-share:#5cc3d4;
+      --c-remake:#d0a95a;
+      --c-grow:#8fcc5e;
+      --c-power:#f3c24c;
+      --c-own:#ec7fa4;
+      --c-value:#83a9ec;
+      --tint:.2;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0e1812;
+    --ground-2:#132019;
+    --card:#16251c;
+    --ink:#e4eddb;
+    --soft:#a9bba7;
+    --muted:#71846f;
+    --line:rgba(228,237,219,.13);
+    --leaf:#7fcf98;
+    --leaf-ink:#0e1812;
+    --sun:#f2bd45;
+    --sun-glow:rgba(242,189,69,.16);
+    --sun-core:#f2bd45;
+    --c-mend:#ec8a60;
+    --c-share:#5cc3d4;
+    --c-remake:#d0a95a;
+    --c-grow:#8fcc5e;
+    --c-power:#f3c24c;
+    --c-own:#ec7fa4;
+    --c-value:#83a9ec;
+    --tint:.2;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font:17px/1.55 var(--serif);
+    background-image:radial-gradient(900px 520px at 12% -120px,var(--sun-glow),transparent 70%);
+    background-repeat:no-repeat;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 56px}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr);gap:36px}
+  @media (min-width:980px){
+    .layout{grid-template-columns:400px minmax(0,1fr);gap:56px;align-items:start}
+  }
+
+  /* Masthead */
+  .mast{display:grid;gap:6px}
+  .eyebrow{font:700 12px/1 var(--label);letter-spacing:.16em;text-transform:uppercase;color:var(--leaf)}
+  h1{font:400 64px/1 var(--display);letter-spacing:.06em;margin:4px 0 0}
+  .tagline{margin:6px 0 0;color:var(--soft);font-size:18px;max-width:34ch;text-wrap:pretty}
+  .stats{display:flex;flex-wrap:wrap;gap:6px 18px;margin:14px 0 0;padding:0;list-style:none;font:500 14px/1.3 var(--label);color:var(--soft);font-variant-numeric:tabular-nums}
+  .stats b{font:400 20px/1 var(--display);color:var(--ink);margin-right:5px}
+
+  /* Wheel */
+  .wheel-box{margin:22px auto 0;max-width:400px;width:100%}
+  .wheel{display:block;width:100%;height:auto;overflow:visible}
+  .wheel .seg{cursor:pointer;outline:none}
+  .wheel .seg path.band{fill:var(--c);fill-opacity:var(--tint);stroke:var(--c);stroke-opacity:.55;stroke-width:1;transition:fill-opacity .2s}
+  .wheel .seg:hover path.band,.wheel .seg:focus-visible path.band{fill-opacity:.38}
+  .wheel .seg.on path.band{fill-opacity:1;stroke-opacity:1}
+  .wheel .seg:focus-visible path.band{stroke:var(--ink);stroke-width:2;stroke-opacity:1}
+  .wheel .seg text{font:700 12.5px var(--label);letter-spacing:.2em;text-transform:uppercase;fill:var(--ink);pointer-events:none}
+  .wheel .seg.on text{fill:var(--leaf-ink)}
+  .wheel .seg .n{font:400 11px var(--display);letter-spacing:.04em;fill:var(--soft)}
+  .wheel .seg.on .n{fill:var(--leaf-ink)}
+  .wheel .ray{stroke:var(--sun);stroke-width:2.2;stroke-linecap:round}
+  .wheel .core{fill:url(#sunfill)}
+  .wheel .count{font:400 46px var(--display);fill:#1c2a13;text-anchor:middle}
+  .wheel .count-l{font:700 11px var(--label);letter-spacing:.18em;text-transform:uppercase;fill:#3a3a14;text-anchor:middle}
+  .wheel .vine{fill:none;stroke:var(--leaf);stroke-width:2.4;stroke-linecap:round}
+  .wheel .leaf{fill:var(--leaf)}
+  .wheel .bud{fill:var(--sun)}
+  .wheel .center-hit{cursor:pointer}
+  @media (prefers-reduced-motion:no-preference){
+    .wheel .vine{stroke-dasharray:1200;stroke-dashoffset:1200;animation:grow 2.2s cubic-bezier(.3,.6,.3,1) .15s forwards}
+    .wheel .leaf,.wheel .bud{transform-box:fill-box;transform-origin:center;animation:sprout .5s ease-out both}
+    .wheel .rays{transform-origin:200px 200px;animation:turn 120s linear infinite}
+  }
+  @keyframes grow{to{stroke-dashoffset:0}}
+  @keyframes sprout{from{transform:scale(0)}to{transform:scale(1)}}
+  @keyframes turn{to{transform:rotate(360deg)}}
+
+  .cat-note{margin:14px 0 0;min-height:3.1em;color:var(--soft);text-align:center;font-style:italic;text-wrap:balance}
+
+  /* Seed of the day */
+  .seed{
+    margin-top:26px;position:relative;
+    background:linear-gradient(180deg,var(--sun-glow),transparent 62%),var(--card);
+    border:1px solid var(--line);
+    border-radius:210px 210px 18px 18px / 150px 150px 18px 18px;
+    padding:48px 24px 22px;text-align:center;
+    cursor:pointer;
+  }
+  .seed:focus-visible{outline:2px solid var(--leaf);outline-offset:3px}
+  .seed .eyebrow{color:var(--sun)}
+  .seed h2{font:400 26px/1.15 var(--display);letter-spacing:.03em;margin:10px 0 4px;text-wrap:balance}
+  .seed .where{font:500 14px var(--label);color:var(--muted)}
+  .seed p{margin:10px 0 0;color:var(--soft);text-wrap:pretty}
+  .seed .go{display:inline-block;margin-top:12px;font:700 13px var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--leaf)}
+
+  /* Controls */
+  .controls{display:grid;gap:12px;margin-bottom:18px}
+  .search{position:relative}
+  .search input{
+    width:100%;font:17px var(--serif);color:var(--ink);
+    background:var(--card);border:1px solid var(--line);border-radius:999px;
+    padding:11px 18px 11px 42px;outline:none;
+  }
+  .search input:focus{border-color:var(--leaf);box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 22%,transparent)}
+  .search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    font:700 13px/1 var(--label);letter-spacing:.06em;
+    padding:9px 14px;border-radius:999px;border:1px solid var(--line);
+    background:transparent;color:var(--soft);cursor:pointer;
+  }
+  .chip:hover{border-color:var(--leaf);color:var(--ink)}
+  .chip[aria-pressed="true"]{background:var(--leaf);border-color:var(--leaf);color:var(--leaf-ink)}
+  .chip:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
+  .chip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:1px}
+  .summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;font:500 14px var(--label);color:var(--muted)}
+  .summary button{font:700 13px var(--label);color:var(--leaf);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+  /* Cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+  .card{
+    display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 14px;align-content:start;
+    background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:16px 16px 18px;text-align:left;color:inherit;font:inherit;cursor:pointer;
+    transition:transform .15s ease,border-color .15s ease;
+  }
+  .card:hover{border-color:color-mix(in srgb,var(--c) 60%,var(--line));transform:translateY(-2px)}
+  .card:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
+  .medal{
+    width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+    background:color-mix(in srgb,var(--c) calc(var(--tint)*100%),transparent);
+    border:1.5px solid var(--c);
+  }
+  .medal svg{width:22px;height:22px;stroke:var(--c);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .card h3{font:400 20px/1.2 var(--display);letter-spacing:.02em;margin:2px 0 0;text-wrap:balance}
+  .card .where{font:500 13.5px/1.3 var(--label);color:var(--muted);margin-top:3px}
+  .card p{grid-column:1 / -1;margin:8px 0 0;color:var(--soft);font-size:16px;text-wrap:pretty}
+  .card .kept{color:var(--sun);margin-left:4px}
+  .empty{padding:40px 10px;text-align:center;color:var(--muted);font-style:italic}
+
+  /* Detail */
+  dialog{
+    border:0;padding:0;color:var(--ink);background:var(--card);
+    width:min(620px,100% - 24px);max-height:calc(100% - 40px);
+    border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.28);
+  }
+  dialog::backdrop{background:rgba(10,24,16,.5);backdrop-filter:blur(3px)}
+  .sheet{padding:26px 24px 24px;display:grid;gap:14px;overflow:auto}
+  .sheet-top{display:flex;align-items:center;gap:12px}
+  .sheet-top .cat{font:700 12px var(--label);letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+  .x{margin-left:auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);font:20px/1 var(--label);cursor:pointer}
+  .x:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
+  .sheet h2{font:400 32px/1.1 var(--display);letter-spacing:.03em;margin:0;text-wrap:balance}
+  .sheet .where{font:500 15px var(--label);color:var(--muted);margin-top:-6px}
+  .sheet .lead{font-size:19px;margin:0}
+  .sheet h4{font:700 12px var(--label);letter-spacing:.16em;text-transform:uppercase;color:var(--leaf);margin:6px 0 -8px}
+  .sheet p{margin:0;text-wrap:pretty}
+  .figure{
+    display:flex;gap:12px;align-items:flex-start;
+    background:color-mix(in srgb,var(--sun) 14%,transparent);
+    border-radius:14px;padding:12px 14px;font-style:italic;
+  }
+  .figure svg{flex:none;width:20px;height:20px;margin-top:3px;stroke:var(--sun);fill:none;stroke-width:2}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .btn{
+    font:700 14px var(--label);letter-spacing:.05em;padding:11px 18px;border-radius:999px;
+    border:1px solid var(--leaf);background:transparent;color:var(--leaf);cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn.solid{background:var(--leaf);color:var(--leaf-ink)}
+  .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+  footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font:500 14px/1.5 var(--label);color:var(--muted);max-width:70ch}
+  footer p{margin:0 0 6px}
+</style>
+
+<div class="wrap">
+  <div class="layout">
+    <aside class="side">
+      <header class="mast">
+        <div class="eyebrow">A field guide to the working future</div>
+        <h1>Loam</h1>
+        <p class="tagline">Circular and new-economy projects that already exist, and are already working.</p>
+        <ul class="stats" id="stats"></ul>
+      </header>
+      <div class="wheel-box">
+        <svg class="wheel" id="wheel" viewBox="0 0 400 400" role="group" aria-label="Filter by kind of loop"></svg>
+      </div>
+      <p class="cat-note" id="catNote" aria-live="polite"></p>
+      <div class="seed" id="seed" role="button" tabindex="0"></div>
+    </aside>
+
+    <main>
+      <div class="controls">
+        <label class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <input id="q" type="search" placeholder="Search projects, places, ideas" autocomplete="off" aria-label="Search projects">
+        </label>
+        <div class="chips" id="regions" role="group" aria-label="Filter by region"></div>
+        <div class="summary"><span id="summary"></span><button id="clear" hidden>Show everything</button></div>
+      </div>
+      <div class="grid" id="grid"></div>
+      <footer>
+        <p>Every project here was running at the time of writing (2026). Figures are rounded and as last reported by the project or the press; the project’s own site has current numbers.</p>
+        <p>Kept projects are stored in this browser only.</p>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<dialog id="detail" aria-labelledby="dName"></dialog>
+
+<script>
+(function(){
+  "use strict";
+
+  // Kinds of loop. Order is the order around the wheel.
+  var CATS = [
+    {id:"mend",   name:"Mend",   note:"Keep things working: repair cafés, repairable products and the right to fix them."},
+    {id:"share",  name:"Share",  note:"Use things longer and by more people: lending, gifting, refilling and returning."},
+    {id:"remake", name:"Remake", note:"Turn waste back into material: remanufacture, recycle, or grow new materials outright."},
+    {id:"grow",   name:"Grow",   note:"Food and soil in closed loops: surplus rescued, scraps composted, land restored."},
+    {id:"power",  name:"Power",  note:"Energy owned by the people and places that use it."},
+    {id:"own",    name:"Own",    note:"Firms and homes owned by workers, members, communities or a purpose, not outside shareholders."},
+    {id:"value",  name:"Value",  note:"New ways to move money and count wealth: local currencies, time credits, wellbeing goals."}
+  ];
+  var CAT = {}; CATS.forEach(function(c){ CAT[c.id] = c; });
+
+  // Static icon markup per kind (24×24, stroked). Constants only.
+  var ICON = {
+    mend:  '<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.6 2.6-2.8-.6-.6-2.8z"/>',
+    share: '<path d="M4.5 11a7.5 7.5 0 0 1 13-4.5L19.5 8.5"/><path d="M19.5 4v4.5H15"/><path d="M19.5 13a7.5 7.5 0 0 1-13 4.5L4.5 15.5"/><path d="M4.5 20v-4.5H9"/>',
+    remake:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5"/><path d="M12 12v9"/>',
+    grow:  '<path d="M12 21v-9"/><path d="M12 13C12 9 9 6 4.5 6c0 4 3 7 7.5 7z"/><path d="M12 11c0-3.5 2.6-6.5 7.5-6.5 0 3.6-2.6 6.5-7.5 6.5z"/>',
+    power: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
+    own:   '<path d="M3.5 11L12 4.5l8.5 6.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M12 17.5s-3-1.9-3-3.9a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 2-3 3.9-3 3.9z"/>',
+    value: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/>'
+  };
+  var I_FIGURE = '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>';
+
+  // Project ids are array positions, stored in readers' kept lists:
+  // append new projects at the end, never insert or reorder.
+  var ALL = [
+    {n:"Repair Café", c:"mend", place:"Amsterdam", country:"Netherlands", r:"Europe", since:2009,
+     line:"Volunteers with screwdrivers and sewing machines help neighbours fix broken things, for free.",
+     loop:"Martine Postma held the first one in Amsterdam in October 2009 and published a starter kit so anyone could copy it. The point is as much the skill as the fix: owners sit beside the volunteer and learn to repair their own toaster, jeans or bike.",
+     fig:"More than 2,500 Repair Cafés now meet regularly around the world.",
+     you:"Find one on the map at repaircafe.org, or start one with the foundation’s kit.",
+     url:"https://www.repaircafe.org"},
+    {n:"Fairphone", c:"mend", place:"Amsterdam", country:"Netherlands", r:"Europe", since:2013,
+     line:"A smartphone you can open with a single screwdriver and repair yourself.",
+     loop:"The battery, screen, camera and ports are modules you can swap at home, and spare parts are sold for years. Fairphone also traces its gold, tin and cobalt and pays living-wage bonuses in its factories.",
+     fig:"The Fairphone 5, released in 2023, is promised software support until at least 2031.",
+     you:"Keep your current phone longer; when it goes, look for a repairable one.",
+     url:"https://www.fairphone.com"},
+    {n:"iFixit", c:"mend", place:"San Luis Obispo, California", country:"United States", r:"Americas", since:2003,
+     line:"A free, open repair manual for everything, written by its users.",
+     loop:"Two students started it in their dorm after failing to find a guide for a broken laptop. Tens of thousands of step-by-step guides now cover phones, cars and coffee makers, and iFixit campaigns for right-to-repair laws on both sides of the Atlantic.",
+     fig:"Its teardowns give each new gadget a public repairability score out of 10.",
+     you:"Look up your broken thing before replacing it.",
+     url:"https://www.ifixit.com"},
+    {n:"Framework Laptop", c:"mend", place:"San Francisco", country:"United States", r:"Americas", since:2019,
+     line:"A laptop built to be opened, repaired and upgraded instead of replaced.",
+     loop:"Every part carries a QR code linking to its repair guide. Owners swap in a new mainboard years later and keep the case, screen and keyboard, and old mainboards become small home servers.",
+     fig:"Ports are hot-swappable cards, so the laptop has whatever sockets you choose.",
+     you:"When buying a computer, check its repairability score first.",
+     url:"https://frame.work"},
+    {n:"Worn Wear", c:"mend", place:"Ventura, California", country:"United States", r:"Americas", since:2013,
+     line:"Patagonia repairs, trades in and resells its own used clothing.",
+     loop:"Customers send worn gear back for repair or credit; it is cleaned, mended and sold again, and pieces too far gone are remade into new garments.",
+     fig:"Patagonia runs what it describes as the largest garment repair facility in North America, in Reno, Nevada.",
+     you:"Mend a zip or a seam before you replace the jacket.",
+     url:"https://wornwear.patagonia.com"},
+    {n:"The Restart Project", c:"mend", place:"London", country:"United Kingdom", r:"Europe", since:2012,
+     line:"Community repair parties that also collect data on why electronics break.",
+     loop:"Every fix at a Restart Party is logged, and the resulting open data on common faults is used as evidence in the fight for EU and UK right-to-repair rules.",
+     fig:"Its Fixometer records the weight of electronics and CO₂ kept out of the waste stream.",
+     you:"Bring a broken gadget to a Restart Party, or volunteer as a fixer.",
+     url:"https://therestartproject.org"},
+    {n:"France’s anti-waste law", c:"mend", place:"Paris", country:"France", r:"Europe", since:2020,
+     line:"A national law that scores products on repairability and pays part of your repair bill.",
+     loop:"Since 2021 electronics sold in France show a repairability index on the label. Since 2022 unsold non-food goods may not be destroyed, and a repair bonus knocks money off repairs at certified repairers.",
+     fig:"The repair bonus applies to dozens of product types, from washing machines to shoes.",
+     you:"Ask whether your own country has a repair subsidy; several regions now do.",
+     url:""},
+
+    {n:"Library of Things", c:"share", place:"London", country:"United Kingdom", r:"Europe", since:2014,
+     line:"Borrow a drill, carpet cleaner or projector from a kiosk in your local library.",
+     loop:"Most drills are used for a few minutes in their whole life. Sharing one across a neighbourhood replaces dozens of purchases, and the items are maintained and repaired between loans.",
+     fig:"Started by three neighbours in West Norwood, it now runs self-service kiosks across London.",
+     you:"Look for a library of things or tool library near you before buying something you’ll use twice.",
+     url:"https://www.libraryofthings.co.uk"},
+    {n:"Leila", c:"share", place:"Berlin", country:"Germany", r:"Europe", since:2012,
+     line:"Germany’s first ‘Leihladen’, a shop where nothing is sold and everything is lent.",
+     loop:"Members bring in something they rarely use and in return can borrow from everyone else’s: tents, waffle irons, sewing machines, children’s toys.",
+     fig:"Membership is paid in objects or a small donation, not a price per loan.",
+     you:"Start a lending shelf in your building or street.",
+     url:"https://leila-berlin.de"},
+    {n:"Recup", c:"share", place:"Munich", country:"Germany", r:"Europe", since:2016,
+     line:"A deposit cup and bowl you can return at any café in the network.",
+     loop:"Pay a small deposit, take your coffee, and hand the cup back anywhere that uses the system. It is washed and reused hundreds of times instead of binned after one.",
+     fig:"Since 2023 German law requires larger takeaways to offer a reusable option.",
+     you:"Ask your regular café whether they’ll join a reuse scheme.",
+     url:"https://recup.de"},
+    {n:"Too Good To Go", c:"share", place:"Copenhagen", country:"Denmark", r:"Europe", since:2016,
+     line:"An app that sells bakeries’ and shops’ end-of-day surplus as cheap surprise bags.",
+     loop:"Food that would have been thrown out at closing time is collected by nearby people instead, at a third of its price. The shop recovers some cost, and the food is eaten.",
+     fig:"The company reports hundreds of millions of meals saved across Europe and North America.",
+     you:"Check what’s left near you tonight.",
+     url:"https://www.toogoodtogo.com"},
+    {n:"Olio", c:"share", place:"London", country:"United Kingdom", r:"Europe", since:2015,
+     line:"Neighbours give away spare food and household things to each other through an app.",
+     loop:"Half a bag of rice, a glut of courgettes, a working kettle: posted, claimed and picked up down the street. Volunteers also collect unsold food from supermarkets and share it out.",
+     fig:"Most listings are claimed within hours.",
+     you:"Post the thing in your cupboard you know you won’t use.",
+     url:"https://olioapp.com"},
+    {n:"Buy Nothing Project", c:"share", place:"Bainbridge Island, Washington", country:"United States", r:"Americas", since:2013,
+     line:"Hyper-local gift groups where people ask for, give and lend things without money.",
+     loop:"Each group covers a single neighbourhood. Nothing is sold or traded; you give because someone asked, and ask when you need. It keeps things in use and builds a gift economy between neighbours.",
+     fig:"There are Buy Nothing groups in dozens of countries.",
+     you:"Join your neighbourhood’s group and give one thing away this week.",
+     url:"https://buynothingproject.org"},
+    {n:"Freecycle", c:"share", place:"Tucson, Arizona", country:"United States", r:"Americas", since:2003,
+     line:"Local mailing lists for giving usable things away instead of throwing them out.",
+     loop:"Deron Beal started it to keep furniture and electronics out of Tucson’s landfill. Every post is a free item looking for a new home, collected by whoever needs it.",
+     fig:"Millions of members in thousands of local groups.",
+     you:"Offer it before you bin it.",
+     url:"https://www.freecycle.org"},
+    {n:"Swapfiets", c:"share", place:"Delft", country:"Netherlands", r:"Europe", since:2014,
+     line:"A bicycle subscription: you pay monthly and they fix or swap the bike when it breaks.",
+     loop:"Because Swapfiets owns the bikes, it earns more the longer they last. So they are built to be repaired, and parts are refurbished and reused. Started by students in Delft; the bikes have a blue front tyre.",
+     fig:"A product-as-a-service model: the maker profits from durability, not from selling more.",
+     you:"Ask whether you could rent or subscribe to something instead of owning it.",
+     url:"https://swapfiets.com"},
+    {n:"Refill", c:"share", place:"Bristol", country:"United Kingdom", r:"Europe", since:2015,
+     line:"A map of cafés, shops and fountains where you can fill your water bottle for free.",
+     loop:"City to Sea started it to cut bottled water. Businesses put a sticker in the window; the app now also lists places to refill coffee cups, lunchboxes and cleaning products.",
+     fig:"Hundreds of thousands of refill points listed.",
+     you:"Carry a bottle and ask for tap water; it’s usually free.",
+     url:"https://www.refill.org.uk"},
+    {n:"ReTuna Återbruksgalleria", c:"share", place:"Eskilstuna", country:"Sweden", r:"Europe", since:2015,
+     line:"A shopping mall that sells only repaired, reused and upcycled goods.",
+     loop:"It sits next to the town’s recycling centre. People drop off usable things; the mall’s shops sort, repair and sell them, from furniture to bikes to clothes.",
+     fig:"Believed to be the world’s first mall for second-hand and upcycled goods.",
+     you:"Drop usable things at a reuse centre rather than a skip.",
+     url:"https://www.retuna.se"},
+    {n:"Infinitum", c:"share", place:"Oslo", country:"Norway", r:"Europe", since:1999,
+     line:"Norway’s deposit-return system for bottles and cans.",
+     loop:"A small deposit on each drink container is refunded at reverse-vending machines in shops. The returned plastic becomes new bottles, over and over.",
+     fig:"Around nine in ten bottles and cans sold in Norway come back.",
+     you:"Support a deposit scheme where you live; they work.",
+     url:"https://infinitum.no"},
+    {n:"Dabbawalas", c:"share", place:"Mumbai", country:"India", r:"Asia", since:1890,
+     line:"A 130-year-old network that carries home-cooked lunches to offices in reusable tins.",
+     loop:"Lunch leaves home in a metal tiffin, travels by bicycle and suburban train, is eaten at work and the empty tin goes home the same afternoon. No packaging, no waste, and very few mistakes.",
+     fig:"Around 5,000 dabbawalas deliver about 200,000 lunches a day, using a colour-coded marking system.",
+     you:"Bring lunch in a reusable box.",
+     url:""},
+    {n:"Seoul Sharing City", c:"share", place:"Seoul", country:"South Korea", r:"Asia", since:2012,
+     line:"A city government that set out to make sharing the default way of living.",
+     loop:"Seoul funded sharing start-ups, opened public buildings’ meeting rooms and car parks after hours, and set up tool libraries and shared children’s clothes in neighbourhoods.",
+     fig:"Declared a Sharing City in 2012; the programme has been studied by cities worldwide.",
+     you:"Ask your council what it lends out after hours.",
+     url:""},
+
+    {n:"Precious Plastic", c:"remake", place:"Eindhoven", country:"Netherlands", r:"Europe", since:2013,
+     line:"Free, open-source plans for small machines that turn plastic waste into new things.",
+     loop:"Dave Hakkens designed a shredder, extruder and press anyone can build. Workshops worldwide now make tiles, furniture and beams from local plastic, and share their designs back.",
+     fig:"Hundreds of workspaces in dozens of countries use the machines.",
+     you:"Look for a Precious Plastic space nearby, or collect a single kind of plastic for one.",
+     url:"https://www.preciousplastic.com"},
+    {n:"Kalundborg Symbiosis", c:"remake", place:"Kalundborg", country:"Denmark", r:"Europe", since:1972,
+     line:"Neighbouring factories trade their waste steam, water and by-products with each other.",
+     loop:"The power station’s surplus steam heats a pharmaceutical plant, gypsum from its flue gas becomes plasterboard, and yeast left over from making insulin becomes pig feed. One firm’s waste is another’s input.",
+     fig:"The first exchange began in 1972; today it links more than a dozen public and private partners.",
+     you:"Ask what your local industry throws away, and who could use it.",
+     url:"https://www.symbiosis.dk"},
+    {n:"Kamikatsu", c:"remake", place:"Kamikatsu, Tokushima", country:"Japan", r:"Asia", since:2003,
+     line:"A mountain village that declared itself zero-waste and sorts rubbish into 45 categories.",
+     loop:"With no rubbish truck and no incinerator, residents wash and bring waste to one centre. It has a free swap shop, and old kimonos are sewn into new clothes and toys.",
+     fig:"Around 80 percent of the village’s waste is recycled.",
+     you:"Try sorting one kind of waste more carefully this week.",
+     url:""},
+    {n:"Ecovative", c:"remake", place:"Green Island, New York", country:"United States", r:"Americas", since:2007,
+     line:"Packaging and materials grown from mushroom mycelium and farm waste.",
+     loop:"Mycelium, the root network of fungi, binds chopped hemp or husks into a solid shape in about a week. The result replaces polystyrene foam, and it can be composted in a garden when you are done.",
+     fig:"Its mycelium technology is now also used for leather alternatives and food.",
+     you:"Choose compostable packaging where there is an option.",
+     url:"https://www.ecovative.com"},
+    {n:"Notpla", c:"remake", place:"London", country:"United Kingdom", r:"Europe", since:2014,
+     line:"Packaging made from seaweed that disappears naturally in weeks.",
+     loop:"Seaweed grows fast without fresh water or fertiliser. Notpla turns it into takeaway box linings, sachets and edible water pods; it breaks down like vegetable peel.",
+     fig:"Its seaweed water pods were handed out at the 2019 London Marathon. It won an Earthshot Prize in 2022.",
+     you:"",
+     url:"https://www.notpla.com"},
+    {n:"Econyl", c:"remake", place:"Arco", country:"Italy", r:"Europe", since:2011,
+     line:"Nylon yarn regenerated from old fishing nets, carpets and fabric scraps.",
+     loop:"Aquafil breaks waste nylon back down to its raw building block and rebuilds it into yarn as good as new, which goes into swimwear and carpet. It can then be regenerated again.",
+     fig:"Part of the feedstock is abandoned ‘ghost’ nets pulled from the sea.",
+     you:"",
+     url:"https://www.econyl.com"},
+    {n:"Net-Works", c:"remake", place:"Danajon Bank", country:"Philippines", r:"Asia", since:2012,
+     line:"Fishing villages sell discarded nets back into the carpet-tile supply chain.",
+     loop:"Carpet maker Interface and the Zoological Society of London set it up. Villagers collect old nets from beaches and reefs, sell them to be regenerated into yarn, and use the income for community banking.",
+     fig:"Later extended to Lake Ossa in Cameroon.",
+     you:"",
+     url:""},
+    {n:"MUD Jeans", c:"remake", place:"Laren", country:"Netherlands", r:"Europe", since:2012,
+     line:"Jeans you can lease, then send back to be shredded into new jeans.",
+     loop:"Customers lease a pair for a monthly fee or buy it, and return worn jeans. The cotton is recycled and blended into new denim, so old jeans become part of the next pair.",
+     fig:"Returned jeans are either resold as vintage or recycled into new fabric.",
+     you:"Ask brands whether they take their clothes back.",
+     url:"https://mudjeans.eu"},
+    {n:"Rotor", c:"remake", place:"Brussels", country:"Belgium", r:"Europe", since:2005,
+     line:"A design co-op that dismantles buildings carefully and sells the parts for reuse.",
+     loop:"Instead of demolishing, Rotor Deconstruction salvages doors, tiles, radiators, stone and timber, cleans them up and sells them for new buildings. Rotor also publishes guides for architects on reuse.",
+     fig:"Its reclaimed materials shop has been open since 2016.",
+     you:"Look for architectural salvage before buying new fittings.",
+     url:"https://rotordc.com"},
+    {n:"Madaster", c:"remake", place:"Amsterdam", country:"Netherlands", r:"Europe", since:2017,
+     line:"An online register of the materials inside buildings, like a passport.",
+     loop:"If you know what a building contains, its steel, glass and timber become a bank of materials for the future instead of rubble. Madaster records and values them.",
+     fig:"Founded on architect Thomas Rau’s idea that ‘waste is material without an identity’.",
+     you:"",
+     url:"https://madaster.com"},
+    {n:"BlueCity", c:"remake", place:"Rotterdam", country:"Netherlands", r:"Europe", since:2015,
+     line:"A circular business hub inside a former tropical swimming paradise.",
+     loop:"Start-ups share the old Tropicana pool building and each other’s waste streams: coffee grounds grow mushrooms, and fungal materials and bioplastics are made and tested in its labs.",
+     fig:"The building itself was renovated largely with reused materials.",
+     you:"",
+     url:"https://www.bluecity.nl"},
+    {n:"Gjenge Makers", c:"remake", place:"Nairobi", country:"Kenya", r:"Africa", since:2017,
+     line:"Paving bricks made from waste plastic and sand.",
+     loop:"Engineer Nzambi Matee collects plastic that recyclers don’t want, mixes it with sand and presses it into paving stones for homes and schools, and employs local collectors.",
+     fig:"The company says its pavers are stronger and lighter than standard concrete ones.",
+     you:"",
+     url:""},
+    {n:"Zabbaleen", c:"remake", place:"Cairo", country:"Egypt", r:"Africa", since:1940,
+     line:"A community that has collected and recycled much of Cairo’s rubbish for generations.",
+     loop:"Families in Manshiyat Naser collect waste door to door, sort it by hand, and turn plastic, metal, paper and cloth into raw materials. Organic waste once fed their pigs.",
+     fig:"They recover as much as 80 percent of what they collect, far more than most formal systems.",
+     you:"",
+     url:""},
+    {n:"Câmbio Verde", c:"remake", place:"Curitiba", country:"Brazil", r:"Americas", since:1991,
+     line:"Trade a bag of sorted recyclables for a bag of fresh fruit and vegetables.",
+     loop:"The city buys surplus produce from local farmers and swaps it for recyclables at markets, which helps poorer neighbourhoods eat well and keeps streets and rivers clean.",
+     fig:"Four kilos of recyclables earn one kilo of produce.",
+     you:"",
+     url:""},
+
+    {n:"Incredible Edible", c:"grow", place:"Todmorden", country:"United Kingdom", r:"Europe", since:2008,
+     line:"A town that planted vegetables in public places for anyone to pick.",
+     loop:"Herbs grow at the railway station, fruit trees by the health centre, vegetables outside the police station. The idea spread to hundreds of towns under the motto ‘if you eat, you’re in’.",
+     fig:"Started by two neighbours, Pam Warhurst and Mary Clear, around a kitchen table.",
+     you:"Plant something edible where people walk.",
+     url:"https://www.incredibleedible.org.uk"},
+    {n:"Toast Brewing", c:"grow", place:"London", country:"United Kingdom", r:"Europe", since:2016,
+     line:"Beer brewed with surplus bread from bakeries and sandwich makers.",
+     loop:"Bread is one of the most wasted foods. Toast replaces part of the barley with unsold loaves and crusts, and its profits go to fighting food waste.",
+     fig:"Founded by food-waste campaigner Tristram Stuart.",
+     you:"",
+     url:"https://www.toastbrewing.com"},
+    {n:"San Francisco composting", c:"grow", place:"San Francisco", country:"United States", r:"Americas", since:2009,
+     line:"The first US city to require every home and business to compost.",
+     loop:"A green bin collects food scraps and garden waste; it becomes compost for vineyards and farms around the Bay Area, which grow food that comes back into the city.",
+     fig:"The 2009 ordinance made composting mandatory citywide.",
+     you:"Start composting, even in a small bin on a balcony.",
+     url:""},
+    {n:"Sekem", c:"grow", place:"Belbeis, near Cairo", country:"Egypt", r:"Africa", since:1977,
+     line:"A biodynamic farm grown out of the desert, with a school, clinic and university.",
+     loop:"Ibrahim Abouleish turned desert land into fertile soil with compost and trees. Sekem grows organic herbs, cotton and food, and reinvests in education and health for its community.",
+     fig:"It has won the Right Livelihood Award, sometimes called the alternative Nobel Prize.",
+     you:"",
+     url:"https://www.sekem.com"},
+    {n:"Hortas Cariocas", c:"grow", place:"Rio de Janeiro", country:"Brazil", r:"Americas", since:2006,
+     line:"City-run vegetable gardens in favelas and schools, worked by local residents.",
+     loop:"The city pays local gardeners to farm unused land. Half the harvest goes to schools and families in need, the rest is sold cheaply, and compost comes from the neighbourhood.",
+     fig:"Includes one of Latin America’s largest urban gardens, in Manguinhos.",
+     you:"",
+     url:""},
+
+    {n:"Middelgrunden", c:"power", place:"Copenhagen", country:"Denmark", r:"Europe", since:2000,
+     line:"An offshore wind farm half owned by the city’s residents.",
+     loop:"Twenty turbines stand in an arc off Copenhagen’s harbour. Ten of them belong to a cooperative of thousands of local shareholders, who share in the profits and in the view.",
+     fig:"About 8,500 people own shares in the cooperative half of the wind farm.",
+     you:"",
+     url:""},
+    {n:"Samsø", c:"power", place:"Samsø", country:"Denmark", r:"Europe", since:1997,
+     line:"An island that became self-sufficient in renewable power within a decade.",
+     loop:"After winning a national competition in 1997, islanders bought shares in local wind turbines and built straw-fired district heating. Profits stay on the island. Its Energy Academy now teaches other communities how.",
+     fig:"The island produces more renewable electricity than it uses, and exports the surplus.",
+     you:"",
+     url:""},
+    {n:"EWS Schönau", c:"power", place:"Schönau, Black Forest", country:"Germany", r:"Europe", since:1997,
+     line:"A small town’s parents bought the local grid to run it on clean power.",
+     loop:"After Chernobyl, a group of parents campaigned for years, raised the money and in 1997 took over the town’s power grid. Their co-op, the ‘power rebels’, now supplies green electricity across Germany.",
+     fig:"Now a cooperative owned by thousands of members.",
+     you:"",
+     url:"https://www.ews-schoenau.de"},
+    {n:"Som Energia", c:"power", place:"Girona", country:"Spain", r:"Europe", since:2010,
+     line:"A renewable energy co-op where members own the supplier and its solar parks.",
+     loop:"Members buy a share, get electricity from renewable sources and vote on how the co-op invests. It builds solar and biogas plants funded by its own members.",
+     fig:"More than 80,000 members.",
+     you:"See whether there’s an energy co-op in your country.",
+     url:"https://www.somenergia.coop"},
+    {n:"Repowering London", c:"power", place:"London", country:"United Kingdom", r:"Europe", since:2011,
+     line:"Community-owned solar panels on the roofs of council housing estates.",
+     loop:"It started with Brixton Energy: residents bought shares to fund panels on their own estate. Returns pay for energy-saving work, and young people are paid trainees on each project.",
+     fig:"Brixton Energy Solar 1 was one of the UK’s first community-owned solar projects on social housing.",
+     you:"",
+     url:"https://www.repowering.org.uk"},
+    {n:"Solar Sister", c:"power", place:"Uganda, Nigeria and Tanzania", country:"Nigeria", r:"Africa", since:2010,
+     line:"Women run small businesses selling solar lamps and clean cookstoves in their villages.",
+     loop:"Solar Sister trains and supplies women as local entrepreneurs, so clean energy spreads through trusted neighbours and the income stays in the village.",
+     fig:"Thousands of women entrepreneurs have joined the network.",
+     you:"",
+     url:"https://solarsister.org"},
+    {n:"Hepburn Wind", c:"power", place:"Daylesford, Victoria", country:"Australia", r:"Oceania", since:2011,
+     line:"Australia’s first community-owned wind farm.",
+     loop:"Two turbines on Leonards Hill, known as Gale and Gusto, are owned by a co-op of local members, and part of the income funds a community fund for local projects.",
+     fig:"The co-op has thousands of members, most living nearby.",
+     you:"",
+     url:"https://www.hepburnwind.com.au"},
+
+    {n:"Mondragon", c:"own", place:"Arrasate-Mondragón, Basque Country", country:"Spain", r:"Europe", since:1956,
+     line:"A federation of worker-owned cooperatives, from factories to a bank and a university.",
+     loop:"Workers are the owners and elect the management. Pay gaps are capped, and when one co-op struggles, workers are moved to others instead of being laid off.",
+     fig:"About 70,000 people work in the group’s cooperatives.",
+     you:"Buy from worker co-ops where you can.",
+     url:"https://www.mondragon-corporation.com"},
+    {n:"Preston Model", c:"own", place:"Preston", country:"United Kingdom", r:"Europe", since:2011,
+     line:"A city that asked its hospitals, council and university to spend locally.",
+     loop:"‘Community wealth building’: the city’s big institutions redirected their purchasing to local firms and co-ops and helped new worker co-ops form, so money circulates in the city.",
+     fig:"Local spending by these anchor institutions roughly tripled within a few years.",
+     you:"",
+     url:""},
+    {n:"Evergreen Cooperatives", c:"own", place:"Cleveland, Ohio", country:"United States", r:"Americas", since:2008,
+     line:"Worker-owned laundry, greenhouse and energy businesses serving local hospitals.",
+     loop:"Hospitals and universities in poor Cleveland neighbourhoods buy their laundry, lettuce and solar installations from co-ops owned by residents of those neighbourhoods.",
+     fig:"One co-op, Green City Growers, runs a large hydroponic greenhouse in the city.",
+     you:"",
+     url:"https://www.evgoh.com"},
+    {n:"Patagonia", c:"own", place:"Ventura, California", country:"United States", r:"Americas", since:2022,
+     line:"A company whose founder gave it away so that ‘Earth is now our only shareholder’.",
+     loop:"In 2022 Yvon Chouinard’s family moved all voting shares into a trust that guards the company’s values, and all other shares into a nonprofit that spends the profits on protecting nature.",
+     fig:"Profits not reinvested in the business go to fighting the climate and nature crisis.",
+     you:"",
+     url:"https://www.patagonia.com"},
+    {n:"Stocksy United", c:"own", place:"Victoria, British Columbia", country:"Canada", r:"Americas", since:2013,
+     line:"A stock photo agency owned by the photographers and filmmakers who sell through it.",
+     loop:"As a platform co-op, it pays artists a far larger share of each sale than typical agencies, and members share in the profits and vote on the rules.",
+     fig:"Artists receive at least half of every standard licence fee.",
+     you:"",
+     url:"https://www.stocksy.com"},
+    {n:"CoopCycle", c:"own", place:"Paris", country:"France", r:"Europe", since:2017,
+     line:"A federation of bike-courier co-ops that share their own delivery app.",
+     loop:"Instead of working for a gig platform, couriers own their local co-op. The open-source software is shared free among co-ops, as long as they are courier-owned.",
+     fig:"Dozens of courier co-ops across Europe and beyond use it.",
+     you:"Order through a courier co-op if your city has one.",
+     url:"https://coopcycle.org"},
+    {n:"Buurtzorg", c:"own", place:"Almelo", country:"Netherlands", r:"Europe", since:2006,
+     line:"Home care run by small self-managing teams of nurses, with no managers.",
+     loop:"Teams of up to twelve nurses organise their own work around each patient and help people become independent again. A small back office handles the admin.",
+     fig:"Around 10,000 nurses; the model has been copied in many countries.",
+     you:"",
+     url:"https://www.buurtzorg.com"},
+    {n:"Carl Zeiss Stiftung", c:"own", place:"Jena", country:"Germany", r:"Europe", since:1889,
+     line:"An optics company owned by a foundation for more than a century.",
+     loop:"Physicist Ernst Abbe gave his share of Zeiss to a foundation in 1889 so the company could never be sold for profit. Its charter introduced paid holidays, pensions and an eight-hour day long before the law did.",
+     fig:"An early example of ‘steward ownership’: the company owns itself, for its purpose.",
+     you:"",
+     url:""},
+    {n:"Champlain Housing Trust", c:"own", place:"Burlington, Vermont", country:"United States", r:"Americas", since:1984,
+     line:"A community land trust that keeps homes affordable forever.",
+     loop:"The trust owns the land and sells homes on it at a discount. When owners sell, they keep part of the gain and pass on the discount, so each home stays affordable for the next family.",
+     fig:"The largest community land trust in the United States; it won a UN World Habitat Award in 2008.",
+     you:"",
+     url:"https://www.getahome.org"},
+    {n:"Mietshäuser Syndikat", c:"own", place:"Freiburg", country:"Germany", r:"Europe", since:1992,
+     line:"A network that buys houses and takes them off the property market for good.",
+     loop:"Each house is owned jointly by its residents and the network, and neither can sell it alone. Rents only need to pay off the loans, and surpluses help the next house project.",
+     fig:"More than 180 house projects across Germany.",
+     you:"",
+     url:"https://www.syndikat.org"},
+    {n:"Vienna social housing", c:"own", place:"Vienna", country:"Austria", r:"Europe", since:1919,
+     line:"A city where about half the people live in council or subsidised housing.",
+     loop:"Since ‘Red Vienna’ in the 1920s, the city has built and owned homes and funds housing co-ops. Because it holds so much, rents stay moderate across the whole city, for all incomes.",
+     fig:"Around half of Viennese live in municipal or subsidised flats.",
+     you:"",
+     url:""},
+    {n:"SEWA", c:"own", place:"Ahmedabad", country:"India", r:"Asia", since:1972,
+     line:"A union and a network of co-ops for women in the informal economy.",
+     loop:"Ela Bhatt organised street vendors, home workers and labourers. SEWA runs its own co-operative bank, insurance and producer co-ops, so women own the institutions that serve them.",
+     fig:"Millions of members across India.",
+     you:"",
+     url:"https://www.sewa.org"},
+    {n:"Kudumbashree", c:"own", place:"Kerala", country:"India", r:"Asia", since:1998,
+     line:"Neighbourhood groups of women that run savings, farms, cafés and businesses.",
+     loop:"Groups of neighbours save together, lend to each other and start collective enterprises, from farming leased land to catering and waste collection. It was set up with the state government.",
+     fig:"More than four million members in Kerala.",
+     you:"",
+     url:"https://www.kudumbashree.org"},
+
+    {n:"Chiemgauer", c:"value", place:"Prien am Chiemsee, Bavaria", country:"Germany", r:"Europe", since:2003,
+     line:"A regional currency that loses a little value if you hoard it.",
+     loop:"Started by a teacher and his students, it can only be spent in local shops. Because notes slowly lose value, people spend them rather than save them, so money circulates locally and a share funds local clubs.",
+     fig:"One of the largest regional currencies in Germany.",
+     you:"",
+     url:"https://www.chiemgauer.info"},
+    {n:"WIR Bank", c:"value", place:"Basel", country:"Switzerland", r:"Europe", since:1934,
+     line:"A complementary currency that has helped Swiss small firms trade with each other since the Depression.",
+     loop:"Businesses pay each other partly in WIR credits, which they can only spend inside the network. When francs are scarce in a downturn, WIR keeps trade flowing.",
+     fig:"Running for more than ninety years; studies suggest it steadies the Swiss economy in recessions.",
+     you:"",
+     url:"https://www.wir.ch"},
+    {n:"Banco Palmas", c:"value", place:"Fortaleza", country:"Brazil", r:"Americas", since:1998,
+     line:"A community bank with its own local currency, created by a neighbourhood.",
+     loop:"Residents of Conjunto Palmeira found that their money was leaving the neighbourhood. They set up their own bank, gave cheap credit to local producers and created the ‘palma’, spendable only locally.",
+     fig:"It inspired a network of over a hundred community banks in Brazil.",
+     you:"",
+     url:""},
+    {n:"Fureai Kippu", c:"value", place:"Tokyo", country:"Japan", r:"Asia", since:1995,
+     line:"A time bank in which caring for an elder earns credit for your own care, or your parents’.",
+     loop:"Volunteers log hours helping older people. The credits can be saved for later, or sent to a parent in another city, where another volunteer helps them.",
+     fig:"‘Caring relationship tickets’, set up by Tsutomu Hotta of the Sawayaka Welfare Foundation.",
+     you:"Look for a time bank in your area.",
+     url:""},
+    {n:"Amsterdam City Doughnut", c:"value", place:"Amsterdam", country:"Netherlands", r:"Europe", since:2020,
+     line:"A city that adopted doughnut economics as the frame for its policy.",
+     loop:"Kate Raworth’s doughnut sets a social floor (enough for everyone) and an ecological ceiling (within the planet’s limits). In April 2020 Amsterdam used it to set its circular strategy, aiming to halve its use of new raw materials by 2030.",
+     fig:"The city aims to be fully circular by 2050.",
+     you:"Draw your own town’s doughnut with the free tools from the Doughnut Economics Action Lab.",
+     url:"https://doughnuteconomics.org"},
+    {n:"Well-being of Future Generations Act", c:"value", place:"Cardiff", country:"United Kingdom", r:"Europe", since:2015,
+     line:"A Welsh law requiring public bodies to consider people not yet born.",
+     loop:"Every public body in Wales must work towards seven well-being goals, and a Future Generations Commissioner can challenge decisions, such as a motorway plan, on behalf of the future.",
+     fig:"The first law of its kind, since studied by governments and the United Nations.",
+     you:"",
+     url:"https://www.futuregenerations.wales"},
+    {n:"Gross National Happiness", c:"value", place:"Thimphu", country:"Bhutan", r:"Asia", since:2008,
+     line:"A country that measures progress by wellbeing, not only by GDP.",
+     loop:"Bhutan’s 2008 constitution asks the state to pursue Gross National Happiness. Surveys track health, time use, culture, community and ecology, and new policies are screened against them. Its constitution also requires forest cover to stay above 60 percent.",
+     fig:"Bhutan is one of very few carbon-negative countries.",
+     you:"",
+     url:""},
+    {n:"Te Awa Tupua", c:"value", place:"Whanganui", country:"New Zealand", r:"Oceania", since:2017,
+     line:"A river that is legally a person, with its own voice.",
+     loop:"After a campaign by Whanganui iwi lasting more than a century, the Whanganui River was recognised as a living whole, from mountains to sea. Two guardians, one from the iwi and one from the Crown, speak for it.",
+     fig:"‘Ko au te awa, ko te awa ko au’: I am the river, and the river is me.",
+     you:"",
+     url:""}
+  ];
+
+  // ---------- small helpers ----------
+  function h(tag, props){
+    var e = document.createElement(tag);
+    if(props) for(var k in props){
+      var v = props[k];
+      if(v == null || v === false) continue;
+      if(k === "text") e.textContent = v;
+      else if(k === "class") e.className = v;
+      else if(k === "style") e.setAttribute("style", v);
+      else if(k.slice(0,2) === "on") e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? "" : v);
+    }
+    for(var i = 2; i < arguments.length; i++) add(e, arguments[i]);
+    return e;
+  }
+  function add(e, kid){
+    if(kid == null || kid === false) return;
+    if(Array.isArray(kid)){ kid.forEach(function(k){ add(e, k); }); return; }
+    e.appendChild(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  var NS = "http://www.w3.org/2000/svg";
+  function s(tag, attrs){
+    var e = document.createElementNS(NS, tag);
+    if(attrs) for(var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function icon(markup){
+    var svg = s("svg", {viewBox:"0 0 24 24", "aria-hidden":"true"});
+    svg.innerHTML = markup; // static constants from ICON only
+    return svg;
+  }
+  function medal(cat){
+    return h("span", {class:"medal", style:"--c:var(--c-" + cat + ")"}, icon(ICON[cat]));
+  }
+  function sinceText(p){ return p.place + (p.place.indexOf(p.country) < 0 && p.country !== p.place ? ", " + p.country : "") + " · since " + p.since; }
+
+  // ---------- kept (this browser only) ----------
+  var KEY = "loam.kept";
+  function loadKept(){
+    try{
+      var a = JSON.parse(localStorage.getItem(KEY) || "[]");
+      return Array.isArray(a) ? a.filter(function(n){ return Number.isInteger(n) && n >= 0 && n < ALL.length; }) : [];
+    }catch(e){ return []; }
+  }
+  var kept = loadKept();
+  function saveKept(){ try{ localStorage.setItem(KEY, JSON.stringify(kept)); }catch(e){} }
+  function isKept(i){ return kept.indexOf(i) >= 0; }
+  function toggleKept(i){
+    if(isKept(i)) kept = kept.filter(function(n){ return n !== i; }); else kept.push(i);
+    saveKept();
+  }
+
+  // ---------- state ----------
+  var state = {cat:null, region:"All", q:"", keptOnly:false};
+  var REGIONS = ["All", "Europe", "Americas", "Asia", "Africa", "Oceania"];
+
+  // ---------- stats ----------
+  (function(){
+    var countries = {}; var oldest = 3000;
+    ALL.forEach(function(p){ countries[p.country] = 1; if(p.since < oldest) oldest = p.since; });
+    var ul = document.getElementById("stats");
+    [[ALL.length, "projects"], [Object.keys(countries).length, "countries"], [oldest, "oldest, still going"]].forEach(function(x){
+      ul.appendChild(h("li", null, h("b", {text:x[0]}), x[1]));
+    });
+  })();
+
+  // ---------- the wheel ----------
+  var wheel = document.getElementById("wheel");
+  var segEls = {};
+  var countText, countLabel;
+  (function build(){
+    var C = 200, R_OUT = 172, R_IN = 122, R_TXT = 147, GAP = 1.6;
+    function pt(r, deg){ var a = (deg - 90) * Math.PI / 180; return [C + r * Math.cos(a), C + r * Math.sin(a)]; }
+    function f(n){ return n.toFixed(2); }
+
+    var defs = s("defs");
+    var grad = s("radialGradient", {id:"sunfill", cx:"42%", cy:"38%", r:"70%"});
+    grad.appendChild(s("stop", {offset:"0%", "stop-color":"#fff4c2"}));
+    grad.appendChild(s("stop", {offset:"55%", "stop-color":"#f7cd5c"}));
+    grad.appendChild(s("stop", {offset:"100%", "stop-color":"#e8a524"}));
+    defs.appendChild(grad);
+    wheel.appendChild(defs);
+
+    // Rays of the sun, between the core and the ring.
+    var rays = s("g", {class:"rays", "aria-hidden":"true"});
+    for(var i = 0; i < 36; i++){
+      var deg = i * 10, long = i % 2 === 0;
+      var a = pt(84, deg), b = pt(long ? 114 : 104, deg);
+      rays.appendChild(s("line", {class:"ray", x1:f(a[0]), y1:f(a[1]), x2:f(b[0]), y2:f(b[1]), "stroke-opacity": long ? "1" : ".55"}));
+    }
+    wheel.appendChild(rays);
+
+    // Segments.
+    var step = 360 / CATS.length;
+    CATS.forEach(function(cat, idx){
+      var a0 = idx * step + GAP, a1 = (idx + 1) * step - GAP, mid = (a0 + a1) / 2;
+      var o0 = pt(R_OUT, a0), o1 = pt(R_OUT, a1), i1 = pt(R_IN, a1), i0 = pt(R_IN, a0);
+      var d = "M" + f(o0[0]) + " " + f(o0[1]) + " A" + R_OUT + " " + R_OUT + " 0 0 1 " + f(o1[0]) + " " + f(o1[1]) +
+              " L" + f(i1[0]) + " " + f(i1[1]) + " A" + R_IN + " " + R_IN + " 0 0 0 " + f(i0[0]) + " " + f(i0[1]) + " Z";
+      var n = ALL.filter(function(p){ return p.c === cat.id; }).length;
+      var g = s("g", {class:"seg", tabindex:"0", role:"button", "aria-pressed":"false", "aria-label": cat.name + ", " + n + " projects", style:"--c:var(--c-" + cat.id + ")"});
+      g.appendChild(s("path", {class:"band", d:d}));
+
+      // Label along the arc; flip on the lower half so it reads upright.
+      var bottom = mid > 90 && mid < 270;
+      var t0 = pt(R_TXT, a0 + 2), t1 = pt(R_TXT, a1 - 2);
+      var tp = bottom
+        ? "M" + f(t1[0]) + " " + f(t1[1]) + " A" + R_TXT + " " + R_TXT + " 0 0 0 " + f(t0[0]) + " " + f(t0[1])
+        : "M" + f(t0[0]) + " " + f(t0[1]) + " A" + R_TXT + " " + R_TXT + " 0 0 1 " + f(t1[0]) + " " + f(t1[1]);
+      var pid = "arc-" + cat.id;
+      defs.appendChild(s("path", {id:pid, d:tp}));
+      var label = s("text", {dy: bottom ? "4" : "4"});
+      var path = s("textPath", {href:"#" + pid, startOffset:"50%", "text-anchor":"middle"});
+      path.textContent = cat.name;
+      label.appendChild(path);
+      g.appendChild(label);
+
+      // Count, nearer the inner edge.
+      var cp = pt(R_IN + 11, mid);
+      var cnt = s("text", {class:"n", x:f(cp[0]), y:f(cp[1] + 4), "text-anchor":"middle"});
+      cnt.textContent = n;
+      g.appendChild(cnt);
+
+      function pick(){ setCat(state.cat === cat.id ? null : cat.id); }
+      g.addEventListener("click", pick);
+      g.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); pick(); } });
+      wheel.appendChild(g);
+      segEls[cat.id] = g;
+    });
+
+    // Sun core with the live count; tapping it clears the kind filter.
+    var core = s("g", {class:"center-hit"});
+    core.appendChild(s("circle", {class:"core", cx:C, cy:C, r:78}));
+    countText = s("text", {class:"count", x:C, y:C + 10});
+    countLabel = s("text", {class:"count-l", x:C, y:C + 32});
+    core.appendChild(countText); core.appendChild(countLabel);
+    core.addEventListener("click", function(){ if(state.cat) setCat(null); });
+    wheel.appendChild(core);
+
+    // A vine growing around the whole loop, with leaves and buds.
+    var VR = 186;
+    var vine = s("path", {class:"vine", "aria-hidden":"true",
+      d:"M" + C + " " + (C - VR) + " A" + VR + " " + VR + " 0 1 1 " + (C - 0.01) + " " + (C - VR)});
+    wheel.appendChild(vine);
+    var leaves = s("g", {"aria-hidden":"true"});
+    for(var k = 0; k < 28; k++){
+      var ang = k * (360 / 28) + 6;
+      var out = k % 2 === 0;
+      var p = pt(VR + (out ? 7 : -7), ang);
+      var rot = ang + (out ? -35 : 35);
+      var leaf = s("ellipse", {class:"leaf", cx:f(p[0]), cy:f(p[1]), rx:"3.4", ry:"8",
+        transform:"rotate(" + f(rot) + " " + f(p[0]) + " " + f(p[1]) + ")",
+        style:"animation-delay:" + (0.25 + (ang / 360) * 2).toFixed(2) + "s"});
+      leaves.appendChild(leaf);
+    }
+    // Buds mark the boundary between kinds of loop.
+    for(var m = 0; m < CATS.length; m++){
+      var bp = pt(VR, m * step);
+      leaves.appendChild(s("circle", {class:"bud", cx:f(bp[0]), cy:f(bp[1]), r:"4.6",
+        style:"animation-delay:" + (0.4 + (m * step / 360) * 2).toFixed(2) + "s"}));
+    }
+    wheel.appendChild(leaves);
+  })();
+
+  // ---------- seed of the day ----------
+  (function(){
+    var day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
+    var i = (day * 17) % ALL.length;
+    var p = ALL[i];
+    var el = document.getElementById("seed");
+    el.appendChild(h("div", {class:"eyebrow", text:"Seed of the day"}));
+    el.appendChild(h("h2", {text:p.n}));
+    el.appendChild(h("div", {class:"where", text:sinceText(p)}));
+    el.appendChild(h("p", {text:p.line}));
+    el.appendChild(h("span", {class:"go", text:"Read how it works"}));
+    el.setAttribute("aria-label", "Seed of the day: " + p.n);
+    el.addEventListener("click", function(){ openDetail(i); });
+    el.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openDetail(i); } });
+  })();
+
+  // ---------- region chips ----------
+  var regionBox = document.getElementById("regions");
+  var regionBtns = {};
+  REGIONS.forEach(function(r){
+    var b = h("button", {class:"chip", type:"button", "aria-pressed": r === state.region ? "true" : "false", text:r,
+      onclick:function(){ state.region = r; render(); }});
+    regionBtns[r] = b; regionBox.appendChild(b);
+  });
+  var keptBtn = h("button", {class:"chip", type:"button", "aria-pressed":"false",
+    onclick:function(){ state.keptOnly = !state.keptOnly; render(); }});
+  regionBox.appendChild(keptBtn);
+
+  var q = document.getElementById("q");
+  q.addEventListener("input", function(){ state.q = q.value; render(); });
+  document.getElementById("clear").addEventListener("click", function(){
+    state = {cat:null, region:"All", q:"", keptOnly:false}; q.value = ""; render();
+  });
+
+  function setCat(id){ state.cat = id; render(); }
+
+  // ---------- list ----------
+  var grid = document.getElementById("grid");
+  function norm(t){ return String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  var HAY = ALL.map(function(p){ return norm([p.n, p.place, p.country, p.line, p.loop, p.fig, CAT[p.c].name].join(" ")); });
+
+  function matches(i){
+    var p = ALL[i];
+    if(state.cat && p.c !== state.cat) return false;
+    if(state.region !== "All" && p.r !== state.region) return false;
+    if(state.keptOnly && !isKept(i)) return false;
+    var words = norm(state.q).split(/\s+/).filter(Boolean);
+    for(var w = 0; w < words.length; w++) if(HAY[i].indexOf(words[w]) < 0) return false;
+    return true;
+  }
+
+  function card(i){
+    var p = ALL[i];
+    return h("div", {class:"card", role:"button", tabindex:"0", style:"--c:var(--c-" + p.c + ")",
+      onclick:function(){ openDetail(i); },
+      onkeydown:function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openDetail(i); } }},
+      medal(p.c),
+      h("div", null,
+        h("h3", null, p.n, isKept(i) ? h("span", {class:"kept", "aria-label":"kept", text:"✦"}) : null),
+        h("div", {class:"where", text:sinceText(p)})
+      ),
+      h("p", {text:p.line})
+    );
+  }
+
+  function render(){
+    // Wheel state.
+    CATS.forEach(function(c){
+      var on = state.cat === c.id;
+      segEls[c.id].classList.toggle("on", on);
+      segEls[c.id].setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    document.getElementById("catNote").textContent = state.cat ? CAT[state.cat].note : "Tap a kind of loop to see its projects. Tap the sun to see them all.";
+
+    REGIONS.forEach(function(r){ regionBtns[r].setAttribute("aria-pressed", state.region === r ? "true" : "false"); });
+    keptBtn.textContent = "✦ Kept" + (kept.length ? " (" + kept.length + ")" : "");
+    keptBtn.setAttribute("aria-pressed", state.keptOnly ? "true" : "false");
+
+    var shown = [];
+    for(var i = 0; i < ALL.length; i++) if(matches(i)) shown.push(i);
+
+    countText.textContent = shown.length;
+    countLabel.textContent = state.cat ? CAT[state.cat].name : (shown.length === 1 ? "project" : "projects");
+
+    var bits = [];
+    if(state.cat) bits.push(CAT[state.cat].name);
+    if(state.region !== "All") bits.push(state.region);
+    if(state.keptOnly) bits.push("kept");
+    if(state.q.trim()) bits.push("“" + state.q.trim() + "”");
+    document.getElementById("summary").textContent =
+      shown.length + (shown.length === 1 ? " project" : " projects") + (bits.length ? " · " + bits.join(" · ") : " already running");
+    document.getElementById("clear").hidden = !bits.length;
+
+    grid.textContent = "";
+    if(!shown.length){
+      grid.appendChild(h("p", {class:"empty", text: state.keptOnly && !kept.length
+        ? "Nothing kept yet. Open a project and tap Keep to save it here."
+        : "Nothing matches that yet. Try another word or region."}));
+      return;
+    }
+    shown.forEach(function(i){ grid.appendChild(card(i)); });
+  }
+
+  // ---------- detail ----------
+  var dlg = document.getElementById("detail");
+  var current = -1;
+  function openDetail(i){
+    current = i;
+    var p = ALL[i];
+    dlg.textContent = "";
+    var keepBtn = h("button", {class:"btn" + (isKept(i) ? " solid" : ""), type:"button", text: isKept(i) ? "✦ Kept" : "✦ Keep",
+      onclick:function(){
+        toggleKept(i);
+        keepBtn.textContent = isKept(i) ? "✦ Kept" : "✦ Keep";
+        keepBtn.classList.toggle("solid", isKept(i));
+        render();
+      }});
+    var sheet = h("div", {class:"sheet", style:"--c:var(--c-" + p.c + ")"},
+      h("div", {class:"sheet-top"},
+        medal(p.c),
+        h("span", {class:"cat", text:CAT[p.c].name + " · " + p.r}),
+        h("button", {class:"x", type:"button", "aria-label":"Close", text:"×", onclick:function(){ dlg.close(); }})
+      ),
+      h("h2", {id:"dName", text:p.n}),
+      h("div", {class:"where", text:sinceText(p)}),
+      h("p", {class:"lead", text:p.line}),
+      h("h4", {text:"How it works"}),
+      h("p", {text:p.loop}),
+      p.fig ? h("div", {class:"figure"}, icon(I_FIGURE), h("span", {text:p.fig})) : null,
+      p.you ? h("h4", {text:"Near you"}) : null,
+      p.you ? h("p", {text:p.you}) : null,
+      h("div", {class:"actions"},
+        keepBtn,
+        /^https:\/\//.test(p.url) ? h("a", {class:"btn", href:p.url, target:"_blank", rel:"noopener noreferrer", text:"Visit their site ↗"}) : null
+      )
+    );
+    dlg.appendChild(sheet);
+    if(typeof dlg.showModal === "function"){ if(!dlg.open) dlg.showModal(); } else dlg.setAttribute("open", "");
+    sheet.scrollTop = 0;
+  }
+  dlg.addEventListener("click", function(e){ if(e.target === dlg) dlg.close(); });
+
+  render();
+})();
+</script>
