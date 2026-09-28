@@ -1,6 +1,6 @@
 {
- "updated": "2026-09-27T13:50:00+00:00",
- "note": "Written by Claude from web research; check details before booking. Japan items drop off after 9 Oct.",
+ "updated": "2026-09-28T12:00:00+02:00",
+ "note": "Written by Claude from web research; check details before booking. Okayama items drop off after 3 Oct, other Japan items after 9 Oct.",
  "items": [
   {
    "id": "benhoward-berlin-2026-10",
@@ -27,7 +27,7 @@
    "city": "Neuss, near Düsseldorf",
    "start": "2026-10-11",
    "end": null,
-   "summary": "Deities, people and animals in Japanese art, shown in Ando's concrete-and-glass building on the former missile base at Insel Hombroich. About 2.5 hours from Den Haag.",
+   "summary": "Deities, people and animals in Japanese art, in Ando's concrete-and-glass building at Insel Hombroich; Alexandra Bircken's 'Silver Lining' opens the same day. The museum is closed until 10 Oct for installation. About 2.5 hours from Den Haag.",
    "why": "Ando architecture, Japanese art, art in landscape",
    "url": "https://langenfoundation.de/en/",
    "found": "2026-09-27",
@@ -113,22 +113,6 @@
    "found": "2026-09-27",
    "lat": 35.6743,
    "lon": 139.7657
-  },
-  {
-   "id": "roppongi-art-night-2026",
-   "kind": "exhibition",
-   "region": "jp",
-   "title": "Roppongi Art Night",
-   "place": "Roppongi Hills, Tokyo Midtown",
-   "city": "Tokyo",
-   "start": "2026-10-31",
-   "end": "2026-11-01",
-   "summary": "One all-night festival of light and large-scale installations across the district.",
-   "why": "Light art",
-   "url": "https://spoon-tamago.com/tokyo-art-events-autumn-2026/",
-   "found": "2026-09-27",
-   "lat": 35.6604,
-   "lon": 139.7292
   },
   {
    "id": "rokko-meets-art-2026",
@@ -279,15 +263,15 @@
   {
    "id": "film-dune-part-three",
    "kind": "story",
-   "region": "all",
+   "region": "nl",
    "title": "Dune: Part Three in cinemas",
    "place": "",
    "city": "",
-   "start": "2026-12-18",
+   "start": "2026-12-16",
    "end": null,
-   "summary": "Denis Villeneuve, who made Arrival, closes his Dune trilogy with Dune Messiah. Worth an IMAX screen.",
+   "summary": "Denis Villeneuve, who made Arrival, closes his Dune trilogy with Dune Messiah. Dutch release 16 December; worth an IMAX screen.",
    "why": "Arrival (Villeneuve)",
-   "url": "https://en.wikipedia.org/wiki/Dune:_Part_Three",
+   "url": "https://www.biosagenda.nl/film_dune-part-three_46199.html",
    "found": "2026-09-27"
   },
   {
@@ -416,20 +400,6 @@
    "found": "2026-09-27"
   },
   {
-   "id": "work-climate-adapt-events",
-   "kind": "work",
-   "region": "eu",
-   "title": "Climate-ADAPT events calendar",
-   "place": "European Environment Agency",
-   "city": "",
-   "start": null,
-   "end": null,
-   "summary": "The EU's running list of adaptation conferences and webinars. Radar checks it for finance-relevant sessions in NL and Brussels.",
-   "why": "Adaptation finance",
-   "url": "https://climate-adapt.eea.europa.eu/en/more-events",
-   "found": "2026-09-27"
-  },
-  {
    "id": "food-japan-autumn",
    "kind": "restaurant",
    "region": "jp",
@@ -456,9 +426,9 @@
    "city": "Remote",
    "start": null,
    "end": null,
-   "summary": "Paid remote work evaluating Horizon Europe and EIC proposals, including climate-adaptation calls. Registration is open year-round; profiles with startup-finance and adaptation expertise get picked for relevant calls.",
+   "summary": "Paid remote work evaluating Horizon Europe, EIC and Innovation Fund proposals, including climate-adaptation calls: €450 per full day plus travel. Registration is open year-round.",
    "why": "Climate adaptation finance, startup financing",
-   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/work-as-an-expert",
+   "url": "https://webgate.ec.europa.eu/funding-tenders-opportunities/spaces/OM/pages/1867826/Working+as+an+Expert",
    "found": "2026-09-27"
   },
   {
@@ -528,23 +498,6 @@
     "check oats"
    ],
    "url": "https://www.endlessdistances.com/gluten-free-kyoto-japan/",
-   "found": "2026-09-27"
-  },
-  {
-   "id": "rest-marugoto-vegan-tokyo",
-   "kind": "restaurant",
-   "region": "jp",
-   "title": "Marugoto Vegan Dining",
-   "place": "Asakusa, Taitō",
-   "city": "Tokyo",
-   "start": null,
-   "end": null,
-   "summary": "The whole menu is gluten-free and vegan: curry, vegetable tempura, rice-flour waffles. Coeliac reviewers felt safe.",
-   "why": "100% gluten-free and vegan",
-   "flags": [
-    "check oats"
-   ],
-   "url": "https://www.findmeglutenfree.com/biz/marugoto-vegan/4822230015541248",
    "found": "2026-09-27"
   },
   {
@@ -718,7 +671,7 @@
    "city": "Finnish Lapland",
    "start": "2027-03-08",
    "end": null,
-   "summary": "The solar cycle peaked in late 2024 and is now declining, so this winter is one of the last strong ones for years. Clear-sky data favours early March in Rovaniemi (about half the nights clear) at shoulder-season prices; Tromsø in December is the worst bet despite the darkness.",
+   "summary": "Best odds this winter: early March in Rovaniemi (about half the nights clear) as the solar cycle winds down. Sooner option: the 9 November new moon in Tromsø, with direct flights from Schiphol from roughly €86–110 one-way if booked about six weeks out, i.e. now; cloud odds there are worse.",
    "why": "Bucket list: see the northern lights",
    "flags": [
     "book early",
@@ -726,6 +679,386 @@
    ],
    "url": "https://northernlights.travel/news/aurora-season-2026-27-forecast/",
    "found": "2026-09-27"
+  },
+  {
+   "id": "okayama-chichu-open-sky",
+   "kind": "exhibition",
+   "region": "jp",
+   "title": "Turrell's Open Sky at sunset, Chichu",
+   "place": "Chichu Art Museum (Tadao Ando)",
+   "city": "Naoshima",
+   "start": "2026-10-02",
+   "end": "2026-10-03",
+   "summary": "A 45-minute sunset session in Turrell's sky room inside Ando's buried museum, Friday and Saturday only; ¥3,700 including entry, 30 people per session.",
+   "why": "James Turrell, Tadao Ando",
+   "url": "https://benesse-artsite.jp/en/art/chichu.html",
+   "flags": [
+    "book timed slot now",
+    "sells out"
+   ],
+   "lat": 34.4526,
+   "lon": 133.9899,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "okayama-naoshima-ando",
+   "kind": "exhibition",
+   "region": "jp",
+   "title": "Ando's Naoshima: New Museum of Art and Ando Museum",
+   "place": "Honmura, Naoshima",
+   "city": "Naoshima",
+   "start": null,
+   "end": "2026-11-23",
+   "summary": "Ando's tenth Naoshima building opened with Asian contemporary art (Cai Guo-Qiang, Aida Makoto); the Ando Museum nearby puts concrete and light inside a 100-year-old wooden house. Ferry from Uno.",
+   "why": "Tadao Ando",
+   "url": "https://benesse-artsite.jp/en/art/nnmoa.html",
+   "flags": [
+    "closed Mondays",
+    "book online"
+   ],
+   "lat": 34.461,
+   "lon": 134.006,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "okayama-teshima-art-museum",
+   "kind": "exhibition",
+   "region": "jp",
+   "title": "Teshima Art Museum",
+   "place": "Karato, Teshima",
+   "city": "Teshima",
+   "start": null,
+   "end": null,
+   "summary": "Nishizawa's concrete shell and Rei Naito's water drops among rice terraces: art that is almost only landscape, light and silence. ¥1,800.",
+   "why": "Contemplative art in nature",
+   "url": "https://benesse-artsite.jp/en/art/teshima-artmuseum.html",
+   "flags": [
+    "closed Tue 29 Sep",
+    "timed booking"
+   ],
+   "lat": 34.488,
+   "lon": 134.059,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "okayama-inujima-seirensho",
+   "kind": "exhibition",
+   "region": "jp",
+   "title": "Inujima Seirensho Art Museum",
+   "place": "Inujima",
+   "city": "Okayama",
+   "start": null,
+   "end": null,
+   "summary": "A ruined copper refinery turned into a museum cooled by natural airflow, plus the island's Art House Project. Ferry from Hoden, east of Okayama city.",
+   "why": "Architecture in landscape",
+   "url": "https://benesse-artsite.jp/en/art/seirensho.html",
+   "flags": [
+    "closed Tue–Thu (29 Sep–1 Oct)"
+   ],
+   "lat": 34.577,
+   "lon": 134.045,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "med-hofukuji-zazen",
+   "kind": "meditation",
+   "region": "jp",
+   "title": "Private zazen at Hōfuku-ji, where Sesshū trained",
+   "place": "Hōfuku-ji",
+   "city": "Sōja (Okayama)",
+   "start": null,
+   "end": "2026-10-03",
+   "summary": "A Rinzai temple with a three-storey pagoda; they arrange an hour of zazen (two 20-minute sits, ¥1,000) at a time you choose. Book by phone, 0866-92-0024, probably in Japanese.",
+   "why": "Zen",
+   "url": "https://www.okayama-kanko.jp/spot/10821",
+   "flags": [
+    "phone booking"
+   ],
+   "lat": 34.692,
+   "lon": 133.74,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "food-okayama-grapes",
+   "kind": "restaurant",
+   "region": "jp",
+   "title": "Okayama grape season: Pione and Muscat",
+   "place": "Farms around Okayama",
+   "city": "Okayama",
+   "start": null,
+   "end": "2026-10-15",
+   "summary": "Peaches are over; now it's Pione, Shine Muscat and Muscat of Alexandria, with grape picking into mid-October. Fresh fruit is naturally safe; grape sweets are not a given.",
+   "why": "Seasonal food where you are",
+   "url": "https://www.okayama-kanko.jp/feature/budou/top",
+   "flags": [
+    "picking usually needs booking",
+    "check sweets"
+   ],
+   "lat": 34.6618,
+   "lon": 133.9344,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "rest-tsubame-kurashiki",
+   "kind": "restaurant",
+   "region": "jp",
+   "title": "Tsubame Kissashitsu (100% vegan)",
+   "place": "Achi",
+   "city": "Kurashiki",
+   "start": null,
+   "end": null,
+   "summary": "One-person vegan café with a Japanese set lunch (about ¥1,500), rated 5.0 on HappyCow; handy on a Kurashiki day.",
+   "why": "Vegan, seasonal set lunch",
+   "url": "https://www.happycow.net/reviews/tsubame-kissashitsu-kurashiki-171360",
+   "flags": [
+    "check gluten (tempura, shoyu)",
+    "check oats",
+    "closed Mondays"
+   ],
+   "lat": 34.5972,
+   "lon": 133.7701,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "depot-marisol",
+   "kind": "exhibition",
+   "region": "nl",
+   "title": "Marisol",
+   "place": "Depot Boijmans Van Beuningen",
+   "city": "Rotterdam",
+   "start": "2026-10-09",
+   "end": "2027-03-29",
+   "summary": "A large retrospective of the Venezuelan-American sculptor, over 80 loans across the Depot's galleries; the Depot's big autumn show.",
+   "why": "Sculpture, Depot Boijmans",
+   "url": "https://www.boijmans.nl/en/exhibitions/marisol",
+   "lat": 51.914,
+   "lon": 4.47,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "baz-reclining-figures",
+   "kind": "exhibition",
+   "region": "nl",
+   "title": "Reclining Figures",
+   "place": "Museum Beelden aan Zee",
+   "city": "Den Haag",
+   "start": null,
+   "end": "2026-10-25",
+   "summary": "The reclining figure in sculpture, in the dune museum at Scheveningen; ends two weeks after you're back.",
+   "why": "Sculpture, Beelden aan Zee",
+   "url": "https://www.beeldenaanzee.nl/en/exhibitions",
+   "lat": 52.1106,
+   "lon": 4.2785,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "ddw-2026",
+   "kind": "exhibition",
+   "region": "nl",
+   "title": "Dutch Design Week: R.A.W.",
+   "place": "Across the city",
+   "city": "Eindhoven",
+   "start": "2026-10-17",
+   "end": "2026-10-25",
+   "summary": "The 26th edition of the Netherlands' biggest design festival, with shows in old factories across Eindhoven.",
+   "why": "Design and architecture",
+   "url": "https://www.dezeen.com/eventsguide/2026/10/dutch-design-week-2026/",
+   "lat": 51.4416,
+   "lon": 5.4697,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "imagine-film-festival-2026",
+   "kind": "story",
+   "region": "nl",
+   "title": "Imagine Fantastic Film Festival: Ghost in the Feed",
+   "place": "LAB111, FilmHallen",
+   "city": "Amsterdam",
+   "start": "2026-10-29",
+   "end": "2026-11-08",
+   "summary": "Amsterdam's festival of science fiction and the fantastic; this year's theme is life inside the algorithm.",
+   "why": "Idea-driven science fiction",
+   "url": "https://www.movieaddicts.nl/thema-en-artwork-imagine-fantastic-film-festival-2026-onthuld-ghost-in-the-feed/",
+   "lat": 52.3645,
+   "lon": 4.8645,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "wing-damx-2026",
+   "kind": "news",
+   "region": "nl",
+   "title": "DAM-X: wing and windsurf weekend with gear tests",
+   "place": "Brouwersdam",
+   "city": "Ouddorp",
+   "start": "2026-10-09",
+   "end": "2026-10-11",
+   "summary": "Tenth edition: a Boardsports Market where you can test the newest wings and boards, plus clinics and freestyle shows. The weekend you're back.",
+   "why": "Wingfoil test days",
+   "url": "https://brouwersdam.nl/nl/events/dam-x",
+   "lat": 51.7625,
+   "lon": 3.853,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "wing-versus-test",
+   "kind": "news",
+   "region": "nl",
+   "title": "Test wings on the beach at Versus Scheveningen",
+   "place": "Versus, Badhuisstraat 14",
+   "city": "Den Haag",
+   "start": null,
+   "end": null,
+   "summary": "Book Vayu wings and a Duotone Skybrid board to try at Scheveningen; Friday and Saturday without appointment, Mon–Thu by appointment.",
+   "why": "Wingfoil test days",
+   "url": "https://www.versusshop.nl/en/testdag",
+   "lat": 52.1085,
+   "lon": 4.274,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "work-tokyo-sustainable-finance-forum",
+   "kind": "work",
+   "region": "jp",
+   "title": "Tokyo Sustainable Finance Forum",
+   "place": "Otemachi Place",
+   "city": "Tokyo",
+   "start": "2026-10-22",
+   "end": "2026-10-22",
+   "summary": "FinCity.Tokyo's annual forum for asset owners, banks and regulators; free, in person or online with English interpretation. Register by 15 October.",
+   "why": "Climate finance, Japan",
+   "url": "https://linnovatepartners.com/tokyo-sustainable-finance-forum-2026/",
+   "flags": [
+    "register by 15 Oct"
+   ],
+   "found": "2026-09-28"
+  },
+  {
+   "id": "work-mizuho-adaptation-seminar",
+   "kind": "work",
+   "region": "jp",
+   "title": "Climate Adaptation and Resilience Seminar (Japan Weeks)",
+   "place": "Mizuho Financial Group",
+   "city": "Tokyo",
+   "start": "2026-10-26",
+   "end": "2026-10-26",
+   "summary": "One of the few events this autumn squarely on adaptation finance, during the FSA's Japan Weeks (26–30 Oct). Venue and registration not yet posted.",
+   "why": "Adaptation finance, Japan",
+   "url": "https://www.fsa.go.jp/internationalfinancialcenter/lp/japanweeks2026/index_en.html",
+   "flags": [
+    "details pending"
+   ],
+   "found": "2026-09-28"
+  },
+  {
+   "id": "work-deltacongres-2026",
+   "kind": "work",
+   "region": "nl",
+   "title": "Nationaal Deltacongres",
+   "place": "Omnisport",
+   "city": "Apeldoorn",
+   "start": "2026-11-12",
+   "end": "2026-11-12",
+   "summary": "The main Dutch event on a climate-resilient Netherlands and the Delta Programme revision. In-person is full: waitlist or join online.",
+   "why": "Climate adaptation, NL",
+   "url": "https://www.deltaprogramma.nl/nationaaldeltacongres/2026",
+   "flags": [
+    "waitlist"
+   ],
+   "lat": 52.2112,
+   "lon": 5.9699,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "med-zen-rotterdam-zazenkai-oct",
+   "kind": "meditation",
+   "region": "nl",
+   "title": "Zazenkai with Jifu Roshi",
+   "place": "Zen Centrum Rotterdam, Gebouw de Heuvel",
+   "city": "Rotterdam",
+   "start": "2026-10-17",
+   "end": "2026-10-17",
+   "summary": "A full day of zazen, 10:00–16:30, €20. A forest zazenkai follows on 21 November.",
+   "why": "Zen, close to home",
+   "url": "https://www.zenrotterdam.nl/zazenkai-sesshin",
+   "lat": 51.9225,
+   "lon": 4.4792,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "med-zen-river-falling-leaves",
+   "kind": "meditation",
+   "region": "nl",
+   "title": "Falling Leaves Sesshin",
+   "place": "Zen River Temple",
+   "city": "Uithuizen",
+   "start": "2026-10-17",
+   "end": "2026-10-22",
+   "summary": "Five-day silent sesshin at the Netherlands' largest zen temple, near the Wadden coast. Price on request.",
+   "why": "Zen, silent retreat",
+   "url": "https://www.zenrivertemple.org/calendar/",
+   "lat": 53.4072,
+   "lon": 6.6708,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "bucket-hut-vosges",
+   "kind": "bucket",
+   "bucket": "mountain-forest-hut",
+   "region": "eu",
+   "title": "Vosges forest hut from €9 a night",
+   "place": "Club Vosgien hut, Fréconrupt",
+   "city": "Vosges, France",
+   "start": null,
+   "end": "2026-11-30",
+   "summary": "A club hut in an old farmhouse in the Vosges forest, an hour's walk from Schirmeck station (train via Strasbourg), from €9; autumn colours now. Other huts nearby from €17. In Japan, Kōyasan temple stays in cedar forest are the equivalent.",
+   "why": "Bucket list: Sleep in a beautiful mountain forest hut",
+   "url": "https://www.vogesenwandern.de/praktische-infos/vereinshuetten/",
+   "flags": [
+    "check it's open: +33 3 88 47 18 51"
+   ],
+   "lat": 48.466,
+   "lon": 7.235,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "bucket-euro-house-pasubio",
+   "kind": "bucket",
+   "bucket": "one-euro-house-italy",
+   "region": "eu",
+   "title": "€1 mountain houses still unassigned in the Piccole Dolomiti",
+   "place": "Unione Montana Pasubio (Recoaro Terme, Valli del Pasubio, Posina)",
+   "city": "Vicenza, Italy",
+   "start": null,
+   "end": null,
+   "summary": "Only 13 of about 25 €1 houses were assigned in May; the rest are listed as unassigned and a new round is possible. Deed within 2 months, renovation within 3 years.",
+   "why": "Bucket list: Own a 1€ house in Italy",
+   "url": "https://casea1euro.it/sicilia/case-a-1-euro-nelle-piccole-dolomiti-graduatoria-pubblicata/",
+   "flags": [
+    "ask the Union about the unassigned houses"
+   ],
+   "lat": 45.704,
+   "lon": 11.226,
+   "found": "2026-09-28"
+  },
+  {
+   "id": "bucket-okayama-akiya",
+   "kind": "bucket",
+   "bucket": "mountain-forest-house",
+   "region": "jp",
+   "title": "Okayama mountain houses from ¥1 million",
+   "place": "Niimi and Nishiawakura",
+   "city": "Northern Okayama",
+   "start": null,
+   "end": "2026-10-03",
+   "summary": "A Niimi house with land for ¥1M and a wooden house in Nishiawakura, a village that is 95% forest, for ¥2M. You're in the prefecture this week, and akiya banks like buyers to visit in person.",
+   "why": "Bucket list: Own an affordable house in the mountains in a beautiful l forest",
+   "url": "https://akiyahopper.com/japan/chugoku/okayama",
+   "flags": [
+    "check listings are still live"
+   ],
+   "lat": 35.17,
+   "lon": 134.33,
+   "found": "2026-09-28"
   }
  ]
 }

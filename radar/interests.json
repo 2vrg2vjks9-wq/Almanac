@@ -138,9 +138,9 @@
   "where": "Netherlands, Brussels/EU, Japan"
  },
  "focus": {
-  "place": "Japan",
-  "until": "2026-10-09",
-  "since": "2026-09-27"
+  "place": "Okayama, Japan",
+  "until": "2026-10-03",
+  "since": "2026-09-28"
  },
  "_rules": [
   "Only add items that are actionable or new. Never add 'no news' items such as an artist having no tour dates.",
@@ -169,10 +169,29 @@
   },
   {
    "id": "mountain-forest-hut",
-   "title": "Sleep in a mountain forest hut",
+   "title": "Sleep in a beautiful mountain forest hut",
    "good_time": "an unusually cheap or newly bookable hut in a quiet mountain forest, ideally reachable by train",
    "where": "Europe within reach of the Netherlands, or wherever he is travelling",
    "added": "2026-09-27"
+  },
+  {
+   "id": "one-euro-house-italy",
+   "title": "Own a 1€ house in Italy",
+   "good_time": "a mountain or forest village opens (or reopens) a €1-house call with a clear deadline, or publishes houses still unassigned, with a modest deposit (about €5,000 or less) and at least two years to renovate",
+   "where": "Piccole Dolomiti (Recoaro Terme, Valli del Pasubio, Posina), Farini (Val Nure), Ollolai (Sardinia), Pignone (Liguria), Montieri (Tuscany)",
+   "added": "2026-09-28"
+  },
+  {
+   "id": "mountain-forest-house",
+   "title": "Own an affordable house in the mountains in a beautiful l forest",
+   "good_time": "a house in a forested mountain area listed very cheaply (roughly under €15k / ¥2.5M) through an official vacant-house bank or clear listing, or a region opening a relocation or renovation grant, ideally while he can visit in person",
+   "where": "Northern Okayama (Nishiawakura, Niimi, Maniwa), rural Japan akiya banks, Italian Alps and Apennines",
+   "added": "2026-09-28"
   }
- ]
+ ],
+ "watersports": {
+  "wingfoil": [
+   "test days and demo events near Den Haag (Scheveningen, Brouwersdam, lakes): gear tests, clinics, brand demo days"
+  ]
+ }
 }

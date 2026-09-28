@@ -1,9 +1,11 @@
 {
- "updated": "2026-09-27",
+ "updated": "2026-09-28",
  "learned": [
   "Likes contemplative art in landscape and strong architecture (Murou Art Forest, D.T. Suzuki Museum, Ando), and large outdoor art in public space (liked Tokyo Atlas).",
   "Food must fit his dietary restrictions. Liked relaxed vegan, gluten-free cafés with seasonal menus (Buddha, FOLK in Osaka).",
   "Idea-driven science fiction (Ted Chiang, Arrival), spiritual travel stories (Shantaram) and body-mind psychology.",
+  "Likes hands-on zen: temple retreats with zazen and shōjin ryōri, in English (liked the Shunkō-in retreat).",
+  "Bucket-list advice should be concrete and data-backed: the best window (new moon, clear-sky odds) and where, not just 'go in winter' (liked the March aurora timing).",
   "Only report news: don't repeat that an artist has no tour dates; stay silent until something changes."
  ],
  "more": [
@@ -13,7 +15,11 @@
   "outdoor",
   "open landscape",
   "public space",
-  "café"
+  "café",
+  "zen",
+  "retreat",
+  "temple",
+  "new moon"
  ],
  "less": []
 }
