@@ -274,7 +274,11 @@ function defaultUntil(c) {
   const prev = get(KEYS.scout, null);
   if (prev && prev.city === c.city && prev.until && d(prev.until) >= today()) return prev.until;
   const F = D.config && D.config.focus, fr = focusRegion();
-  if (F && F.until && F.place && fr && (c.country + " " + c.city).toLowerCase().includes(String(F.place).toLowerCase())) return F.until;
+  if (F && F.until && F.place && fr) {
+    // focus.place is "City, Country" (what Scout sends) or just a country
+    const P = String(F.place).toLowerCase().trim(), city = String(c.city || "").toLowerCase(), country = String(c.country || "").toLowerCase();
+    if (P === country || P.split(",")[0].trim() === city || (country + " " + city).includes(P)) return F.until;
+  }
   const t = today(); t.setDate(t.getDate() + 3); return isoDay(t);
 }
 async function scout(c, until) {

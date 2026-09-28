@@ -1,7 +1,7 @@
 // Radar offline cache: network first, fall back to the last copy.
 // Caches only this site's own files and Google Fonts; everything else (wind, maps, Wikipedia,
 // OpenStreetMap, /api/note) goes straight to the network. Bump CACHE when files change.
-const CACHE = "radar-v15";
+const CACHE = "radar-v16";
 const FILES = ["./", "index.html", "app.css", "manifest.webmanifest", "icon-180.png",
   "interests.json", "feed.json", "taste.json",
   "js/main.js", "js/util.js", "js/store.js", "js/data.js", "js/ui.js", "js/wind.js",

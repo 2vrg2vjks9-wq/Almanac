@@ -369,7 +369,9 @@ def scout_suite(browser, site, scheme):
         n = m.notes[0]
         check(n.get("label") == "radar-location" and n.get("title", "").startswith("I'm in Kyoto, Japan until 20") and set(n) == {"title", "body", "label"},
               "%s: note is {title, body, label} with radar-location: %s" % (scheme, n.get("title")))
-        check(CFG["focus"]["until"] in n["title"] or CFG["focus"]["until"] < str(datetime.date.today()), "%s: note uses the focus end date while in Japan" % scheme)
+        fp = CFG["focus"]["place"].lower().strip()
+        focus_here = fp in ("japan", "kyoto, japan") or fp.split(",")[0].strip() == "kyoto"
+        check(not focus_here or CFG["focus"]["until"] in n["title"] or CFG["focus"]["until"] < str(datetime.date.today()), "%s: note uses the focus end date when scouting the focus city" % scheme)
     check("arrive within the hour" in page.inner_text("#around .scout"), "%s: guide says picks arrive within the hour" % scheme)
     check(page.locator("#around .place").count() >= 6, "%s: city guide lists places right away" % scheme)
     page.evaluate("document.querySelector('.sheet.around').scrollIntoView({block:'start'})"); page.wait_for_timeout(150)
