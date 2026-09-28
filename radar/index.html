@@ -243,7 +243,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     </div></div>
     <h2>Send in the background</h2>
     <div class="sheet"><div class="conn" id="conn">
-      <p id="connState">Not connected. Notes open on GitHub for you to submit.</p>
+      <p id="connState">Not connected yet.</p>
       <div id="connForm" hidden>
         <ol>
           <li>On GitHub, open Settings, Developer settings, Fine-grained tokens, Generate new token.</li>
@@ -255,7 +255,8 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       </div>
       <div class="near-row" style="padding:0" id="connBtns"><button class="btn" id="connOpen" type="button">Connect Radar</button><button class="btn ghost" id="connOff" type="button" hidden>Disconnect</button></div>
     </div></div>
-    <p class="fine">Thumbs up and down change what Radar looks for. Once Radar is connected, your notes go straight to the next morning's update; otherwise they open on GitHub for you to submit. The repository is public, so those notes are too. Everything except the wind is researched by Claude, so check details before booking.</p>
+    <p class="fine" id="ver">Radar version 2026-09-28.3</p>
+    <p class="fine" style="margin-top:6px">Thumbs up and down change what Radar looks for. Your notes go to the next morning's update; until Radar is connected they wait on this phone. The repository is public, so those notes are too. Everything except the wind is researched by Claude, so check details before booking.</p>
     <p class="fine" id="appVersion" style="margin-top:10px"></p>
   </section>
 </div>
@@ -579,11 +580,11 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   function note(title,body,label,done){
     if(SERVER){fetch("/api/note",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:title,body:body,label:label})})
       .then(function(r){if(!r.ok)throw r.status;say(done)}).catch(function(){outbox.push({title:title,body:body,labels:[label]});LS.set("radar-outbox",outbox);say("Saved. It goes out when Radar can reach the server again.")});return}
-    if(!ghKey){window.open(REPO+"/issues/new?labels="+label+"&title="+encodeURIComponent(title)+"&body="+encodeURIComponent(body),"_blank");return}
+    if(!ghKey){outbox.push({title:title,body:body,labels:[label]});LS.set("radar-outbox",outbox);paintConn();say("Saved on your phone. It sends as soon as Radar is connected (Saved tab).");return}
     outbox.push({title:title,body:body,labels:[label]});LS.set("radar-outbox",outbox);
     if(!navigator.onLine){say("Saved. It goes out when you're back online.");return}
     flush().then(function(){if(ghKey)say(done)})}
-  function paintConn(){if(SERVER){$("conn").closest(".sheet").hidden=true;var h=$("conn").closest(".sheet").previousElementSibling;if(h)h.hidden=true;return}$("connState").textContent=ghKey?"Connected. Notes go straight to the morning update"+(outbox.length?" ("+outbox.length+" waiting to send).":"."):"Not connected. Notes open on GitHub for you to submit.";
+  function paintConn(){if(SERVER){$("conn").closest(".sheet").hidden=true;var h=$("conn").closest(".sheet").previousElementSibling;if(h)h.hidden=true;return}$("connState").textContent=ghKey?"Connected. Notes go straight to the morning update"+(outbox.length?" ("+outbox.length+" waiting to send).":"."):"Not connected yet."+(outbox.length?" "+outbox.length+(outbox.length===1?" note is":" notes are")+" waiting on this phone and will send once you connect.":" Notes wait on this phone until you connect.");
     $("connOpen").hidden=!!ghKey;$("connOff").hidden=!ghKey;$("connForm").hidden=true;$("connBtns").hidden=false}
   $("connOpen").onclick=function(){$("connForm").hidden=false;$("connBtns").hidden=true;$("connKey").focus()};
   $("connCancel").onclick=paintConn;
@@ -591,7 +592,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
   $("connSave").onclick=function(){var k=($("connKey").value||"").trim();if(!k)return;$("connState").textContent="Checking the token…";
     fetch(API,{headers:{"Authorization":"Bearer "+k,"Accept":"application/vnd.github+json"}}).then(function(r){
       if(!r.ok){$("connState").textContent="That token can't reach the Almanac repository. Check it has access to Almanac only, with Issues read and write.";return}
-      ghKey=k;LS.set("radar-gh-key",k);$("connKey").value="";paintConn();say("Connected. Notes now send in the background.");flush()})
+      ghKey=k;LS.set("radar-gh-key",k);$("connKey").value="";paintConn();say("Connected. Notes now send in the background.");flush().then(paintConn)})
       .catch(function(){$("connState").textContent="Couldn't reach GitHub. Try again when you're online."})};
   window.addEventListener("online",function(){flush().then(paintConn)});
   function sendReactions(){var p=pending();if(!p.length)return;
@@ -634,7 +635,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
     .then(function(g){var a=g.address||{},city=a.city||a.town||a.village||a.municipality||a.county||"",place=[city,a.state,a.country].filter(Boolean).join(", ");
       var until=prompt("Scout "+place+"? Until when are you here? (optional, like 5 Oct)","");if(until===null){hint("Scouting cancelled.");return}
       note("I'm in "+place+(until?" until "+until:""),"Radar: focus research on "+place+(until?" until "+until:"")+".\nCity only; no exact location is shared.","radar-location","Tomorrow's update scouts "+city+".");
-      hint(ghKey?"Sent. Tomorrow's update scouts "+city+".":"Submit the note that opened, and tomorrow's update scouts "+city+".")}).catch(function(e){hint(e==="denied"?DENIED:"Couldn't work out your city. Try again.")})};
+      hint(ghKey||SERVER?"Sent. Tomorrow's update scouts "+city+".":"Saved. Tomorrow's update scouts "+city+" once Radar is connected.")}).catch(function(e){hint(e==="denied"?DENIED:"Couldn't work out your city. Try again.")})};
 
   /* first-run welcome */
   (function(){if(LS.get("radar-welcomed",false))return;var w=$("welcome"),cards=$("wcards"),next=$("wNext"),dots=w.querySelectorAll(".wdots i"),n=dots.length;
