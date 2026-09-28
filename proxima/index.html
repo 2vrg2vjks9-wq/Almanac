@@ -77,15 +77,15 @@
   .mast{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--card);min-height:170px;display:flex;flex-direction:column;justify-content:flex-end;padding:56px 18px 18px}
   .mast canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
   .mast > *:not(canvas){position:relative}
-  .mast-top{position:absolute;top:14px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .mast > .mast-top{position:absolute;top:14px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;gap:10px}
   .mono-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
   .theme-btn{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
   .wordmark{font-family:var(--display);font-weight:400;font-size:clamp(30px,9vw,44px);letter-spacing:.14em;line-height:1;margin:0}
   .strap{margin:8px 0 0;color:var(--ink-soft);font-size:16px;max-width:36ch;text-wrap:balance}
 
   /* ---------- nav + chips ---------- */
-  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
-  .tab{border:0;background:transparent;border-radius:9px;padding:9px 6px;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft)}
+  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+  .tab{border:0;background:transparent;border-radius:9px;padding:9px 2px;cursor:pointer;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
   .tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
   .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-inline:-18px;padding-inline:18px}
   .chips::-webkit-scrollbar{display:none}
@@ -124,6 +124,26 @@
   .vignette p{font-style:italic}
   .vignette .where{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.04em}
   .seeds{background:var(--accent-wash);border-radius:12px;padding:12px 14px}
+  .wow{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap;padding:14px 0;border-block:1px solid var(--line)}
+  .wow b{font-family:var(--display);font-weight:400;font-size:clamp(24px,7.5vw,34px);line-height:1.1;color:var(--signal);letter-spacing:.01em;font-variant-numeric:tabular-nums}
+  .wow span{font-size:15px;line-height:1.4;color:var(--ink-soft);flex:1 1 180px;text-wrap:pretty}
+  .plain{border:1px dashed var(--accent);border-radius:12px;padding:12px 14px}
+  .plain p{font-size:18px;line-height:1.5}
+  .idea-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .idea-chip{border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:999px;padding:5px 12px;cursor:pointer;font-family:var(--mono);font-size:11px}
+  .idea-chip[aria-expanded="true"]{background:var(--accent);color:var(--accent-ink)}
+  .idea-pop{border-radius:12px;background:var(--paper);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+  .idea-pop p{margin:0;font-size:15.5px}
+  .idea-pop .did{font-size:14.5px;color:var(--ink-soft)}
+  .ideas{display:flex;flex-direction:column;gap:12px}
+  .idea{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+  .idea h2{font-family:var(--display);font-weight:400;font-size:18px;line-height:1.3;margin:0;text-wrap:balance}
+  .idea .line{margin:0;font-size:17px;color:var(--ink)}
+  .idea p{margin:0;max-width:62ch}
+  .idea .did{font-size:15px;color:var(--ink-soft);border-left:2px solid var(--signal);padding-left:12px}
+  .idea .uses{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .idea .uses button{border:0;background:var(--accent-wash);color:var(--accent);border-radius:8px;padding:4px 9px;cursor:pointer;font-family:var(--serif);font-size:14px}
+  .ideas-intro{margin:0 0 4px;color:var(--ink-soft);font-size:15.5px}
   .seeds p{font-size:15.5px}
 
   .actions{display:grid;grid-template-columns:auto 1fr auto;gap:8px}
@@ -168,12 +188,13 @@
       <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch colour theme">Auto</button>
     </div>
     <h1 class="wordmark">PROXIMA</h1>
-    <p class="strap">Technologies that don’t exist yet, built on science that does.</p>
+    <p class="strap">Tomorrow’s inventions, explained with today’s science.</p>
   </header>
 
   <nav class="tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" data-view="discover" aria-selected="true" type="button">Discover</button>
     <button class="tab" role="tab" data-view="timeline" aria-selected="false" type="button">Timeline</button>
+    <button class="tab" role="tab" data-view="ideas" aria-selected="false" type="button">Ideas</button>
     <button class="tab" role="tab" data-view="kept" aria-selected="false" type="button">Kept<span id="keptN"></span></button>
   </nav>
 
@@ -182,6 +203,7 @@
   <main id="view"></main>
 
   <footer class="foot">
+    <p><b>Wow numbers</b> are real measurements or real estimates from today’s science, not predictions.</p>
     <p><b>Readiness</b> uses NASA’s Technology Readiness Level scale as it stands today: TRL 1 means the basic principle has been observed, TRL 4 a lab prototype works, TRL 9 the thing has flown or shipped.</p>
     <p><b>Plausibility</b> says what stands in the way. <span class="plaus p1">Engineering</span> means known physics suffices and it is a matter of cost and effort. <span class="plaus p2">Breakthrough</span> means at least one scientific discovery is still missing. <span class="plaus p3">Frontier</span> means it sits at the edge of known physics and may never work.</p>
     <p><b>First light</b> is a guess at the year the first working version appears. The “Seeds today” notes describe real research.</p>
@@ -519,6 +541,177 @@
      seeds:"Glaciologists Michael Wolovick and John Moore proposed seabed barriers in 2018. Small curtain prototypes have been tested in Cambridge and Norway."}
   ];
 
+  /* ---------- the popular-science layer, keyed by invention name ----------
+     plain: the science as an everyday picture; wow: [big number, what it means];
+     ideas: keys into IDEAS, the concepts explained in the Ideas tab. */
+  var POP = {
+    "Entanglement Post":{plain:"Picture a pair of magic coins. Flip them in different cities and they always land the same way, yet neither was decided before you looked. Two people holding such pairs share a secret coin-toss nobody else could have watched.",
+      wow:["1,200 km","The distance a satellite split entangled light across in 2017"], ideas:["entanglement","nocloning"]},
+    "Ghost Compass":{plain:"The rocks under your feet are faintly magnetic, and the pattern changes from place to place like a fingerprint. Read the fingerprint precisely enough and you know where you are, with no signal from the sky at all.",
+      wow:["1 millionth","Of Earth’s magnetic field: the size of change a diamond sensor can feel"], ideas:["spin","magnetism"]},
+    "Clock-Quake Warning":{plain:"Time runs slightly slower where gravity is stronger. Your feet age a tiny bit slower than your head. Rising magma adds a little gravity, so a clock above it falls behind by an amount you could only notice with the best clocks ever made.",
+      wow:["30 billion years","How long today’s best clocks would take to drift by one second"], ideas:["timedilation","atomclock"]},
+    "Nitrogen Oracle":{plain:"The air is 78% nitrogen, but plants can’t eat it: its two atoms are locked together by one of the strongest bonds in chemistry. Bacteria pick the lock with a tiny cluster of metal atoms. Nobody knows exactly how, because simulating those electrons would take an ordinary computer longer than the age of the universe.",
+      wow:["50%","Of the nitrogen atoms in your body passed through a fertiliser factory"], ideas:["qubit","catalyst"]},
+    "Unforgeable Coin":{plain:"Imagine a note printed in invisible ink that disappears the moment you try to read it with the wrong lamp. Only the bank knows which lamp fits each spot. A forger has to guess, and every wrong guess wipes the ink.",
+      wow:["13 years","Stephen Wiesner’s idea waited for a journal to publish it"], ideas:["nocloning","superposition"]},
+    "Gravity Glasses":{plain:"Things fall a tiny bit slower above a hollow and a tiny bit faster above dense rock. Drop a cloud of atoms and time the fall precisely enough, and the ground becomes an X-ray.",
+      wow:["1 billionth","Of Earth’s gravity: the difference an atom interferometer can detect"], ideas:["interference","superposition"]},
+    "Blind Cloud":{plain:"You ask a chef to cook from a recipe written in a code only you can read. Each step looks like nonsense to the chef, yet the dish comes out right, and only you know what it is.",
+      wow:["0","Bits the server learns about your data, program or answer"], ideas:["qubit","superposition"]},
+    "Fog Seer":{plain:"Send out one twin and keep the other at home. When a twin comes back you check whether it matches the one you kept. The flood of strangers from the glare doesn’t match, so the one faint returning twin stands out.",
+      wow:["×4","The theoretical edge over ordinary light at telling a faint echo from noise"], ideas:["entanglement"]},
+    "Time-Crystal Memory":{plain:"Push a child on a swing every two seconds and it swings every two seconds. A time crystal is a swing that insists on going every four seconds, however you push it, and keeps its own beat even when your pushes are sloppy.",
+      wow:["2×","A time crystal ticks at twice the period of the rhythm that drives it"], ideas:["spin","phase"]},
+    "Certified Dice":{plain:"Ordinary computers can only fake randomness with clever arithmetic. A quantum computer asked a hard enough question gives answers so fast that the only way it could have done it is by genuinely rolling quantum dice.",
+      wow:["10¹⁸","Calculations per second of supercomputing used to check the 2025 result"], ideas:["superposition","qubit"]},
+    "Radical-Pair Sense":{plain:"Light hitting a bird’s eye makes a pair of molecules each with a lonely electron. Those electrons spin, and Earth’s weak magnetism tilts their dance just enough to change the chemistry. The bird may literally see the field as a pattern over its vision.",
+      wow:["100×","Earth’s field is a hundred times weaker than a fridge magnet, and a robin feels it"], ideas:["spin","magnetism"]},
+    "Casimir Motors":{plain:"Even perfectly empty space fizzes with fleeting waves. Put two mirrors very close together and the fattest waves no longer fit between them, so more waves push from outside than from inside. The mirrors are pressed together by nothing.",
+      wow:["1 atmosphere","The Casimir pressure between plates 10 nanometres apart"], ideas:["vacuum"]},
+    "Cold Copper":{plain:"In a normal wire, electrons bump into vibrating atoms like shoppers in a crowded street, and the bumps waste energy as heat. In a superconductor they pair up and move in step, like dancers in formation, and nothing gets lost.",
+      wow:["1.7 million atm","The pressure needed today for near-room-temperature superconductivity"], ideas:["superconductivity"]},
+    "Orbital Sunpipe":{plain:"In high orbit the sun almost never sets and no clouds get in the way. The trick is sending the power down: a huge array of small antennas can steer a microwave beam without moving, just by timing when each one fires.",
+      wow:["99%","Of the time a panel in geostationary orbit sits in sunshine"], ideas:["phased","orbit"]},
+    "Container Star":{plain:"Fusion is the sun’s trick: squeeze light atoms so hard they merge and release energy. On Earth you can’t use the sun’s gravity, so you hold a plasma of 150 million degrees in a magnetic bottle. Stronger magnets make a smaller bottle.",
+      wow:["16×","Smaller reactor for the same power when the magnetic field doubles"], ideas:["fusion","superconductivity"]},
+    "Living Dikes":{plain:"The concrete is seeded with sleeping bacteria and a packed lunch. When a crack lets water in, they wake up, eat, and leave behind limestone, the same material as chalk cliffs, which plugs the crack.",
+      wow:["200 years","How long the bacterial spores can wait in the concrete"], ideas:["catalyst"]},
+    "Desert Well":{plain:"A metal–organic framework is a crystal built like scaffolding, almost all empty space inside. Its inner walls are sticky for water molecules, so even thin desert air leaves a film of water behind at night.",
+      wow:["1 football pitch","The inner surface of a single gram of the best frameworks"], ideas:["mof"]},
+    "Sky Rope":{plain:"Swing a ball on a string around your head and the string stays taut. The Earth does the same to a cable with a weight on the end, if the weight sits beyond the height where a satellite circles once a day.",
+      wow:["36,000 km","Height of geostationary orbit, the elevator’s balance point"], ideas:["orbit"]},
+    "Diamond Heart":{plain:"Radioactive atoms decay at a steady, unchangeable pace. Wrap a slow one in diamond and every decay kicks loose a few electrons: a trickle of electricity that keeps going for thousands of years.",
+      wow:["5,730 years","Half-life of carbon-14: after that, it still gives half its power"], ideas:["halflife"]},
+    "Reset Therapy":{plain:"Your DNA is the same at 8 and at 80, but cells stick chemical sticky notes on it over a lifetime. Four genes can peel most of the notes off. Too much and the cell forgets what it is; just enough and it acts young again.",
+      wow:["4 genes","Are enough to turn an adult cell back into a stem cell"], ideas:["epigenetics"]},
+    "Printed Kidney":{plain:"An inkjet printer puts dots of ink on paper. A bioprinter puts dots of living cells in a gel, layer on layer. Getting the cells to line up is doable; the hard part is weaving the tiny blood vessels every cell needs.",
+      wow:["1 million","Microscopic filters (nephrons) in a single human kidney"], ideas:["stemcells"]},
+    "Gut Sentinel":{plain:"Bacteria can be given a simple genetic ‘if-then’ rule: if you smell blood, glow. A chip listens for the glow. It is a smoke alarm made of microbes.",
+      wow:["38 trillion","Bacteria live in and on your body, about as many as your own cells"], ideas:["synbio"]},
+    "Deep Sleep Berth":{plain:"Some animals switch down their whole body like a house in winter: heating off, lights dim, breathing slow. Humans seem to have the same switchboard in the brain but never flip the main switch.",
+      wow:["−3 °C","The body temperature of a hibernating Arctic ground squirrel"], ideas:["torpor"]},
+    "Fast Leaf":{plain:"The key enzyme of photosynthesis is clumsy: it often grabs oxygen instead of carbon dioxide, and the plant wastes energy cleaning up. Give the plant a shortcut for the clean-up and it has more energy left to grow.",
+      wow:["1 in 4","Times RuBisCO grabs oxygen by mistake on a warm day"], ideas:["photosynthesis","catalyst"]},
+    "Starchip to Proxima":{plain:"Light carries a tiny push. It’s far too weak to move you, but a sail lighter than a feather, hit by a beam of 100 billion watts, can go from zero to a fifth of light speed in minutes.",
+      wow:["20 years","Travel time to the nearest star at a fifth of light speed"], ideas:["lightpressure","orbit"]},
+    "Shadow Mine":{plain:"The Moon’s axis is almost upright, so near its poles the sun always skims the horizon. The floors of deep craters never see it at all, and any water molecule that wanders in freezes and never leaves.",
+      wow:["−230 °C","Crater floors among the coldest places measured in the solar system"], ideas:["orbit"]},
+    "Neutrino Radio":{plain:"Neutrinos are ghosts. They fly through a light-year of lead with a good chance of hitting nothing. That makes them perfect for sending messages through a planet, and terrible for receiving them.",
+      wow:["100 trillion","Solar neutrinos pass through your body every second"], ideas:["neutrino"]},
+    "L1 Parasol":{plain:"Between Earth and Sun there is a spot where their pulls balance, so anything parked there travels with us. A cloud of thin screens there would be like holding your thumb up against the sun, very slightly.",
+      wow:["1.8%","Less sunlight would cancel the warming from doubled CO₂"], ideas:["lagrange"]},
+    "Voice Bridge":{plain:"When you try to speak, your brain sends a burst of commands to lips, tongue and jaw, even if the muscles no longer answer. An implant eavesdrops on those commands and an AI learns which burst means which sound.",
+      wow:["97%","Word accuracy of a speech implant used by a man with ALS in 2024"], ideas:["decoding"]},
+    "Mind Helmet":{plain:"Every thought is electric current in neurons, and every current makes a magnetic field. Brain fields are staggeringly weak, but atoms lined up by a laser feel them, and those atoms can sit in a sensor the size of a sugar cube.",
+      wow:["100 million×","Earth’s field is this much stronger than your brain’s"], ideas:["magnetism","spin"]},
+    "Cold Logic":{plain:"A computer gets hot mostly because it throws information away. Deleting a bit has a minimum heat cost, set by physics. A reversible computer never deletes, so like a pendulum it can swing back and recover its energy.",
+      wow:["3 × 10⁻²¹ J","The least heat erasing a single bit can make at room temperature"], ideas:["landauer"]},
+    "DNA Library":{plain:"Computers write in 0 and 1. DNA writes in A, C, G and T. Translate one alphabet into the other, and a molecule that has kept woolly-mammoth genes readable for a million years becomes a hard drive.",
+      wow:["215 petabytes","Per gram of DNA, shown in 2017"], ideas:["dna"]},
+    "Dream Recorder":{plain:"The part of the brain that handles seeing lights up in patterns when you look at a cat or a car. AI can learn those patterns. Dreams seem to use the same part, so in principle you could decode a dream the way you decode a glance.",
+      wow:["2 hours","Roughly how long you dream every night, most of it forgotten"], ideas:["decoding"]},
+    "Cloud Brighteners":{plain:"A cloud made of many small droplets is whiter than one made of a few big ones, just as crushed ice looks whiter than an ice cube. Sea salt makes perfect droplet seeds, so spraying it makes clouds brighter.",
+      wow:["1990","The year physicist John Latham first proposed it"], ideas:["albedo"]},
+    "Glacier Curtain":{plain:"Antarctic glaciers are mostly melted from below, by warm salty water that creeps along the sea floor under the ice. Block that current and the ice shelf can thicken again, like putting a draught excluder under a door.",
+      wow:["65 cm","Global sea-level rise if Thwaites Glacier collapsed completely"], ideas:["albedo"]}
+  };
+
+  /* The big ideas behind the inventions, explained for the Ideas tab. */
+  var IDEAS = {
+    superposition:{name:"Superposition", f:"quantum", line:"A quantum thing can be in several states at once, until something measures it.",
+      text:"An electron’s spin can be up, down, or a blend of both at the same time. It isn’t secretly one or the other; the blend is real, and different possibilities can reinforce or cancel each other. Measuring it forces a single answer.",
+      try:"Everyday picture: a spinning coin in the air is neither heads nor tails. The analogy breaks down because a real coin is always one or the other; a quantum coin genuinely isn’t."},
+    entanglement:{name:"Entanglement", f:"quantum", line:"Two particles that share one quantum state, however far apart they drift.",
+      text:"Measure one entangled photon and you instantly know what its partner will show. Einstein called it ‘spooky action at a distance’. It can’t send messages faster than light, because each result on its own looks random, but it makes correlations no classical system can.",
+      try:"Nobel Prize 2022: Aspect, Clauser and Zeilinger showed in experiments that nature really works this way."},
+    nocloning:{name:"No-cloning theorem", f:"quantum", line:"No machine can copy an unknown quantum state.",
+      text:"You can copy any file on your computer. You cannot copy a quantum state you don’t already know: copying would require measuring it, and measuring changes it. This is the reason quantum cryptography and quantum money are secure.",
+      try:"Proved in 1982 in one short paragraph. It also explains why quantum teleportation always destroys the original."},
+    interference:{name:"Interference", f:"quantum", line:"Waves that add up in some places and cancel in others.",
+      text:"Send light, or even single atoms, through two slits and they make stripes: bright where waves meet in step, dark where they cancel. That a single particle can interfere with itself is the heart of quantum mechanics. The masthead of this app is drawn from that pattern.",
+      try:"Try this: look at a street lamp through the fabric of an umbrella or a fine curtain. The grid of coloured spots is light interfering."},
+    spin:{name:"Spin", f:"quantum", line:"Particles behave like tiny magnets with a built-in direction.",
+      text:"Electrons and many nuclei have spin, which makes them act like compass needles that can only point in certain ways. Magnetic fields tilt the energy of spin states, which is why spins make superb sensors, and why hospitals can use MRI.",
+      try:"MRI scanners read the spins of hydrogen nuclei in the water of your body."},
+    qubit:{name:"Qubits and error correction", f:"quantum", line:"Quantum bits are powerful but fragile, so they are protected in teams.",
+      text:"A qubit holds a superposition of 0 and 1, and a few hundred of them together can explore more combinations than there are atoms in the universe. The catch: heat and stray fields scramble them. Error correction spreads one reliable ‘logical’ qubit over many physical ones.",
+      try:"In 2024 Google showed errors shrinking as the protective code grew, the milestone that makes large quantum computers look buildable."},
+    magnetism:{name:"Measuring magnetism", f:"quantum", line:"Quantum sensors can feel fields a billion times weaker than a fridge magnet.",
+      text:"Earth’s magnetic field is about 50 microtesla. Brains, rocks and buried pipes add fields thousands to billions of times smaller. Atoms and diamond defects whose spins are prepared with lasers now measure these without the heavy cooling older sensors needed.",
+      try:"Your phone has a magnetometer too: a compass app shows it reacting when you bring it near a speaker."},
+    timedilation:{name:"Gravity slows time", f:"space", line:"Clocks run slower the deeper they sit in a gravity well.",
+      text:"Einstein’s general relativity predicts it, and it is real: GPS satellites’ clocks run about 38 microseconds a day fast compared with ours, and the system corrects for it. The best atomic clocks can now detect the difference over a single centimetre of height.",
+      try:"Over 80 years your head ages about half a millionth of a second more than your feet."},
+    atomclock:{name:"Atomic clocks", f:"quantum", line:"The most precise things humans have ever measured are ticks of atoms.",
+      text:"Every atom of strontium vibrates at exactly the same frequency when it absorbs a certain colour of laser light. Counting those vibrations, about 430 trillion a second, gives a clock whose ticks are the same everywhere in the universe.",
+      try:"The second has been defined by caesium atoms since 1967. It will probably be redefined using optical clocks around 2030."},
+    phase:{name:"Phases of matter", f:"matter", line:"Solid, liquid, gas, and some stranger ones.",
+      text:"A phase is a way a crowd of particles can organise itself. Ice repeats in space. Superconductors, superfluids and magnets are phases too, and in 2012 physicists wondered whether matter could also repeat in time. It can, if you keep kicking it.",
+      try:"Water’s triple point, where ice, water and vapour coexist, is at 0.01 °C."},
+    vacuum:{name:"The quantum vacuum", f:"quantum", line:"Empty space isn’t empty.",
+      text:"Quantum physics forbids any field from being perfectly still, so ‘nothing’ fizzes with fleeting fluctuations. Usually they cancel out, but close surfaces, which change which fluctuations fit, reveal their pressure as the Casimir force.",
+      try:"Geckos stick to walls with a close cousin of this force, the van der Waals force."},
+    superconductivity:{name:"Superconductivity", f:"matter", line:"Electricity flowing with zero resistance.",
+      text:"Cool certain materials enough and their electrons pair up and move in lockstep, so current flows forever without loss. Superconductors also push magnetic fields out, which lets magnets float above them. The big prize is one that works without cooling.",
+      try:"A current set flowing in a superconducting ring has kept circulating for years without any power supply."},
+    fusion:{name:"Fusion", f:"matter", line:"Squeezing light atoms together until they merge.",
+      text:"When two hydrogen nuclei fuse into helium, a little mass disappears and becomes energy, as E = mc² says. The sun does it with gravity. On Earth it takes plasma ten times hotter than the sun’s core, held by magnets or crushed by lasers.",
+      try:"The deuterium in a litre of seawater could, through fusion, release about as much energy as 300 litres of petrol."},
+    catalyst:{name:"Catalysts and enzymes", f:"life", line:"Molecules that make reactions happen without being used up.",
+      text:"A catalyst provides a shortcut through a chemical reaction, like a tunnel through a mountain. Enzymes are life’s catalysts, and they often do at body temperature what industry needs furnaces for. Understanding their tricks is one of the most promising uses of quantum computers.",
+      try:"The enzyme in your saliva starts turning bread into sugar: chew a bite long enough and it tastes sweet."},
+    mof:{name:"Metal–organic frameworks", f:"matter", line:"Crystals that are mostly holes, designed atom by atom.",
+      text:"Metal atoms act as joints and organic molecules as struts, building a scaffold with pores of exactly chosen size. The pores can catch water, carbon dioxide or hydrogen. Their inventors won the 2025 Nobel Prize in Chemistry.",
+      try:"Some frameworks soak up so much gas that a tank packed with them holds more than the same tank left empty."},
+    orbit:{name:"Orbits", f:"space", line:"Falling forever, and always missing the ground.",
+      text:"A satellite falls toward Earth all the time but moves sideways fast enough to keep missing. Higher orbits are slower. At 36,000 km an orbit takes exactly one day, so a satellite there hangs above the same spot on the equator.",
+      try:"The International Space Station circles Earth every 90 minutes; on a clear evening you can see it pass as a bright moving star."},
+    lagrange:{name:"Lagrange points", f:"space", line:"Parking spots where gravity pulls balance out.",
+      text:"In any two-body system there are five points where a small object can keep pace with the larger two. L1 sits between Earth and Sun, 1.5 million km from us, and hosts solar observatories. L2, on the far side, is home to the James Webb Space Telescope.",
+      try:"Joseph-Louis Lagrange worked out these points in 1772, two centuries before anything was sent to one."},
+    lightpressure:{name:"Light pressure", f:"space", line:"Light carries momentum, so it pushes.",
+      text:"Photons have no mass but do carry momentum. Sunlight presses on a square metre with the weight of about a grain of sand, which is nothing for a car and a lot for a feather-light sail in the vacuum of space, where nothing slows it down.",
+      try:"Comet tails point away from the Sun partly because sunlight pushes the dust."},
+    neutrino:{name:"Neutrinos", f:"space", line:"The ghost particles of physics.",
+      text:"Neutrinos are made in the sun, in reactors and in cosmic collisions. They have almost no mass and no charge, so they barely interact. Catching a few needs detectors of thousands of tonnes, often buried deep underground or in Antarctic ice.",
+      try:"The IceCube detector at the South Pole uses a cubic kilometre of ice as its sensor."},
+    phased:{name:"Phased arrays", f:"matter", line:"Steering a beam without moving anything.",
+      text:"Many small antennas each send the same wave, slightly delayed. Where the delays line up the waves reinforce, so choosing the delays points the beam. Radar, 5G masts and satellite-internet dishes all use it.",
+      try:"Ripples from pebbles dropped in a pond in the right order add up to one strong wave heading one way."},
+    halflife:{name:"Half-life", f:"matter", line:"Radioactive decay runs like a perfectly steady clock.",
+      text:"Any single radioactive atom decays at a random moment, but a large number of them always halve in the same time. Carbon-14 halves every 5,730 years, which is also how archaeologists date bones and wood.",
+      try:"Radiocarbon dating works back to about 50,000 years; after that too little carbon-14 is left to measure."},
+    epigenetics:{name:"Epigenetic clock", f:"life", line:"Chemical tags on DNA that track age.",
+      text:"Cells mark their DNA with small chemical tags that switch genes on or off. The pattern of tags drifts with age so predictably that a blood sample can estimate your age to within a few years. The question is whether resetting the tags resets ageing.",
+      try:"Identical twins start with near-identical tags, which drift apart as they live different lives."},
+    stemcells:{name:"Stem cells", f:"life", line:"Cells that can become other cells.",
+      text:"An embryo’s cells can become anything: nerve, bone, blood. Most adult cells are locked into one job. In 2006 Shinya Yamanaka found how to unlock them again, making stem cells from a skin sample without an embryo.",
+      try:"Your body makes more than 2 million new red blood cells every second from stem cells in your bone marrow."},
+    synbio:{name:"Synthetic biology", f:"life", line:"Programming living cells like tiny computers.",
+      text:"Genes can be combined into circuits: switches, timers, sensors. Put a circuit in a bacterium and it will sense a molecule, count, or glow on command. The same approach already makes insulin and many vaccines.",
+      try:"Nearly all insulin used today is made by engineered bacteria or yeast."},
+    torpor:{name:"Torpor and hibernation", f:"life", line:"A body turned down to its lowest setting.",
+      text:"Hibernating animals lower heart rate, breathing and temperature for weeks, and wake without the muscle and bone loss a bedridden human would suffer. A small group of neurons in the brain seems to control the switch.",
+      try:"A hibernating ground squirrel’s heart can drop from hundreds of beats a minute to fewer than ten."},
+    photosynthesis:{name:"Photosynthesis", f:"life", line:"Sunlight, water and air turned into sugar.",
+      text:"Plants capture light to split water, then use the energy to build sugar from carbon dioxide. The enzyme that grabs the CO₂, RuBisCO, is the most abundant protein on Earth and also one of the slowest and sloppiest.",
+      try:"Almost every carbon atom in your body was pulled out of the air by a plant."},
+    landauer:{name:"Landauer’s principle", f:"mind", line:"Forgetting costs energy.",
+      text:"Information is physical. Erasing a bit reduces disorder in the computer, so by the second law of thermodynamics a minimum of heat must leave it. Today’s chips use thousands of times more than this limit per operation.",
+      try:"It settled a 100-year-old puzzle, Maxwell’s demon, which seemed to break the laws of heat."},
+    dna:{name:"DNA as code", f:"life", line:"A four-letter alphabet that stores every living thing.",
+      text:"DNA stores information as a sequence of four bases: A, C, G and T. It is incredibly dense and, kept cold and dry, lasts a very long time. Reading it has become a million times cheaper in twenty years.",
+      try:"DNA a million years old has been read from mammoth teeth preserved in Siberian permafrost."},
+    decoding:{name:"Brain decoding", f:"mind", line:"Teaching AI to read patterns of brain activity.",
+      text:"Every action or image produces a characteristic pattern of activity in the brain. Record enough examples with electrodes or scanners and machine learning can map patterns to meanings: words, movements, rough pictures.",
+      try:"People with paralysis have already moved cursors, robot arms and their own hands through brain implants."},
+    albedo:{name:"Albedo and ocean heat", f:"climate", line:"How much sunlight Earth reflects, and where the heat goes.",
+      text:"Fresh snow reflects about 90% of sunlight, dark ocean less than 10%. Clouds, ice and even ship tracks change that balance. Most of the extra heat trapped by greenhouse gases, over 90%, ends up in the oceans.",
+      try:"Wear a black T-shirt and a white one in summer sun: the difference you feel is albedo."}
+  };
+  Object.keys(POP).forEach(function(n){ ALL.forEach(function(e){ if(e.name===n){ e.plain=POP[n].plain; e.wow=POP[n].wow; e.ideas=POP[n].ideas; } }); });
+
   /* ---------- storage ---------- */
   var KEPT_KEY="proxima-kept", SEEN_KEY="proxima-seen", FIELD_KEY="proxima-field", VIEW_KEY="proxima-view", THEME_KEY="proxima-theme";
   function get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -529,7 +722,7 @@
   var kept = new Set(getIds(KEPT_KEY));
   var seen = new Set(getIds(SEEN_KEY));
   var field = get(FIELD_KEY); if(!FIELDS[field]) field = null;
-  var view = get(VIEW_KEY); if(["discover","timeline","kept"].indexOf(view)<0) view = "discover";
+  var view = get(VIEW_KEY); if(["discover","timeline","ideas","kept"].indexOf(view)<0) view = "discover";
   var history = [], pos = -1;
 
   /* ---------- theme ---------- */
@@ -611,11 +804,16 @@
           '<div><span class="mono-label">Readiness</span><span class="v">TRL '+e.trl+'</span>'+meter(e.trl)+'</div>'+
           '<div><span class="mono-label">Plausibility</span><span class="plaus p'+e.p+'">'+PLAUS[e.p]+'</span></div>'+
         '</div>'+
-        '<section class="sec"><span class="mono-label">The idea</span><p>'+esc(e.idea)+'</p></section>'+
-        '<section class="sec"><span class="mono-label">How it would work</span><p>'+esc(e.how)+'</p></section>'+
+        '<div class="wow"><b>'+esc(e.wow[0])+'</b><span>'+esc(e.wow[1])+'</span></div>'+
+        '<section class="sec"><span class="mono-label">Imagine</span><p>'+esc(e.idea)+'</p></section>'+
+        '<section class="sec plain"><span class="mono-label">In plain words</span><p>'+esc(e.plain)+'</p></section>'+
+        '<section class="sec"><span class="mono-label">The science</span><p>'+esc(e.how)+'</p></section>'+
         '<section class="sec vignette"><span class="where">'+esc(e.where)+'</span><p>'+esc(e.day)+'</p></section>'+
         '<section class="sec"><span class="mono-label">What stands in the way</span><p>'+esc(e.block)+'</p></section>'+
         '<section class="sec seeds"><span class="mono-label">Seeds today</span><p>'+esc(e.seeds)+'</p></section>'+
+        '<section class="sec"><span class="mono-label">Big ideas behind it</span><div class="idea-chips">'+
+          e.ideas.map(function(k){ return '<button class="idea-chip" type="button" data-idea="'+k+'" aria-expanded="false">'+esc(IDEAS[k].name)+'</button>'; }).join('')+
+        '</div><div class="idea-pop" id="ideaPop" hidden></div></section>'+
         '<div class="actions">'+
           '<button class="btn" type="button" id="prevBtn"'+(pos>0?'':' disabled')+' aria-label="Previous invention">←</button>'+
           '<button class="btn'+(isKept?' kept':'')+'" type="button" id="keepBtn" aria-pressed="'+isKept+'">'+(isKept?'★ Kept':'☆ Keep')+'</button>'+
@@ -627,6 +825,17 @@
       if(pos<history.length-1) pos++; else show(pickNext());
       render(true); viewEl.scrollIntoView({block:"start"});
     };
+    Array.prototype.forEach.call(viewEl.querySelectorAll(".idea-chip"),function(b){
+      b.onclick=function(){
+        var open=b.getAttribute("aria-expanded")==="true", pop=document.getElementById("ideaPop");
+        Array.prototype.forEach.call(viewEl.querySelectorAll(".idea-chip"),function(o){ o.setAttribute("aria-expanded","false"); });
+        if(open){ pop.hidden=true; return; }
+        var d=IDEAS[b.getAttribute("data-idea")];
+        b.setAttribute("aria-expanded","true");
+        pop.innerHTML='<p><b>'+esc(d.line)+'</b></p><p>'+esc(d.text)+'</p><p class="did">'+esc(d.try)+'</p>';
+        pop.hidden=false;
+      };
+    });
     document.getElementById("keepBtn").onclick=function(){
       if(kept.has(id)) kept.delete(id); else kept.add(id);
       setIds(KEPT_KEY,kept); updateCount(); renderCard(false);
@@ -656,14 +865,26 @@
     viewEl.innerHTML = ids.length ? '<div class="decade">'+ids.map(rowHtml).join('')+'</div>'
       : '<p class="empty">'+(kept.size?'None of your kept inventions are in this field.':'Tap ☆ Keep on an invention to collect it here.')+'</p>';
   }
+  function renderIdeas(){
+    var ids=pool(), used={};
+    ids.forEach(function(i){ ALL[i].ideas.forEach(function(k){ (used[k]=used[k]||[]).push(i); }); });
+    var keys=Object.keys(IDEAS).filter(function(k){ return used[k]; });
+    viewEl.innerHTML='<div class="ideas"><p class="ideas-intro">The real science the inventions are built on, one idea at a time.</p>'+keys.map(function(k){
+      var d=IDEAS[k];
+      return '<article class="idea"><span class="field-tag">'+glyph(d.f)+esc(FIELDS[d.f].label)+'</span>'+
+        '<h2>'+esc(d.name)+'</h2><p class="line">'+esc(d.line)+'</p><p>'+esc(d.text)+'</p><p class="did">'+esc(d.try)+'</p>'+
+        '<div class="uses"><span class="mono-label">Powers</span>'+used[k].map(function(i){ return '<button type="button" class="row-link" data-id="'+i+'">'+esc(ALL[i].name)+'</button>'; }).join('')+'</div></article>';
+    }).join('')+'</div>';
+  }
   viewEl.addEventListener("click",function(e){
-    var r=e.target.closest(".row"); if(!r) return;
+    var r=e.target.closest(".row, .row-link"); if(!r) return;
     show(+r.getAttribute("data-id")); setView("discover"); window.scrollTo({top:0});
   });
 
   function render(animate){
     if(view==="discover") renderCard(animate);
     else if(view==="timeline") renderTimeline();
+    else if(view==="ideas") renderIdeas();
     else renderKept();
   }
   function setView(v){
