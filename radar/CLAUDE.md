@@ -28,6 +28,8 @@ meditation, climate-work opportunities). Live at https://2vrg2vjks9-wq.github.io
 - **Wind alert:** `.github/workflows/radar-wind.yml` runs `radar/tools/wind_alert.py` every morning and
   pushes to ntfy.sh. Keep it working if you touch `interests.json`'s wind section.
 - **Offline:** `radar/sw.js` (network-first, cache fallback). Bump the cache name when you change files.
+- **Version:** bump `APP_VERSION` in `index.html` on every change (e.g. `2026-09-28b`). The app compares it with the live
+  page when opened or brought to the front and reloads itself if newer; the version shows at the bottom of Saved.
 - **Tests:** `python3 radar/tools/test_app.py [screenshot-dir]` serves the repo, mocks every live API, runs each
   tab in light and dark at 390×844 (plus 320 px overflow and an offline pass), fails on JS errors, and runs
   `tools/safety_check.py`. Run it before every commit.

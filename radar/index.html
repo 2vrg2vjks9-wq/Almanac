@@ -256,6 +256,7 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       <div class="near-row" style="padding:0" id="connBtns"><button class="btn" id="connOpen" type="button">Connect Radar</button><button class="btn ghost" id="connOff" type="button" hidden>Disconnect</button></div>
     </div></div>
     <p class="fine">Thumbs up and down change what Radar looks for. Once Radar is connected, your notes go straight to the next morning's update; otherwise they open on GitHub for you to submit. The repository is public, so those notes are too. Everything except the wind is researched by Claude, so check details before booking.</p>
+    <p class="fine" id="appVersion" style="margin-top:10px"></p>
   </section>
 </div>
 
@@ -669,7 +670,20 @@ h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
       ptr.style.transition="none";ptr.style.height=Math.min(56,dy/2.2)+"px";txt.textContent=dy>110?"Release to refresh":"Pull to refresh"},{passive:true});
     document.addEventListener("touchend",function(){if(y0==null)return;y0=null;ptr.style.transition="";ptr.style.height="0";if(dy>110)loadAll()})})();
   loadAll();
-  if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+  if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){r.update()}).catch(function(){})});
+  // A home-screen app on iPhone often resumes from memory instead of reloading, so it can keep
+  // showing an old version. On open and whenever it comes back to the front, compare with the
+  // live page and reload once if there's a newer one.
+  var APP_VERSION="2026-09-28a";
+  $("appVersion").textContent="Version "+APP_VERSION;
+  function checkVersion(){if(!navigator.onLine)return;
+    fetch("index.html?v="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():""}).then(function(t){
+      var m=t.match(/var APP_VERSION="([^"]+)"/);if(!m||m[1]===APP_VERSION)return;
+      var tried=null;try{tried=sessionStorage.getItem("radar-reload-for")}catch(e){}
+      if(tried===m[1])return;try{sessionStorage.setItem("radar-reload-for",m[1])}catch(e){}
+      location.reload()}).catch(function(){})}
+  checkVersion();
+  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")checkVersion()});
 })();
 </script>
 </body>
