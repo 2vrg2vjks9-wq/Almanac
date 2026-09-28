@@ -31,7 +31,7 @@ APPS = {
     "loam": {
         "start": "<title>Loam</title>",
         "replacements": [
-            ("Kept projects are stored in this browser only.", "Kept projects are saved on this iPhone."),
+            ("What you keep, discover and try is stored in this browser only.", "What you keep, discover and try is saved on this iPhone."),
         ],
     },
 }
