@@ -148,6 +148,15 @@
   .ask-form input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   .ask-note{margin:0;font-size:14px;color:var(--signal)}
   .ask-hint{margin:0;font-size:13.5px;color:var(--muted)}
+  .lab{background:var(--card);border:1px dashed var(--signal);border-radius:18px;padding:18px 20px;margin-top:14px;display:flex;flex-direction:column;gap:10px}
+  .lab p{margin:0;max-width:62ch}
+  .lab-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .draft{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+  .draft h3{font-family:var(--display);font-weight:400;font-size:17px;margin:0}
+  .draft details{font-size:15.5px}
+  .draft summary{cursor:pointer;color:var(--accent);font-family:var(--mono);font-size:11.5px;padding:4px 0}
+  .draft details p{margin:6px 0 0}
+  .draft-spec{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
   .ideas-intro{margin:0 0 4px;color:var(--ink-soft);font-size:15.5px}
   .seeds p{font-size:15.5px}
 
@@ -211,6 +220,7 @@
     <p><b>Wow numbers</b> are real measurements or real estimates from today’s science, not predictions.</p>
     <p><b>Readiness</b> uses NASA’s Technology Readiness Level scale as it stands today: TRL 1 means the basic principle has been observed, TRL 4 a lab prototype works, TRL 9 the thing has flown or shipped.</p>
     <p><b>Plausibility</b> says what stands in the way. <span class="plaus p1">Engineering</span> means known physics suffices and it is a matter of cost and effort. <span class="plaus p2">Breakthrough</span> means at least one scientific discovery is still missing. <span class="plaus p3">Frontier</span> means it sits at the edge of known physics and may never work.</p>
+    <p><b>The lab</b> invents new entries with Claude once you have seen nearly everything. Only the owner of this page can use it; new inventions join the catalogue after the owner approves them.</p>
     <p><b>First light</b> is a guess at the year the first working version appears. The “Seeds today” notes describe real research.</p>
   </footer>
 </div>
@@ -721,7 +731,15 @@
   var KEPT_KEY="proxima-kept", SEEN_KEY="proxima-seen", FIELD_KEY="proxima-field", VIEW_KEY="proxima-view", THEME_KEY="proxima-theme";
   function get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function set(k,v){ try{ if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} }
-  function getIds(k){ try{ var a=JSON.parse(localStorage.getItem(k)||"[]"); return Array.isArray(a)?a.filter(function(n){return Number.isInteger(n)&&n>=0&&n<ALL.length;}):[]; }catch(e){ return []; } }
+  /* Built-in inventions have numeric ids (array positions); ones invented in the lab and
+     approved live in the artifact's database and use "g-<doc id>" until they are copied into ALL. */
+  var GEN = {};
+  function validId(v){ return (Number.isInteger(v)&&v>=0&&v<ALL.length) || (typeof v==="string"&&/^g-[A-Za-z0-9_-]{1,64}$/.test(v)); }
+  function E(id){ return typeof id==="number" ? ALL[id] : GEN[String(id).slice(2)]; }
+  function allIds(){ return ALL.map(function(e,i){ return i; }).concat(Object.keys(GEN).map(function(k){ return "g-"+k; })); }
+  function byYear(a,b){ return E(a).year-E(b).year || (typeof a===typeof b ? (a<b?-1:a>b?1:0) : (typeof a==="number"?-1:1)); }
+  function parseId(v){ return /^\d+$/.test(v) ? +v : v; }
+  function getIds(k){ try{ var a=JSON.parse(localStorage.getItem(k)||"[]"); return Array.isArray(a)?a.filter(validId):[]; }catch(e){ return []; } }
   function setIds(k,s){ set(k, JSON.stringify(Array.from(s))); }
 
   var kept = new Set(getIds(KEPT_KEY));
@@ -729,6 +747,9 @@
   var field = get(FIELD_KEY); if(!FIELDS[field]) field = null;
   var view = get(VIEW_KEY); if(["discover","timeline","ideas","kept"].indexOf(view)<0) view = "discover";
   var history = [], pos = -1;
+  // Lab inventions later copied into ALL carry their old doc id as gid: carry readers' marks over.
+  ALL.forEach(function(e,i){ if(!e.gid) return; var g="g-"+e.gid;
+    [[kept,KEPT_KEY],[seen,SEEN_KEY]].forEach(function(p){ if(p[0].has(g)){ p[0].delete(g); p[0].add(i); setIds(p[1],p[0]); } }); });
 
   /* ---------- theme ---------- */
   var root=document.documentElement, themeBtn=document.getElementById("themeBtn");
@@ -754,10 +775,10 @@
   function glyph(f){ return '<svg class="glyph" viewBox="0 0 24 24" aria-hidden="true">'+GLYPH[f]+'</svg>'; }
   function meter(n){ var s='<div class="meter" aria-hidden="true">'; for(var i=1;i<=9;i++) s+='<i'+(i<=n?' class="on"':'')+'></i>'; return s+'</div>'; }
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
-  function num(id){ return "No. "+String(id+1).padStart(2,"0"); }
+  function num(id){ return typeof id==="number" ? "No. "+String(id+1).padStart(2,"0") : "New from the lab"; }
 
   /* ---------- pool + picking ---------- */
-  function pool(){ var out=[]; ALL.forEach(function(e,i){ if(!field||e.f===field) out.push(i); }); return out; }
+  function pool(){ return allIds().filter(function(i){ return !field||E(i).f===field; }); }
   function pickNext(){
     var p=pool(), cur=history[pos];
     var fresh=p.filter(function(i){ return !seen.has(i) && i!==cur; });
@@ -774,15 +795,15 @@
   /* ---------- render ---------- */
   var viewEl=document.getElementById("view");
   function updateCount(){
-    document.getElementById("countLine").textContent = ALL.length+" entries · "+seen.size+" seen";
+    document.getElementById("countLine").textContent = allIds().length+" entries · "+seen.size+" seen";
     document.getElementById("keptN").textContent = kept.size?" ("+kept.size+")":"";
   }
 
   function renderChips(){
-    var counts={}; ALL.forEach(function(e){ counts[e.f]=(counts[e.f]||0)+1; });
-    var html='<button class="chip" type="button" data-f="" aria-pressed="'+(!field)+'">All <span class="n">'+ALL.length+'</span></button>';
+    var counts={}, n=allIds(); n.forEach(function(i){ var f=E(i).f; counts[f]=(counts[f]||0)+1; });
+    var html='<button class="chip" type="button" data-f="" aria-pressed="'+(!field)+'">All <span class="n">'+n.length+'</span></button>';
     Object.keys(FIELDS).forEach(function(k){
-      html+='<button class="chip" type="button" data-f="'+k+'" aria-pressed="'+(field===k)+'">'+glyph(k)+FIELDS[k].label+' <span class="n">'+counts[k]+'</span></button>';
+      html+='<button class="chip" type="button" data-f="'+k+'" aria-pressed="'+(field===k)+'">'+glyph(k)+FIELDS[k].label+' <span class="n">'+(counts[k]||0)+'</span></button>';
     });
     document.getElementById("chips").innerHTML=html;
   }
@@ -792,13 +813,14 @@
     renderChips();
     if(view==="discover"){
       var cur=history[pos];
-      if(cur===undefined || (field && ALL[cur].f!==field)) show(pickNext());
+      if(cur===undefined || !E(cur) || (field && E(cur).f!==field)) show(pickNext());
     }
     render(true);
   });
 
   function renderCard(animate){
-    var id=history[pos], e=ALL[id], isKept=kept.has(id);
+    if(!E(history[pos])) show(pickNext());
+    var id=history[pos], e=E(id), isKept=kept.has(id);
     viewEl.innerHTML =
       '<article class="card'+(animate?' enter':'')+'" aria-live="polite">'+
         '<div class="card-head"><span class="field-tag">'+glyph(e.f)+FIELDS[e.f].label+'</span><span class="mono-label">'+num(id)+'</span></div>'+
@@ -816,16 +838,17 @@
         '<section class="sec vignette"><span class="where">'+esc(e.where)+'</span><p>'+esc(e.day)+'</p></section>'+
         '<section class="sec"><span class="mono-label">What stands in the way</span><p>'+esc(e.block)+'</p></section>'+
         '<section class="sec seeds"><span class="mono-label">Seeds today</span><p>'+esc(e.seeds)+'</p></section>'+
-        '<section class="sec"><span class="mono-label">Big ideas behind it</span><div class="idea-chips">'+
+        (e.ideas.length?'<section class="sec"><span class="mono-label">Big ideas behind it</span><div class="idea-chips">'+
           e.ideas.map(function(k){ return '<button class="idea-chip" type="button" data-idea="'+k+'" aria-expanded="false">'+esc(IDEAS[k].name)+'</button>'; }).join('')+
-        '</div><div class="idea-pop" id="ideaPop" hidden></div></section>'+
+        '</div><div class="idea-pop" id="ideaPop" hidden></div></section>':'')+
         '<section class="sec ask" id="askBox" hidden></section>'+
         '<div class="actions">'+
           '<button class="btn" type="button" id="prevBtn"'+(pos>0?'':' disabled')+' aria-label="Previous invention">←</button>'+
           '<button class="btn'+(isKept?' kept':'')+'" type="button" id="keepBtn" aria-pressed="'+isKept+'">'+(isKept?'★ Kept':'☆ Keep')+'</button>'+
           '<button class="btn primary" type="button" id="nextBtn">Next →</button>'+
         '</div>'+
-      '</article>';
+      '</article><section class="lab" id="lab" aria-live="polite" hidden></section>';
+    mountLab();
     document.getElementById("prevBtn").onclick=function(){ if(pos>0){ pos--; render(true); window.scrollTo({top:0}); } };
     document.getElementById("nextBtn").onclick=function(){
       if(pos<history.length-1) pos++; else show(pickNext());
@@ -850,16 +873,16 @@
   }
 
   function rowHtml(i){
-    var e=ALL[i];
-    return '<button class="row'+(seen.has(i)?' seen':'')+'" type="button" data-id="'+i+'">'+
+    var e=E(i);
+    return '<button class="row'+(seen.has(i)?' seen':'')+'" type="button" data-id="'+esc(i)+'">'+
       '<span class="yr">'+e.year+'</span>'+glyph(e.f)+
       '<span class="row-name">'+esc(e.name)+'<small>'+esc(e.tag)+'</small></span>'+meter(e.trl)+'</button>';
   }
   function renderTimeline(){
-    var ids=pool().sort(function(a,b){ return ALL[a].year-ALL[b].year || a-b; });
+    var ids=pool().sort(byYear);
     var html='', dec=null;
     ids.forEach(function(i){
-      var d=Math.floor(ALL[i].year/10)*10;
+      var d=Math.floor(E(i).year/10)*10;
       if(d!==dec){ if(dec!==null) html+='</div>'; html+='<div class="decade"><h2>'+d+'s</h2>'; dec=d; }
       html+=rowHtml(i);
     });
@@ -867,20 +890,19 @@
     viewEl.innerHTML=html||'<p class="empty">Nothing in this field yet.</p>';
   }
   function renderKept(){
-    var ids=Array.from(kept).filter(function(i){ return !field||ALL[i].f===field; })
-      .sort(function(a,b){ return ALL[a].year-ALL[b].year; });
+    var ids=Array.from(kept).filter(function(i){ return E(i)&&(!field||E(i).f===field); }).sort(byYear);
     viewEl.innerHTML = ids.length ? '<div class="decade">'+ids.map(rowHtml).join('')+'</div>'
       : '<p class="empty">'+(kept.size?'None of your kept inventions are in this field.':'Tap ☆ Keep on an invention to collect it here.')+'</p>';
   }
   function renderIdeas(){
     var ids=pool(), used={};
-    ids.forEach(function(i){ ALL[i].ideas.forEach(function(k){ (used[k]=used[k]||[]).push(i); }); });
+    ids.forEach(function(i){ E(i).ideas.forEach(function(k){ (used[k]=used[k]||[]).push(i); }); });
     var keys=Object.keys(IDEAS).filter(function(k){ return used[k]; });
     viewEl.innerHTML='<div class="ideas"><p class="ideas-intro">The real science the inventions are built on, one idea at a time.</p><section class="idea ask" id="askBox" hidden></section>'+keys.map(function(k){
       var d=IDEAS[k];
       return '<article class="idea"><span class="field-tag">'+glyph(d.f)+esc(FIELDS[d.f].label)+'</span>'+
         '<h2>'+esc(d.name)+'</h2><p class="line">'+esc(d.line)+'</p><p>'+esc(d.text)+'</p><p class="did">'+esc(d.try)+'</p>'+
-        '<div class="uses"><span class="mono-label">Powers</span>'+used[k].map(function(i){ return '<button type="button" class="row-link" data-id="'+i+'">'+esc(ALL[i].name)+'</button>'; }).join('')+'</div></article>';
+        '<div class="uses"><span class="mono-label">Powers</span>'+used[k].map(function(i){ return '<button type="button" class="row-link" data-id="'+esc(i)+'">'+esc(E(i).name)+'</button>'; }).join('')+'</div></article>';
     }).join('')+'</div>';
     setAsk("ideas", ideasContext(), SUGGEST.ideas);
   }
@@ -964,11 +986,153 @@
     });
   }
   (window.claude&&window.claude.use ? window.claude.use("sample") : Promise.resolve(null))
-    .then(function(s){ sampleFn=s; mountAsk(); }, function(){});
+    .then(function(s){ sampleFn=s; mountAsk(); mountLab(); }, function(){});
+
+
+  /* ---------- the lab: Claude invents more once you've seen nearly everything ----------
+     Safeguards: only the artifact's owner sees or runs it (and the database refuses
+     writes from anyone else); nothing is sent without a tap and a confirm; at most
+     LAB_DAILY batches a day, counted in the database before each call; at most
+     LAB_MAX_WAITING drafts can wait; every invention waits for approval; everything
+     Claude returns is checked field by field and escaped before it is shown. */
+  var LAB_BATCH=3, LAB_DAILY=3, LAB_MAX_WAITING=9;
+  var db=null, isOwner=false, drafts=[], labBusy=false, labConfirm=false, labNote="", usage={day:"",batches:0};
+  function today(){ var d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+  function has(o,k){ return typeof k==="string" && Object.prototype.hasOwnProperty.call(o,k); }
+  function clip(v,n){ return typeof v==="string" ? v.replace(/\s+/g," ").trim().slice(0,n) : ""; }
+  function clean(o){
+    if(!o||typeof o!=="object") return null;
+    var e={f:has(FIELDS,o.f)?o.f:null, name:clip(o.name,48), tag:clip(o.tag,180), idea:clip(o.idea,900), plain:clip(o.plain,900),
+      how:clip(o.how,900), where:clip(o.where,48), day:clip(o.day,900), block:clip(o.block,700), seeds:clip(o.seeds,700)};
+    var y=Math.round(+o.year), t=Math.round(+o.trl), p=Math.round(+o.p), w=Array.isArray(o.wow)?o.wow:[];
+    e.year=(y>=2027&&y<=2200)?y:0; e.trl=(t>=1&&t<=9)?t:0; e.p=(p>=1&&p<=3)?p:0;
+    e.wow=[clip(w[0],28),clip(w[1],160)];
+    e.ideas=(Array.isArray(o.ideas)?o.ideas:[]).filter(function(k){ return has(IDEAS,k); }).slice(0,3);
+    if(!e.f||!e.name||!e.tag||!e.idea||!e.plain||!e.how||!e.day||!e.block||!e.seeds||!e.year||!e.trl||!e.p||!e.wow[0]||!e.wow[1]) return null;
+    if(!e.where) e.where="Somewhere, "+e.year;
+    return e;
+  }
+  function unseenAll(){ return allIds().filter(function(i){ return !seen.has(i); }).length; }
+  function inventPrompt(names){
+    var sample=ALL[5], ex={f:sample.f,name:sample.name,tag:sample.tag,year:sample.year,trl:sample.trl,p:sample.p,wow:sample.wow,idea:sample.idea,
+      plain:sample.plain,how:sample.how,where:sample.where,day:sample.day,block:sample.block,seeds:sample.seeds,ideas:sample.ideas};
+    return "You are inventing new entries for Proxima, a popular-science catalogue of imagined future technologies.\n\n"+
+      "Rules:\n"+
+      "- Each invention is imagined, but the principle it relies on must be real physics, chemistry or biology.\n"+
+      "- 'seeds' must describe real research, experiments or projects that exist today. Give names and years only when you are confident they are correct. Never invent studies, people, institutions or numbers.\n"+
+      "- 'wow' must be a real measurement or well-established estimate from today's science, not a prediction.\n"+
+      "- Write for a curious adult without a science background: clear, concrete, calm, British spelling, no hype, no Markdown. Two or three sentences per text field.\n"+
+      "- At least one of the "+LAB_BATCH+" should be quantum technology. Vary the fields otherwise.\n"+
+      "- Do not repeat or closely resemble any existing invention: "+names.join("; ")+".\n\n"+
+      "Fields: f is one of quantum, matter, life, space, mind, climate. name: 2-4 words. tag: one sentence. year: guessed year of the first working version (integer). "+
+      "trl: NASA technology readiness level today (1-9). p: 1 = only engineering stands in the way, 2 = needs a scientific breakthrough, 3 = at the edge of known physics. "+
+      "wow: [short number with unit, one-line meaning]. idea: what it is. plain: the science as an everyday comparison. how: how it would work. "+
+      "where: 'Place, year' for the scene. day: a short scene of daily life with it. block: what stands in the way. seeds: the real research today. "+
+      "ideas: up to 3 of these concept keys it relies on: "+Object.keys(IDEAS).join(", ")+".\n\n"+
+      "Example of one entry:\n"+JSON.stringify(ex)+"\n\n"+
+      "Reply with only a JSON array of exactly "+LAB_BATCH+" objects with these fields.";
+  }
+  function draftBody(e){
+    return '<p class="draft-spec">'+esc(FIELDS[e.f].label)+' · first light c. '+e.year+' · TRL '+e.trl+' · '+PLAUS[e.p]+'</p>'+
+      '<p><b>'+esc(e.wow[0])+'</b> — '+esc(e.wow[1])+'</p>'+
+      '<p><b>Imagine.</b> '+esc(e.idea)+'</p><p><b>In plain words.</b> '+esc(e.plain)+'</p><p><b>The science.</b> '+esc(e.how)+'</p>'+
+      '<p><i>'+esc(e.where)+': '+esc(e.day)+'</i></p><p><b>What stands in the way.</b> '+esc(e.block)+'</p><p><b>Seeds today.</b> '+esc(e.seeds)+'</p>';
+  }
+  function mountLab(){
+    var box=document.getElementById("lab"); if(!box) return;
+    if(!isOwner||!db||!sampleFn){ box.hidden=true; return; }
+    var left=unseenAll(), open=left<=3;
+    if(!open&&!drafts.length&&!labBusy&&!labNote){ box.hidden=true; return; }
+    var used=usage.day===today()?usage.batches:0, capped=used>=LAB_DAILY, full=drafts.length>=LAB_MAX_WAITING;
+    var h='<span class="mono-label">The lab · only you can see this</span>';
+    if(open) h+='<p>'+(left?'Only '+left+' left to discover.':'You’ve seen every invention.')+' Claude can invent '+LAB_BATCH+' more. They wait here until you approve them.</p>';
+    if(labBusy) h+='<p class="thinking">Inventing… this can take a minute.</p>';
+    else if(labConfirm) h+='<p>This sends one request on your Claude account ('+(used+1)+' of '+LAB_DAILY+' today). Go ahead?</p>'+
+      '<div class="lab-row"><button class="btn primary" type="button" data-lab="go">Yes, invent '+LAB_BATCH+'</button><button class="btn" type="button" data-lab="cancel">Cancel</button></div>';
+    else if(open) h+='<div class="lab-row"><button class="btn primary" type="button" data-lab="ask"'+(capped||full?' disabled':'')+'>Invent '+LAB_BATCH+' more</button>'+
+      '<span class="mono-label">'+used+' of '+LAB_DAILY+' today</span></div>';
+    if(!labBusy&&open&&capped) h+='<p class="ask-note">That’s today’s limit. The lab opens again tomorrow.</p>';
+    else if(!labBusy&&open&&full) h+='<p class="ask-note">Approve or discard the waiting inventions first.</p>';
+    if(labNote) h+='<p class="ask-note">'+esc(labNote)+'</p>';
+    if(drafts.length) h+='<span class="mono-label">Waiting for your approval · '+drafts.length+'</span>';
+    drafts.forEach(function(d){
+      var e=d.e;
+      h+='<article class="draft"><span class="field-tag">'+glyph(e.f)+esc(FIELDS[e.f].label)+'</span><h3>'+esc(e.name)+'</h3><p>'+esc(e.tag)+'</p>'+
+        '<details><summary>Read the full entry</summary>'+draftBody(e)+'</details>'+
+        '<div class="lab-row"><button class="btn primary" type="button" data-approve="'+esc(d.id)+'">Approve</button><button class="btn" type="button" data-discard="'+esc(d.id)+'">Discard</button></div></article>';
+    });
+    box.innerHTML=h; box.hidden=false;
+  }
+  async function invent(){
+    labConfirm=false; labNote=""; labBusy=true; mountLab();
+    try{
+      var ref=db.doc("labmeta/usage"), snap=await ref.get(), u=snap.exists?snap.data():{};
+      var used=(u&&u.day===today())?(Math.round(+u.batches)||0):0;
+      if(used>=LAB_DAILY){ usage={day:today(),batches:used}; throw {code:"capped"}; }
+      if(drafts.length>=LAB_MAX_WAITING) throw {code:"full"};
+      usage={day:today(),batches:used+1};
+      await ref.set(usage);   // counted before the call, so a failed call still counts
+      var names=allIds().map(function(i){ return E(i).name; }).concat(drafts.map(function(d){ return d.e.name; }));
+      var out=await sampleFn.json(inventPrompt(names),{cache:false});
+      var list=Array.isArray(out)?out:[], lower=names.map(function(n){ return n.toLowerCase(); });
+      var good=list.map(clean).filter(function(e){ return e&&lower.indexOf(e.name.toLowerCase())<0; }).slice(0,LAB_BATCH);
+      for(var i=0;i<good.length;i++) await db.collection("lab").doc().set({e:good[i],createdAt:new Date().toISOString()});
+      if(!good.length) labNote="Claude’s answer couldn’t be used. Try again later.";
+    }catch(err){
+      var c=err&&err.code;
+      labNote= c==="capped" ? "" : c==="full" ? "" :
+        c==="not_granted"||c==="sampling_disabled" ? "Claude isn’t allowed for this page, so the lab can’t invent." :
+        c==="rate_limited" ? "Your Claude usage limit is reached for now. Try again later." :
+        c==="invalid_json" ? "Claude’s answer couldn’t be read. Try again later." :
+        c==="quota_exceeded" ? "The lab’s storage is full." :
+        c==="cancelled" ? "" : "Something went wrong. Try again later.";
+    }
+    labBusy=false; mountLab();
+  }
+  async function approve(id){
+    var d=drafts.filter(function(x){ return x.id===id; })[0]; if(!d) return;
+    try{
+      await db.doc("catalogue/"+id).set({e:d.e,approvedAt:new Date().toISOString(),synced:false});
+      await db.doc("lab/"+id).delete();
+    }catch(err){ labNote="Couldn’t save that approval. Try again."; mountLab(); }
+  }
+  async function discard(id){
+    try{ await db.doc("lab/"+id).delete(); }catch(err){ labNote="Couldn’t discard that one. Try again."; mountLab(); }
+  }
+  viewEl.addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-lab],[data-approve],[data-discard]"); if(!b||!isOwner) return;
+    if(b.hasAttribute("data-approve")){ b.disabled=true; approve(b.getAttribute("data-approve")); return; }
+    if(b.hasAttribute("data-discard")){ b.disabled=true; discard(b.getAttribute("data-discard")); return; }
+    var a=b.getAttribute("data-lab");
+    if(a==="ask"){ labConfirm=true; labNote=""; mountLab(); }
+    else if(a==="cancel"){ labConfirm=false; mountLab(); }
+    else if(a==="go"&&!labBusy) invent();
+  });
+  function catalogueChanged(snap){
+    var next={}, synced={};
+    ALL.forEach(function(e){ if(e.gid) synced[e.gid]=1; });
+    snap.docs.forEach(function(d){ var b=d.data(), e=b&&clean(b.e); if(e&&!synced[d.id]&&/^[A-Za-z0-9_-]{1,64}$/.test(d.id)) next[d.id]=e; });
+    GEN=next; updateCount(); renderChips(); render(false);
+  }
+  (window.claude&&window.claude.use ? Promise.all([window.claude.use("db"),window.claude.use("user")]) : Promise.resolve([null,null]))
+    .then(async function(r){
+      db=r[0]; if(!db) return;
+      db.collection("catalogue").onSnapshot(catalogueChanged,function(){});
+      isOwner = r[1] ? await r[1].isOwner() : false;
+      if(!isOwner) return;
+      db.collection("lab").onSnapshot(function(snap){
+        drafts=snap.docs.map(function(d){ var b=d.data(); return {id:d.id, e:b&&clean(b.e), at:(b&&b.createdAt)||""}; })
+          .filter(function(d){ return d.e&&/^[A-Za-z0-9_-]{1,64}$/.test(d.id); }).sort(function(a,b){ return a.at<b.at?-1:1; });
+        mountLab();
+      },function(){});
+      try{ var s=await db.doc("labmeta/usage").get(); if(s.exists){ var u=s.data(); usage={day:String(u.day||""),batches:Math.round(+u.batches)||0}; } }catch(e){}
+      mountLab();
+    }, function(){});
 
   viewEl.addEventListener("click",function(e){
     var r=e.target.closest(".row, .row-link"); if(!r) return;
-    show(+r.getAttribute("data-id")); setView("discover"); window.scrollTo({top:0});
+    var id=parseId(r.getAttribute("data-id")); if(!E(id)) return;
+    show(id); setView("discover"); window.scrollTo({top:0});
   });
 
   function render(animate){
