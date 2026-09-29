@@ -25,6 +25,9 @@
     --c-own:#b0466a;
     --c-value:#3b6bb0;
     --tint:.16;
+    --soil:#cdb68f;
+    --soil-dark:#8a6f4a;
+    --stem:#3f7a4a;
     --display:'Federo','Optima','Candara',Georgia,serif;
     --serif:'Alegreya',Georgia,'Times New Roman',serif;
     --label:'Alegreya Sans','Gill Sans','Segoe UI',system-ui,sans-serif;
@@ -52,6 +55,9 @@
       --c-own:#ec7fa4;
       --c-value:#83a9ec;
       --tint:.2;
+      --soil:#3d3326;
+      --soil-dark:#8d7654;
+      --stem:#6fae7f;
       color-scheme:dark;
     }
   }
@@ -76,6 +82,9 @@
     --c-own:#ec7fa4;
     --c-value:#83a9ec;
     --tint:.2;
+    --soil:#3d3326;
+    --soil-dark:#8d7654;
+    --stem:#6fae7f;
     color-scheme:dark;
   }
 
@@ -191,6 +200,7 @@
   .card .where{font:500 13.5px/1.3 var(--label);color:var(--muted);margin-top:3px}
   .card p{grid-column:1 / -1;margin:8px 0 0;color:var(--soft);font-size:16px;text-wrap:pretty}
   .card .kept{color:var(--sun);margin-left:4px}
+  .fx-tag{display:inline-block;margin-top:7px;font:700 11px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--sun);border:1px solid color-mix(in srgb,var(--sun) 55%,transparent);border-radius:999px;padding:4px 8px}
   .empty{padding:40px 10px;text-align:center;color:var(--muted);font-style:italic}
 
   /* Detail */
@@ -227,6 +237,92 @@
 
   footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font:500 14px/1.5 var(--label);color:var(--muted);max-width:70ch}
   footer p{margin:0 0 6px}
+  /* Views */
+  .tabs{display:inline-flex;gap:4px;padding:4px;background:var(--ground-2);border-radius:999px;max-width:100%;margin-bottom:16px}
+  .tab{font:700 14px var(--label);letter-spacing:.06em;border:0;background:transparent;color:var(--soft);padding:9px 18px;border-radius:999px;cursor:pointer}
+  .tab:hover{color:var(--ink)}
+  .tab[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(20,40,25,.14)}
+  .tab:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
+
+  /* Garden */
+  .garden-bar{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:6px 14px}
+  .play{width:46px;height:46px;border-radius:50%;background:var(--leaf);color:var(--leaf-ink);border:0;cursor:pointer;display:grid;place-items:center}
+  .play svg{width:18px;height:18px;fill:currentColor}
+  .play:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .year{font:400 44px/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  .year-note{font:500 14px/1.3 var(--label);color:var(--muted)}
+  .year-note b{color:var(--ink);font-weight:700}
+  #yr{grid-column:1 / -1;width:100%;accent-color:var(--leaf);margin:6px 0 0}
+  .sprout{min-height:2.2em;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:6px 0 4px;font:500 14px var(--label);color:var(--muted)}
+  .sprout button{font:700 13px var(--label);color:var(--ink);background:color-mix(in srgb,var(--c) calc(var(--tint)*100%),transparent);border:1px solid var(--c);border-radius:999px;padding:4px 11px;cursor:pointer}
+  .garden{position:relative}
+  .garden svg{display:block;width:100%;overflow:visible}
+  .bed-label{font:700 11.5px var(--label);letter-spacing:.16em;text-transform:uppercase;fill:var(--c)}
+  .bed-count{font:500 11.5px var(--label);fill:var(--muted)}
+  .soil{fill:var(--soil)}
+  .plant{cursor:pointer;outline:none;transition:opacity .3s}
+  .plant.dim{opacity:.14}
+  .plant .stem{stroke:var(--stem);stroke-width:2.2;stroke-linecap:round;transform-box:fill-box;transform-origin:50% 100%;transition:transform .5s ease}
+  .plant .sprig{fill:var(--stem);transform-box:fill-box;transform-origin:50% 100%;transition:transform .5s ease}
+  .plant .head{transform-box:fill-box;transform-origin:center;transition:transform .5s ease}
+  .plant .petal{fill:var(--c)}
+  .plant .eye{fill:var(--sun)}
+  .plant .seedling{fill:var(--soil-dark);transition:opacity .3s}
+  .plant .ring{fill:none;stroke:transparent;stroke-width:1.6}
+  .plant.kept .ring{stroke:var(--sun)}
+  .plant:hover .ring,.plant:focus-visible .ring{stroke:var(--ink)}
+  .plant .hit{fill:transparent}
+  .tip{position:absolute;pointer-events:none;transform:translate(-50%,-100%);background:var(--ink);color:var(--ground);font:500 13px/1.3 var(--label);padding:6px 10px;border-radius:8px;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+  .garden-key{font:500 13.5px/1.45 var(--label);color:var(--muted);margin:10px 0 0}
+
+  /* Discover */
+  .deck-wrap{max-width:540px;margin:0 auto}
+  .deck-meter{display:flex;align-items:center;gap:12px;font:500 14px var(--label);color:var(--muted);margin-bottom:14px;font-variant-numeric:tabular-nums}
+  .deck-meter .bar{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+  .deck-meter .bar i{display:block;height:100%;background:var(--leaf);border-radius:3px;transition:width .3s}
+  .deck{position:relative;display:grid}
+  .dcard{
+    grid-area:1 / 1;position:relative;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 40%),var(--card);
+    border:1px solid var(--line);border-radius:26px;padding:26px 24px 24px;
+    box-shadow:0 12px 30px rgba(20,40,25,.12);touch-action:pan-y;user-select:none;-webkit-user-select:none;
+    transition:transform .3s ease,opacity .3s ease;cursor:grab;display:grid;gap:10px;align-content:start;
+  }
+  .dcard.under{transform:translateY(12px) scale(.96);opacity:.55;pointer-events:none;box-shadow:none}
+  .dcard.dragging{transition:none;cursor:grabbing}
+  .dcard.out-l{transform:translateX(-130%) rotate(-14deg);opacity:0}
+  .dcard.out-r{transform:translateX(130%) rotate(14deg);opacity:0}
+  .dcard:focus-visible{outline:2px solid var(--leaf);outline-offset:3px}
+  .dcard .top{display:flex;align-items:center;gap:12px}
+  .dcard .cat{font:700 12px var(--label);letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+  .dcard h3{font:400 30px/1.1 var(--display);letter-spacing:.03em;margin:4px 0 0;text-wrap:balance}
+  .dcard .where{font:500 14px var(--label);color:var(--muted)}
+  .dcard .lead{font-size:19px;margin:0}
+  .dcard p{margin:0;color:var(--soft);text-wrap:pretty}
+  .stamp{position:absolute;top:22px;font:700 15px var(--label);letter-spacing:.16em;text-transform:uppercase;padding:6px 12px;border-radius:10px;border:2px solid;opacity:0;pointer-events:none}
+  .stamp.keep{right:22px;color:var(--sun);transform:rotate(8deg)}
+  .stamp.skip{left:22px;color:var(--muted);transform:rotate(-8deg)}
+  .deck-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .deck-hint{text-align:center;font:500 13px var(--label);color:var(--muted);margin:10px 0 0}
+  .deck-done{text-align:center;padding:36px 20px;background:var(--card);border:1px solid var(--line);border-radius:26px}
+  .deck-done h3{font:400 26px/1.2 var(--display);margin:0 0 8px}
+  .deck-done p{color:var(--soft);margin:0 0 16px}
+
+  /* Tried and Ask Claude, in the detail sheet */
+  .btn.tried{border-color:var(--sun);color:var(--ink)}
+  .btn.tried.solid{background:var(--sun);color:#1c2a13}
+  .ask[hidden]{display:none}
+  .ask{border-top:1px solid var(--line);padding-top:16px;margin-top:4px;display:grid;gap:10px}
+  .ask .chips{gap:6px}
+  .ask .chip{font-size:12.5px;padding:8px 12px}
+  .ask .chip:disabled{opacity:.45;cursor:default}
+  .ask form{display:flex;gap:8px}
+  .ask input{flex:1;min-width:0;font:16px var(--serif);color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:999px;padding:9px 16px;outline:none}
+  .ask input:focus{border-color:var(--leaf)}
+  .answer{white-space:pre-wrap;background:var(--ground);border-radius:14px;padding:12px 14px;margin:0}
+  .answer .q{display:block;font:700 12px var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .thinking{font-style:italic;color:var(--muted)}
+  .ask-note{font:500 13px/1.4 var(--label);color:var(--muted);margin:0}
 </style>
 
 <div class="wrap">
@@ -246,6 +342,11 @@
     </aside>
 
     <main>
+      <div class="tabs" role="tablist" aria-label="Ways to explore">
+        <button class="tab" role="tab" id="t-garden" aria-controls="v-garden" data-view="garden">Garden</button>
+        <button class="tab" role="tab" id="t-discover" aria-controls="v-discover" data-view="discover">Discover</button>
+        <button class="tab" role="tab" id="t-list" aria-controls="v-list" data-view="list">List</button>
+      </div>
       <div class="controls">
         <label class="search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
@@ -254,10 +355,30 @@
         <div class="chips" id="regions" role="group" aria-label="Filter by region"></div>
         <div class="summary"><span id="summary"></span><button id="clear" hidden>Show everything</button></div>
       </div>
-      <div class="grid" id="grid"></div>
+
+      <section id="v-garden" role="tabpanel" aria-labelledby="t-garden">
+        <div class="garden-bar">
+          <button class="play" id="play" type="button" aria-label="Play the years"></button>
+          <div class="year" id="yearNum" aria-live="off"></div>
+          <div class="year-note" id="yearNote"></div>
+          <input id="yr" type="range" step="1" aria-label="Year">
+        </div>
+        <div class="sprout" id="sprout" aria-live="polite"></div>
+        <div class="garden" id="garden"></div>
+        <p class="garden-key">Each flower is a project, planted in the year it began and taller the longer it has kept going. Press play to watch the garden grow, or drag through the years. A gold ring marks the ones you kept.</p>
+      </section>
+
+      <section id="v-discover" role="tabpanel" aria-labelledby="t-discover" hidden>
+        <div class="deck-wrap" id="deck"></div>
+      </section>
+
+      <section id="v-list" role="tabpanel" aria-labelledby="t-list" hidden>
+        <div class="grid" id="grid"></div>
+      </section>
+
       <footer>
         <p>Every project here was running at the time of writing (2026). Figures are rounded and as last reported by the project or the press; the project’s own site has current numbers.</p>
-        <p>Kept projects are stored in this browser only.</p>
+        <p id="storeNote">What you keep, discover and try is stored in this browser only.</p>
       </footer>
     </main>
   </div>
@@ -704,6 +825,189 @@
      fig:"‘Ko au te awa, ko te awa ko au’: I am the river, and the river is me.",
      you:"",
      url:""}
+    ,
+
+    // ---- Added later: frontier projects (fx: true) and more commons. Append only. ----
+    {n:"Carbfix", c:"remake", fx:true, place:"Hellisheiði", country:"Iceland", r:"Europe", since:2014,
+     line:"Turns carbon dioxide into stone, deep underground, in a couple of years.",
+     loop:"CO₂ captured from a geothermal power plant (and from Climeworks’ air-capture machines next door) is dissolved in water and pumped into basalt rock. There it reacts with the rock and becomes solid carbonate minerals, locked away for good.",
+     fig:"In the pilot, about 95 percent of the injected CO₂ had turned to stone within two years, far faster than scientists expected.",
+     you:"",
+     url:"https://www.carbfix.com"},
+    {n:"Redwood Materials", c:"remake", fx:true, place:"Carson City, Nevada", country:"United States", r:"Americas", since:2017,
+     line:"Recycles old batteries into the metals for new ones.",
+     loop:"Phones, laptops and car batteries are broken down to recover lithium, nickel, cobalt and copper, which go back into new battery materials. Used car batteries that still hold charge are first given a second life as storage for the grid.",
+     fig:"Founded by JB Straubel, a Tesla co-founder.",
+     you:"Take dead batteries to a proper collection point; never put them in the bin.",
+     url:"https://www.redwoodmaterials.com"},
+    {n:"CarbonCure", c:"remake", fx:true, place:"Halifax, Nova Scotia", country:"Canada", r:"Americas", since:2012,
+     line:"Injects captured CO₂ into fresh concrete, where it becomes mineral.",
+     loop:"A small dose of CO₂ turns into calcium carbonate inside the wet concrete, which makes it stronger. Producers can then use a little less cement, the most carbon-heavy ingredient.",
+     fig:"Its systems are installed at hundreds of concrete plants.",
+     you:"",
+     url:"https://www.carboncure.com"},
+    {n:"Carbios", c:"remake", fx:true, place:"Clermont-Ferrand", country:"France", r:"Europe", since:2011,
+     line:"An enzyme that digests plastic back into its building blocks.",
+     loop:"The enzyme, first found in compost, was engineered to take PET bottles and polyester apart into their original molecules. These are made into new plastic as good as virgin, so bottles can become bottles again, not lower-grade fibre.",
+     fig:"In a 2020 study in Nature, the enzyme broke down about 90 percent of PET in around ten hours.",
+     you:"",
+     url:"https://www.carbios.com"},
+    {n:"Samsara Eco", c:"remake", fx:true, place:"Canberra", country:"Australia", r:"Oceania", since:2021,
+     line:"Designs enzymes that break nylon and polyester clothes down for endless recycling.",
+     loop:"Worn-out activewear is dissolved by enzymes into its raw ingredients, which are made into new fabric. The company works with clothing brands including Lululemon.",
+     fig:"Born out of research at the Australian National University.",
+     you:"",
+     url:"https://www.samsaraeco.com"},
+    {n:"Infinited Fiber", c:"remake", fx:true, place:"Espoo", country:"Finland", r:"Europe", since:2016,
+     line:"Turns worn-out cotton clothes into a new fibre that feels like cotton.",
+     loop:"Cotton-rich textile waste is broken down to cellulose and spun into a new fibre called Infinna, which can be recycled again the same way.",
+     fig:"A spin-off from VTT, Finland’s technical research centre.",
+     you:"",
+     url:"https://infinitedfiber.com"},
+    {n:"The Ocean Cleanup", c:"remake", fx:true, place:"Rotterdam", country:"Netherlands", r:"Europe", since:2013,
+     line:"Long floating barriers sweep plastic out of the ocean, and river barriers catch it before it gets there.",
+     loop:"A U-shaped barrier towed through the Great Pacific Garbage Patch gathers floating plastic. Solar-powered Interceptors in rivers in Asia and the Americas catch rubbish before it reaches the sea. Recovered plastic is sorted and recycled where possible.",
+     fig:"Its stated aim is to remove 90 percent of floating ocean plastic by 2040.",
+     you:"",
+     url:"https://theoceancleanup.com"},
+    {n:"TECLA", c:"remake", fx:true, place:"Massa Lombarda", country:"Italy", r:"Europe", since:2021,
+     line:"A round house 3D-printed from the earth dug up on site.",
+     loop:"Printers by WASP layered local clay into two domed rooms, with architects Mario Cucinella. At the end of its life the house can return to the soil it came from.",
+     fig:"Built from local raw earth, with almost nothing brought in.",
+     you:"",
+     url:"https://www.3dwasp.com"},
+    {n:"MycoWorks", c:"remake", fx:true, place:"Emeryville, California", country:"United States", r:"Americas", since:2013,
+     line:"Leather-like material grown from mushroom roots.",
+     loop:"Mycelium, the root network of fungi, is grown into sheets on farm by-products and tanned like hide. It needs no animals, and luxury fashion houses have used it.",
+     fig:"Opened a full-scale plant in South Carolina in 2023.",
+     you:"",
+     url:"https://www.mycoworks.com"},
+    {n:"Solar Foods", c:"grow", fx:true, place:"Vantaa, near Helsinki", country:"Finland", r:"Europe", since:2017,
+     line:"Protein made from air, water and electricity, with no farmland.",
+     loop:"Microbes are fed carbon dioxide and hydrogen split from water with renewable power. They grow into a protein powder called Solein, used in food like flour or milk powder.",
+     fig:"Its first factory opened in 2024.",
+     you:"",
+     url:"https://solarfoods.com"},
+    {n:"Protix", c:"grow", fx:true, place:"Dongen", country:"Netherlands", r:"Europe", since:2009,
+     line:"Black soldier fly larvae that turn food leftovers into protein.",
+     loop:"Larvae eat by-products from the food industry and grow fast. They become feed for fish, chickens and pets, and their droppings become fertiliser.",
+     fig:"It runs one of the largest insect farms in the world.",
+     you:"",
+     url:"https://protix.eu"},
+    {n:"GreenWave", c:"grow", fx:true, place:"New Haven, Connecticut", country:"United States", r:"Americas", since:2014,
+     line:"Ocean farms of seaweed and shellfish that clean the water as they grow.",
+     loop:"Fisherman Bren Smith developed ‘regenerative ocean farming’: kelp, mussels and oysters grown on ropes in the water column. They need no feed, fresh water or fertiliser, and they filter the sea. GreenWave trains new farmers and shares the model freely.",
+     fig:"A small plot of ocean can grow a large harvest with no inputs at all.",
+     you:"",
+     url:"https://www.greenwave.org"},
+    {n:"Stockholm Biochar Project", c:"grow", fx:true, place:"Stockholm", country:"Sweden", r:"Europe", since:2017,
+     line:"Residents’ garden waste becomes charcoal for city trees and heat for homes.",
+     loop:"Branches and leaves are heated without oxygen into biochar, which locks carbon away for centuries and helps street trees thrive. The heat released goes into the district heating network.",
+     fig:"Won the Bloomberg Philanthropies Mayors Challenge in 2014.",
+     you:"",
+     url:""},
+    {n:"Polar Night Energy", c:"power", fx:true, place:"Kankaanpää", country:"Finland", r:"Europe", since:2022,
+     line:"A ‘sand battery’ that stores clean electricity as heat.",
+     loop:"When wind and solar power are cheap, electricity heats a big silo of sand to around 500 °C. The heat is drawn out when needed, even weeks later, for a town’s district heating.",
+     fig:"The first commercial sand battery; a much larger one followed in Pornainen.",
+     you:"",
+     url:"https://polarnightenergy.com"},
+    {n:"Orbital O2", c:"power", fx:true, place:"Orkney", country:"United Kingdom", r:"Europe", since:2021,
+     line:"A floating tidal turbine that makes power from the sea’s daily tides.",
+     loop:"A 74-metre floating hull holds two rotors in the tidal stream off Orkney. Tides are predictable years ahead, so it gives steady clean power that wind and sun cannot.",
+     fig:"Described as the world’s most powerful tidal turbine, with 2 megawatts.",
+     you:"",
+     url:"https://www.orbitalmarine.com"},
+    {n:"SOLshare", c:"power", fx:true, place:"Dhaka", country:"Bangladesh", r:"Asia", since:2014,
+     line:"Neighbours trade solar power with each other through a village microgrid.",
+     loop:"Homes with solar panels sell their surplus to neighbours without panels, over a small grid with smart meters and mobile-money payments. Villagers become energy producers, not only customers.",
+     fig:"It builds on Bangladesh’s millions of home solar systems.",
+     you:"",
+     url:""},
+    {n:"Jack’s Solar Garden", c:"power", fx:true, place:"Longmont, Colorado", country:"United States", r:"Americas", since:2020,
+     line:"A farm that grows vegetables in the shade of its solar panels.",
+     loop:"Panels raised high above the ground produce community solar power, while crops grow beneath them. The shade saves water and the plants cool the panels, and scientists study the results.",
+     fig:"Around 3,200 panels supply power for roughly 300 homes.",
+     you:"",
+     url:"https://www.jackssolargarden.com"},
+    {n:"Stockholm Data Parks", c:"power", fx:true, place:"Stockholm", country:"Sweden", r:"Europe", since:2017,
+     line:"Heat from computer servers warms Stockholm’s homes.",
+     loop:"Data centres give off heat all year. Stockholm connects them to its district heating network, which buys the waste heat instead of letting it escape.",
+     fig:"Run by the City of Stockholm with its district-heating and fibre-network companies.",
+     you:"",
+     url:""},
+    {n:"EU right to repair", c:"mend", fx:true, place:"Brussels", country:"Belgium", r:"Europe", since:2024,
+     line:"A European law that makes manufacturers repair products after the warranty ends.",
+     loop:"For goods such as washing machines, fridges, vacuum cleaners and phones, makers must offer repairs at a reasonable price, sell spare parts, and stop blocking independent repairers. A repair within warranty extends the warranty.",
+     fig:"Adopted in 2024; EU countries must apply it from 2026.",
+     you:"Ask for a repair before a replacement; it is increasingly your right.",
+     url:""},
+    {n:"Back Market", c:"mend", place:"Paris", country:"France", r:"Europe", since:2014,
+     line:"A marketplace for refurbished phones and laptops, with a warranty.",
+     loop:"Professional refurbishers test, repair and resell devices, which keeps them in use for years longer. It has made second-hand electronics a normal choice across Europe and the US.",
+     fig:"Buying refurbished avoids most of a phone’s footprint, which comes from making it.",
+     you:"Try refurbished for your next phone.",
+     url:"https://www.backmarket.com"},
+    {n:"L’Atelier Paysan", c:"mend", place:"Renage, Isère", country:"France", r:"Europe", since:2011,
+     line:"A co-op where farmers design, build and repair their own farm machines.",
+     loop:"Farmers share open-source plans for tools suited to small organic farms, and learn welding in travelling workshops. They can repair what they build, instead of depending on dealers.",
+     fig:"Its plans are free to download and adapt.",
+     you:"",
+     url:"https://latelierpaysan.org"},
+    {n:"Vytal", c:"share", place:"Cologne", country:"Germany", r:"Europe", since:2019,
+     line:"Reusable takeaway boxes you borrow with an app, with no deposit.",
+     loop:"Restaurants pack food in sturdy bowls; you scan a code and return the bowl within two weeks to any partner. Only if you keep it too long do you pay for it.",
+     fig:"Each bowl is designed for hundreds of uses.",
+     you:"",
+     url:"https://www.vytal.org"},
+    {n:"Ecosia", c:"own", place:"Berlin", country:"Germany", r:"Europe", since:2009,
+     line:"A search engine that uses its profits to plant trees.",
+     loop:"Adverts next to search results pay for tree-planting projects with local communities. Since 2018 Ecosia has been steward-owned: it can never be sold, and no profits can be taken out by owners.",
+     fig:"More than 200 million trees planted, as reported by the company.",
+     you:"",
+     url:"https://www.ecosia.org"},
+    {n:"OpenStreetMap", c:"own", place:"London", country:"United Kingdom", r:"Europe", since:2004,
+     line:"A map of the world made by volunteers and free for anyone to use.",
+     loop:"Millions of contributors map roads, paths, shops and buildings. The map belongs to no one and everyone, and it powers apps and humanitarian work where no commercial map exists.",
+     fig:"Volunteer ‘mapathons’ map disaster zones within days.",
+     you:"Add your street’s bench, tree or bike rack at openstreetmap.org.",
+     url:"https://www.openstreetmap.org"},
+    {n:"M-KOPA", c:"power", place:"Nairobi", country:"Kenya", r:"Africa", since:2011,
+     line:"Solar home kits paid for in small daily amounts by mobile money.",
+     loop:"Families without a grid connection got a panel, lights and a phone charger, and paid a little each day instead of buying kerosene, until they owned it. It later expanded to phones and other loans.",
+     fig:"It has served millions of customers across Africa.",
+     you:"",
+     url:"https://m-kopa.com"},
+    {n:"Frontier", c:"value", fx:true, place:"San Francisco", country:"United States", r:"Americas", since:2022,
+     line:"A group of companies promising to buy permanent carbon removal in bulk.",
+     loop:"Stripe, Alphabet, Shopify, Meta and McKinsey committed about a billion dollars to buy carbon removal. Guaranteed buyers help young technologies grow up and get cheaper.",
+     fig:"An ‘advance market commitment’, the same idea that sped up vaccines for poor countries.",
+     you:"",
+     url:"https://frontierclimate.com"},
+    {n:"GiveDirectly basic income study", c:"value", fx:true, place:"Western Kenya", country:"Kenya", r:"Africa", since:2017,
+     line:"The longest study of a universal basic income, running for twelve years.",
+     loop:"Everyone in some villages receives a small monthly payment with no conditions, compared with villages receiving lump sums or nothing. Researchers track how people work, save, start businesses and live.",
+     fig:"Early results found people started more businesses, not fewer.",
+     you:"",
+     url:"https://www.givedirectly.org"},
+    {n:"Sarafu", c:"value", place:"Mombasa", country:"Kenya", r:"Africa", since:2010,
+     line:"Community currencies on basic mobile phones, for neighbourhoods short of cash.",
+     loop:"Grassroots Economics helps local groups issue their own vouchers, backed by the goods and services members can offer. When shillings are scarce, people can still trade food, water and school fees with each other.",
+     fig:"Used by thousands of small businesses and households.",
+     you:"",
+     url:"https://www.grassrootseconomics.org"},
+    {n:"Mar Menor", c:"value", fx:true, place:"Murcia", country:"Spain", r:"Europe", since:2022,
+     line:"A saltwater lagoon that became the first ecosystem in Europe with its own legal rights.",
+     loop:"After farm run-off caused mass fish deaths, citizens gathered over half a million signatures for a law giving the lagoon legal personhood. It now has guardians who can go to court on its behalf.",
+     fig:"Spain’s Constitutional Court upheld the law in 2024.",
+     you:"",
+     url:""},
+    {n:"Decidim", c:"value", fx:true, place:"Barcelona", country:"Spain", r:"Europe", since:2016,
+     line:"Free software that lets residents propose and vote on how public money is spent.",
+     loop:"Barcelona built it for its participatory budget and made it open source. Cities, co-ops and parliaments now use it to run consultations and budgets where citizens decide.",
+     fig:"Used by hundreds of organisations worldwide.",
+     you:"Find out whether your city runs a participatory budget.",
+     url:"https://decidim.org"}
   ];
 
   // ---------- small helpers ----------
@@ -742,35 +1046,39 @@
   }
   function sinceText(p){ return p.place + (p.place.indexOf(p.country) < 0 && p.country !== p.place ? ", " + p.country : "") + " · since " + p.since; }
 
-  // ---------- kept (this browser only) ----------
-  var KEY = "loam.kept";
-  function loadKept(){
+  // ---------- per-viewer lists (this browser only) ----------
+  // Each holds project ids (array positions): kept, met in Discover, tried by the reader.
+  function loadIds(key){
     try{
-      var a = JSON.parse(localStorage.getItem(KEY) || "[]");
+      var a = JSON.parse(localStorage.getItem(key) || "[]");
       return Array.isArray(a) ? a.filter(function(n){ return Number.isInteger(n) && n >= 0 && n < ALL.length; }) : [];
     }catch(e){ return []; }
   }
-  var kept = loadKept();
-  function saveKept(){ try{ localStorage.setItem(KEY, JSON.stringify(kept)); }catch(e){} }
+  function saveIds(key, a){ try{ localStorage.setItem(key, JSON.stringify(a)); }catch(e){} }
+  function getPref(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+  function setPref(key, v){ try{ localStorage.setItem(key, v); }catch(e){} }
+  var kept = loadIds("loam.kept"), seen = loadIds("loam.seen"), tried = loadIds("loam.tried");
   function isKept(i){ return kept.indexOf(i) >= 0; }
-  function toggleKept(i){
-    if(isKept(i)) kept = kept.filter(function(n){ return n !== i; }); else kept.push(i);
-    saveKept();
-  }
+  function isTried(i){ return tried.indexOf(i) >= 0; }
+  function flip(a, i){ var j = a.indexOf(i); if(j >= 0) a.splice(j, 1); else a.push(i); }
+  function toggleKept(i){ flip(kept, i); saveIds("loam.kept", kept); }
+  function toggleTried(i){ flip(tried, i); saveIds("loam.tried", tried); }
 
   // ---------- state ----------
-  var state = {cat:null, region:"All", q:"", keptOnly:false};
+  var state = {cat:null, region:"All", q:"", keptOnly:false, fx:false};
   var REGIONS = ["All", "Europe", "Americas", "Asia", "Africa", "Oceania"];
 
   // ---------- stats ----------
-  (function(){
-    var countries = {}; var oldest = 3000;
-    ALL.forEach(function(p){ countries[p.country] = 1; if(p.since < oldest) oldest = p.since; });
+  var COUNTRIES = {}, OLDEST = 3000;
+  ALL.forEach(function(p){ COUNTRIES[p.country] = 1; if(p.since < OLDEST) OLDEST = p.since; });
+  function renderStats(){
     var ul = document.getElementById("stats");
-    [[ALL.length, "projects"], [Object.keys(countries).length, "countries"], [oldest, "oldest, still going"]].forEach(function(x){
-      ul.appendChild(h("li", null, h("b", {text:x[0]}), x[1]));
-    });
-  })();
+    ul.textContent = "";
+    var rows = [[ALL.length, "projects"], [Object.keys(COUNTRIES).length, "countries"], [OLDEST, "oldest, still going"]];
+    if(tried.length) rows.push([tried.length, "tried by you"]);
+    rows.forEach(function(x){ ul.appendChild(h("li", null, h("b", {text:x[0]}), x[1])); });
+  }
+  renderStats();
 
   // ---------- the wheel ----------
   var wheel = document.getElementById("wheel");
@@ -897,46 +1205,337 @@
   var keptBtn = h("button", {class:"chip", type:"button", "aria-pressed":"false",
     onclick:function(){ state.keptOnly = !state.keptOnly; render(); }});
   regionBox.appendChild(keptBtn);
+  var fxBtn = h("button", {class:"chip", type:"button", "aria-pressed":"false", text:"⚡ Frontier",
+    title:"New science, technology and law at the edge of what’s possible",
+    onclick:function(){ state.fx = !state.fx; render(); }});
+  regionBox.appendChild(fxBtn);
 
   var q = document.getElementById("q");
   q.addEventListener("input", function(){ state.q = q.value; render(); });
   document.getElementById("clear").addEventListener("click", function(){
-    state = {cat:null, region:"All", q:"", keptOnly:false}; q.value = ""; render();
+    state = {cat:null, region:"All", q:"", keptOnly:false, fx:false}; q.value = ""; render();
   });
 
   function setCat(id){ state.cat = id; render(); }
 
-  // ---------- list ----------
-  var grid = document.getElementById("grid");
+  // ---------- filtering ----------
   function norm(t){ return String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
-  var HAY = ALL.map(function(p){ return norm([p.n, p.place, p.country, p.line, p.loop, p.fig, CAT[p.c].name].join(" ")); });
+  var HAY = ALL.map(function(p){ return norm([p.n, p.place, p.country, p.line, p.loop, p.fig, CAT[p.c].name, p.fx ? "frontier" : ""].join(" ")); });
 
   function matches(i){
     var p = ALL[i];
     if(state.cat && p.c !== state.cat) return false;
     if(state.region !== "All" && p.r !== state.region) return false;
     if(state.keptOnly && !isKept(i)) return false;
+    if(state.fx && !p.fx) return false;
     var words = norm(state.q).split(/\s+/).filter(Boolean);
     for(var w = 0; w < words.length; w++) if(HAY[i].indexOf(words[w]) < 0) return false;
     return true;
   }
+  function pressable(el, fn){
+    el.addEventListener("click", fn);
+    el.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); fn(); } });
+    return el;
+  }
+  var reduceMotion = false;
+  try{ reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
 
+  // ---------- views ----------
+  var VIEWS = ["garden", "discover", "list"];
+  var view = VIEWS.indexOf(getPref("loam.view")) >= 0 ? getPref("loam.view") : "garden";
+  var tabs = {};
+  VIEWS.forEach(function(v){
+    var t = document.getElementById("t-" + v);
+    tabs[v] = t;
+    t.addEventListener("click", function(){ setView(v); });
+    t.addEventListener("keydown", function(e){
+      var k = VIEWS.indexOf(v);
+      if(e.key === "ArrowRight" || e.key === "ArrowLeft"){
+        e.preventDefault();
+        var next = VIEWS[(k + (e.key === "ArrowRight" ? 1 : VIEWS.length - 1)) % VIEWS.length];
+        setView(next); tabs[next].focus();
+      }
+    });
+  });
+  function setView(v){
+    view = v; setPref("loam.view", v);
+    if(v !== "garden") stopPlay();
+    render();
+  }
+
+  // ---------- list view ----------
+  var grid = document.getElementById("grid");
   function card(i){
     var p = ALL[i];
-    return h("div", {class:"card", role:"button", tabindex:"0", style:"--c:var(--c-" + p.c + ")",
-      onclick:function(){ openDetail(i); },
-      onkeydown:function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openDetail(i); } }},
+    return pressable(h("div", {class:"card", role:"button", tabindex:"0", style:"--c:var(--c-" + p.c + ")"},
       medal(p.c),
       h("div", null,
         h("h3", null, p.n, isKept(i) ? h("span", {class:"kept", "aria-label":"kept", text:"✦"}) : null),
-        h("div", {class:"where", text:sinceText(p)})
+        h("div", {class:"where", text:sinceText(p)}),
+        p.fx ? h("span", {class:"fx-tag", text:"⚡ Frontier"}) : null
       ),
       h("p", {text:p.line})
-    );
+    ), function(){ openDetail(i); });
+  }
+  function renderList(shown){
+    grid.textContent = "";
+    if(!shown.length){
+      grid.appendChild(h("p", {class:"empty", text: state.keptOnly && !kept.length
+        ? "Nothing kept yet. Open a project and tap Keep to save it here."
+        : "Nothing matches that yet. Try another word or region."}));
+      return;
+    }
+    shown.forEach(function(i){ grid.appendChild(card(i)); });
   }
 
+  // ---------- garden view: a time-lapse of the projects taking root ----------
+  var THIS_YEAR = Math.max(2026, new Date().getFullYear());
+  var FIRST_YEAR = OLDEST - 1;
+  var year = THIS_YEAR;
+  var gardenBox = document.getElementById("garden");
+  var yr = document.getElementById("yr");
+  var playBtn = document.getElementById("play");
+  var tip = null, plants = [], gardenW = 0, playTimer = null;
+  var ROW = 96, MAXH = 50;
+  yr.min = FIRST_YEAR; yr.max = THIS_YEAR; yr.value = year;
+  var PLAY_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
+  var PAUSE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/></svg>';
+
+  function buildGarden(){
+    var W = Math.round(gardenBox.clientWidth);
+    if(!W) return;
+    gardenW = W;
+    gardenBox.textContent = "";
+    plants = [];
+    var PAD = 12;
+    var svg = s("svg", {viewBox:"0 0 " + W + " " + (ROW * CATS.length), width:W, height:ROW * CATS.length,
+      role:"group", "aria-label":"Garden of projects by kind of loop"});
+    CATS.forEach(function(cat, r){
+      var ids = [];
+      ALL.forEach(function(p, i){ if(p.c === cat.id) ids.push(i); });
+      ids.sort(function(a, b){ return ALL[a].since - ALL[b].since || a - b; });
+      var ground = r * ROW + ROW - 12;
+      var bed = s("g", {style:"--c:var(--c-" + cat.id + ")"});
+      var label = s("text", {class:"bed-label", x:PAD, y:r * ROW + 14});
+      label.textContent = cat.name;
+      bed.appendChild(label);
+      bed.appendChild(s("rect", {class:"soil", x:0, y:ground, width:W, height:7, rx:3.5}));
+      var step = (W - PAD * 2) / ids.length;
+      ids.forEach(function(i, k){
+        var p = ALL[i];
+        var x = PAD + step * (k + 0.5);
+        var g = s("g", {class:"plant", transform:"translate(" + x.toFixed(1) + " " + ground + ")", tabindex:"0", role:"button",
+          "aria-label": p.n + ", since " + p.since});
+        g.appendChild(s("rect", {class:"hit", x:(-step / 2).toFixed(1), y:-(MAXH + 16), width:step.toFixed(1), height:MAXH + 22}));
+        var seed = s("ellipse", {class:"seedling", cx:0, cy:1.5, rx:3.2, ry:2.2});
+        var stem = s("line", {class:"stem", x1:0, y1:0, x2:0, y2:-MAXH});
+        var sprig = s("path", {class:"sprig", d:"M0 -6 C 4 -9 8 -13 9 -18 C 4 -16 1 -12 0 -6 Z M0 -12 C -4 -15 -7 -19 -8 -23 C -3 -21 0 -17 0 -12 Z"});
+        var head = s("g", {class:"head"});
+        head.appendChild(s("circle", {class:"ring", cx:0, cy:0, r:11}));
+        for(var q = 0; q < 6; q++){
+          head.appendChild(s("ellipse", {class:"petal", cx:0, cy:-5, rx:3, ry:5, transform:"rotate(" + (q * 60) + ")"}));
+        }
+        head.appendChild(s("circle", {class:"eye", cx:0, cy:0, r:3.1}));
+        g.appendChild(seed); g.appendChild(stem); g.appendChild(sprig); g.appendChild(head);
+        pressable(g, function(){ openDetail(i); });
+        g.addEventListener("pointerenter", function(){ showTip(i); });
+        g.addEventListener("pointerleave", hideTip);
+        g.addEventListener("focus", function(){ showTip(i); });
+        g.addEventListener("blur", hideTip);
+        bed.appendChild(g);
+        plants[i] = {g:g, seed:seed, stem:stem, sprig:sprig, head:head, x:x, ground:ground, k:Math.min(1, step / 24)};
+      });
+      svg.appendChild(bed);
+    });
+    gardenBox.appendChild(svg);
+    tip = h("div", {class:"tip", hidden:true});
+    gardenBox.appendChild(tip);
+    updateGarden(true);
+  }
+
+  function plantHeight(i){
+    var age = year - ALL[i].since;
+    if(age < 0) return 0;
+    return 12 + (MAXH - 12) * Math.min(1, Math.log(1 + age) / Math.log(1 + 45));
+  }
+  function showTip(i){
+    var pl = plants[i]; if(!pl || !tip) return;
+    var p = ALL[i];
+    tip.textContent = p.n + " · " + (year >= p.since ? "since " + p.since : "not yet, starts " + p.since);
+    tip.style.left = Math.min(Math.max(pl.x, 90), gardenW - 90) + "px";
+    tip.style.top = (pl.ground - plantHeight(i) - 16) + "px";
+    tip.hidden = false;
+  }
+  function hideTip(){ if(tip) tip.hidden = true; }
+
+  function updateGarden(){
+    if(!plants.length) return;
+    var alive = 0, newThisYear = [];
+    ALL.forEach(function(p, i){
+      var pl = plants[i]; if(!pl) return;
+      var hgt = plantHeight(i), on = year >= p.since, match = matches(i);
+      var age = year - p.since;
+      pl.stem.style.transform = "scaleY(" + (hgt / MAXH).toFixed(3) + ")";
+      pl.sprig.style.transform = "scale(" + (on && age >= 3 ? (pl.k * Math.min(1, 0.5 + age / 20)).toFixed(2) : 0) + ")";
+      pl.head.style.transform = "translateY(" + (-hgt).toFixed(1) + "px) scale(" + (on ? (pl.k * (0.7 + 0.3 * Math.min(1, age / 12))).toFixed(2) : 0) + ")";
+      pl.seed.style.opacity = on ? 0 : 0.7;
+      pl.g.classList.toggle("dim", !match);
+      pl.g.classList.toggle("kept", isKept(i));
+      if(on && match) alive++;
+      if(p.since === year && match) newThisYear.push(i);
+    });
+    document.getElementById("yearNum").textContent = year;
+    var note = document.getElementById("yearNote");
+    note.textContent = "";
+    note.appendChild(h("b", {text:alive}));
+    note.appendChild(document.createTextNode(alive === 1 ? " project growing" : " projects growing"));
+    var sp = document.getElementById("sprout");
+    sp.textContent = "";
+    if(newThisYear.length){
+      sp.appendChild(document.createTextNode("Taking root in " + year + ":"));
+      newThisYear.forEach(function(i){
+        sp.appendChild(h("button", {type:"button", style:"--c:var(--c-" + ALL[i].c + ")", text:ALL[i].n, onclick:function(){ openDetail(i); }}));
+      });
+    }else if(year === THIS_YEAR){
+      sp.appendChild(document.createTextNode("The garden today. Press play to watch it grow from " + OLDEST + "."));
+    }else if(year < OLDEST){
+      sp.appendChild(document.createTextNode("Bare soil. Nothing here yet."));
+    }
+    yr.value = year;
+    yr.setAttribute("aria-valuetext", year + ", " + alive + " projects growing");
+  }
+
+  function setPlayIcon(){
+    playBtn.innerHTML = playTimer ? PAUSE_ICON : PLAY_ICON; // static icon constants only
+    playBtn.setAttribute("aria-label", playTimer ? "Pause" : "Play the years");
+  }
+  function stopPlay(){ if(playTimer){ clearTimeout(playTimer); playTimer = null; setPlayIcon(); } }
+  function tick(){
+    if(year >= THIS_YEAR){ stopPlay(); updateGarden(); return; }
+    year++;
+    hideTip();
+    updateGarden();
+    // Sparse early decades pass quickly; the busy recent ones slow down.
+    playTimer = setTimeout(tick, year < 1965 ? 45 : year < 1995 ? 120 : 330);
+  }
+  playBtn.addEventListener("click", function(){
+    if(playTimer){ stopPlay(); return; }
+    hideTip();
+    if(year >= THIS_YEAR) year = FIRST_YEAR;
+    updateGarden();
+    playTimer = setTimeout(tick, 250);
+    setPlayIcon();
+  });
+  yr.addEventListener("input", function(){ stopPlay(); year = +yr.value; hideTip(); updateGarden(); });
+  setPlayIcon();
+  if(window.ResizeObserver){
+    new ResizeObserver(function(){
+      if(view === "garden" && Math.abs(gardenBox.clientWidth - gardenW) > 4) buildGarden();
+    }).observe(gardenBox);
+  }
+
+  // ---------- discover view: one project at a time ----------
+  var deckBox = document.getElementById("deck");
+  // A fixed shuffle, so the order feels mixed but stays put between visits.
+  var ORDER = ALL.map(function(_, i){ return i; });
+  (function(){ var seed = 20260928; for(var i = ORDER.length - 1; i > 0; i--){ seed = (seed * 1103515245 + 12345) % 2147483648; var j = seed % (i + 1); var t = ORDER[i]; ORDER[i] = ORDER[j]; ORDER[j] = t; } })();
+
+  function decide(i, keepIt, dir, el){
+    if(keepIt && !isKept(i)) toggleKept(i);
+    if(seen.indexOf(i) < 0){ seen.push(i); saveIds("loam.seen", seen); }
+    function next(){ render(); var c = deckBox.querySelector(".dcard:not(.under)"); if(c) c.focus({preventScroll:true}); }
+    if(el && !reduceMotion){ el.classList.remove("dragging"); el.style.transform = ""; el.classList.add(dir < 0 ? "out-l" : "out-r"); setTimeout(next, 260); }
+    else next();
+  }
+
+  function deckCard(i, under){
+    var p = ALL[i];
+    var el = h("div", {class:"dcard" + (under ? " under" : ""), style:"--c:var(--c-" + p.c + ")", tabindex: under ? null : "0",
+      "aria-label": under ? null : p.n + ". Right arrow keeps it, left arrow skips it, Enter opens it."},
+      h("span", {class:"stamp keep", text:"✦ Keep"}),
+      h("span", {class:"stamp skip", text:"Next"}),
+      h("div", {class:"top"}, medal(p.c), h("span", {class:"cat", text:CAT[p.c].name + " · " + p.r + (p.fx ? " · ⚡ Frontier" : "")})),
+      h("h3", {text:p.n}),
+      h("div", {class:"where", text:sinceText(p)}),
+      h("p", {class:"lead", text:p.line}),
+      h("p", {text:p.loop})
+    );
+    if(under) return el;
+    var startX = null, dx = 0, moved = false;
+    var stamps = el.querySelectorAll(".stamp");
+    el.addEventListener("pointerdown", function(e){
+      if(e.button !== 0) return;
+      startX = e.clientX; dx = 0; moved = false;
+      try{ el.setPointerCapture(e.pointerId); }catch(err){}
+    });
+    el.addEventListener("pointermove", function(e){
+      if(startX === null) return;
+      dx = e.clientX - startX;
+      if(Math.abs(dx) > 6){ moved = true; el.classList.add("dragging"); }
+      if(!moved) return;
+      el.style.transform = "translateX(" + dx + "px) rotate(" + (dx / 22).toFixed(1) + "deg)";
+      stamps[0].style.opacity = Math.max(0, Math.min(1, dx / 90));
+      stamps[1].style.opacity = Math.max(0, Math.min(1, -dx / 90));
+    });
+    function end(){
+      if(startX === null) return;
+      startX = null;
+      if(moved && Math.abs(dx) > 90){ decide(i, dx > 0, dx, el); return; }
+      el.classList.remove("dragging");
+      el.style.transform = "";
+      stamps[0].style.opacity = 0; stamps[1].style.opacity = 0;
+      if(!moved) openDetail(i);
+    }
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", function(){ startX = null; el.classList.remove("dragging"); el.style.transform = ""; stamps[0].style.opacity = 0; stamps[1].style.opacity = 0; });
+    el.addEventListener("keydown", function(e){
+      if(e.key === "ArrowRight"){ e.preventDefault(); decide(i, true, 1, el); }
+      else if(e.key === "ArrowLeft"){ e.preventDefault(); decide(i, false, -1, el); }
+      else if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openDetail(i); }
+    });
+    return el;
+  }
+
+  function renderDeck(){
+    deckBox.textContent = "";
+    var pool = ORDER.filter(matches);
+    var left = pool.filter(function(i){ return seen.indexOf(i) < 0; });
+    var met = pool.length - left.length;
+    if(!pool.length){
+      deckBox.appendChild(h("p", {class:"empty", text:"Nothing matches that yet. Try another word or region."}));
+      return;
+    }
+    deckBox.appendChild(h("div", {class:"deck-meter"},
+      h("span", {text: met + " of " + pool.length + " met"}),
+      h("span", {class:"bar"}, h("i", {style:"width:" + Math.round(100 * met / pool.length) + "%"}))
+    ));
+    if(!left.length){
+      deckBox.appendChild(h("div", {class:"deck-done"},
+        h("h3", {text:"You’ve met every one"}),
+        h("p", {text: kept.length ? "The ones you kept are waiting under ✦ Kept, and glow gold in the garden." : "Keep a few next time and they’ll glow gold in the garden."}),
+        h("button", {class:"btn solid", type:"button", text:"Start again", onclick:function(){
+          seen = seen.filter(function(i){ return pool.indexOf(i) < 0; });
+          saveIds("loam.seen", seen); render();
+        }})
+      ));
+      return;
+    }
+    var i = left[0];
+    var deck = h("div", {class:"deck"});
+    if(left[1] !== undefined) deck.appendChild(deckCard(left[1], true));
+    var top = deckCard(i, false);
+    deck.appendChild(top);
+    deckBox.appendChild(deck);
+    deckBox.appendChild(h("div", {class:"deck-actions"},
+      h("button", {class:"btn", type:"button", text:"← Next", onclick:function(){ decide(i, false, -1, top); }}),
+      h("button", {class:"btn", type:"button", text:"Read more", onclick:function(){ openDetail(i); }}),
+      h("button", {class:"btn solid", type:"button", text:"Keep ✦ →", onclick:function(){ decide(i, true, 1, top); }})
+    ));
+    deckBox.appendChild(h("p", {class:"deck-hint", text:"Swipe right to keep, left for the next one. Tap the card to read more."}));
+  }
+
+  // ---------- render ----------
   function render(){
-    // Wheel state.
     CATS.forEach(function(c){
       var on = state.cat === c.id;
       segEls[c.id].classList.toggle("on", on);
@@ -947,6 +1546,7 @@
     REGIONS.forEach(function(r){ regionBtns[r].setAttribute("aria-pressed", state.region === r ? "true" : "false"); });
     keptBtn.textContent = "✦ Kept" + (kept.length ? " (" + kept.length + ")" : "");
     keptBtn.setAttribute("aria-pressed", state.keptOnly ? "true" : "false");
+    fxBtn.setAttribute("aria-pressed", state.fx ? "true" : "false");
 
     var shown = [];
     for(var i = 0; i < ALL.length; i++) if(matches(i)) shown.push(i);
@@ -958,26 +1558,108 @@
     if(state.cat) bits.push(CAT[state.cat].name);
     if(state.region !== "All") bits.push(state.region);
     if(state.keptOnly) bits.push("kept");
+    if(state.fx) bits.push("frontier");
     if(state.q.trim()) bits.push("“" + state.q.trim() + "”");
     document.getElementById("summary").textContent =
       shown.length + (shown.length === 1 ? " project" : " projects") + (bits.length ? " · " + bits.join(" · ") : " already running");
     document.getElementById("clear").hidden = !bits.length;
 
-    grid.textContent = "";
-    if(!shown.length){
-      grid.appendChild(h("p", {class:"empty", text: state.keptOnly && !kept.length
-        ? "Nothing kept yet. Open a project and tap Keep to save it here."
-        : "Nothing matches that yet. Try another word or region."}));
-      return;
+    VIEWS.forEach(function(v){
+      tabs[v].setAttribute("aria-selected", v === view ? "true" : "false");
+      tabs[v].tabIndex = v === view ? 0 : -1;
+      document.getElementById("v-" + v).hidden = v !== view;
+    });
+    if(view === "list") renderList(shown);
+    else if(view === "discover") renderDeck();
+    else{
+      if(!plants.length || Math.abs(gardenBox.clientWidth - gardenW) > 4) buildGarden();
+      else updateGarden();
     }
-    shown.forEach(function(i){ grid.appendChild(card(i)); });
+    renderStats();
   }
+
+  // ---------- ask Claude (only inside Claude, on the reader's own account) ----------
+  var sampleFn = null, askOff = false, askState = {};
+  var ASKS = ["How could my town start one?", "What are its limits or criticisms?", "How did it begin?"];
+  function askPrompt(i, question){
+    var p = ALL[i];
+    return "You are helping a reader of Loam, a guide to circular-economy and new-economy projects that already exist.\n\n" +
+      "The project: " + p.n + " (" + p.place + ", " + p.country + ", since " + p.since + ", kind of loop: " + CAT[p.c].name + ").\n" +
+      "What the guide says: " + p.line + " " + p.loop + " " + p.fig + "\n\n" +
+      "The reader asks: " + question + "\n\n" +
+      "Answer for a curious reader without specialist knowledge, in plain British English, in at most 160 words. " +
+      "Plain text only: no Markdown, no headings, no bullet symbols. Be concrete and practical. " +
+      "Only state facts you are confident are true; if something may have changed recently or you are not sure, say so plainly. " +
+      "Never invent numbers, names, studies or web addresses. " +
+      "If the question has nothing to do with this project, the circular economy or the new economy, say briefly that you can only help with those here.";
+  }
+  function askCopy(code){
+    if(code === "rate_limited") return "Too many questions at once. Wait a minute, then ask again.";
+    if(code === "session_expired") return "Sign in to Claude again to keep asking.";
+    if(code === "refused") return "Claude couldn’t answer that one. Try asking it another way.";
+    if(code === "prompt_too_large") return "That question is too long. Try a shorter one.";
+    return "The answer didn’t come through. Try asking again.";
+  }
+  function ask(i, question, preset){
+    question = String(question).replace(/\s+/g, " ").trim().slice(0, 300);
+    if(!question || !sampleFn) return;
+    var st = askState[i] = {q:question, text:"", note:"", busy:true, ctl:new AbortController()};
+    mountAsk(i);
+    sampleFn(askPrompt(i, question), {signal:st.ctl.signal, cache:preset ? true : false, onText:function(u){
+      st.text = u.text;
+      var out = document.getElementById("askText");
+      if(out && current === i) out.textContent = u.text; // Claude's reply is shown as plain text only
+    }}).then(function(r){
+      st.text = r.text;
+      if(r.truncated) st.note = "The answer was cut short.";
+    }, function(e){
+      var code = e && e.code;
+      st.text = code === "refused" ? "" : ((e && e.text) || "");
+      if(["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].indexOf(code) >= 0){ askOff = true; }
+      else if(code !== "cancelled") st.note = askCopy(code);
+    }).then(function(){
+      st.busy = false; st.ctl = null;
+      if(current === i && dlg.open) mountAsk(i);
+    });
+  }
+  function mountAsk(i){
+    var box = document.getElementById("askBox");
+    if(!box) return;
+    box.textContent = "";
+    if(!sampleFn || askOff){ box.hidden = true; return; }
+    box.hidden = false;
+    var st = askState[i];
+    var busy = !!(st && st.busy);
+    box.appendChild(h("h4", {text:"Ask Claude"}));
+    var chips = h("div", {class:"chips"});
+    ASKS.forEach(function(q){
+      chips.appendChild(h("button", {class:"chip", type:"button", text:q, disabled:busy, onclick:function(){ ask(i, q, true); }}));
+    });
+    box.appendChild(chips);
+    var input = h("input", {id:"askQ", type:"text", maxlength:"300", placeholder:"Or ask your own question", autocomplete:"off", "aria-label":"Your question about " + ALL[i].n});
+    box.appendChild(h("form", {onsubmit:function(e){ e.preventDefault(); if(!busy) ask(i, input.value, false); }},
+      input,
+      busy ? h("button", {class:"btn", type:"button", text:"Stop", onclick:function(){ if(st.ctl) st.ctl.abort(); }})
+           : h("button", {class:"btn solid", type:"submit", text:"Ask"})
+    ));
+    if(st){
+      box.appendChild(h("div", {class:"answer"},
+        h("span", {class:"q", text:st.q}),
+        h("span", {id:"askText", class: st.text ? null : "thinking", text: st.text || (busy ? "Thinking…" : "")})
+      ));
+      if(st.note) box.appendChild(h("p", {class:"ask-note", text:st.note}));
+    }
+    box.appendChild(h("p", {class:"ask-note", text:"Uses your Claude account. Only this project’s description and your question are sent. Claude can be wrong; check the project’s own site."}));
+  }
+  (window.claude && window.claude.use ? window.claude.use("sample") : Promise.resolve(null))
+    .then(function(fn){ sampleFn = fn; if(current >= 0 && dlg.open) mountAsk(current); }, function(){});
 
   // ---------- detail ----------
   var dlg = document.getElementById("detail");
   var current = -1;
   function openDetail(i){
     current = i;
+    hideTip();
     var p = ALL[i];
     dlg.textContent = "";
     var keepBtn = h("button", {class:"btn" + (isKept(i) ? " solid" : ""), type:"button", text: isKept(i) ? "✦ Kept" : "✦ Keep",
@@ -987,10 +1669,19 @@
         keepBtn.classList.toggle("solid", isKept(i));
         render();
       }});
+    var triedBtn = p.you ? h("button", {class:"btn tried" + (isTried(i) ? " solid" : ""), type:"button", "aria-pressed": isTried(i) ? "true" : "false",
+      text: isTried(i) ? "✓ I’ve done this" : "I’ve done this",
+      onclick:function(){
+        toggleTried(i);
+        triedBtn.textContent = isTried(i) ? "✓ I’ve done this" : "I’ve done this";
+        triedBtn.classList.toggle("solid", isTried(i));
+        triedBtn.setAttribute("aria-pressed", isTried(i) ? "true" : "false");
+        renderStats();
+      }}) : null;
     var sheet = h("div", {class:"sheet", style:"--c:var(--c-" + p.c + ")"},
       h("div", {class:"sheet-top"},
         medal(p.c),
-        h("span", {class:"cat", text:CAT[p.c].name + " · " + p.r}),
+        h("span", {class:"cat", text:CAT[p.c].name + " · " + p.r + (p.fx ? " · ⚡ Frontier" : "")}),
         h("button", {class:"x", type:"button", "aria-label":"Close", text:"×", onclick:function(){ dlg.close(); }})
       ),
       h("h2", {id:"dName", text:p.n}),
@@ -999,18 +1690,22 @@
       h("h4", {text:"How it works"}),
       h("p", {text:p.loop}),
       p.fig ? h("div", {class:"figure"}, icon(I_FIGURE), h("span", {text:p.fig})) : null,
-      p.you ? h("h4", {text:"Near you"}) : null,
+      p.you ? h("h4", {text:"Try it"}) : null,
       p.you ? h("p", {text:p.you}) : null,
       h("div", {class:"actions"},
         keepBtn,
+        triedBtn,
         /^https:\/\//.test(p.url) ? h("a", {class:"btn", href:p.url, target:"_blank", rel:"noopener noreferrer", text:"Visit their site ↗"}) : null
-      )
+      ),
+      h("div", {class:"ask", id:"askBox", hidden:true})
     );
     dlg.appendChild(sheet);
+    mountAsk(i);
     if(typeof dlg.showModal === "function"){ if(!dlg.open) dlg.showModal(); } else dlg.setAttribute("open", "");
     sheet.scrollTop = 0;
   }
   dlg.addEventListener("click", function(e){ if(e.target === dlg) dlg.close(); });
+  dlg.addEventListener("close", function(){ if(view !== "list") render(); });
 
   render();
 })();
