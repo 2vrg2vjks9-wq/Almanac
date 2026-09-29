@@ -4,9 +4,10 @@ import { $, html, put, isoDay } from "./util.js";
 import { S, save } from "./store.js";
 import { D } from "./data.js";
 import { note } from "./notes.js";
-import { openSheet, closeSheet, showTab } from "./ui.js";
+import { openSheet, closeSheet, showTab, currentTab } from "./ui.js";
 import { drawSavedItems, mountBucketHits, state, drawFeed, drawWork } from "./feed.js";
 import { past } from "./data.js";
+import { doPending, doLines, markDoSent } from "./do.js";
 
 // --- Bucket list ------------------------------------------------------------------------------
 function drawBucket() {
@@ -29,12 +30,13 @@ function drawBucket() {
 }
 
 // --- Reactions waiting to teach Radar ------------------------------------------------------------
-const pending = () => Object.keys(S.reactions).filter((k) => !S.reactions[k].sent);
+const pendingReactions = () => Object.keys(S.reactions).filter((k) => !S.reactions[k].sent);
+const pending = () => pendingReactions().concat(doPending());
 let toastFor = -1, toastTimer = null;
 function hideToast() { clearTimeout(toastTimer); toastTimer = null; $("fbBar").classList.remove("show"); }
 function armToast() { clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 5000); }
 export function paintTeach() {
-  const n = pending().length, txt = n === 1 ? "1 reaction ready to teach Radar" : n + " reactions ready to teach Radar";
+  const n = pending().length, txt = n === 1 ? "1 answer ready to teach Radar" : n + " answers ready to teach Radar";
   $("fbText").textContent = txt;
   $("teachText").textContent = txt;
   $("teachBox").hidden = !n;
@@ -42,22 +44,25 @@ export function paintTeach() {
   let b = tab.querySelector(".badge");
   if (n && !b) { b = document.createElement("span"); b.className = "badge"; b.setAttribute("aria-hidden", "true"); tab.appendChild(b); }
   else if (!n && b) b.remove();
-  tab.setAttribute("aria-label", n ? "Saved, " + txt : "Saved");
+  tab.setAttribute("aria-label", n ? "You, " + txt : "You");
   if (toastFor < 0) { toastFor = n; return; }
   if (!n) hideToast();
-  else if (n > toastFor) { $("fbBar").classList.add("show"); armToast(); }
+  else if (n > toastFor && currentTab() !== "do") { $("fbBar").classList.add("show"); armToast(); }
   toastFor = n;
 }
 function sendReactions() {
-  const p = pending();
-  if (!p.length) return;
-  const body = "Radar feedback, sent from the app.\n\n" + p.map((k) => {
+  const p = pendingReactions(), dl = doLines();
+  if (!p.length && !dl.length) return;
+  const lines = p.map((k) => {
     const r = S.reactions[k];
     return (r.v > 0 ? "+1" : "-1") + " | " + r.kind + " | " + r.title + " | because: " + r.why + " | id: " + k;
-  }).join("\n") + "\n\nAnything to add about why? Write it here, e.g. 'more Ando, less street photography':\n";
+  });
+  const body = "Radar feedback, sent from the app.\n\n" + lines.concat(dl).join("\n") +
+    (dl.length ? "\n\nLines starting yes/no are answers in Do (things to do, Den Haag first)." : "");
   note("Radar feedback " + isoDay(new Date()), body, "radar-feedback", "Sent. Tomorrow morning's update learns from it.");
   p.forEach((k) => { S.reactions[k].sent = true; });
   save("reactions");
+  markDoSent();
   hideToast();
   paintTeach();
 }
@@ -69,7 +74,7 @@ function compose({ title, intro, fields, submit, send }) {
       ? html`<textarea name="${f.name}" rows="3" placeholder="${f.placeholder}"${f.required ? " required" : ""}></textarea>`
       : html`<input name="${f.name}" type="text" autocomplete="off" placeholder="${f.placeholder}"${f.required ? " required" : ""}>`}</label>`)}
       <div class="sheet-acts"><button class="btn" type="submit">${submit}</button><button class="btn ghost" type="button" data-close>Cancel</button></div></form>
-    <p class="fine tight">Radar files this as a note in the public Almanac repository, where Claude picks it up.</p>`,
+    <p class="fine tight">Radar seals this note so only Claude can read it, then files it in the Almanac repository.</p>`,
   (el) => {
     const form = el.querySelector("form"), first = form.querySelector("input,textarea");
     setTimeout(() => first && first.focus({ preventScroll: true }), 350);
@@ -83,6 +88,10 @@ function compose({ title, intro, fields, submit, send }) {
       send(v);
     };
   }, title);
+}
+// A short form that sends one note to Claude (used by Do's "Ask for more ideas").
+export function ask(o) {
+  compose({ title: o.title, intro: o.intro, fields: o.fields, submit: o.submit, send: (v) => { const [t, b] = o.note(v); note(t, b, o.label, o.done); } });
 }
 function addInterest() {
   compose({

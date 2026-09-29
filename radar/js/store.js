@@ -11,9 +11,13 @@ export const KEYS = {
   here: "radar-here",            // {lat, lon, t} last position from "Look around here"
   wind: "radar-wind",            // {t, res} last Open-Meteo forecast
   water: "radar-water",          // {spotId: °C}
-  cache: "radar-cache",          // {c: interests, f: feed, t: taste} last good data files
+  cache: "radar-cache",          // {c: interests, f: feed, t: taste, x: things} last good data files (decrypted, on this phone only)
   around: "radar-around",        // last Around me / city guide result
   scout: "radar-scout",          // {city, until, sent} last city sent to Claude
+  key: "radar-key",              // vault key derived from the passphrase (never leaves the phone)
+  locked: "radar-locked",        // true after "Lock Radar on this phone": don't unlock from /api/key
+  do: "radar-do",                // {ideaId: {v: 1 yes | -1 no | 0 later, t, title, cat, city, sent}}
+  doView: "radar-do-view",       // {when, city, cat} last Do filters
 };
 
 export function get(key, fallback) {
@@ -32,5 +36,6 @@ export const S = {
   ghKey: get(KEYS.ghKey, ""),
   bucketSent: get(KEYS.bucketSent, []),
   here: get(KEYS.here, null),
+  do: get(KEYS.do, {}),
 };
 export function save(name) { set(KEYS[name], S[name]); }

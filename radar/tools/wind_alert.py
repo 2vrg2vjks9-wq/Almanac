@@ -1,9 +1,19 @@
-"""Daily wind check for Radar. Reads radar/interests.json, asks Open-Meteo for the
-next 3 days, and sends one push via ntfy.sh when a spot has a rideable window."""
-import json, math, os, urllib.request, urllib.parse, datetime
+"""Daily wind check for Radar. Opens the encrypted interests file (RADAR_KEY, via vault.mjs),
+asks Open-Meteo for the next 3 days, and sends one push via ntfy.sh when a spot has a rideable
+window. The ntfy topic is secret (anyone with it can read the alerts): it comes from the
+NTFY_TOPIC environment variable, or else from interests "alerts.ntfy"."""
+import json, math, os, subprocess, sys, urllib.request, urllib.parse, datetime
 
-TOPIC = os.environ.get("NTFY_TOPIC", "radar-wind-f13296657ff9")
-cfg = json.load(open(os.path.join(os.path.dirname(__file__), "..", "interests.json")))
+HERE = os.path.dirname(os.path.abspath(__file__))
+if not os.environ.get("RADAR_KEY"):
+    sys.exit("RADAR_KEY is not set: add it as a GitHub Actions secret (Settings, Secrets and variables, Actions).")
+out = subprocess.run(["node", os.path.join(HERE, "vault.mjs"), "show", "interests"], capture_output=True, text=True)
+if out.returncode:
+    sys.exit(out.stderr.strip() or "Couldn't open the encrypted interests file.")
+cfg = json.loads(out.stdout)
+TOPIC = os.environ.get("NTFY_TOPIC") or (cfg.get("alerts") or {}).get("ntfy")
+if not TOPIC:
+    sys.exit("No ntfy topic: set interests alerts.ntfy or the NTFY_TOPIC secret.")
 W = cfg["wind"]; spots = W["spots"]
 q = urllib.parse.urlencode({
     "latitude": ",".join(str(s["lat"]) for s in spots),
@@ -42,6 +52,6 @@ if not lines:
 body = "\n".join(lines[:8]) + ("\n…and more" if len(lines) > 8 else "")
 req = urllib.request.Request("https://ntfy.sh/" + TOPIC, data=body.encode(), headers={
     "Title": "Wind on: " + lines[0].split(":")[0], "Tags": "surfer", "Priority": "default",
-    "Click": "https://2vrg2vjks9-wq.github.io/Almanac/radar/"})
+    "Click": "https://almanac-dgf.pages.dev/radar/"})
 urllib.request.urlopen(req, timeout=30)
-print(body)
+print("Sent %d window(s)." % len(lines))  # the Actions log is public: don't print spots or times

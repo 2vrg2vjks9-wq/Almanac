@@ -1,43 +1,49 @@
-// Data files written by the daily and hourly Claude tasks: interests.json, feed.json, taste.json.
-// Loads them fresh, falls back to the last good copy offline, and holds the travel-focus rules.
+// Data files written by the daily and hourly Claude tasks: interests, feed, taste and things (the Do
+// tab). They are committed encrypted as data/<name>.enc.json (see vault.js); this opens them, falls
+// back to the last good copy on this phone when offline, and holds the travel-focus rules.
 import { d, today } from "./util.js";
 import { get, set, KEYS } from "./store.js";
+import { open, unlocked } from "./vault.js";
 
-export const D = { config: null, feed: null, taste: { learned: [], more: [], less: [] }, byId: {}, source: null };
+export const D = { config: null, feed: null, taste: { learned: [], more: [], less: [] }, things: { ideas: [] }, byId: {}, source: null };
 
 // Tiny event bus so modules can redraw after reactions, saves or new data.
 const bus = new EventTarget();
 export const on = (name, fn) => bus.addEventListener(name, (e) => fn(e.detail));
 export const emit = (name, detail) => bus.dispatchEvent(new CustomEvent(name, { detail }));
 
-async function fetchJSON(u) {
-  const r = await fetch(u + "?v=" + Date.now(), { cache: "no-store" });
+async function fetchData(name) {
+  const r = await fetch("data/" + name + ".enc.json?v=" + Date.now(), { cache: "no-store" });
   if (!r.ok) throw new Error("HTTP " + r.status);
-  return r.json();
+  return JSON.parse(await open(await r.json(), name));
 }
 
-function adopt(config, feed, taste) {
+function adopt(config, feed, taste, things) {
   D.config = config;
   D.feed = feed && Array.isArray(feed.items) ? feed : { updated: null, items: [] };
   D.taste = taste || { learned: [] };
+  D.things = things && Array.isArray(things.ideas) ? things : { updated: null, ideas: [] };
   D.byId = {};
   D.feed.items.forEach((it) => { D.byId[it.id] = it; });
 }
 
-// Returns "live", "cache" or null (nothing to show yet).
+// Returns "live", "cache", "locked" (no key on this phone) or null (nothing to show yet).
 export async function loadData() {
+  if (!unlocked()) { D.source = "locked"; return D.source; }
   try {
-    const [c, f, t] = await Promise.all([
-      fetchJSON("interests.json"),
-      fetchJSON("feed.json"),
-      fetchJSON("taste.json").catch(() => ({ learned: [] })),
+    const [c, f, t, x] = await Promise.all([
+      fetchData("interests"),
+      fetchData("feed"),
+      fetchData("taste").catch(() => ({ learned: [] })),
+      fetchData("things").catch(() => ({ ideas: [] })),
     ]);
-    adopt(c, f, t);
-    set(KEYS.cache, { c, f, t });
-    D.source = "live";
+    adopt(c, f, t, x);
+    set(KEYS.cache, { c, f, t, x });
+    D.source = "live"; D.keyBad = false;
   } catch (e) {
+    D.keyBad = !!(e && e.name === "OperationError"); // the passphrase changed since this phone unlocked
     const cached = get(KEYS.cache, null);
-    if (cached && !D.feed) adopt(cached.c, cached.f, cached.t);
+    if (cached && cached.c && !D.feed) adopt(cached.c, cached.f, cached.t, cached.x);
     D.source = D.feed ? "cache" : null;
   }
   return D.source;

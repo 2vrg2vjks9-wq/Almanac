@@ -6,8 +6,11 @@ import { initWind, loadWind, skeleton, net } from "./wind.js";
 import { drawTop, drawFeed, drawWork, segs, KINDS, WORK_KINDS, regions, setOpener } from "./feed.js";
 import { openItem, refreshItem } from "./detail.js";
 import { initNotes } from "./notes.js";
-import { initSaved, drawSaved, paintTeach } from "./saved.js";
+import { initSaved, drawSaved, paintTeach, ask } from "./saved.js";
 import { initAround } from "./around.js";
+import { initDo, drawDo } from "./do.js";
+import { restore, unlock, unlockFromServer, forget, supported } from "./vault.js";
+import { SERVER } from "./notes.js";
 
 const APP_VERSION = window.APP_VERSION || "dev";
 
@@ -17,7 +20,47 @@ function greet() {
   $("today").textContent = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 }
 
-function drawAll() { drawTop(); drawFeed(); drawWork(); drawSaved(); }
+function drawAll() { drawTop(); drawFeed(); drawWork(); drawSaved(); drawDo(); paintAlert(); }
+
+// The ntfy topic lives in the encrypted interests file (anyone who knows it can read the alerts).
+function paintAlert() {
+  const t = D.config && D.config.alerts && D.config.alerts.ntfy, el = $("alertLine");
+  if (!t) { el.hidden = true; return; }
+  el.hidden = false;
+  el.textContent = "";
+  el.append("Morning wind alert: in the free ntfy app, subscribe to ");
+  const c = document.createElement("span"); c.className = "alert-topic"; c.textContent = t;
+  el.append(c, ". Keep it to yourself: anyone with the topic can read the alerts.");
+}
+
+// --- Lock screen ---------------------------------------------------------------------------
+function showLock(text) {
+  const l = $("lock");
+  if (text) $("lockText").textContent = text;
+  l.classList.add("show");
+  document.body.classList.add("locked");
+  setTimeout(() => $("lockPass").focus({ preventScroll: true }), 50);
+}
+function hideLock() {
+  $("lock").classList.remove("show");
+  document.body.classList.remove("locked");
+  $("lockPass").value = ""; $("lockMsg").textContent = "";
+}
+function initLock() {
+  if (!supported()) $("lockText").textContent = "This browser can't open Radar's encrypted data. Open Radar in Safari on iOS 16 or later.";
+  $("lockForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const inp = $("lockPass"), msg = $("lockMsg"), go = $("lockGo");
+    if (!inp.value.trim()) { inp.focus(); return; }
+    go.disabled = true; msg.textContent = "Unlocking…"; inp.removeAttribute("aria-invalid");
+    const r = await unlock(inp.value);
+    go.disabled = false;
+    if (r === "ok") { hideLock(); loadAll(); return; }
+    msg.textContent = r === "offline" ? "Radar needs a connection to unlock the first time." : "That isn't the Radar passphrase. Check it and try again.";
+    if (r !== "offline") { inp.setAttribute("aria-invalid", "true"); inp.select(); }
+  };
+  $("lockBtn").onclick = () => { forget(); location.reload(); };
+}
 
 function fresh() {
   const el = $("fresh"), off = D.source === "cache" || net.wind === "cache", t = [];
@@ -33,6 +76,7 @@ function start() {
     segs("kinds", KINDS, "kind", drawFeed);
     segs("regions", regions(), "region", drawFeed);
     segs("workKinds", WORK_KINDS, "work", drawWork);
+    initDo(ask);
     started = true;
   }
   drawAll();
@@ -46,6 +90,8 @@ async function loadAll() {
   r.classList.add("spin"); r.setAttribute("aria-busy", "true");
   try {
     const src = await loadData();
+    if (src === "locked") { showLock(); return; }
+    if (D.keyBad && src !== "live") showLock("Radar's passphrase has changed. Enter the new one to see today's data.");
     if (!src) { $("lead").textContent = "Radar needs a connection the first time you open it."; $("leadSub").textContent = ""; return; }
     start();
     await loadWind();
@@ -73,8 +119,17 @@ async function checkVersion() {
   } catch (e) { /* offline or signed out: try next time */ }
 }
 
+// Explore: interests or work
+function pane(work) {
+  $("paneFeed").hidden = work; $("paneWork").hidden = !work;
+  $("swFeed").setAttribute("aria-pressed", String(!work)); $("swWork").setAttribute("aria-pressed", String(work));
+}
+
 greet();
 initTabs();
+initLock();
+$("swFeed").onclick = () => pane(false);
+$("swWork").onclick = () => pane(true);
 initSheet();
 initWind();
 setOpener(openItem);
@@ -93,7 +148,10 @@ document.addEventListener("visibilitychange", () => {
   if (net.windAt && Date.now() - net.windAt > 30 * 6e4) loadAll();
   checkVersion();
 });
-loadAll();
+(async () => {
+  if (!(await restore()) && !(SERVER && (await unlockFromServer()))) { showLock(); return; }
+  loadAll();
+})();
 checkVersion();
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").then((r) => r.update()).catch(() => {}));

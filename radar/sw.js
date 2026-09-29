@@ -1,11 +1,11 @@
 // Radar offline cache: network first, fall back to the last copy.
-// Caches only this site's own files and Google Fonts; everything else (wind, maps, Wikipedia,
+// Caches only this site's own files (data stays encrypted in the cache) and Google Fonts; everything else (wind, maps, Wikipedia,
 // OpenStreetMap, /api/note) goes straight to the network. Bump CACHE when files change.
-const CACHE = "radar-v16";
+const CACHE = "radar-v17";
 const FILES = ["./", "index.html", "app.css", "manifest.webmanifest", "icon-180.png",
-  "interests.json", "feed.json", "taste.json",
+  "vault.json", "data/interests.enc.json", "data/feed.enc.json", "data/taste.enc.json", "data/things.enc.json",
   "js/main.js", "js/util.js", "js/store.js", "js/data.js", "js/ui.js", "js/wind.js",
-  "js/feed.js", "js/detail.js", "js/notes.js", "js/saved.js", "js/around.js"];
+  "js/feed.js", "js/detail.js", "js/notes.js", "js/saved.js", "js/around.js", "js/vault.js", "js/do.js"];
 
 self.addEventListener("install", (e) => {
   self.skipWaiting();

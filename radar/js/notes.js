@@ -1,5 +1,7 @@
 // Notes to Claude (new interest, bucket wish, feedback, "I'm in <city>"), filed as GitHub issues
-// that the daily and hourly Claude tasks read.
+// that the daily and hourly Claude tasks read. The repo is public, so a note leaves the phone
+// sealed: the issue title is generic ("Radar note") and the body is encrypted with the vault key
+// (radar-sealed:v1:…); only the Claude tasks, which hold the passphrase, can read it.
 // - On the Cloudflare site: POST /api/note (same origin, behind Cloudflare Access; the token lives
 //   in Cloudflare, never on the phone). Body {title, body, label}.
 // - On github.io / localhost: the GitHub Issues API with a token the owner pasted on this phone.
@@ -8,23 +10,31 @@
 import { $ } from "./util.js";
 import { S, save } from "./store.js";
 import { say } from "./ui.js";
+import { sealNote, unlocked } from "./vault.js";
 
 const REPO_API = "https://api.github.com/repos/2vrg2vjks9-wq/Almanac";
 const host = location.hostname;
 export const SERVER = !/github\.io$/.test(host) && host !== "localhost" && host !== "127.0.0.1";
 
-function postServer(n) {
+// What GitHub gets: a generic title and the sealed text (title + body).
+async function sealed(n) {
+  if (!unlocked()) throw new Error("locked");
+  return { title: "Radar note", body: await sealNote("Title: " + n.title + "\n\n" + n.body) };
+}
+async function postServer(n) {
+  const x = await sealed(n);
   return fetch("/api/note", {
     method: "POST", credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title: n.title, body: n.body, label: n.labels[0] }),
+    body: JSON.stringify({ title: x.title, body: x.body, label: n.labels[0] }),
   }).then((r) => { if (!r.ok) throw new Error(r.status === 401 ? "signin" : "net"); return true; });
 }
-function postGitHub(n) {
+async function postGitHub(n) {
+  const x = await sealed(n);
   return fetch(REPO_API + "/issues", {
     method: "POST",
     headers: { Authorization: "Bearer " + S.ghKey, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-    body: JSON.stringify({ title: n.title, body: n.body, labels: n.labels }),
+    body: JSON.stringify({ title: x.title, body: x.body, labels: n.labels }),
   }).then((r) => {
     if (r.status === 401) throw new Error("key");
     if (r.status === 403 || r.status === 404) throw new Error("perm");
@@ -33,7 +43,7 @@ function postGitHub(n) {
   });
 }
 const post = (n) => (SERVER ? postServer(n) : postGitHub(n));
-const canSend = () => SERVER || !!S.ghKey;
+const canSend = () => unlocked() && (SERVER || !!S.ghKey);
 
 function dropKey(msg) { S.ghKey = ""; save("ghKey"); say(msg); paintConn(); }
 function handle(err) {
