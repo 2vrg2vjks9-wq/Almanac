@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-28T12:00:00+02:00",
+ "updated": "2026-09-29T09:00:00+02:00",
  "note": "Written by Claude from web research; check details before booking. Okayama items drop off after 3 Oct, other Japan items after 9 Oct.",
  "items": [
   {
@@ -290,21 +290,6 @@
    "pick": true
   },
   {
-   "id": "pick-ministry-for-the-future",
-   "kind": "story",
-   "region": "all",
-   "title": "Pick: The Ministry for the Future (Kim Stanley Robinson)",
-   "place": "",
-   "city": "",
-   "start": null,
-   "end": null,
-   "summary": "Idea-driven science fiction where the plot is climate finance and adaptation: carbon coins, central banks, heat waves. Chiang-level thinking, aimed at your day job.",
-   "why": "Ted Chiang, climate finance",
-   "url": "https://www.goodreads.com/search?q=The+Ministry+for+the+Future",
-   "found": "2026-09-27",
-   "pick": true
-  },
-  {
    "id": "pick-mountain-shadow",
    "kind": "story",
    "region": "all",
@@ -316,36 +301,6 @@
    "summary": "The sequel to Shantaram: Lin back in Bombay two years later, heavier on philosophy. If you haven't read it yet.",
    "why": "Shantaram",
    "url": "https://www.goodreads.com/search?q=The+Mountain+Shadow+Gregory+David+Roberts",
-   "found": "2026-09-27",
-   "pick": true
-  },
-  {
-   "id": "pick-dispossessed",
-   "kind": "story",
-   "region": "all",
-   "title": "Pick: The Dispossessed (Ursula K. Le Guin)",
-   "place": "",
-   "city": "",
-   "start": null,
-   "end": null,
-   "summary": "A physicist moves between two worlds and two economic systems. Like Chiang, it is really about how an idea reshapes a life.",
-   "why": "Ted Chiang, Arrival",
-   "url": "https://www.goodreads.com/search?q=The+Dispossessed",
-   "found": "2026-09-27",
-   "pick": true
-  },
-  {
-   "id": "pick-wheels-of-life",
-   "kind": "story",
-   "region": "all",
-   "title": "Pick: Wheels of Life (Anodea Judith)",
-   "place": "",
-   "city": "",
-   "start": null,
-   "end": null,
-   "summary": "The practical companion to Eastern Body, Western Mind: the chakra system as an embodied practice rather than theory.",
-   "why": "Eastern Body, Western Mind",
-   "url": "https://www.goodreads.com/search?q=Wheels+of+Life+Anodea+Judith",
    "found": "2026-09-27",
    "pick": true
   },
@@ -531,38 +486,6 @@
    "found": "2026-09-27",
    "lat": 52.1113,
    "lon": 4.2786
-  },
-  {
-   "id": "km-van-gogh-88",
-   "kind": "exhibition",
-   "region": "nl",
-   "title": "Van Gogh, all our paintings",
-   "place": "Kröller-Müller Museum",
-   "city": "Otterlo",
-   "start": "2026-09-15",
-   "end": "2027-01-03",
-   "summary": "All 88 Van Goghs in the collection shown together for the first time since 1984. Pair it with the sculpture garden and an autumn walk in the Hoge Veluwe.",
-   "why": "Kröller-Müller, sculpture park in nature",
-   "url": "https://www.krollermuller.nl/nl",
-   "found": "2026-09-27",
-   "lat": 52.0955,
-   "lon": 5.817
-  },
-  {
-   "id": "turrell-aros-dome",
-   "kind": "news",
-   "region": "eu",
-   "title": "Turrell's largest Skyspace: As Seen Below – The Dome",
-   "place": "ARoS Aarhus Art Museum",
-   "city": "Aarhus, Denmark",
-   "start": "2026-06-19",
-   "end": null,
-   "summary": "Opened at the summer solstice: the biggest Skyspace Turrell has built for a museum. A long drive or short flight, but a pilgrimage-grade Turrell.",
-   "why": "James Turrell",
-   "url": "https://news.artnet.com/art-world/james-turrell-largest-skyspace-aros-museum-denmark-2703773",
-   "found": "2026-09-27",
-   "lat": 56.1537,
-   "lon": 10.1995
   },
   {
    "id": "glow-eindhoven-2026",
@@ -1059,6 +982,24 @@
    "lat": 35.17,
    "lon": 134.33,
    "found": "2026-09-28"
+  },
+  {
+   "id": "work-cpi-lab-2027-call",
+   "kind": "work",
+   "region": "all",
+   "title": "Global Innovation Lab for Climate Finance: 2027 call for ideas",
+   "place": "Climate Policy Initiative",
+   "city": "",
+   "start": null,
+   "end": "2026-10-18",
+   "summary": "The Lab picks financial vehicles (not single projects) that pull private money into climate action in emerging markets; India takes adaptation ideas, Brazil and Latin America mitigation with adaptation co-benefits. Preliminary applications close 18 October; selected ideas get support and can reach pre-seed grants.",
+   "why": "Climate adaptation finance: calls and deadlines",
+   "flags": [
+    "deadline 18 Oct",
+    "emerging markets only"
+   ],
+   "url": "https://www.climatefinancelab.org/call-for-ideas/",
+   "found": "2026-09-29"
   }
  ]
 }
