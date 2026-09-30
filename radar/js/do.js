@@ -17,7 +17,6 @@ export const CATS = {
 const CAT_FILTERS = [["all", "Everything"], ["art", "Art"], ["music", "Music"], ["stage", "Stage"], ["film", "Film & talks"], ["festival", "Festivals & markets"], ["outdoors", "Outdoors & calm"], ["odd", "Different"]];
 const CAT_GROUP = { film: ["film", "talk"], festival: ["festival", "market", "food"], outdoors: ["outdoors", "calm"], odd: ["odd", "design"] };
 const WHEN = [["all", "Anytime"], ["weekend", "This weekend"], ["week", "Next 7 days"], ["month", "Next 30 days"], ["open", "Always on"]];
-const CITIES = [["all", "All"], ["haag", "Den Haag"], ["amsterdam", "Amsterdam"], ["utrecht", "Utrecht"], ["other", "Elsewhere"]];
 
 const HOME = { lat: 52.0799, lon: 4.3113 }; // Den Haag, Plein
 const NEAR = /den haag|the hague|'s-gravenhage|scheveningen|wassenaar|rijswijk|voorburg|leidschendam|kijkduin|loosduinen|delft|voorschoten|monster|ter heijde/i;
@@ -36,12 +35,21 @@ function distance(it) {
 }
 const tier = (k) => (k <= 15 ? 0 : k <= 40 ? 1 : k <= 80 ? 2 : 3);
 const MIN_FIT = [1, 3, 4, 5];
+// Den Haag and around count as one place; every other city gets its own filter.
 function cityKey(it) {
-  const c = String(it.city || "");
+  const c = String(it.city || "").trim();
   if (tier(distance(it)) === 0 || NEAR.test(c)) return "haag";
-  if (/amsterdam/i.test(c)) return "amsterdam";
-  if (/utrecht/i.test(c)) return "utrecht";
-  return "other";
+  return c.toLowerCase() || "elsewhere";
+}
+// City filters from the ideas that can show: Den Haag first, then the rest nearest first.
+function cities() {
+  const seen = {};
+  ideas().filter(eligible).forEach((it) => {
+    const k = cityKey(it);
+    if (k === "haag") return;
+    if (!seen[k]) seen[k] = { label: String(it.city || "Elsewhere").trim(), km: distance(it) };
+  });
+  return [["all", "All"], ["haag", "Den Haag"]].concat(Object.keys(seen).sort((a, b) => seen[a].km - seen[b].km).map((k) => [k, seen[k].label]));
 }
 const fit = (it) => (it.fit == null ? 3 : +it.fit);
 export const ideaPast = (it) => { const e = d(it.end) || (it.start && !it.end ? d(it.start) : null); return !!(e && e < today()); };
@@ -345,6 +353,9 @@ function paintCount() {
 }
 
 export function drawDo() {
+  const cs = cities();
+  if (!cs.some((c) => c[0] === view.city)) view.city = "all";
+  segs("doCity", cs, "city");
   drawDecide(); drawPlan(); drawAll(); drawToday(); paintCount(); refreshIdea();
   const u = D.things && D.things.updated;
   $("doDate").textContent = "Den Haag first" + (u ? ", updated " + shortDate(new Date(u)) : "");
@@ -352,12 +363,11 @@ export function drawDo() {
 
 export function initDo(ask) {
   segs("doWhen", WHEN, "when");
-  segs("doCity", CITIES, "city");
   segs("doCat", CAT_FILTERS, "cat");
   $("toDo").onclick = () => showTab("do");
   $("doNoBtn").onclick = () => { showNo = !showNo; drawAll(); };
   $("doMoreBtn").onclick = () => ask({
-    title: "Ask for more ideas", intro: "What would you like more of? Radar adds it to what Claude looks for in Den Haag, Amsterdam and Utrecht.",
+    title: "Ask for more ideas", intro: "What would you like more of? Radar adds it to what Claude looks for: Den Haag first, further afield when it's worth the trip.",
     fields: [{ name: "t", label: "More of", placeholder: "Small jazz gigs, sunrise walks, design markets, contemporary dance…", required: true, long: true }],
     submit: "Send to Radar", label: "radar-interest",
     note: (v) => ["Do: more ideas like " + v.t, "Please look for more Do ideas (things to do, Den Haag first): " + v.t],

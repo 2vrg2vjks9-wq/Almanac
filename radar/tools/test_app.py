@@ -599,6 +599,8 @@ def do_suite(browser, site, scheme):
     page.keyboard.press("Escape"); page.wait_for_timeout(350)
     page.click('#doCity .pill:has-text("Amsterdam")'); page.wait_for_timeout(150)
     check(page.locator("#doAll .idea").count() == 1, "%s: city filter" % scheme)
+    pills = page.locator("#doCity .pill").all_inner_texts()
+    check(pills == ["All", "Den Haag", "Amsterdam", "Utrecht"], "%s: city filters come from the ideas, nearest first %s" % (scheme, pills))
     page.click('#doCity .pill:has-text("All")')
     page.click('#doWhen .pill:has-text("Always on")'); page.wait_for_timeout(150)
     check(page.locator("#doAll .idea").count() == 1 and "Dawn in the dunes" in page.inner_text("#doAll"), "%s: Always on shows undated ideas" % scheme)

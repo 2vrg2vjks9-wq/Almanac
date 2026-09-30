@@ -125,7 +125,7 @@ in commit messages, issue comments or Actions logs.
 Keep `things` a long list (about 30–60 live ideas) to say yes or no to. Den Haag and around first and fullest
 (museums, galleries such as West, Stroom, Nest and The Grey Space in the Middle, Amare/NDT/Residentie Orkest, Paard,
 Korzo, Koninklijke Schouwburg, Filmhuis, festivals like Crossing Border and Rewire, markets, dunes, beach and gardens);
-Amsterdam and Utrecht only with fit 4–5. Mix the major events with fresh, unexpected ideas (`fresh: true`) that
+then a spread of other places (Rotterdam and Leiden fit 3+, Haarlem, Amsterdam and Utrecht 4+, day trips such as Otterlo or Eindhoven 5); the city filter builds itself from the cities in the list. Mix the major events with fresh, unexpected ideas (`fresh: true`) that
 read the owner's vibe. Every dated item needs a real URL you opened. Learn from `yes | do:` / `no | do:` lines:
 more of what gets yes, less of what gets no. Remove past ideas; keep ids stable.
 
