@@ -78,7 +78,13 @@ def fixtures():
         idea(id="do-far", cat="outdoors", title="Far-off plunge", city="Den Haag", start=DAY(90), fit=5),
         idea(id="do-far-book", cat="music", title="Far-off festival that sells out", city="Den Haag", start=DAY(120), end=DAY(122), fit=5, prep="Tickets sell out in autumn"),
     ]}
-    return {"interests": interests, "feed": feed, "taste": taste, "things": things}
+    gear = {"updated": DAY(0) + "T08:10:00+02:00", "ads": [
+        {"id": "mp-1", "site": "marktplaats", "country": "nl", "type": "wing", "brand": "Gong", "title": "Gong Plus 5.0 wing", "price": 260, "size": "5.0 m²", "location": "Utrecht", "posted": DAY(0), "found": DAY(0), "url": "https://www.marktplaats.nl/v/test-1", "match": "hit", "note": "Gong, so up to €350"},
+        {"id": "2dh-1", "site": "2dehands", "country": "be", "type": "board", "title": "Hard wingboard 110 L", "price": 300, "size": "110 L", "location": "Gent", "posted": DAY(-2), "found": DAY(-2), "url": "https://www.2dehands.be/v/test-2", "match": "hit"},
+        {"id": "ka-1", "site": "kleinanzeigen", "country": "de", "type": "foil", "title": "Foil komplett <b>bold</b>", "price": 200, "location": "Kleve", "posted": DAY(-1), "found": DAY(-1), "url": "https://www.kleinanzeigen.de/s-anzeige/test-3", "match": "maybe", "note": "Front wing size not stated", "shipping": True},
+        {"id": "bad-1", "site": "marktplaats", "type": "wing", "title": "No link ad", "price": 100, "url": "javascript:alert(1)", "match": "hit"},
+    ]}
+    return {"interests": interests, "feed": feed, "taste": taste, "things": things, "gear": gear}
 
 
 FIX = fixtures()
@@ -231,7 +237,7 @@ class Mocks:
 
 # --- Static checks -----------------------------------------------------------------------------------
 def static_checks():
-    for f in ["vault.json", "manifest.webmanifest"] + ["data/%s.enc.json" % n for n in ("interests", "feed", "taste", "things")]:
+    for f in ["vault.json", "manifest.webmanifest"] + ["data/%s.enc.json" % n for n in ("interests", "feed", "taste", "things", "gear")]:
         try:
             j = json.load(open(os.path.join(ROOT, "radar", f))); check(True, "%s is valid JSON" % f)
             if f.startswith("data/"):
@@ -315,6 +321,13 @@ def tabs_suite(browser, site, scheme):
     check("wetsuit" in page.inner_text("#windAll"), "%s: wetsuit hint shown" % scheme)
     page.locator("#windAll .spot").first.locator(".rday").nth(1).click(); page.wait_for_timeout(300)
     check(page.is_visible("#windAll .detail svg"), "%s: hourly chart opens" % scheme)
+    check(page.locator("#gear .ad").count() == 3, "%s: gear ads listed (bad links left out)" % scheme)
+    check(page.locator("#gear .ad b").first.inner_text() in ("Gong Plus 5.0 wing", "Hard wingboard 110 L") and page.locator("#gear b b").count() == 0, "%s: gear matches first, titles stay text" % scheme)
+    page.click('#gearTypes .pill:has-text("Foils")'); page.wait_for_timeout(150)
+    check(page.locator("#gear .ad").count() == 1 and "Check size" in page.inner_text("#gear"), "%s: gear type filter; unclear sizes say so" % scheme)
+    page.click('#gearTypes .pill:has-text("All")'); page.locator("#gear [data-hide]").first.click(); page.wait_for_timeout(150)
+    check(page.locator("#gear .ad").count() == 2, "%s: hiding an ad removes it" % scheme)
+    page.locator("#gear").scroll_into_view_if_needed(); shot(page, "gear-%s.png" % scheme, False)
     shot(page, "wind-%s.png" % scheme, False)
     shot(page, "wind-%s-full.png" % scheme)
 

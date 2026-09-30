@@ -11,7 +11,7 @@ The repo is public, so **all personal data is committed encrypted**. Never commi
 the ntfy topic, or personal details (names, diet specifics, employer, email, exact places) anywhere in the repo,
 in commit messages, issue comments or Actions logs.
 
-- `radar/data/<name>.enc.json` for `interests`, `feed`, `taste`, `things`: AES-256-GCM, key from the passphrase
+- `radar/data/<name>.enc.json` for `interests`, `feed`, `taste`, `things`, `gear`: AES-256-GCM, key from the passphrase
   via PBKDF2-SHA256 (salt, iterations and a check value in `radar/vault.json`). The file name is bound in as
   additional data. The app (`js/vault.js`, WebCrypto) and `radar/tools/vault.mjs` (Node, no dependencies) use
   the same format.
@@ -72,12 +72,17 @@ in commit messages, issue comments or Actions logs.
     cats: art, music, stage, film, talk, festival, market, outdoors, calm, food, design, odd. `when` is free text
     for times or recurring things ("Daily 10–16, book a slot"); undated ideas show as "Any time". Ids are stored
     in the owner's answers: keep them stable, never reuse one.
+  - `gear` — Gear for sale on the Wind tab (`js/gear.js`): `{updated, note, ads:[{id, site (marktplaats | 2dehands |
+    kleinanzeigen), country (nl | be | de), type (wing | board | foil | set), brand?, title, price (EUR number), size?,
+    location?, posted?, found, url, match (hit | maybe), note?, shipping?}]}`. Filled a few times a day by the "Radar
+    gear" Claude task using the rules in `interests.gear`. The phone never contacts those sites; it opens an ad on tap.
+    Ads can be hidden per phone (`radar-gear-hidden`).
 - **Travel focus:** items in a travel region (today only `jp`) show, and get a region filter, only while
   `focus` points there (`focus.region`, or `focus.place` matches) and `focus.until` hasn't passed.
 - **localStorage keys** (never rename; the owner's saves live there): radar-saved, radar-reactions, radar-hidden,
   radar-outbox, radar-gh-key, radar-welcomed, radar-bucket-sent, radar-here, radar-wind, radar-water, radar-cache,
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
-  radar-do (Do answers), radar-do-view (Do filters). sessionStorage: radar-reload-for.
+  radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden. sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
   Every note is sealed before it leaves the phone (generic title, encrypted body). Do answers go with the

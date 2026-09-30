@@ -9,6 +9,7 @@ import { initNotes } from "./notes.js";
 import { initSaved, drawSaved, paintTeach, ask } from "./saved.js";
 import { initAround } from "./around.js";
 import { initDo, drawDo } from "./do.js";
+import { initGear, drawGear } from "./gear.js";
 import { restore, unlock, unlockFromServer, forget, supported } from "./vault.js";
 import { SERVER } from "./notes.js";
 
@@ -20,7 +21,7 @@ function greet() {
   $("today").textContent = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 }
 
-function drawAll() { drawTop(); drawFeed(); drawWork(); drawSaved(); drawDo(); paintAlert(); }
+function drawAll() { drawTop(); drawFeed(); drawWork(); drawSaved(); drawDo(); drawGear(); paintAlert(); }
 
 // The ntfy topic lives in the encrypted interests file (anyone who knows it can read the alerts).
 function paintAlert() {
@@ -78,6 +79,7 @@ function start() {
     segs("workKinds", WORK_KINDS, "work", drawWork);
     initSearch();
     initDo(ask);
+    initGear();
     started = true;
   }
   drawAll();

@@ -5,7 +5,7 @@ import { d, today } from "./util.js";
 import { get, set, KEYS } from "./store.js";
 import { open, unlocked } from "./vault.js";
 
-export const D = { config: null, feed: null, taste: { learned: [], more: [], less: [] }, things: { ideas: [] }, byId: {}, source: null };
+export const D = { config: null, feed: null, taste: { learned: [], more: [], less: [] }, things: { ideas: [] }, gear: { ads: [] }, byId: {}, source: null };
 
 // Tiny event bus so modules can redraw after reactions, saves or new data.
 const bus = new EventTarget();
@@ -18,7 +18,8 @@ async function fetchData(name) {
   return JSON.parse(await open(await r.json(), name));
 }
 
-function adopt(config, feed, taste, things) {
+function adopt(config, feed, taste, things, gear) {
+  D.gear = gear && Array.isArray(gear.ads) ? gear : { updated: null, ads: [] };
   D.config = config;
   D.feed = feed && Array.isArray(feed.items) ? feed : { updated: null, items: [] };
   D.taste = taste || { learned: [] };
@@ -40,19 +41,20 @@ export function mergePicks() {
 export async function loadData() {
   if (!unlocked()) { D.source = "locked"; return D.source; }
   try {
-    const [c, f, t, x] = await Promise.all([
+    const [c, f, t, x, g] = await Promise.all([
       fetchData("interests"),
       fetchData("feed"),
       fetchData("taste").catch(() => ({ learned: [] })),
       fetchData("things").catch(() => ({ ideas: [] })),
+      fetchData("gear").catch(() => ({ ads: [] })),
     ]);
-    adopt(c, f, t, x);
-    set(KEYS.cache, { c, f, t, x });
+    adopt(c, f, t, x, g);
+    set(KEYS.cache, { c, f, t, x, g });
     D.source = "live"; D.keyBad = false;
   } catch (e) {
     D.keyBad = !!(e && e.name === "OperationError"); // the passphrase changed since this phone unlocked
     const cached = get(KEYS.cache, null);
-    if (cached && cached.c && !D.feed) adopt(cached.c, cached.f, cached.t, cached.x);
+    if (cached && cached.c && !D.feed) adopt(cached.c, cached.f, cached.t, cached.x, cached.g);
     D.source = D.feed ? "cache" : null;
   }
   return D.source;

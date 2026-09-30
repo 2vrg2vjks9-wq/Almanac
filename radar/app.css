@@ -265,6 +265,17 @@ button.rday:active { background: var(--sunk); }
 .cityline .flagmark.far { background: var(--calm); }
 .plan .idea .dt b { color: var(--haag-ink); }
 
+/* --- Gear for sale ----------------------------------------------------------------------------- */
+.ad { display: flex; align-items: center; gap: 10px; padding: 12px 0; }
+.ad + .ad { border-top: 1px solid var(--rule); }
+.ad-main { flex: 1; min-width: 0; display: block; text-decoration: none; color: inherit; min-height: 44px; }
+.ad-top { display: flex; gap: 4px 10px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); }
+.ad-site { font-weight: 700; }
+.ad-main b { display: block; font: 500 17px/1.3 var(--read); margin-top: 3px; overflow-wrap: anywhere; }
+.ad-main small { display: block; font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.ad-main .ad-note { font: italic 13px/1.45 var(--read); }
+.ad-price { flex: none; font: 600 18px/1 var(--ui); font-variant-numeric: tabular-nums; }
+
 /* --- Around you ----------------------------------------------------------------------------- */
 .around .duo { padding-bottom: 12px; }
 #around:empty { display: none; }
