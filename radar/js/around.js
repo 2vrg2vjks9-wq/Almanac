@@ -1,12 +1,13 @@
-// "Look around here" and "Scout this city".
+// "Look around": one button, then a switch between walking distance (2.5 km) and the whole city.
 // Finds the phone's position (only when tapped), then asks two open sources in parallel:
 //   - OpenStreetMap through Overpass (three public mirrors, 20 s timeout each, simple GET)
 //   - Wikipedia geosearch (notable places), so results still appear when Overpass is down.
 // Results are merged, de-duplicated, ranked with interests.json + taste.json, and grouped.
-// Scout also names the city (Nominatim) and sends "I'm in <city, country> until <date>" to Claude,
-// whose hourly task researches it and adds curated items to feed.json within the hour.
-// What leaves the phone: coordinates to OpenStreetMap and Wikipedia, only on tap; the city name
-// and dates in the note to Claude.
+// Away from home (more than 30 km from Den Haag) it names the city (Nominatim) and offers to ask
+// Claude to research it: only when the owner taps that, "I'm in <city, country> until <date>" goes to
+// Claude, whose hourly task adds curated items to the feed within the hour. At home nothing is sent.
+// What leaves the phone: coordinates to OpenStreetMap, Wikipedia and (city view or away) Nominatim,
+// only on tap; the city name and dates to Claude, only when asked.
 import { $, html, put, km, kmText, getJSON, fetchT, mapUrl, safeUrl, hm, stamp, today, isoDay, d, longDate } from "./util.js";
 import { S, save, get, set, KEYS } from "./store.js";
 import { D, focusRegion } from "./data.js";
@@ -19,6 +20,7 @@ const OVERPASS = [
   "https://overpass.private.coffee/api/interpreter",
 ];
 const NEAR_M = 2500, CITY_M = 12000;
+const HOME = { lat: 52.0799, lon: 4.3113 }, AWAY_KM = 30; // Den Haag; further than this counts as travelling
 
 const GROUPS = [
   { id: "art", name: "Art & museums", icon: "M4 20h16M6 20V10M10 20V10M14 20V10M18 20V10M3 10l9-6 9 6z" },
@@ -31,7 +33,7 @@ const GROUP = Object.fromEntries(GROUPS.map((g) => [g.id, g]));
 
 // A = what the Around section shows right now.
 let A = get(KEYS.around, null);
-if (A) { A.restored = true; A.expanded = {}; A.scout = null; }
+if (A) { A.restored = true; A.expanded = {}; A.scout = null; A.place = null; }
 
 // --- Location -----------------------------------------------------------------------------
 const WHERE_TEXT = {
@@ -218,7 +220,7 @@ let run = 0;
 async function search(mode) {
   const my = ++run;
   const alive = () => my === run;
-  A = { mode, phase: "locating", items: [], osm: "pending", wiki: "pending", mirror: "", expanded: {}, at: Date.now(), label: mode === "city" ? "This city" : "Near you", scout: null };
+  A = { mode, phase: "locating", items: [], osm: "pending", wiki: "pending", mirror: "", expanded: {}, at: Date.now(), label: mode === "city" ? "This city" : "Near you", scout: null, place: null };
   paint();
   let here;
   try { here = await locate(); }
@@ -233,19 +235,22 @@ async function search(mode) {
 async function start(mode, here, my) {
   const alive = () => my === run;
   const city = mode === "city";
-  A.phase = "searching"; A.from = { lat: here.lat, lon: here.lon }; A.at = Date.now(); A.error = ""; A.fallback = null;
+  A.mode = mode; A.phase = "searching"; A.from = { lat: here.lat, lon: here.lon }; A.at = Date.now(); A.error = ""; A.fallback = null;
+  A.items = []; A.osm = A.wiki = "pending"; A.osmRaw = A.wikiRaw = null; A.expanded = {}; A.restored = false;
+  A.away = km(HOME.lat, HOME.lon, here.lat, here.lon) > AWAY_KM;
+  A.label = city ? "This city" : "Near you";
   let center = A.from;
-  if (city) {
-    A.label = "Finding your city…"; paint();
+  if (city || A.away) {
+    if (city) { A.label = "Finding your city…"; paint(); }
     try {
-      const c = await cityName(here.lat, here.lon);
+      const c = A.place || await cityName(here.lat, here.lon);
       if (!alive()) return;
-      A.label = [c.city, c.country].filter(Boolean).join(", "); A.city = c.city;
-      center = { lat: c.lat, lon: c.lon };
-      scout(c);
+      A.place = c;
+      if (city) { A.label = [c.city, c.country].filter(Boolean).join(", "); center = { lat: c.lat, lon: c.lon }; }
+      if (A.away) offer(c);
     } catch (e) {
       if (!alive()) return;
-      A.label = "This area"; A.scout = { status: "nocity" };
+      if (city) A.label = "This area";
     }
   }
   A.center = center;
@@ -281,6 +286,13 @@ function defaultUntil(c) {
   }
   const t = today(); t.setDate(t.getDate() + 3); return isoDay(t);
 }
+// Away from home: show what Claude already knows, or offer to ask. Nothing is sent from here.
+function offer(c) {
+  const place = [c.city, c.country].filter(Boolean).join(", "), until = defaultUntil(c), prev = get(KEYS.scout, null);
+  if (prev && prev.place === place && Date.now() - prev.t < 12 * 36e5 && prev.status === "sent") {
+    A.scout = { status: "already", city: c.city, place, until: prev.until, sentAt: prev.t, c };
+  } else A.scout = { status: "offer", city: c.city, place, until, c };
+}
 async function scout(c, until) {
   const place = [c.city, c.country].filter(Boolean).join(", ");
   until = until || defaultUntil(c);
@@ -291,7 +303,7 @@ async function scout(c, until) {
   }
   paint();
   const status = await note("I'm in " + place + " until " + until,
-    "Radar: focus research on " + place + " until " + until + " (" + longDate(d(until)) + ").\nSent from Scout this city. City only; no exact location is shared.",
+    "Radar: focus research on " + place + " until " + until + " (" + longDate(d(until)) + ").\nSent from Look around. City only; no exact location is shared.",
     "radar-location");
   if (!A.scout || A.scout.place !== place) return;
   A.scout.status = status;
@@ -304,7 +316,11 @@ const icon = (g) => html`<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
 function scoutHTML() {
   const s = A.scout;
   if (!s) return "";
-  if (s.status === "nocity") return html`<div class="scout"><p>Radar couldn't name this city, so nothing went to Claude. The guide below still works.</p></div>`;
+  if (s.status === "offer") {
+    return html`<div class="scout"><p><b>You're in ${s.city}.</b> Ask Claude to research it? Curated picks for your stay arrive in Today and Explore within the hour. Only the city name and your dates are sent.</p>
+      <label class="until"><span>Here until</span><input type="date" id="scoutUntil" value="${s.until}" min="${isoDay(today())}"></label>
+      <div class="duo"><button class="btn" type="button" id="scoutGo">Ask Claude about ${s.city}</button></div></div>`;
+  }
   const msg = {
     sending: html`Telling Claude you're in ${s.city}…`,
     sent: html`<b>Claude is researching ${s.city}.</b> Curated picks arrive within the hour, in Today and Explore.`,
@@ -342,7 +358,7 @@ function statusLine() {
   }
   if (!A.items.length) {
     if (A.osm === "fail" && A.wiki === "fail") return "Neither OpenStreetMap nor Wikipedia answered. Check your connection and try again.";
-    return A.mode === "city" ? "Nothing notable tagged within " + radius + "." : "Nothing tagged within " + radius + ". Try Scout this city for a wider look.";
+    return A.mode === "city" ? "Nothing notable tagged within " + radius + "." : "Nothing tagged within " + radius + ". Try Whole city for a wider look.";
   }
   const when = A.restored ? "Last search, " + stamp(A.at) + ". " : "";
   return when + A.items.length + (A.items.length === 1 ? " place" : " places") + " within " + radius + ", best first.";
@@ -360,10 +376,11 @@ function sourcesLine() {
 function paint() {
   const box = $("around");
   if (!box) return;
-  $("nearBtn").disabled = $("hereBtn").disabled = !!(A && (A.phase === "locating" || A.phase === "searching"));
+  $("nearBtn").disabled = !!(A && (A.phase === "locating" || A.phase === "searching"));
   if (!A) { put(box, ""); return; }
-  const busy = A.phase === "locating" || A.phase === "searching";
-  put(box, html`<div class="around-head"><h3>${A.label}</h3>
+  const busy = A.phase === "locating" || A.phase === "searching", city = A.mode === "city", canSwitch = !!A.from && A.phase !== "locating";
+  put(box, html`${canSwitch ? html`<div class="switch" role="group" aria-label="How far"><button type="button" id="aNear" aria-pressed="${!city}">Walking distance</button><button type="button" id="aCity" aria-pressed="${city}">Whole city</button></div>` : ""}
+    <div class="around-head"><h3>${A.label}</h3>
       <p class="astatus${A.phase === "error" ? " err" : ""}" role="status" aria-live="polite">${busy ? html`<span class="pulse" aria-hidden="true"></span>` : ""}${statusLine()}</p>
       ${A.fallback ? html`<button class="btn ghost small" type="button" id="useLast">Use where you were at ${hm(A.fallback.t)}</button>` : ""}</div>
     ${scoutHTML()}
@@ -375,7 +392,17 @@ function paint() {
   const u = $("useLast");
   if (u) u.onclick = () => { const m = A.mode; A = { ...A, restored: false }; start(m, A.fallback, ++run); };
   const inp = $("scoutUntil");
-  if (inp) inp.onchange = () => { if (inp.value && A.scout && A.scout.c && inp.value !== A.scout.until) scout(A.scout.c, inp.value); };
+  if (inp) inp.onchange = () => {
+    if (!inp.value || !A.scout || !A.scout.c || inp.value === A.scout.until) return;
+    if (A.scout.status === "offer") A.scout.until = inp.value; // not sent yet: just remember the date
+    else scout(A.scout.c, inp.value); // already asked: send the new date once
+  };
+  const go = $("scoutGo");
+  if (go) go.onclick = () => scout(A.scout.c, A.scout.until);
+  const sw = (mode) => { if (A.mode === mode || busy) return; start(mode, A.from, ++run); };
+  const n = $("aNear"), c = $("aCity");
+  if (n) n.onclick = () => sw("near");
+  if (c) c.onclick = () => sw("city");
 }
 
 // --- Place sheet -----------------------------------------------------------------------------------------
@@ -396,7 +423,6 @@ function openPlace(p) {
 }
 
 export function initAround() {
-  $("nearBtn").onclick = () => search("near");
-  $("hereBtn").onclick = () => search("city");
+  $("nearBtn").onclick = () => search(A && A.mode === "city" ? "city" : "near");
   paint();
 }

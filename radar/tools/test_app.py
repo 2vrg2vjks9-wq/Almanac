@@ -13,7 +13,7 @@ Fonts), and checks:
   - notes: POST /api/note on the Cloudflare site, offline outbox that sends when back online,
     GitHub token fallback on github.io/localhost
   - Look around here: results grouped, Overpass down (Wikipedia still shows), location denied
-  - Scout this city: instant city guide + the "I'm in <city>" note sent
+  - Look around away from home: Whole city guide, offer to ask Claude, note sent only on tap; at home no offer
 
     python3 radar/tools/test_app.py [screenshot-dir]
 
@@ -262,9 +262,9 @@ def static_checks():
 
 
 # --- Browser helpers ------------------------------------------------------------------------------------
-def new_page(browser, base, scheme="light", geo=True, welcomed=True, width=390, height=844, unlocked=True):
+def new_page(browser, base, scheme="light", geo=True, welcomed=True, width=390, height=844, unlocked=True, coords=None):
     ctx = browser.new_context(viewport={"width": width, "height": height}, device_scale_factor=2, color_scheme=scheme,
-                              service_workers="block", geolocation=KYOTO if geo else None,
+                              service_workers="block", geolocation=(coords or KYOTO) if geo else None,
                               permissions=["geolocation"] if geo else [], accept_downloads=True)
     if welcomed:
         ctx.add_init_script("try{localStorage.setItem('radar-welcomed','true')}catch(e){}")
@@ -448,33 +448,48 @@ def scout_suite(browser, site, scheme):
     ctx, page, errors = new_page(browser, site, scheme)
     m = Mocks(page)
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
-    page.click("#hereBtn")
+    check(page.locator("#hereBtn").count() == 0, "%s: one Look around button, no separate Scout" % scheme)
+    page.click("#nearBtn")
     page.wait_for_selector("#around .pgroup", timeout=8000)
+    page.wait_for_selector("#scoutGo", timeout=5000); page.wait_for_timeout(300)
+    check(len(m.notes) == 0, "%s: away from home Radar offers to ask Claude but sends nothing by itself" % scheme)
+    check("You're in Kyoto" in page.inner_text("#around .scout"), "%s: the offer names the city" % scheme)
+    page.click("#aCity"); page.wait_for_function("document.querySelector('#around h3') && document.querySelector('#around h3').innerText == 'Kyoto, Japan'", timeout=8000)
+    page.wait_for_selector("#around .pgroup", timeout=8000); page.wait_for_timeout(300)
+    check(page.locator("#around .place").count() >= 6, "%s: Whole city lists places right away" % scheme)
+    check(len(m.notes) == 0, "%s: switching to Whole city sends nothing" % scheme)
+    page.evaluate("document.querySelector('.sheet.around').scrollIntoView({block:'start'})"); page.wait_for_timeout(150)
+    shot(page, "scout-%s-screen.png" % scheme, False)
+    page.click("#scoutGo")
     page.wait_for_function("/Claude is researching Kyoto/.test(document.querySelector('#around').innerText)", timeout=5000)
-    page.wait_for_timeout(300)
-    check(page.inner_text("#around h3") == "Kyoto, Japan", "%s: Scout names the city" % scheme)
-    check(len(m.notes) == 1, "%s: Scout sends one note (%d)" % (scheme, len(m.notes)))
+    check(len(m.notes) == 1, "%s: asking Claude sends one note (%d)" % (scheme, len(m.notes)))
     if m.notes:
         n = m.notes[0]
         check(n.get("label") == "radar-location" and n.get("title") == "Radar note" and set(n) == {"title", "body", "label"},
               "%s: note is {title, body, label} with radar-location and a generic title: %s" % (scheme, n.get("title")))
         check(n["body"].startswith("radar-sealed:v1:") and "Kyoto" not in n["body"], "%s: the location note is sealed" % scheme)
-        n = dict(n, title=unseal(n["body"]).split("\n")[0].replace("Title: ", ""))
-        check(n["title"].startswith("I'm in Kyoto, Japan until 20"), "%s: sealed note opens with the vault key: %s" % (scheme, n["title"]))
-        fp = CFG["focus"]["place"].lower().strip()
-        focus_here = fp in ("japan", "kyoto, japan") or fp.split(",")[0].strip() == "kyoto"
-        check(not focus_here or CFG["focus"]["until"] in n["title"] or CFG["focus"]["until"] < str(datetime.date.today()), "%s: note uses the focus end date when scouting the focus city" % scheme)
-    check("arrive within the hour" in page.inner_text("#around .scout"), "%s: guide says picks arrive within the hour" % scheme)
-    check(page.locator("#around .place").count() >= 6, "%s: city guide lists places right away" % scheme)
-    page.evaluate("document.querySelector('.sheet.around').scrollIntoView({block:'start'})"); page.wait_for_timeout(150)
-    shot(page, "scout-%s-screen.png" % scheme, False)
+        t = unseal(n["body"]).split("\n")[0].replace("Title: ", "")
+        check(t.startswith("I'm in Kyoto, Japan until 20") and CFG["focus"]["until"] in t, "%s: sealed note names the city and the focus end date: %s" % (scheme, t))
+    check("arrive within the hour" in page.inner_text("#around .scout"), "%s: says picks arrive within the hour" % scheme)
     page.locator(".sheet.around").screenshot(path=os.path.join(OUT, "scout-%s.png" % scheme))
-    # changing the date sends one correction; tapping again the same day does not resend
+    # changing the date sends one correction; looking again the same day does not resend
     page.fill("#scoutUntil", "2026-12-01"); page.dispatch_event("#scoutUntil", "change"); page.wait_for_timeout(500)
     check(len(m.notes) == 2 and "until 2026-12-01" in unseal(m.notes[-1]["body"]).split("\n")[0], "%s: changing the date sends an update" % scheme)
-    page.click("#hereBtn"); page.wait_for_selector("#around .pgroup", timeout=8000); page.wait_for_timeout(600)
-    check(len(m.notes) == 2, "%s: scouting the same city again doesn't resend" % scheme)
-    check(not real_errors(errors), "%s: no JS errors in Scout %s" % (scheme, real_errors(errors)))
+    page.click("#aNear"); page.wait_for_selector("#around .pgroup", timeout=8000); page.wait_for_timeout(600)
+    check(len(m.notes) == 2 and "Claude is researching Kyoto" in page.inner_text("#around"), "%s: looking again the same day doesn't resend" % scheme)
+    check(not real_errors(errors), "%s: no JS errors in Look around away %s" % (scheme, real_errors(errors)))
+    ctx.close()
+
+
+def home_suite(browser, site):
+    ctx, page, errors = new_page(browser, site, coords={"latitude": 52.0805, "longitude": 4.3120})
+    m = Mocks(page)
+    nomi = []
+    page.route("**/nominatim.openstreetmap.org/**", lambda r: (nomi.append(1), r.fulfill(status=200, headers=JSONH, body=json.dumps(NOMINATIM))))
+    page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
+    page.click("#nearBtn"); page.wait_for_function("document.querySelector('#around .astatus') && !/Finding|Asking/.test(document.querySelector('#around .astatus').innerText)", timeout=8000)
+    check(page.locator("#around .scout").count() == 0 and not nomi and not m.notes, "at home: no offer, no city lookup, nothing sent")
+    check(not real_errors(errors), "at home: no JS errors %s" % real_errors(errors))
     ctx.close()
 
 
@@ -648,6 +663,7 @@ def run():
             scout_suite(browser, site, scheme)
         overpass_down_suite(browser, site)
         denied_suite(browser, site)
+        home_suite(browser, site)
         notes_suite(browser, site, local)
         server_key_suite(browser, site)
         browser.close()

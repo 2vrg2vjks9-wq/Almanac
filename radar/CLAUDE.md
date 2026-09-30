@@ -73,7 +73,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters). sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
-  (`radar-feedback`), scouted city (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
+  (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
   Every note is sealed before it leaves the phone (generic title, encrypted body). Do answers go with the
   reactions in `radar-feedback` as lines `yes|no | do:<cat> | <title> | <city> | id: <id>`.
   On the Cloudflare site they POST `{title, body, label}` to `/api/note` (`functions/api/note.js` files a GitHub
@@ -81,16 +81,19 @@ in commit messages, issue comments or Actions logs.
   (kept only on the phone). Anything unsent waits in `radar-outbox` and retries when online. Never open GitHub
   in the browser. The daily task handles interests/feedback/bucket; an hourly task handles `radar-location`
   notes and adds researched items for that city to feed.json within the hour.
-- **Around you** (`js/around.js`), only on tap: geolocation (distinct messages for denied / timeout /
-  unavailable, with the iOS Settings path) → Overpass (overpass-api.de, then overpass.kumi.systems, then
+- **Around you** (`js/around.js`): one **Look around** button, only on tap. Geolocation (distinct messages for denied /
+  timeout / unavailable, with the iOS Settings path) → Overpass (overpass-api.de, then overpass.kumi.systems, then
   overpass.private.coffee; 20 s timeout each, GET) and Wikipedia geosearch in parallel, so results appear even
-  when Overpass is down. Merged, de-duplicated, ranked (names in interests.json count most, taste words a little),
+  when Overpass is down. Merged, de-duplicated, ranked (names in interests count most, taste words a little),
   grouped: Art & museums, Zen & quiet places, Food that may suit you (only places with OSM `diet:*` tags, always
-  with "check with staff"), Nature & viewpoints, Landmarks & architecture. Tap a place for a sheet with map,
-  Wikipedia and website links. Look around here = 2.5 km; Scout this city = Nominatim reverse (zoom 10), a guide
-  within ~10–12 km of the centre shown at once, and the radar-location note (date defaults to focus.until when
-  there, else 3 days; changing it sends one update; the same city isn't resent within 12 hours).
-  What leaves the phone: coordinates to OpenStreetMap and Wikipedia on tap; city name and dates to Claude.
+  with "check with staff"), Nature & viewpoints, Landmarks & architecture. A switch changes the range: Walking
+  distance (2.5 km) or Whole city (Nominatim reverse, zoom 10, ~10–12 km of the centre), reusing the same position.
+  Away from home (more than 30 km from Den Haag) it names the city and **offers** to ask Claude to research it
+  ("Here until" date, default focus.until when there, else 3 days); only a tap on "Ask Claude about <city>" sends
+  the radar-location note. After that, changing the date sends one update; the same city isn't resent within 12 hours.
+  At home nothing is offered or sent, and Walking distance doesn't call Nominatim.
+  What leaves the phone: coordinates to OpenStreetMap, Wikipedia and (Whole city or away) Nominatim, on tap; the
+  city name and dates to Claude only when asked.
 - **Wind alert:** `.github/workflows/radar-wind.yml` runs `radar/tools/wind_alert.py` every morning (Actions
   secret `RADAR_KEY`; topic from `alerts.ntfy` or the `NTFY_TOPIC` secret) and pushes to ntfy.sh. The Actions log
   is public: it prints only a count. Keep it working if you touch the wind section.
@@ -99,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   serves it, mocks every outside API
   (Open-Meteo, Marine, Overpass + mirrors, Wikipedia, Nominatim, /api/note, GitHub, fonts), runs every tab in
   light and dark at 390×844, 320 px overflow, detail sheet + .ics, offline copy, notes + outbox + github.io
-  fallback, Around me (success, Overpass down, location denied) and Scout; plus JSON validity, `node --check`
+  fallback, Look around (success, Overpass down, location denied, at home, away with the Ask Claude offer); plus JSON validity, `node --check`
   and the safety check. The Cloudflare site is simulated as `radar.localhost`. Run it before every commit and
   look at the screenshots.
 

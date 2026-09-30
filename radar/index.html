@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-09-30b";</script>
+<script>var APP_VERSION="2026-09-30c";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -46,14 +46,11 @@
 
     <h2>Around you</h2>
     <div class="sheet around">
-      <div class="duo">
-        <button class="btn" id="nearBtn" type="button">Look around here</button>
-        <button class="btn ghost" id="hereBtn" type="button">Scout this city</button>
-      </div>
-      <p class="hint">Art, quiet places, food that may suit you and nature within walking distance, or a guide to the whole city. Scouting also asks Claude to research the city for you.</p>
+      <div class="duo"><button class="btn" id="nearBtn" type="button">Look around</button></div>
+      <p class="hint">Art, quiet places, food that may suit you and nature, within walking distance or across the whole city. Away from home, Radar can also ask Claude to research the city for your stay.</p>
       <div id="around"></div>
     </div>
-    <p class="fine">Only when you tap these buttons, Radar sends your position to OpenStreetMap and Wikipedia to find places. Claude only gets the city name and your dates.</p>
+    <p class="fine">Only when you tap Look around, Radar sends your position to OpenStreetMap and Wikipedia to find places (and to OpenStreetMap's Nominatim to name the city). Claude gets the city name and your dates only when you ask it to research the city.</p>
   </section>
 
   <section class="view" id="v-do" aria-labelledby="doTitle">
