@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-09-29d1";</script>
+<script>var APP_VERSION="2026-09-30a";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -91,7 +91,6 @@
 
   <section class="view" id="v-explore" aria-labelledby="exploreTitle">
     <header class="head"><div><p class="date">Researched for you</p><h1 class="title" id="exploreTitle">Explore</h1></div></header>
-    <div class="switch" role="group" aria-label="Show"><button type="button" id="swFeed" aria-pressed="true">Interests</button><button type="button" id="swWork" aria-pressed="false">Work</button></div>
     <div id="paneFeed">
       <p class="sub" id="feedSub"></p>
       <div class="filters">
@@ -100,12 +99,14 @@
       </div>
       <div class="sheet" id="feed"></div>
     </div>
-    <div id="paneWork" hidden>
-      <p class="sub" id="workSub"></p>
-      <div class="filters"><div class="seg" id="workKinds" role="group" aria-label="Filter work"></div></div>
-      <div class="sheet" id="workFeed"></div>
-      <p class="fine">Roles, calls and freelance leads from the daily research. Freelance leads with the nearest deadline come first; deadlines within two weeks also show on Today.</p>
-    </div>
+  </section>
+
+  <section class="view" id="v-work" aria-labelledby="workTitle">
+    <header class="head"><div><p class="date">Climate adaptation finance</p><h1 class="title" id="workTitle">Work</h1></div></header>
+    <p class="sub" id="workSub"></p>
+    <div class="filters"><div class="seg" id="workKinds" role="group" aria-label="Filter work"></div></div>
+    <div class="sheet" id="workFeed"></div>
+    <p class="fine">Roles, calls and freelance leads from the daily research. Freelance leads with the nearest deadline come first; deadlines within two weeks also show on Today.</p>
   </section>
 
   <section class="view" id="v-saved" aria-labelledby="savedTitle">
@@ -213,6 +214,7 @@
   <button class="tab" data-v="do" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4M9 14.5l2 2 4-4"/></svg>Do</button>
   <button class="tab" data-v="wind" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h7"/></svg>Wind</button>
   <button class="tab" data-v="explore" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Explore</button>
+  <button class="tab" data-v="work" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3.5 12.5h17"/></svg>Work</button>
   <button class="tab" data-v="saved" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>You</button>
 </div></nav>
 </body>

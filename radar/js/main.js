@@ -119,17 +119,9 @@ async function checkVersion() {
   } catch (e) { /* offline or signed out: try next time */ }
 }
 
-// Explore: interests or work
-function pane(work) {
-  $("paneFeed").hidden = work; $("paneWork").hidden = !work;
-  $("swFeed").setAttribute("aria-pressed", String(!work)); $("swWork").setAttribute("aria-pressed", String(work));
-}
-
 greet();
 initTabs();
 initLock();
-$("swFeed").onclick = () => pane(false);
-$("swWork").onclick = () => pane(true);
 initSheet();
 initWind();
 setOpener(openItem);

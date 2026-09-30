@@ -246,6 +246,9 @@ button.rday:active { background: var(--sunk); }
 .idea h3 { font: 500 18px/1.28 var(--read); margin: 4px 0 0; }
 .idea .where { margin-top: 2px; }
 .idea .acts { margin-top: 2px; }
+/* the title button stretches over the row to open it; keep the yes/no buttons above that layer */
+.idea .acts { position: relative; z-index: 1; pointer-events: none; }
+.idea .vote { pointer-events: auto; }
 .vote { min-height: 44px; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
 .vote svg { width: 18px; height: 18px; flex: none; }
 .vote.on.y { background: var(--haag-g); color: #fff; } .vote.on.n { background: var(--sunk); color: var(--flag-ink); }
@@ -394,8 +397,8 @@ button.rday:active { background: var(--sunk); }
 
 /* --- Tab bar: a floating capsule ---------------------------------------------------------------------- */
 .tabs { position: fixed; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom) + 10px); padding: 0 calc(env(safe-area-inset-right) + 12px) 0 calc(env(safe-area-inset-left) + 12px); z-index: 6; pointer-events: none; }
-.tabs .in { pointer-events: auto; max-width: 520px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); padding: 4px; border-radius: 26px; background: var(--tabbar); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4); border: 1px solid var(--rule); box-shadow: 0 8px 26px rgba(0, 0, 0, .12); }
-.tab { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 54px; border-radius: 22px; font-size: 11px; font-weight: 600; color: var(--ink-3); }
+.tabs .in { pointer-events: auto; max-width: 520px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, 1fr); padding: 4px; border-radius: 26px; background: var(--tabbar); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4); border: 1px solid var(--rule); box-shadow: 0 8px 26px rgba(0, 0, 0, .12); }
+.tab { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 54px; min-width: 0; border-radius: 20px; font-size: 11px; font-weight: 600; color: var(--ink-3); }
 .tab svg { width: 23px; height: 23px; }
 .tab.on { color: var(--ink); background: var(--sunk); }
 .tab[data-v="do"].on { color: var(--haag-ink); }

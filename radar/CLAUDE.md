@@ -112,8 +112,9 @@ in commit messages, issue comments or Actions logs.
 - Two bold moments: the **wind ribbon** (one bar per daylight hour, height = strength, colour = rideable for which
   sport, hatched = wrong direction, dotted lines at the thresholds) and the **Do card** (yellow band for Den Haag,
   grey for "Worth the trip"). Everything else is paper, ink and hairlines: sentence case, no all-caps, no gradients.
-- Floating capsule tab bar: Today · Do · Wind · Explore · You (`data-v="saved"`). Mobile-first (390 px), safe-area insets,
-  44 px tap targets. Explore has an Interests / Work switch; Work holds `work` and `freelance` (freelance sorted by deadline).
+- Floating capsule tab bar: Today · Do · Wind · Explore · Work · You (`data-v="saved"`). Mobile-first (390 px), safe-area insets,
+  44 px tap targets. Work holds `work` and `freelance` (freelance sorted by deadline), kept out of Explore.
+- In list rows the title button stretches over the row (tap anywhere opens it); action buttons sit above that layer.
 - **Do rule (the owner's wish):** Den Haag is the most comprehensive; the farther away, the stronger the match
   must be. The app enforces it with `fit`: ≤15 km from Den Haag any fit, ≤40 km 3+, ≤80 km (Amsterdam, Utrecht) 4+, beyond 5.
 - **Reactions:** a new 👍/👎 pops a short notice (fades after 5 s, not on the Do tab). The lasting place to send
