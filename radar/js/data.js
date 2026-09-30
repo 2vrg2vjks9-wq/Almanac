@@ -23,6 +23,15 @@ function adopt(config, feed, taste, things) {
   D.feed = feed && Array.isArray(feed.items) ? feed : { updated: null, items: [] };
   D.taste = taste || { learned: [] };
   D.things = things && Array.isArray(things.ideas) ? things : { updated: null, ideas: [] };
+  mergePicks();
+}
+// Claude's instant picks for a trip live on the phone until the daily task has them in the feed,
+// and only while the stay lasts.
+export function mergePicks() {
+  const P = get(KEYS.picks, null), items = D.feed.items.filter((it) => !it.picked);
+  const live = P && (!P.until || d(P.until) >= today()) ? P.items || [] : [];
+  const titles = new Set(items.map((it) => String(it.title).toLowerCase()));
+  D.feed.items = items.concat(live.filter((p) => !titles.has(String(p.title).toLowerCase())));
   D.byId = {};
   D.feed.items.forEach((it) => { D.byId[it.id] = it; });
 }

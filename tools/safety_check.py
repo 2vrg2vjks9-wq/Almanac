@@ -32,6 +32,9 @@ ALLOWED_HOSTS = (
     # Radar sends notes (interests, feedback, city) as GitHub issues in the background, using a
     # token the owner pastes on the phone; it is kept in the phone's storage, never in the repo:
     "api.github.com",
+    # Radar's /api/scout Cloudflare function asks the Claude API (with web search) to research a
+    # city on the owner's tap; the key lives in Cloudflare, never in the repo or on the phone:
+    "api.anthropic.com",
 )
 
 SECRETS = [

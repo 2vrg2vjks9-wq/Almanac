@@ -18,6 +18,7 @@ export const KEYS = {
   locked: "radar-locked",        // true after "Lock Radar on this phone": don't unlock from /api/key
   do: "radar-do",                // {ideaId: {v: 1 yes | -1 no | 0 later, t, title, cat, city, sent}}
   doView: "radar-do-view",       // {when, city, cat} last Do filters
+  picks: "radar-picks",          // {place, until, t, items} Claude's instant picks for the current trip
 };
 
 export function get(key, fallback) {

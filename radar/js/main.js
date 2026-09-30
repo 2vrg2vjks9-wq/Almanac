@@ -1,6 +1,6 @@
 // Radar start-up: wires the modules, loads data and wind, keeps things fresh.
 import { $, ago, hm, stamp } from "./util.js";
-import { D, loadData, on } from "./data.js";
+import { D, loadData, on, mergePicks } from "./data.js";
 import { initTabs, initSheet, initPullToRefresh, initWelcome } from "./ui.js";
 import { initWind, loadWind, skeleton, net } from "./wind.js";
 import { drawTop, drawFeed, drawWork, segs, KINDS, WORK_KINDS, regions, setOpener } from "./feed.js";
@@ -131,6 +131,7 @@ initAround();
 initWelcome();
 initPullToRefresh(loadAll);
 on("change", () => { drawAll(); refreshItem(); paintTeach(); });
+on("picks", () => { if (D.feed) { mergePicks(); drawAll(); } });
 $("refresh").onclick = loadAll;
 $("appVersion").textContent = "Radar version " + APP_VERSION;
 window.addEventListener("online", () => { if (D.source === "cache" || net.wind === "cache") loadAll(); });

@@ -202,6 +202,7 @@ class Mocks:
         r("**/nominatim.openstreetmap.org/**", lambda x: x.fulfill(status=200, headers=JSONH, body=json.dumps(NOMINATIM)))
         r("**/api/note", self.note)
         r("**/api/key", lambda x: x.fulfill(status=404, headers=JSONH, body='{"error":"not set up"}'))
+        r("**/api/scout", lambda x: x.fulfill(status=404, headers=JSONH, body='{"error":"not set up"}'))
         r("**/api.github.com/**", self.gh)
         r("**/fonts.googleapis.com/**", lambda x: x.fulfill(status=200, headers={"content-type": "text/css", "access-control-allow-origin": "*"}, body=""))
         r("**/fonts.gstatic.com/**", lambda x: x.abort())
@@ -461,7 +462,7 @@ def scout_suite(browser, site, scheme):
     page.evaluate("document.querySelector('.sheet.around').scrollIntoView({block:'start'})"); page.wait_for_timeout(150)
     shot(page, "scout-%s-screen.png" % scheme, False)
     page.click("#scoutGo")
-    page.wait_for_function("/Claude is researching Kyoto/.test(document.querySelector('#around').innerText)", timeout=5000)
+    page.wait_for_function("/arrive within the hour/.test(document.querySelector('#around').innerText)", timeout=8000)
     check(len(m.notes) == 1, "%s: asking Claude sends one note (%d)" % (scheme, len(m.notes)))
     if m.notes:
         n = m.notes[0]
@@ -478,6 +479,36 @@ def scout_suite(browser, site, scheme):
     page.click("#aNear"); page.wait_for_selector("#around .pgroup", timeout=8000); page.wait_for_timeout(600)
     check(len(m.notes) == 2 and "Claude is researching Kyoto" in page.inner_text("#around"), "%s: looking again the same day doesn't resend" % scheme)
     check(not real_errors(errors), "%s: no JS errors in Look around away %s" % (scheme, real_errors(errors)))
+    ctx.close()
+
+
+PICKS = {"items": [
+    {"kind": "exhibition", "title": "Moss and stone: a garden show", "place": "Test museum", "city": "Kyoto", "start": None, "end": None, "summary": "A test pick.", "why": "Gardens", "url": "https://example.org/moss", "flags": [], "lat": 35.0, "lon": 135.77},
+    {"kind": "restaurant", "title": "Quiet vegan kitchen", "place": "Gion", "city": "Kyoto", "start": None, "end": None, "summary": "Another test pick.", "why": "Food that suits", "url": "https://example.org/kitchen", "flags": ["check oats"], "lat": 35.0, "lon": 135.78},
+    {"kind": "exhibition", "title": "<img src=x onerror=alert(1)>", "place": "", "city": "Kyoto", "start": None, "end": None, "summary": "Markup must stay text.", "why": "", "url": "javascript:alert(1)", "flags": [], "lat": None, "lon": None},
+]}
+
+
+def instant_suite(browser, site):
+    ctx, page, errors = new_page(browser, site)
+    m = Mocks(page)
+    asked = []
+    page.route("**/api/scout", lambda r: (asked.append(json.loads(r.request.post_data or "{}")), r.fulfill(status=200, headers=JSONH, body=json.dumps(PICKS))))
+    page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
+    page.click("#nearBtn"); page.wait_for_selector("#scoutGo", timeout=8000)
+    page.click("#scoutGo")
+    page.wait_for_function("/Claude's picks for Kyoto/.test(document.querySelector('#around').innerText)", timeout=8000)
+    check(len(asked) == 1 and asked[0].get("city") == "Kyoto" and "profile" in asked[0] and "lat" not in json.dumps(asked[0]), "instant: asks /api/scout with the city and tastes, no position")
+    check(page.locator("#around .picks .place").count() == 3, "instant: picks show right away")
+    check(page.locator("#around .picks img").count() == 0, "instant: Claude's text can't become markup")
+    page.wait_for_timeout(500)
+    check(len(m.notes) == 1 and "Quiet vegan kitchen" in unseal(m.notes[0]["body"]), "instant: the sealed note carries the picks for the daily task")
+    page.locator("#around .picks .place").first.click(); page.wait_for_selector("#sheet.show", timeout=3000); page.wait_for_timeout(400)
+    check("Moss and stone" in page.inner_text("#sheetBody"), "instant: a pick opens its detail sheet")
+    page.keyboard.press("Escape"); page.wait_for_timeout(350)
+    tab(page, "explore")
+    check("Quiet vegan kitchen" in page.inner_text("#feed") or page.locator("#feed .more").count() == 1, "instant: picks join Explore")
+    check(not real_errors(errors), "instant: no JS errors %s" % real_errors(errors))
     ctx.close()
 
 
@@ -664,6 +695,7 @@ def run():
         overpass_down_suite(browser, site)
         denied_suite(browser, site)
         home_suite(browser, site)
+        instant_suite(browser, site)
         notes_suite(browser, site, local)
         server_key_suite(browser, site)
         browser.close()

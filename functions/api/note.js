@@ -14,7 +14,7 @@ export async function onRequestPost({ request, env }) {
   let n;
   try { n = await request.json(); } catch (e) { return json({ error: "bad request" }, 400); }
   const title = String(n.title || "").slice(0, 200).trim();
-  const body = String(n.body || "").slice(0, 5000);
+  const body = String(n.body || "").slice(0, 60000); // sealed notes can carry Claude's instant picks
   const label = String(n.label || "");
   if (!title || LABELS.indexOf(label) < 0) return json({ error: "bad request" }, 400);
 

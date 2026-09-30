@@ -11,8 +11,10 @@
 import { $, html, put, km, kmText, getJSON, fetchT, mapUrl, safeUrl, hm, stamp, today, isoDay, d, longDate } from "./util.js";
 import { S, save, get, set, KEYS } from "./store.js";
 import { D, focusRegion } from "./data.js";
-import { note } from "./notes.js";
+import { note, SERVER } from "./notes.js";
 import { openSheet } from "./ui.js";
+import { openItem } from "./detail.js";
+import { emit } from "./data.js";
 
 const OVERPASS = [
   "https://overpass-api.de/api/interpreter",
@@ -293,6 +295,24 @@ function offer(c) {
     A.scout = { status: "already", city: c.city, place, until: prev.until, sentAt: prev.t, c };
   } else A.scout = { status: "offer", city: c.city, place, until, c };
 }
+// What Claude gets for instant research: the owner's tastes from the (decrypted) interests, never a position.
+function profile() {
+  const C = D.config || {}, T = D.taste || {};
+  return { artists: C.artists, museums: C.museums, culture: C.culture, stories: C.stories, meditation: C.meditation,
+    food: { avoid: (C.diet && C.diet.avoid) || [], rule: C.restaurants && C.restaurants.rule }, learned: T.learned, more: T.more, less: T.less };
+}
+// Instant research on the Cloudflare site (/api/scout, Claude with web search, about a minute).
+// Resolves the picks, or null when it isn't set up or fails (then the hourly task takes over).
+async function instant(c, until) {
+  if (!SERVER || !navigator.onLine) return null;
+  try {
+    const r = await fetchT("/api/scout", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ city: c.city, country: c.country, until, profile: profile() }) }, 180000);
+    if (!r.ok) return null;
+    const j = await r.json();
+    return Array.isArray(j.items) && j.items.length ? j.items : null;
+  } catch (e) { return null; }
+}
 async function scout(c, until) {
   const place = [c.city, c.country].filter(Boolean).join(", ");
   until = until || defaultUntil(c);
@@ -301,13 +321,26 @@ async function scout(c, until) {
   if (prev && prev.place === place && prev.until === until && Date.now() - prev.t < 12 * 36e5 && prev.status === "sent") {
     A.scout.status = "already"; A.scout.sentAt = prev.t; paint(); return;
   }
+  const fresh = !(prev && prev.place === place && Date.now() - prev.t < 12 * 36e5); // a date change doesn't research again
+  let picks = null;
+  if (fresh && SERVER) {
+    A.scout.status = "researching"; paint();
+    picks = await instant(c, until);
+    if (!A.scout || A.scout.place !== place) return;
+    if (picks) {
+      const stamp = isoDay(new Date());
+      picks = picks.map((p, i) => Object.assign({}, p, { id: "pick-" + place.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + i, region: "all", found: stamp, picked: true }));
+      set(KEYS.picks, { place, until, t: Date.now(), items: picks });
+      emit("picks");
+    }
+  }
   paint();
-  const status = await note("I'm in " + place + " until " + until,
-    "Radar: focus research on " + place + " until " + until + " (" + longDate(d(until)) + ").\nSent from Look around. City only; no exact location is shared.",
-    "radar-location");
+  const body = "Radar: focus research on " + place + " until " + until + " (" + longDate(d(until)) + ").\nSent from Look around. City only; no exact location is shared." +
+    (picks ? "\n\nClaude's instant picks, already on the phone (check them and keep the good ones in the feed; skip researching from scratch):\n" + JSON.stringify(picks) : "");
+  const status = await note("I'm in " + place + " until " + until, body, "radar-location");
   if (!A.scout || A.scout.place !== place) return;
-  A.scout.status = status;
-  set(KEYS.scout, { city: c.city, place, until, t: Date.now(), status });
+  A.scout.status = picks ? "picked" : status;
+  set(KEYS.scout, { city: c.city, place, until, t: Date.now(), status: status === "sent" || picks ? "sent" : status });
   paint();
 }
 
@@ -320,6 +353,14 @@ function scoutHTML() {
     return html`<div class="scout"><p><b>You're in ${s.city}.</b> Ask Claude to research it? Curated picks for your stay arrive in Today and Explore within the hour. Only the city name and your dates are sent.</p>
       <label class="until"><span>Here until</span><input type="date" id="scoutUntil" value="${s.until}" min="${isoDay(today())}"></label>
       <div class="duo"><button class="btn" type="button" id="scoutGo">Ask Claude about ${s.city}</button></div></div>`;
+  }
+  const picks = get(KEYS.picks, null);
+  const mine = picks && picks.place === s.place ? picks.items : null;
+  if (s.status === "researching") return html`<div class="scout" role="status"><p><span class="pulse" aria-hidden="true"></span><b>Claude is researching ${s.city} now.</b> This takes about a minute; you can keep using Radar.</p></div>`;
+  if (mine && (s.status === "picked" || s.status === "already" || s.status === "sent")) {
+    return html`<div class="scout" role="status"><p><b>Claude's picks for ${s.city}</b>, researched just now. They're also in Explore.</p>
+      <ul class="picks">${mine.map((p, i) => html`<li><button class="place" type="button" data-pick="${i}"><span class="pl-main"><b>${p.title}</b><small>${[p.place, p.flags && p.flags.length ? p.flags.join(", ") : ""].filter(Boolean).join(" · ")}</small></span></button></li>`)}</ul>
+      <label class="until"><span>Here until</span><input type="date" id="scoutUntil" value="${s.until}" min="${isoDay(today())}"></label></div>`;
   }
   const msg = {
     sending: html`Telling Claude you're in ${s.city}…`,
@@ -397,6 +438,7 @@ function paint() {
     if (A.scout.status === "offer") A.scout.until = inp.value; // not sent yet: just remember the date
     else scout(A.scout.c, inp.value); // already asked: send the new date once
   };
+  box.querySelectorAll("[data-pick]").forEach((b) => { b.onclick = () => { const P = get(KEYS.picks, null); if (P) openItem(P.items[+b.dataset.pick]); }; });
   const go = $("scoutGo");
   if (go) go.onclick = () => scout(A.scout.c, A.scout.until);
   const sw = (mode) => { if (A.mode === mode || busy) return; start(mode, A.from, ++run); };
