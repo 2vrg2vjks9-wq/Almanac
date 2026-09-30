@@ -4,10 +4,27 @@ import { S, save } from "./store.js";
 import { D, emit, visible, past, isWork, focusRegion, REGION_NAME } from "./data.js";
 
 export const KINDS = [["all", "Everything"], ["concert", "Music"], ["exhibition", "Art"], ["restaurant", "Food"], ["story", "Books & film"], ["meditation", "Meditation"], ["bucket", "Bucket list"]];
-export const WORK_KINDS = [["all", "Everything"], ["work", "Jobs & calls"], ["freelance", "Freelance"]];
+export const WORK_KINDS = [["all", "Everything"], ["event", "Events"], ["call", "Calls & grants"], ["job", "Jobs"], ["freelance", "Freelance"], ["insight", "Reading"]];
+// Work items carry an optional `sub` (event | call | grant | job | freelance | insight) and `deadline`
+// (application or registration date). Older items without them are sorted into place.
+const WORK_LABEL = { event: "Event", call: "Call", grant: "Grant", job: "Job", freelance: "Freelance", insight: "Reading" };
+export function workSub(it) {
+  if (it.sub && WORK_LABEL[it.sub]) return it.sub;
+  if (it.kind === "freelance") return "freelance";
+  if (it.start) return "event";
+  if (it.end) return "call";
+  return "job";
+}
+// The date to act by: an explicit deadline, or the closing date of calls, grants and freelance leads.
+export function deadline(it) {
+  if (it.deadline) return d(it.deadline);
+  const s = workSub(it);
+  return s === "call" || s === "grant" || s === "freelance" || s === "job" ? d(it.end) : null;
+}
 const KLABEL = { concert: "Music", release: "Music", news: "Music", exhibition: "Art", restaurant: "Food", story: "Books & film", meditation: "Meditation", work: "Work", freelance: "Freelance", bucket: "Bucket list" };
 const MUSIC = ["concert", "release", "news"];
-export const state = { kind: "all", region: "all", work: "all", showHidden: false, all: false };
+export const state = { kind: "all", region: "all", work: "all", showHidden: false, all: false, q: "" };
+const textMatch = (it) => !state.q || [it.title, it.summary, it.why, it.place, it.city].join(" ").toLowerCase().includes(state.q);
 
 export function regions() {
   const list = [["all", "Anywhere"], ["nl", "Netherlands"], ["near", "Belgium, Germany, EU"]];
@@ -18,12 +35,12 @@ export function regions() {
 
 // --- Status, dates, score --------------------------------------------------------------
 function endsSoon(it) {
-  const s = d(it.start), e = d(it.end), t = today();
-  return !!(e && e >= t && (e - t) / 864e5 <= 14 && (!s || s <= t || it.kind === "freelance"));
+  const s = d(it.start), t = today(), dl = isWork(it) ? deadline(it) : null, e = dl || d(it.end);
+  return !!(e && e >= t && (e - t) / 864e5 <= 14 && (!s || s <= t || !!dl));
 }
 function status(it) {
   const s = d(it.start), e = d(it.end), f = d(it.found), t = today();
-  if (endsSoon(it)) return ["soon", it.kind === "freelance" ? "Deadline soon" : "Ends soon"];
+  if (endsSoon(it)) return ["soon", isWork(it) && deadline(it) ? "Deadline soon" : "Ends soon"];
   if (f && (t - f) / 864e5 <= 3) return ["new", "New"];
   if (s && s <= t && (!e || e >= t) && it.kind !== "restaurant" && it.kind !== "story") return ["now", "On now"];
   if (it.pick) return ["", "Suggestion"];
@@ -32,7 +49,7 @@ function status(it) {
 }
 function when(it) {
   const s = d(it.start), e = d(it.end);
-  if (it.kind === "freelance") return s ? "From " + shortDate(s) : "";
+  if (it.kind === "freelance" || (isWork(it) && workSub(it) !== "event" && !it.deadline)) return s ? "From " + shortDate(s) : "";
   if (s && e && +s !== +e) return shortDate(s) + " to " + shortDate(e);
   if (s) return shortDate(s);
   if (e) return "Until " + shortDate(e);
@@ -60,7 +77,7 @@ export function placeOf(it) {
   if (S.here && it.lat != null) place += (place ? ", " : "") + kmText(km(S.here.lat, S.here.lon, it.lat, it.lon)) + " away";
   return place;
 }
-export const calable = (it) => !!(it.start || (it.kind === "freelance" && it.end));
+export const calable = (it) => !!(it.start || (isWork(it) && deadline(it)));
 
 // --- Markup -------------------------------------------------------------------------------
 const I = {
@@ -73,14 +90,16 @@ const I = {
 };
 export function metaLine(it) {
   const st = status(it), w = when(it);
-  return html`<span class="dot k-${it.kind}" aria-hidden="true"></span><span>${KLABEL[it.kind] || it.kind}</span>${w ? html`<span>${w}</span>` : ""}${st ? html`<span class="state ${st[0]}">${st[1]}</span>` : ""}`;
+  const label = isWork(it) ? WORK_LABEL[workSub(it)] : KLABEL[it.kind] || it.kind;
+  return html`<span class="dot k-${isWork(it) ? "w-" + workSub(it) : it.kind}" aria-hidden="true"></span><span>${label}</span>${isWork(it) && it.org ? html`<span>${it.org}</span>` : ""}${w ? html`<span>${w}</span>` : ""}${st ? html`<span class="state ${st[0]}">${st[1]}</span>` : ""}`;
 }
 export function dueHTML(it) {
-  const e = d(it.end);
-  if (it.kind !== "freelance" || !e) return "";
+  const e = isWork(it) ? deadline(it) : null;
+  if (!e || e < today()) return "";
   const n = Math.floor((e - today()) / 864e5);
   const date = e.toLocaleDateString("en-GB", { weekday: n < 7 ? "long" : undefined, day: "numeric", month: "long" });
-  return html`<div class="due${n <= 14 ? " close" : ""}">Apply by ${date}${n === 0 ? ", today" : n === 1 ? ", tomorrow" : n <= 14 ? ", " + n + " days left" : ""}</div>`;
+  const verb = workSub(it) === "event" ? "Register by" : "Apply by";
+  return html`<div class="due${n <= 14 ? " close" : ""}">${verb} ${date}${n === 0 ? ", today" : n === 1 ? ", tomorrow" : n <= 14 ? ", " + n + " days left" : ""}</div>`;
 }
 export const flagsHTML = (it) => (it.flags && it.flags.length ? html`<div class="flags">${it.flags.map((f) => html`<span class="flag">${f}</span>`)}</div>` : "");
 export function reactButtons(it, labels) {
@@ -141,10 +160,10 @@ function regionMatch(it) {
   return it.region === state.region || it.region === "all";
 }
 export function drawFeed() {
-  const items = D.feed.items.filter((it) => visible(it) && !isWork(it) && (state.showHidden || !S.hidden[it.id]) && kindMatch(it) && regionMatch(it))
+  const items = D.feed.items.filter((it) => visible(it) && !isWork(it) && (state.showHidden || !S.hidden[it.id]) && kindMatch(it) && regionMatch(it) && textMatch(it))
     .sort((a, b) => score(b) - score(a));
   const limit = state.all ? items.length : 12;
-  mount($("feed"), items.slice(0, limit), false, "Nothing here yet. The daily update adds new finds every morning.");
+  mount($("feed"), items.slice(0, limit), false, state.q ? "Nothing matches “" + state.q + "”." : "Nothing here yet. The daily update adds new finds every morning.");
   if (items.length > limit) {
     const m = document.createElement("button");
     m.className = "more"; m.type = "button"; m.textContent = "Show " + (items.length - limit) + " more";
@@ -153,24 +172,49 @@ export function drawFeed() {
   }
   $("feedSub").textContent = (items.length === 1 ? "1 thing" : items.length + " things") + " for you, updated " + ago(D.feed.updated);
 }
-const deadline = (it) => (it.kind === "freelance" ? d(it.end) : null);
+// The next date that matters: a deadline still ahead, else the event's start.
+function actBy(it) {
+  const t = today(), dl = deadline(it), s = d(it.start);
+  if (dl && dl >= t) return dl;
+  if (s && s >= t) return s;
+  return null;
+}
+function workMatch(it) {
+  if (state.work === "all") return true;
+  const s = workSub(it);
+  return s === state.work || (state.work === "call" && s === "grant");
+}
 export function drawWork() {
-  const items = D.feed.items.filter((it) => isWork(it) && visible(it) && (state.showHidden || !S.hidden[it.id]) && (state.work === "all" || it.kind === state.work))
-    .sort((a, b) => {
-      const x = deadline(a), y = deadline(b);
-      if (x && y && +x !== +y) return x - y;
-      if (x && !y) return -1;
-      if (y && !x) return 1;
-      return score(b) - score(a);
-    });
-  mount($("workFeed"), items, false, state.work === "freelance" ? "No freelance leads right now. The daily update checks every morning." : "Nothing here yet. The daily update adds new roles and calls every morning.");
-  $("workSub").textContent = (items.length === 1 ? "1 opportunity" : items.length + " opportunities") + ", updated " + ago(D.feed.updated);
+  const all = D.feed.items.filter((it) => isWork(it) && visible(it) && (state.showHidden || !S.hidden[it.id]));
+  const items = all.filter(workMatch).sort((a, b) => {
+    const x = actBy(a), y = actBy(b);
+    if (x && y && +x !== +y) return x - y;
+    if (x && !y) return -1;
+    if (y && !x) return 1;
+    return score(b) - score(a);
+  });
+  const empty = { freelance: "No freelance leads right now.", event: "No events on the radar right now.", call: "No open calls right now.", job: "No roles right now.", insight: "Nothing to read yet." }[state.work] || "Nothing here yet.";
+  mount($("workFeed"), items, false, empty + " The daily update checks every morning.");
+  $("workSub").textContent = (items.length === 1 ? "1 lead" : items.length + " leads") + ", updated " + ago(D.feed.updated);
+  // Next deadlines across everything, the three nearest
+  const due = all.filter((it) => { const x = deadline(it); return x && x >= today(); }).sort((a, b) => deadline(a) - deadline(b)).slice(0, 3);
+  const box = $("workDue");
+  box.hidden = !due.length;
+  put(box, html`<h2>Next deadlines</h2><div class="sheet brief">${due.map((it) => {
+    const x = deadline(it), n = Math.floor((x - today()) / 864e5);
+    return html`<button class="mini" type="button" data-id="${it.id}"><span class="when${n <= 14 ? " close" : ""}">${x.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span><span class="what"><b>${it.title}</b><small>${WORK_LABEL[workSub(it)]}${n === 0 ? " · today" : n === 1 ? " · tomorrow" : " · " + n + " days"}</small></span></button>`;
+  })}</div>`);
+  box.querySelectorAll(".mini").forEach((b) => { b.onclick = () => openItem(D.byId[b.dataset.id]); });
 }
 export function drawSavedItems() {
   mount($("savedList"), D.feed.items.filter((it) => S.saved[it.id] && !past(it)), false, "Nothing saved yet. Tap the star on anything you want to keep.");
 }
 export function mountBucketHits(el, wishId) {
   mount(el, D.feed.items.filter((it) => it.kind === "bucket" && it.bucket === wishId && !past(it) && !S.hidden[it.id]), false, "");
+}
+export function initSearch() {
+  const q = $("q");
+  q.oninput = () => { state.q = q.value.trim().toLowerCase(); state.all = !!state.q; drawFeed(); };
 }
 export function segs(id, list, key, redraw) {
   const box = $(id);

@@ -60,6 +60,9 @@ in commit messages, issue comments or Actions logs.
   - `feed` — `{updated, note, items:[{id, kind, region, title, place, city, start, end, summary, why, url,
     found, flags?, pick?, lat?, lon?, bucket?}]}`. kinds: concert, release, news, exhibition, restaurant, story,
     meditation, work, freelance, bucket. regions: nl, be, de, eu, uk, jp, all (unknown regions show everywhere).
+    Work items (kind work/freelance) also take `sub` (event | call | grant | job | freelance | insight), `deadline`
+    (YYYY-MM-DD to apply or register by), `org`, `format` (in person / online / hybrid) and `cost`. Without `sub`
+    the app guesses: freelance → freelance, has start → event, has end → call, else job.
   - `taste` — `{updated, learned:[sentences], more:[keywords], less:[keywords]}` — ranking and Around me.
   - `things` — the Do tab: `{updated, note, home, ideas:[{id, cat, title, venue, city, area?, start, end, when?,
     summary, why, url?, lat?, lon?, price?, travel?, fit (1–5), major?, fresh?, flags?, found}]}`.
@@ -92,6 +95,12 @@ in commit messages, issue comments or Actions logs.
   ("Here until" date, default focus.until when there, else 3 days); only a tap on "Ask Claude about <city>" sends
   the radar-location note. After that, changing the date sends one update; the same city isn't resent within 12 hours.
   At home nothing is offered or sent, and Walking distance doesn't call Nominatim.
+  **Instant research:** on the Cloudflare site the tap first calls `/api/scout` (`functions/api/scout.js`: Claude API
+  with web search, needs the Cloudflare secret `ANTHROPIC_API_KEY`, owner-only). The picks (feed-item format, escaped,
+  `picked: true`) show at once, are kept in `radar-picks` until the stay ends and join Explore; the sealed note then
+  carries them so the hourly task checks them and puts the good ones in the feed. Without the secret, or on failure,
+  the hourly task researches from the note as before. The request carries the city, dates and the owner's tastes
+  from interests (no position).
   What leaves the phone: coordinates to OpenStreetMap, Wikipedia and (Whole city or away) Nominatim, on tap; the
   city name and dates to Claude only when asked.
 - **Wind alert:** `.github/workflows/radar-wind.yml` runs `radar/tools/wind_alert.py` every morning (Actions
@@ -116,7 +125,9 @@ in commit messages, issue comments or Actions logs.
   sport, hatched = wrong direction, dotted lines at the thresholds) and the **Do card** (yellow band for Den Haag,
   grey for "Worth the trip"). Everything else is paper, ink and hairlines: sentence case, no all-caps, no gradients.
 - Floating capsule tab bar: Today · Do · Wind · Explore · Work · You (`data-v="saved"`). Mobile-first (390 px), safe-area insets,
-  44 px tap targets. Work holds `work` and `freelance` (freelance sorted by deadline), kept out of Explore.
+  44 px tap targets. Explore has a search box. Work holds `work` and `freelance`, kept out of Explore: "Next deadlines"
+  (three nearest), then all leads filtered Everything / Events / Calls & grants / Jobs / Freelance / Reading, sorted
+  by the nearest date to act on (deadline ahead, else event start).
 - In list rows the title button stretches over the row (tap anywhere opens it); action buttons sit above that layer.
 - **Do rule (the owner's wish):** Den Haag is the most comprehensive; the farther away, the stronger the match
   must be. The app enforces it with `fit`: ≤15 km from Den Haag any fit, ≤40 km 3+, ≤80 km (Amsterdam, Utrecht) 4+, beyond 5.

@@ -323,6 +323,9 @@ def tabs_suite(browser, site, scheme):
     page.click('#kinds .pill:has-text("Art")'); page.wait_for_timeout(150)
     check(0 < page.locator("#feed .item").count() < n_all + 1, "%s: Art filter narrows the feed" % scheme)
     page.click('#kinds .pill:has-text("Everything")'); page.wait_for_timeout(150)
+    page.fill("#q", "stone garden"); page.wait_for_timeout(150)
+    check(page.locator("#feed .item").count() == 1, "%s: search narrows Explore" % scheme)
+    page.fill("#q", ""); page.wait_for_timeout(150)
     shot(page, "explore-%s.png" % scheme, False)
 
     tab(page, "work")
@@ -331,6 +334,8 @@ def tabs_suite(browser, site, scheme):
     titles = page.locator("#workFeed .item h3").all_inner_texts()
     check(len(titles) >= 2 and titles[0] == "Test lead, deadline soon" and titles[1] == "Test lead, later deadline", "%s: Freelance sorted by deadline %s" % (scheme, titles[:2]))
     check("Apply by" in page.inner_text("#workFeed") and "days left" in page.inner_text("#workFeed"), "%s: Freelance shows Apply by and days left" % scheme)
+    check(page.is_visible("#workDue") and "Test lead, deadline soon" in page.inner_text("#workDue"), "%s: Work shows the next deadlines" % scheme)
+    check(page.locator("#workKinds .pill").all_inner_texts() == ["Everything", "Events", "Calls & grants", "Jobs", "Freelance", "Reading"], "%s: Work filters by type" % scheme)
     shot(page, "work-%s.png" % scheme, False)
     page.click('#workKinds .pill:has-text("Everything")')
     tab(page, "explore")

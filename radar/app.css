@@ -168,7 +168,10 @@ button.rday:active { background: var(--sunk); }
 .k-story, .c-film, .c-talk { background: var(--rose); }
 .k-meditation, .c-calm, .c-outdoors { background: var(--kelp); }
 .k-work { background: var(--ink-2); }
-.k-freelance, .c-design { background: var(--reef); }
+.k-freelance, .c-design, .k-w-freelance { background: var(--reef); }
+.k-w-event { background: var(--marine); } .k-w-call, .k-w-grant { background: var(--buoy); } .k-w-job { background: var(--kelp); } .k-w-insight { background: var(--rose); }
+.mini .when.close { color: var(--flag-ink); }
+#workDue h2 { margin-top: 18px; }
 .k-bucket, .c-festival { background: var(--flag); }
 .c-stage { background: var(--plum); } .c-market { background: var(--buoy); } .c-odd { background: var(--ink); }
 .state { font-weight: 700; }
@@ -202,6 +205,7 @@ button.rday:active { background: var(--sunk); }
 .seg + .seg { margin-top: 4px; }
 .pill { flex: none; border-radius: 999px; padding: 0 15px; min-height: 44px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 500; color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--calm); }
 .pill.on { background: var(--ink); color: var(--surface); box-shadow: none; }
+.search { width: 100%; min-height: 46px; margin: 0 0 12px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--calm); background: var(--surface); color: var(--ink); font: 16px var(--ui); }
 .switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 16px 0 14px; border-radius: 999px; background: var(--sunk); }
 .switch button { min-height: 40px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--ink-2); }
 .switch button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
