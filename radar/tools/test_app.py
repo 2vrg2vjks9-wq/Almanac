@@ -73,8 +73,10 @@ def fixtures():
         idea(id="do-walk", cat="outdoors", title="Dawn in the dunes", city="Wassenaar", when="Any clear morning", fit=4, fresh=True),
         idea(id="do-kusama", cat="art", title="Infinity rooms retrospective", city="Amsterdam", start=DAY(-10), end=DAY(90), lat=52.358, lon=4.88, fit=5, travel="About 50 min by train"),
         idea(id="do-dance-ams", cat="music", title="Big dance festival", city="Amsterdam", start=DAY(20), end=DAY(24), lat=52.37, lon=4.9, fit=3),
-        idea(id="do-utrecht", cat="festival", title="Adventurous music festival", city="Utrecht", start=DAY(35), end=DAY(38), lat=52.09, lon=5.11, fit=4),
+        idea(id="do-utrecht", cat="festival", title="Adventurous music festival", city="Utrecht", start=DAY(35), end=DAY(38), lat=52.09, lon=5.11, fit=4, prep=True),
         idea(id="do-past", cat="art", title="Closed show", city="Den Haag", start=DAY(-30), end=DAY(-1), fit=5),
+        idea(id="do-far", cat="outdoors", title="Far-off plunge", city="Den Haag", start=DAY(90), fit=5),
+        idea(id="do-far-book", cat="music", title="Far-off festival that sells out", city="Den Haag", start=DAY(120), end=DAY(122), fit=5, prep="Tickets sell out in autumn"),
     ]}
     return {"interests": interests, "feed": feed, "taste": taste, "things": things}
 
@@ -623,6 +625,8 @@ def do_suite(browser, site, scheme):
     check("Big dance festival" not in all_text, "%s: far idea with a low fit stays out (Hague first)" % scheme)
     check("Infinity rooms retrospective" in all_text, "%s: far idea with a high fit shows" % scheme)
     check("Closed show" not in all_text, "%s: past ideas stay out" % scheme)
+    check("Far-off plunge" not in all_text, "%s: far-off ideas that need no planning wait until they're close" % scheme)
+    check("Far-off festival that sells out" in all_text and "Plan ahead" in all_text, "%s: far-off ideas that need booking show, marked Plan ahead" % scheme)
     first = page.inner_text("#decide .dcard h3")
     check(first == "Moss garden open days", "%s: the strongest Hague idea comes first (%s)" % (scheme, first))
     shot(page, "do-%s.png" % scheme, False)

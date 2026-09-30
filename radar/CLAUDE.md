@@ -65,7 +65,10 @@ in commit messages, issue comments or Actions logs.
     the app guesses: freelance → freelance, has start → event, has end → call, else job.
   - `taste` — `{updated, learned:[sentences], more:[keywords], less:[keywords]}` — ranking and Around me.
   - `things` — the Do tab: `{updated, note, home, ideas:[{id, cat, title, venue, city, area?, start, end, when?,
-    summary, why, url?, lat?, lon?, price?, travel?, fit (1–5), major?, fresh?, flags?, found}]}`.
+    summary, why, url?, lat?, lon?, price?, travel?, fit (1–5), major?, fresh?, prep?, flags?, found}]}`.
+    `prep` (true or a short "what to do now" text) marks things that need planning ahead: tickets that sell out,
+    registration, booking. Ideas starting more than 21 days out only show when they have `prep`; the rest appear
+    once they're within three weeks. Don't set prep for things with nothing to do yet (free events, sales not open).
     cats: art, music, stage, film, talk, festival, market, outdoors, calm, food, design, odd. `when` is free text
     for times or recurring things ("Daily 10–16, book a slot"); undated ideas show as "Any time". Ids are stored
     in the owner's answers: keep them stable, never reuse one.

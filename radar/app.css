@@ -227,6 +227,8 @@ button.rday:active { background: var(--sunk); }
 .dbody .dwhere { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
 .dbody .dwhen { font-size: 15px; font-weight: 700; color: var(--haag-ink); margin-top: 2px; }
 .dbody p { font: 16px/1.58 var(--read); color: var(--ink); margin: 12px 0 0; }
+.dbody .dprep { font: 15px/1.5 var(--ui); color: var(--flag-ink); margin-top: 8px; }
+.dbody .dprep b { font-weight: 700; }
 .dbody .dwhy { font: italic 15px/1.55 var(--read); color: var(--ink-2); margin-top: 10px; }
 .dbody .dmore { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 600; color: var(--marine); text-decoration: none; margin-top: 4px; }
 .dchoice { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 8px 16px 16px; }

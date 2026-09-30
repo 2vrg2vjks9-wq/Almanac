@@ -53,7 +53,12 @@ function cities() {
 }
 const fit = (it) => (it.fit == null ? 3 : +it.fit);
 export const ideaPast = (it) => { const e = d(it.end) || (it.start && !it.end ? d(it.start) : null); return !!(e && e < today()); };
-export function eligible(it) { return !ideaPast(it) && fit(it) >= MIN_FIT[tier(distance(it))]; }
+// Far-out things (starting more than three weeks from now) only show when they need planning now:
+// tickets that sell out, a registration or booking (`prep`). The rest wait until they're close.
+const HORIZON = 21;
+const farOut = (it) => { const s = d(it.start); return !!(s && (s - today()) / 864e5 > HORIZON); };
+export function eligible(it) { return !ideaPast(it) && fit(it) >= MIN_FIT[tier(distance(it))] && (!farOut(it) || !!it.prep); }
+const prepText = (it) => (it.prep ? (typeof it.prep === "string" ? it.prep : "Book ahead") : "");
 
 // --- Dates --------------------------------------------------------------------------------------
 function range(when) {
@@ -93,6 +98,7 @@ function status(it) {
   const s = d(it.start), e = d(it.end), f = d(it.found), t = today();
   if (e && e >= t && (e - t) / 864e5 <= 10 && (!s || s <= t)) return ["soon", "Ends soon"];
   if (s && +s === +t) return ["now", "Today"];
+  if (it.prep && farOut(it)) return ["soon", "Plan ahead"];
   if (f && (t - f) / 864e5 <= 3) return ["new", "New"];
   if (it.major) return ["", "Big one"];
   if (it.fresh) return ["", "Fresh idea"];
@@ -171,6 +177,7 @@ function cardHTML(it, left) {
       ${w ? html`<div class="dwhen">${w}</div>` : ""}
       ${it.summary ? html`<p>${it.summary}</p>` : ""}
       ${it.why ? html`<p class="dwhy">${it.why}</p>` : ""}
+      ${prepText(it) ? html`<p class="dprep"><b>Plan ahead:</b> ${prepText(it)}</p>` : ""}
       ${url ? html`<a class="dmore" href="${url}" target="_blank" rel="noopener">More about it</a>` : ""}
     </div>
     <div class="dchoice"><button class="no" type="button" data-v="-1">${N}Not for me</button><button class="yes" type="button" data-v="1">${Y}I'd go</button></div>
@@ -301,6 +308,7 @@ function sheetBody(it) {
   if (it.when) rows.push(["When", it.when]);
   if (placeText(it)) rows.push(["Where", placeText(it)]);
   if (it.price) rows.push(["Price", it.price]);
+  if (prepText(it)) rows.push(["Plan ahead", prepText(it)]);
   if (travelText(it)) rows.push(["Getting there", travelText(it)]);
   if (it.why) rows.push(["Why you", it.why]);
   const hasMap = it.lat != null && isFinite(it.lat) && isFinite(it.lon);
