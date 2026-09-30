@@ -25,6 +25,10 @@ ALLOWED_HOSTS = (
     # phone's location, only when "near me" / "where am I" is tapped):
     "api.open-meteo.com", "marine-api.open-meteo.com", "ntfy.sh",
     "overpass-api.de", "nominatim.openstreetmap.org",
+    # Radar's "Look around here" / "Scout this city" fall back to two more public Overpass
+    # (OpenStreetMap) mirrors when overpass-api.de is down, and ask Wikipedia's geosearch for
+    # notable places. They receive the phone's coordinates, only when those buttons are tapped:
+    "overpass.kumi.systems", "overpass.private.coffee", "en.wikipedia.org",
     # Radar sends notes (interests, feedback, city) as GitHub issues in the background, using a
     # token the owner pastes on the phone; it is kept in the phone's storage, never in the repo:
     "api.github.com",

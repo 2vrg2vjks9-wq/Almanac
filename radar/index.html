@@ -8,688 +8,214 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Radar">
-<meta name="theme-color" content="#e4eae9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0b1a20" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2efe7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1413" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap" rel="stylesheet">
-<style>
-:root{
-  --mist:#e4eae9; --foam:#f7faf9; --deep:#0e2a33; --slate:#4a5f67; --haze:#5b6c72;
-  --rule:rgba(14,42,51,.10); --marine:#1b5e7a; --kelp:#2f8660; --buoy:#dba73a; --flag:#b8452f;
-  --calm:rgba(14,42,51,.13); --tab:rgba(247,250,249,.82);
-  --kelp-ink:#267352; --buoy-ink:#8c6516; --flag-ink:#a8401f; --reef:#4b5fb0;
-  --ui:"Familjen Grotesk",-apple-system,system-ui,sans-serif; --read:"Literata",Georgia,serif;
-}
-@media (prefers-color-scheme:dark){:root{
-  --mist:#0b1a20; --foam:#122730; --deep:#e2ebea; --slate:#a9bbbe; --haze:#879ba0;
-  --rule:rgba(226,235,234,.10); --marine:#7fc0dc; --kelp:#5fc494; --buoy:#f0c35d; --flag:#ef7c63;
-  --calm:rgba(226,235,234,.16); --tab:rgba(18,39,48,.84);
-  --kelp-ink:var(--kelp); --buoy-ink:var(--buoy); --flag-ink:var(--flag); --reef:#98a3ec;
-}}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--mist);color:var(--deep)}
-body{font:16px/1.45 var(--ui);-webkit-font-smoothing:antialiased;padding:calc(env(safe-area-inset-top) + 20px) 18px calc(env(safe-area-inset-bottom) + 92px)}
-button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
-a{color:var(--marine)}
-:focus-visible{outline:2px solid var(--marine);outline-offset:2px;border-radius:6px}
-.wrap{max-width:620px;margin:0 auto}
-.view{display:none}.view.on{display:block}
-.head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.rbtn{flex:none;width:44px;height:44px;margin:-4px -8px 0 0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--slate)}
-.rbtn svg{width:22px;height:22px}
-.rbtn.spin svg{animation:spin .9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.rbtn.spin svg{animation:none;opacity:.5}}
-.fresh{font-size:13px;color:var(--slate);margin:4px 0 0;min-height:19px}
-.fresh.off{color:var(--flag-ink)}
-.ptr{height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;font-size:13px;color:var(--slate);transition:height .2s ease}
-.title{font:700 34px/1.05 var(--ui);letter-spacing:-.025em;margin:0}
-.sub{color:var(--slate);margin:6px 0 0;font-size:16px}
-h2{font:600 19px/1.2 var(--ui);letter-spacing:-.01em;margin:30px 0 10px}
-.sheet{background:var(--foam);border-radius:20px;padding:4px 16px}
-.spot{padding:14px 0 12px}
-.spot + .spot{border-top:1px solid var(--rule)}
-.spot-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.spot-name{font-weight:600;font-size:17px}
-.spot-sub{font-size:13px;color:var(--slate);margin-top:1px}
-.spot-sub .water{display:block}.spot-sub .water:empty{display:none}
-.spot-verdict{font-size:14px;color:var(--slate);text-align:right}
-.spot-verdict b{font-weight:600;color:var(--deep)}
-.ribbon{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px}
-.rday{display:flex;flex-direction:column;align-items:stretch;border-radius:8px;padding:0 1px;min-width:0}
-.rday.sel{background:var(--mist)}
-.bars{height:54px;display:flex;align-items:flex-end;gap:1px}
-.bar{flex:1;border-radius:2px 2px 0 0;background:var(--calm);transform-origin:bottom}
-.bar.wing{background:var(--kelp)} .bar.surf{background:var(--buoy)} .bar.over{background:var(--flag)}
-.bar.off{background:repeating-linear-gradient(135deg,var(--calm) 0 2px,transparent 2px 4px)}
-.rlab{font-size:11px;color:var(--haze);text-align:center;margin-top:4px;white-space:nowrap;overflow:hidden}
-.rday.good .rlab{color:var(--deep);font-weight:600}
-@media (prefers-reduced-motion:no-preference){.grow .bar{animation:grow .7s cubic-bezier(.2,.7,.2,1) both}@keyframes grow{from{transform:scaleY(0)}}}
-.detail{display:none;padding:10px 0 2px}.detail.open{display:block}
-.detail svg{width:100%;height:auto;display:block}
-.detail p{margin:8px 0 0;font:15px/1.55 var(--read);color:var(--slate)}
-.key{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--haze);margin:10px 2px 0}
-.key i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
-.lead{margin:22px 0 0;font:500 21px/1.35 var(--ui);letter-spacing:-.01em}
-.lead span{color:var(--slate);font-weight:400}
-.item{padding:14px 0 12px}
-.item + .item{border-top:1px solid var(--rule)}
-.item-top{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--slate);flex-wrap:wrap}
-.dot{width:8px;height:8px;border-radius:50%;flex:none}
-.state{font-weight:600}.state.new{color:var(--marine)}.state.soon{color:var(--flag-ink)}.state.now{color:var(--kelp-ink)}
-.item h3{font:600 18px/1.28 var(--ui);letter-spacing:-.01em;margin:5px 0 0}
-.item.big h3{font-size:21px}
-.due{font-size:14px;font-weight:600;color:var(--reef);margin-top:4px}.due.close{color:var(--flag-ink)}
-.item .where{font-size:14px;color:var(--slate);margin-top:2px}
-.item p{font:15px/1.6 var(--read);color:var(--slate);margin:6px 0 0}
-.flags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.flag{font-size:12px;color:var(--flag-ink);border:1px solid color-mix(in srgb,var(--flag) 45%,transparent);border-radius:999px;padding:1px 8px}
-.acts{display:flex;align-items:center;gap:0;margin:4px -8px -4px 0}
-.acts .go{margin-right:auto;white-space:nowrap;font-size:14px;font-weight:500;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
-.ib{width:44px;height:44px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--haze)}
-.ib svg{width:19px;height:19px}
-.ib.on{background:var(--mist)} .ib.on.up{color:var(--kelp-ink)} .ib.on.down{color:var(--flag-ink)} .ib.on.save{color:var(--buoy-ink)}
-.empty{padding:22px 0;color:var(--slate);font:15px/1.55 var(--read)}
-.seg{display:flex;gap:6px;overflow-x:auto;margin:0 -18px;padding:2px 18px 4px;scrollbar-width:none}
-.seg::-webkit-scrollbar{display:none}
-.seg + .seg{margin-top:4px}
-.pill{flex:none;border-radius:999px;padding:0 14px;min-height:44px;display:inline-flex;align-items:center;font-size:14px;color:var(--slate);background:var(--foam)}
-.pill.on{background:var(--deep);color:var(--mist)}
-.near-row{display:flex;gap:10px;padding:12px 0}
-.btn{flex:1;border-radius:14px;padding:12px 10px;min-height:46px;font-weight:600;font-size:15px;background:var(--deep);color:var(--mist);text-align:center}
-.btn.ghost{background:var(--mist);color:var(--deep)}
-.ni{display:flex;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--rule);text-decoration:none;color:inherit}
-.ni .g{width:30px;height:30px;border-radius:9px;background:var(--mist);display:flex;align-items:center;justify-content:center;flex:none;font-size:15px}
-.ni b{font-weight:600;font-size:15px;display:block}.ni small{font-size:13px;color:var(--slate)}
-.ni .km{margin-left:auto;font-size:13px;color:var(--haze);white-space:nowrap}
-.hint{font:14px/1.5 var(--read);color:var(--slate);padding:0 0 12px}
-.learned li{font:15px/1.55 var(--read);color:var(--slate);margin:8px 0}
-.learned ul{margin:6px 0 10px;padding-left:18px}
-.more{width:100%;margin:6px 0 10px;padding:11px;min-height:44px;border-radius:12px;background:var(--mist);font-weight:600;font-size:15px}
-.fine{color:var(--haze);font-size:13px;line-height:1.55;margin:26px 2px 0}
-.fb{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 76px);max-width:600px;margin:0 auto;background:var(--deep);color:var(--mist);border-radius:16px;padding:10px 10px 10px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.22);z-index:5;opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .3s ease,transform .3s ease;z-index:7}
-.bk{padding:13px 0 11px}.bk + .bk{border-top:1px solid var(--rule)}.bk h3{font:600 17px/1.3 var(--ui);margin:0}.bk .bw{font:14px/1.5 var(--read);color:var(--slate);margin-top:3px}.bk .bs{font-size:13px;color:var(--haze);margin-top:4px}.bk .bs.hot{color:var(--kelp-ink);font-weight:600}.bk .item{padding-bottom:4px}
-.fb.show{opacity:1;transform:none;pointer-events:auto}.fb span{flex:1;font-size:15px}
-.fb .x{background:transparent;color:var(--mist);min-width:44px;padding:0;font-size:22px;font-weight:400;line-height:1}
-.teach{display:flex;align-items:center;gap:12px}.teach span{flex:1;font-size:15px;color:var(--deep)}
-.tab{position:relative}.tab .badge{position:absolute;top:3px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--flag);box-shadow:0 0 0 2px var(--foam)}
-.fb button{border-radius:11px;padding:0 16px;min-height:44px;background:var(--mist);color:var(--deep);font-weight:600;font-size:15px}
-.item{position:relative}
-.open{display:block;width:100%;text-align:left;font:inherit;letter-spacing:inherit}
-.open::after{content:"";position:absolute;inset:0}
-.item .acts,.item .go,.item .flags{position:relative;z-index:1}
-.item p.clip{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.dlg{position:fixed;inset:0;z-index:20;display:none}
-.dlg.show{display:block}
-.scrim{position:absolute;inset:0;background:rgba(5,18,23,.42);opacity:0;transition:opacity .25s ease}
-.dlg.in .scrim{opacity:1}
-.panel{position:absolute;left:0;right:0;bottom:0;max-width:620px;margin:0 auto;max-height:90vh;overflow-y:auto;overscroll-behavior:contain;background:var(--foam);border-radius:22px 22px 0 0;padding:8px 20px calc(env(safe-area-inset-bottom) + 22px);transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);box-shadow:0 -8px 30px rgba(0,0,0,.18)}
-.panel:focus{outline:none}
-.dlg.in .panel{transform:none}
-.grab{width:40px;height:5px;border-radius:3px;background:var(--calm);margin:0 auto 16px}
-.panel h2{font:700 25px/1.18 var(--ui);letter-spacing:-.02em;margin:8px 0 0}
-.panel .where{font-size:15px;color:var(--slate);margin-top:4px}
-.panel .full{font:16px/1.62 var(--read);color:var(--deep);margin:16px 0 0}
-.facts{margin:16px 0 0;border-top:1px solid var(--rule)}
-.facts div{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:15px}
-.facts dt{flex:none;width:92px;color:var(--slate)}
-.facts dd{margin:0;flex:1;min-width:0}
-.facts dd.due{color:var(--flag-ink);font-weight:600}
-.sheet-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.sheet-acts .btn{flex:1 1 40%;min-height:46px;text-decoration:none;display:flex;align-items:center;justify-content:center}
-.react{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:14px}
-.react .ib{width:auto;height:auto;min-height:54px;flex-direction:column;gap:3px;font-size:12px;color:var(--slate)}
-@media (prefers-reduced-motion:reduce){.scrim,.panel{transition:none}}
-.welcome{position:fixed;inset:0;z-index:30;background:var(--mist);display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 16px) 22px calc(env(safe-area-inset-bottom) + 20px)}
-.welcome.show{display:flex}.welcome:focus{outline:none}
-.welcome .skip{align-self:flex-end;min-height:44px;padding:0 6px;color:var(--slate);font-size:15px}
-.wcards{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -22px;scrollbar-width:none}
-.wcards::-webkit-scrollbar{display:none}
-.wcard{flex:0 0 100%;scroll-snap-align:center;padding:0 22px;display:flex;flex-direction:column;justify-content:center;max-width:none}
-.wcard > div{max-width:480px;margin:0 auto;width:100%}
-.wcard .wart{height:76px;display:flex;align-items:flex-end;gap:3px;margin-bottom:26px}
-.wcard .wart i{width:9px;border-radius:2px 2px 0 0;background:var(--calm)}.wcard .wart i.k{background:var(--kelp)}.wcard .wart i.b{background:var(--buoy)}
-.wcard h2{font:700 30px/1.1 var(--ui);letter-spacing:-.02em;margin:0}
-.wcard p{font:17px/1.6 var(--read);color:var(--slate);margin:14px 0 0}
-.wcard code{font:600 15px/1.4 var(--ui);background:var(--foam);color:var(--deep);border-radius:8px;padding:3px 8px;word-break:break-all;user-select:all;-webkit-user-select:all}
-.wdots{display:flex;justify-content:center;gap:8px;margin:14px 0 18px}
-.wdots i{width:7px;height:7px;border-radius:50%;background:var(--calm)}.wdots i.on{background:var(--deep)}
-.welcome .btn{flex:none;min-height:50px;max-width:480px;width:100%;margin:0 auto}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-.lead{min-height:4.05em}
-.spot-sub .water.sea{min-height:19px}
-.skel .bar{background:var(--calm)}
-.tabs{position:fixed;left:0;right:0;bottom:0;padding:6px 10px calc(env(safe-area-inset-bottom) + 6px);background:var(--tab);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-top:1px solid var(--rule);z-index:6}
-.tabs .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
-.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:11px;font-weight:500;color:var(--haze)}
-.tab svg{width:24px;height:24px}.tab.on{color:var(--deep)}
-.say{position:fixed;left:14px;right:14px;top:calc(env(safe-area-inset-top) + 10px);max-width:600px;margin:0 auto;background:var(--deep);color:var(--mist);border-radius:14px;padding:12px 16px;font-size:15px;z-index:9;opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .25s ease,transform .25s ease}
-.say.show{opacity:1;transform:none}
-.conn{padding:12px 0}.conn p{margin:0 0 10px;font:15px/1.5 var(--read);color:var(--slate)}
-.conn input{width:100%;font:15px var(--ui);padding:12px;border-radius:12px;border:1px solid var(--rule);background:var(--mist);color:var(--deep);margin-bottom:10px}
-.conn ol{margin:0 0 12px;padding-left:20px;font:14px/1.55 var(--read);color:var(--slate)}
-@media (prefers-reduced-motion:reduce){.say{transition:none}}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
+<script>var APP_VERSION="2026-09-30a";</script>
+<script type="module" src="js/main.js"></script>
 </head>
 <body>
 <div class="wrap">
-  <section class="view on" id="v-today" aria-label="Today">
+
+  <section class="view on" id="v-today" aria-labelledby="hello">
     <div class="ptr" id="ptr" aria-hidden="true"><span id="ptrText">Pull to refresh</span></div>
-    <div class="head"><h1 class="title" id="hello">Today</h1>
-      <button class="rbtn" id="refresh" type="button" aria-label="Refresh feed and wind"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.35-5.65M20 4v5h-5"/></svg></button></div>
-    <p class="sub" id="sub"></p>
+    <header class="head">
+      <div><p class="date" id="today"></p><h1 class="title" id="hello">Today</h1></div>
+      <button class="rbtn" id="refresh" type="button" aria-label="Refresh feed and wind"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.35-5.65M20 4v5h-5"/></svg></button>
+    </header>
     <p class="fresh" id="fresh" role="status" aria-live="polite"></p>
-    <p class="lead" id="lead">Reading the wind…</p>
-    <div class="sheet" id="todayWind" style="margin-top:14px" role="button" tabindex="0" aria-label="Wind at your spots. Opens the Wind tab."></div>
+
+    <div class="hero">
+      <p class="lead" id="lead">Reading the wind…</p>
+      <p class="lead-sub" id="leadSub">&nbsp;</p>
+      <div class="sheet wind-mini" id="todayWind" role="button" tabindex="0" aria-label="Wind at your spots. Opens the Wind tab."></div>
+    </div>
+
     <h2>Worth your attention</h2>
     <div class="sheet" id="top"></div>
+
+    <h2>Coming up, Den Haag first</h2>
+    <div class="sheet"><div class="brief" id="todayDo"></div><button class="linkbtn" type="button" id="toDo">Decide what to do</button></div>
+
     <h2>Around you</h2>
-    <div class="sheet">
-      <div class="near-row">
+    <div class="sheet around">
+      <div class="duo">
         <button class="btn" id="nearBtn" type="button">Look around here</button>
         <button class="btn ghost" id="hereBtn" type="button">Scout this city</button>
       </div>
-      <div class="hint" id="nearHint">Museums, galleries, sculpture, zen temples and gluten-free food within walking distance. Scouting sends your city to the daily research.</div>
-      <div id="nearList"></div>
+      <p class="hint">Art, quiet places, food that may suit you and nature within walking distance, or a guide to the whole city. Scouting also asks Claude to research the city for you.</p>
+      <div id="around"></div>
     </div>
+    <p class="fine">Only when you tap these buttons, Radar sends your position to OpenStreetMap and Wikipedia to find places. Claude only gets the city name and your dates.</p>
   </section>
 
-  <section class="view" id="v-wind" aria-label="Wind">
-    <h1 class="title">Wind</h1>
+  <section class="view" id="v-do" aria-labelledby="doTitle">
+    <header class="head dohead"><div><p class="date" id="doDate">Den Haag first</p><h1 class="title" id="doTitle">Do</h1></div></header>
+    <p class="sub" id="doSub">Art, music, film, talks, festivals and quiet places. Den Haag gets everything worth doing; Amsterdam and Utrecht only when they're worth the trip.</p>
+
+    <div class="decide" id="decide" aria-live="polite"></div>
+
+    <h2 id="planHead">Your yes list</h2>
+    <div class="sheet plan" id="doPlan"></div>
+
+    <h2>Everything</h2>
+    <div class="filters">
+      <div class="seg" id="doWhen" role="group" aria-label="When"></div>
+      <div class="seg" id="doCity" role="group" aria-label="Where"></div>
+      <div class="seg" id="doCat" role="group" aria-label="What"></div>
+    </div>
+    <div id="doAll"></div>
+    <div class="sheet"><div class="duo"><button class="btn ghost" id="doMoreBtn" type="button">Ask for more ideas</button><button class="btn ghost" id="doNoBtn" type="button">Show what I said no to</button></div></div>
+    <p class="fine">Claude researches these every morning. Your yes and no answers teach it what to look for; they reach Claude sealed, so only Claude can read them. Check times and tickets before you go.</p>
+  </section>
+
+  <section class="view" id="v-wind" aria-labelledby="windTitle">
+    <header class="head"><div><p class="date">Your spots</p><h1 class="title" id="windTitle">Wind</h1></div></header>
     <p class="sub" id="windSub">Next 7 days, daylight hours</p>
-    <div class="sheet" id="windAll" style="margin-top:16px"></div>
-    <div class="key">
-      <span><i style="background:var(--kelp)"></i>Wingfoil 10–20 kn</span>
-      <span><i style="background:var(--buoy)"></i>Windsurf 20–30 kn</span>
-      <span><i style="background:var(--flag)"></i>Over 30</span>
-      <span><i style="background:repeating-linear-gradient(135deg,var(--calm) 0 2px,transparent 2px 4px)"></i>Wrong direction</span>
+    <div class="sheet" id="windAll"></div>
+    <div class="key" aria-label="Colour key">
+      <span><i class="k-wing"></i>Wingfoil 10–20 kn</span>
+      <span><i class="k-surf"></i>Windsurf 20–30 kn</span>
+      <span><i class="k-over"></i>Over 30</span>
+      <span><i class="k-off"></i>Wrong direction</span>
     </div>
-    <p class="fine">Each bar is one hour between 08:00 and 20:00. Tap a day for the hourly chart. Forecast from Open-Meteo, checked live; the morning alert comes through the ntfy app.</p>
+    <p class="fine">Each bar is one hour between 08:00 and 20:00; the faint lines mark 10 and 20 knots. Tap a day for the hourly chart. Forecast from Open-Meteo, checked live; the morning alert comes through the ntfy app.</p>
   </section>
 
-  <section class="view" id="v-explore" aria-label="Explore">
-    <h1 class="title">Explore</h1>
-    <p class="sub" id="feedSub"></p>
-    <div style="margin-top:16px"><div class="seg" id="kinds" role="group" aria-label="Filter by kind"></div><div class="seg" id="regions" role="group" aria-label="Filter by region"></div></div>
-    <div class="sheet" id="feed" style="margin-top:12px"></div>
+  <section class="view" id="v-explore" aria-labelledby="exploreTitle">
+    <header class="head"><div><p class="date">Researched for you</p><h1 class="title" id="exploreTitle">Explore</h1></div></header>
+    <div id="paneFeed">
+      <p class="sub" id="feedSub"></p>
+      <div class="filters">
+        <div class="seg" id="kinds" role="group" aria-label="Filter by kind"></div>
+        <div class="seg" id="regions" role="group" aria-label="Filter by region"></div>
+      </div>
+      <div class="sheet" id="feed"></div>
+    </div>
   </section>
 
-  <section class="view" id="v-work" aria-label="Work">
-    <h1 class="title">Work</h1>
+  <section class="view" id="v-work" aria-labelledby="workTitle">
+    <header class="head"><div><p class="date">Climate adaptation finance</p><h1 class="title" id="workTitle">Work</h1></div></header>
     <p class="sub" id="workSub"></p>
-    <div style="margin-top:16px"><div class="seg" id="workKinds" role="group" aria-label="Filter work"></div></div>
-    <div class="sheet" id="workFeed" style="margin-top:12px"></div>
-    <p class="fine">Climate-adaptation roles, calls and freelance leads from the daily research. Freelance leads with the nearest deadline come first. Deadlines closing within two weeks also show on Today.</p>
+    <div class="filters"><div class="seg" id="workKinds" role="group" aria-label="Filter work"></div></div>
+    <div class="sheet" id="workFeed"></div>
+    <p class="fine">Roles, calls and freelance leads from the daily research. Freelance leads with the nearest deadline come first; deadlines within two weeks also show on Today.</p>
   </section>
 
-  <section class="view" id="v-saved" aria-label="Saved">
-    <h1 class="title">Saved</h1>
+  <section class="view" id="v-saved" aria-labelledby="savedTitle">
+    <header class="head"><div><p class="date">Yours</p><h1 class="title" id="savedTitle">You</h1></div></header>
     <p class="sub">Things you starred, your bucket list, and what Radar has learned about you.</p>
-    <div class="sheet" id="savedList" style="margin-top:16px"></div>
+    <div class="sheet" id="savedList"></div>
+
     <h2>Bucket list</h2>
     <div class="sheet" id="bucketList"></div>
-    <div class="sheet" style="margin-top:8px"><div class="near-row"><button class="btn" id="bucketBtn" type="button">Add to bucket list</button></div>
-      <div class="hint">Radar checks each wish every morning and tells you when the timing is right: cheap flights, a good season, a rare deal.</div></div>
+    <div class="sheet">
+      <div class="duo"><button class="btn" id="bucketBtn" type="button">Add to bucket list</button></div>
+      <p class="hint">Radar checks each wish every morning and tells you when the timing is right: cheap flights, a good season, a rare deal.</p>
+    </div>
+
     <h2>What Radar has learned</h2>
     <div class="sheet learned"><ul id="learned"></ul></div>
+
     <h2>Teach it more</h2>
-    <div class="sheet" id="teachBox" style="margin-bottom:8px" hidden><div class="teach"><span id="teachText"></span><button class="btn" id="fbSend2" type="button">Send</button></div></div>
-    <div class="sheet"><div class="near-row">
+    <div class="sheet teach" id="teachBox" hidden><span id="teachText"></span><button class="btn" id="fbSend2" type="button">Send</button></div>
+    <div class="sheet"><div class="duo">
       <button class="btn" id="addBtn" type="button">Add an interest</button>
-      <button class="btn ghost" id="showHidden" type="button">Show hidden</button>
-    </div></div>
-    <h2>Send in the background</h2>
-    <div class="sheet"><div class="conn" id="conn">
-      <p id="connState">Not connected yet.</p>
-      <div id="connForm" hidden>
-        <ol>
-          <li>On GitHub, open Settings, Developer settings, Fine-grained tokens, Generate new token.</li>
-          <li>Repository access: only <b>Almanac</b>. Permissions: <b>Issues</b>, read and write. Nothing else.</li>
-          <li>Copy the token and paste it here. It stays on this phone.</li>
-        </ol>
-        <input id="connKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…" aria-label="GitHub token">
-        <div class="near-row" style="padding:0"><button class="btn" id="connSave" type="button">Connect</button><button class="btn ghost" id="connCancel" type="button">Cancel</button></div>
+      <button class="btn ghost" id="showHidden" type="button">Show hidden items</button>
+    </div><p class="hint" id="outboxLine" hidden></p></div>
+
+    <div id="connBox" hidden>
+      <h2>Send in the background</h2>
+      <div class="sheet conn">
+        <p id="connState">Not connected.</p>
+        <div id="connForm" hidden>
+          <ol>
+            <li>On GitHub, open Settings, Developer settings, Fine-grained tokens, Generate new token.</li>
+            <li>Repository access: only <b>Almanac</b>. Permissions: <b>Issues</b>, read and write. Nothing else.</li>
+            <li>Copy the token and paste it here. It stays on this phone.</li>
+          </ol>
+          <input id="connKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…" aria-label="GitHub token">
+          <div class="duo"><button class="btn" id="connSave" type="button">Connect</button><button class="btn ghost" id="connCancel" type="button">Cancel</button></div>
+        </div>
+        <div class="duo" id="connBtns"><button class="btn" id="connOpen" type="button">Connect Radar</button><button class="btn ghost" id="connOff" type="button" hidden>Disconnect</button></div>
       </div>
-      <div class="near-row" style="padding:0" id="connBtns"><button class="btn" id="connOpen" type="button">Connect Radar</button><button class="btn ghost" id="connOff" type="button" hidden>Disconnect</button></div>
-    </div></div>
-    <p class="fine" id="ver">Radar version 2026-09-28.3</p>
-    <p class="fine" style="margin-top:6px">Thumbs up and down change what Radar looks for. Your notes go to the next morning's update; until Radar is connected they wait on this phone. The repository is public, so those notes are too. Everything except the wind is researched by Claude, so check details before booking.</p>
-    <p class="fine" id="appVersion" style="margin-top:10px"></p>
+    </div>
+
+    <h2>Privacy</h2>
+    <div class="sheet privacy">
+      <p>Your interests, feed and answers are stored encrypted. The code is public; your data isn't. This phone keeps the key, so Radar opens without asking again.</p>
+      <p id="alertLine"></p>
+      <div class="duo"><button class="btn ghost" id="lockBtn" type="button">Lock Radar on this phone</button></div>
+    </div>
+
+    <p class="fine">Thumbs up and down, and yes or no in Do, change what Radar looks for. Notes reach Claude sealed through the Almanac repository: others can see that a note was sent, not what it says. Everything except the wind is researched by Claude: check details before booking.</p>
+    <p class="fine version" id="appVersion"></p>
   </section>
 </div>
 
 <div class="say" id="say" role="status" aria-live="polite"></div>
 <div class="fb" id="fbBar" role="status" aria-live="polite"><span id="fbText"></span><button type="button" id="fbSend">Send</button><button type="button" class="x" id="fbClose" aria-label="Close">&times;</button></div>
 
-<div class="dlg" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+<div class="dlg" id="sheet" role="dialog" aria-modal="true" aria-label="Details">
   <div class="scrim" id="scrim"></div>
-  <div class="panel" id="panel" tabindex="-1"><div class="grab" aria-hidden="true"></div><div id="sheetBody"></div></div>
+  <div class="panel" id="panel" tabindex="-1">
+    <div class="grab" aria-hidden="true"></div>
+    <button class="sheet-x" type="button" id="sheetClose" aria-label="Close"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div id="sheetBody"></div>
+  </div>
 </div>
+
+<div class="lockscr" id="lock" role="dialog" aria-modal="true" aria-labelledby="lockTitle"><div>
+  <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg></div>
+  <h1 id="lockTitle">Radar is locked</h1>
+  <p id="lockText">Your data is stored encrypted. Enter your Radar passphrase once and this phone keeps the key.</p>
+  <form id="lockForm" novalidate>
+    <input id="lockPass" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="xxxx-xxxx-xxxx-xxxx-xxxx" aria-label="Radar passphrase">
+    <button class="btn" type="submit" id="lockGo">Unlock</button>
+    <p class="msg" id="lockMsg" role="status" aria-live="polite"></p>
+  </form>
+  <small>The passphrase is in your notes from setting up Radar. It never leaves this phone; only the key made from it is kept here.</small>
+</div></div>
 
 <div class="welcome" id="welcome" tabindex="-1" role="dialog" aria-modal="true" aria-label="Welcome to Radar">
   <button class="skip" id="wSkip" type="button">Skip</button>
   <div class="wcards" id="wcards">
-    <section class="wcard" aria-label="1 of 3"><div><div class="wart" aria-hidden="true"><i class="" style="height:18%"></i><i class="" style="height:26%"></i><i class="k" style="height:40%"></i><i class="k" style="height:52%"></i><i class="k" style="height:60%"></i><i class="b" style="height:74%"></i><i class="b" style="height:88%"></i><i class="b" style="height:80%"></i><i class="k" style="height:62%"></i><i class="k" style="height:48%"></i><i class="" style="height:30%"></i><i class="" style="height:22%"></i></div>
+    <section class="wcard" aria-label="1 of 4"><div>
+      <div class="wart" aria-hidden="true"><i style="height:18%"></i><i style="height:26%"></i><i class="k" style="height:40%"></i><i class="k" style="height:52%"></i><i class="k" style="height:60%"></i><i class="b" style="height:74%"></i><i class="b" style="height:88%"></i><i class="b" style="height:80%"></i><i class="k" style="height:62%"></i><i class="k" style="height:48%"></i><i style="height:30%"></i><i style="height:22%"></i></div>
       <h2>Your wind and your world, on one screen</h2>
-      <p>Radar checks the wind at your spots every time you open it, and each morning Claude researches concerts, art, food, books, meditation and work that fit you.</p></div></section>
-    <section class="wcard" aria-label="2 of 3"><div>
+      <p>Radar checks the wind at your spots every time you open it, and each morning Claude researches art, music, food, books, meditation and work that fit you.</p></div></section>
+    <section class="wcard" aria-label="2 of 4"><div>
+      <div class="wart haag" aria-hidden="true"><i></i><i></i></div>
+      <h2>Yes or no, Den Haag first</h2>
+      <p>Do lines up things to do: exhibitions, gigs, films, talks, festivals, quiet walks. Den Haag gets the most; Amsterdam and Utrecht only when they're worth the trip.</p>
+      <p>Say yes or no to each idea. Yes goes on your list; both teach Claude what to find next.</p></div></section>
+    <section class="wcard" aria-label="3 of 4"><div>
       <h2>Thumbs teach it</h2>
-      <p>Tap thumbs up for more like this and thumbs down for less. When you're ready, tap Send: a short note opens on GitHub, and the next morning's update learns from it.</p>
-      <p>Tap any title to see the full story, a map and Add to calendar.</p></div></section>
-    <section class="wcard" aria-label="3 of 3"><div>
+      <p>Tap thumbs up for more like this and thumbs down for less. When you're ready, tap Send, and the next morning's update learns from it.</p>
+      <p>Tap any title for the full story, a map and Add to calendar.</p></div></section>
+    <section class="wcard" aria-label="4 of 4"><div>
       <h2>Keep it close</h2>
       <p>In Safari, tap Share, then Add to Home Screen, so Radar opens full screen.</p>
-      <p>For a morning wind alert, install the free ntfy app and subscribe to <code>radar-wind-f13296657ff9</code></p></div></section>
+      <p>For a morning wind alert, install the free ntfy app and subscribe to the topic shown under You, Privacy.</p></div></section>
   </div>
-  <div class="wdots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+  <div class="wdots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
   <button class="btn" id="wNext" type="button">Next</button>
 </div>
 
 <nav class="tabs" aria-label="Sections"><div class="in">
   <button class="tab on" data-v="today" type="button" aria-current="page"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>Today</button>
+  <button class="tab" data-v="do" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4M9 14.5l2 2 4-4"/></svg>Do</button>
   <button class="tab" data-v="wind" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h7"/></svg>Wind</button>
   <button class="tab" data-v="explore" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Explore</button>
   <button class="tab" data-v="work" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3.5 12.5h17"/></svg>Work</button>
-  <button class="tab" data-v="saved" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Saved</button>
+  <button class="tab" data-v="saved" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>You</button>
 </div></nav>
-
-<script>
-(function(){
-  var REPO="https://github.com/2vrg2vjks9-wq/Almanac";
-  var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-  var bucketSent=LS.get("radar-bucket-sent",[]),reactions=LS.get("radar-reactions",{}),saved=LS.get("radar-saved",{}),hidden=LS.get("radar-hidden",{}),here=LS.get("radar-here",null);
-  var state={kind:"all",region:"all",work:"all",showHidden:false,all:false};
-  var CONFIG,FEED,TASTE,byId={};
-  var $=function(id){return document.getElementById(id)};
-  var today=new Date();today.setHours(0,0,0,0);
-  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-  function fetchJSON(u){return fetch(u+"?v="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json()})}
-  function d(s){return s?new Date(s+"T12:00:00"):null}
-  function pad(n){return (n<10?"0":"")+n}
-
-  document.querySelectorAll(".tab").forEach(function(t){t.onclick=function(){
-    document.querySelectorAll(".tab").forEach(function(x){x.classList.toggle("on",x===t);if(x===t)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});
-    document.querySelectorAll(".view").forEach(function(v){v.classList.toggle("on",v.id==="v-"+t.dataset.v)});
-    window.scrollTo(0,0)}});
-  (function(){var h=new Date().getHours();
-    $("hello").textContent=h<5?"Good night":h<12?"Good morning":h<18?"Good afternoon":"Good evening";
-    $("sub").textContent=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})})();
-
-  /* wind */
-  var COMPASS=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
-  function dirName(x){return COMPASS[Math.round(x/22.5)%16]}
-  function dirOK(x,rs){return rs.some(function(r){return x>=r[0]&&x<=r[1]})}
-  function circMean(ds){var a=0,b=0;ds.forEach(function(x){a+=Math.cos(x*Math.PI/180);b+=Math.sin(x*Math.PI/180)});return (Math.atan2(b,a)*180/Math.PI+360)%360}
-  function nowNL(){var p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Amsterdam",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",hourCycle:"h23"}).formatToParts(new Date()),o={};
-    p.forEach(function(x){o[x.type]=x.value});return {day:o.year+"-"+o.month+"-"+o.day,h:+o.hour}}
-  function dayName(k,long){var n=Math.round((new Date(k+"T00:00:00")-today)/864e5);
-    if(n===0)return "Today";if(n===1)return long?"Tomorrow":"Tmrw";
-    return new Date(k+"T00:00:00").toLocaleDateString("en-GB",{weekday:long?"long":"short"})}
-  function hourClass(x,spot,W){if(x.kn==null)return "";
-    if(!dirOK(x.d,spot.good)&&x.kn>=W.sports.wing.min)return "off";
-    if(x.kn>W.sports.windsurf.max)return "over";if(x.kn>=W.sports.windsurf.min)return "surf";if(x.kn>=W.sports.wing.min)return "wing";return ""}
-  function analyse(spot,hourly,W){var days={},order=[],nl=nowNL();
-    hourly.time.forEach(function(t,i){var k=t.slice(0,10);if(!days[k]){days[k]=[];order.push(k)}
-      days[k].push({h:+t.slice(11,13),kn:hourly.wind_speed_10m[i],g:hourly.wind_gusts_10m[i],d:hourly.wind_direction_10m[i]})});
-    return order.filter(function(k){return k>=nl.day}).map(function(k){var hrs=days[k],light=hrs.filter(function(x){return x.h>=W.daylight[0]&&x.h<W.daylight[1]});
-      var usable=light.filter(function(x){return !(k===nl.day&&x.h<nl.h)});
-      function run(sport){var s=W.sports[sport],best=[],cur=[];
-        usable.concat([{kn:-1}]).forEach(function(x){if(x.kn>=s.min&&x.kn<=s.max&&dirOK(x.d,spot.good))cur.push(x);else{if(cur.length>best.length)best=cur;cur=[]}});
-        return best.length>=W.minHours?best:null}
-      var peak=light.reduce(function(m,x){return x.kn>m.kn?x:m},{kn:-1,h:0,d:0});
-      return {day:k,hours:hrs,light:light,wing:run("wing"),surf:run("windsurf"),peak:peak}})}
-  function runInfo(r){var kn=r.reduce(function(a,x){return a+x.kn},0)/r.length;
-    return {from:pad(r[0].h)+":00",to:pad(r[r.length-1].h+1)+":00",kn:Math.round(kn),dir:dirName(circMean(r.map(function(x){return x.d}))),len:r.length}}
-  function chart(D,spot,W){var w=330,h=120,pl=22,pr=4,pt=8,pb=20,hrs=D.hours,max=Math.max(32,Math.max.apply(null,hrs.map(function(x){return x.g||0})));
-    var x=function(i){return pl+(w-pl-pr)*i/23},y=function(v){return pt+(h-pt-pb)*(1-v/max)};
-    var band=function(s,c){return '<rect x="'+pl+'" width="'+(w-pl-pr)+'" y="'+y(s.max)+'" height="'+(y(s.min)-y(s.max))+'" fill="'+c+'" opacity=".14"/>'};
-    var night='<rect x="'+pl+'" width="'+(x(W.daylight[0])-pl)+'" y="'+pt+'" height="'+(h-pt-pb)+'" fill="var(--deep)" opacity=".05"/><rect x="'+x(W.daylight[1])+'" width="'+(w-pr-x(W.daylight[1]))+'" y="'+pt+'" height="'+(h-pt-pb)+'" fill="var(--deep)" opacity=".05"/>';
-    var path=function(k){return hrs.map(function(v,i){return (i?"L":"M")+x(i).toFixed(1)+","+y(v[k]||0).toFixed(1)}).join("")};
-    var F='font-family="Familjen Grotesk,sans-serif" font-size="9" fill="var(--haze)"';
-    var ticks=[10,20,30].map(function(t){return '<text x="2" y="'+(y(t)+3)+'" '+F+'>'+t+'</text><line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="var(--rule)"/>'}).join("");
-    var hours=[6,9,12,15,18,21].map(function(t){return '<text x="'+x(t)+'" y="'+(h-2)+'" text-anchor="middle" '+F+'>'+t+'</text>'}).join("");
-    var arrows=hrs.filter(function(v,i){return i%2===0}).map(function(v){var ok=dirOK(v.d,spot.good);
-      return '<g transform="translate('+x(v.h)+','+(y(v.kn||0)-9)+') rotate('+(v.d+180)+')"><path d="M0,-4 L2.8,3 L0,1.6 L-2.8,3Z" fill="'+(ok?"var(--deep)":"var(--flag)")+'"/></g>'}).join("");
-    return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Hourly wind speed and gusts in knots, with the wingfoil and windsurf ranges shaded">'+night+band(W.sports.wing,"var(--kelp)")+band(W.sports.windsurf,"var(--buoy)")+ticks+hours+
-      '<path d="'+path("g")+'" fill="none" stroke="var(--haze)" stroke-width="1.2" stroke-dasharray="2 3"/><path d="'+path("kn")+'" fill="none" stroke="var(--marine)" stroke-width="2.2" stroke-linejoin="round"/>'+arrows+'</svg>'}
-  function spotHTML(spot,days,W,interactive){var best=null;
-    days.forEach(function(D){["surf","wing"].forEach(function(k){if(D[k]&&!best)best={D:D,k:k,r:runInfo(D[k])}})});
-    var verdict=best?'<b>'+dayName(best.D.day,true)+'</b> '+(best.k==="wing"?"wing":"windsurf")+' <span style="white-space:nowrap">~'+best.r.kn+' kn</span>':'Nothing rideable';
-    var max=Math.max(30,W.sports.windsurf.max);
-    var rib=days.map(function(D,i){var good=!!(D.wing||D.surf);
-      var bars=D.light.map(function(x){var ht=Math.max(6,Math.min(100,(x.kn||0)/max*100));return '<i class="bar '+hourClass(x,spot,W)+'" style="height:'+ht.toFixed(0)+'%;animation-delay:'+(i*60)+'ms"></i>'}).join("");
-      var lab=dayName(D.day,true)+": "+(D.wing||D.surf?[D.wing?"wingfoil "+runInfo(D.wing).from+" to "+runInfo(D.wing).to:"",D.surf?"windsurf "+runInfo(D.surf).from+" to "+runInfo(D.surf).to:""].filter(Boolean).join(", "):"nothing rideable, strongest "+Math.round(D.peak.kn)+" knots");
-      return interactive?'<button class="rday'+(good?" good":"")+'" data-i="'+i+'" type="button" aria-expanded="false" aria-label="'+esc(lab)+'"><div class="bars" aria-hidden="true">'+bars+'</div><div class="rlab" aria-hidden="true">'+dayName(D.day)+'</div></button>'
-        :'<div class="rday'+(good?" good":"")+'"><div class="bars">'+bars+'</div><div class="rlab">'+dayName(D.day)+'</div></div>'}).join("");
-    return '<div class="spot" data-spot="'+esc(spot.id)+'"><div class="spot-top"><span class="spot-name">'+esc(spot.name)+'</span><span class="spot-verdict">'+verdict+'</span></div>'+(interactive?'<div class="spot-sub">'+esc(spot.sub||"")+'<span class="water'+(isSea(spot)?" sea":"")+'">'+waterText(spot)+'</span></div>':'')+'<div class="ribbon grow">'+rib+'</div>'+(interactive?'<div class="detail"></div>':'')+'</div>'}
-  function wireDetail(root,spot,days,W){var det=root.querySelector(".detail");
-    root.querySelectorAll(".rday").forEach(function(b){b.onclick=function(){var i=+b.dataset.i,open=b.classList.contains("sel");
-      root.querySelectorAll(".rday").forEach(function(x){x.classList.remove("sel");x.setAttribute("aria-expanded","false")});
-      if(open){det.classList.remove("open");return}
-      b.classList.add("sel");b.setAttribute("aria-expanded","true");var D=days[i],t=[];
-      if(D.wing){var r=runInfo(D.wing);t.push("Wingfoil "+r.from+"–"+r.to+", around "+r.kn+" kn from the "+r.dir+".")}
-      if(D.surf){var s=runInfo(D.surf);t.push("Windsurf "+s.from+"–"+s.to+", around "+s.kn+" kn from the "+s.dir+".")}
-      if(!t.length)t.push("No "+W.minHours+"-hour window in range from a good direction. Strongest: "+Math.round(D.peak.kn)+" kn from the "+dirName(D.peak.d)+" at "+pad(D.peak.h)+":00.");
-      det.innerHTML=chart(D,spot,W)+'<p><strong>'+dayName(D.day,true)+'.</strong> '+t.join(" ")+' '+esc(spot.note)+'</p>';det.classList.add("open")}})}
-  function drawWind(res,stale){var W=CONFIG.wind,sessions=[];
-    var all=W.spots.map(function(spot,si){var days=analyse(spot,res[si].hourly,W);
-      days.forEach(function(D){["wing","surf"].forEach(function(k){if(D[k])sessions.push({spot:spot,D:D,k:k,r:runInfo(D[k])})})});return {spot:spot,days:days}});
-    $("todayWind").innerHTML=all.map(function(a){return spotHTML(a.spot,a.days,W,false)}).join("");
-    $("todayWind").setAttribute("aria-label","Wind at your spots: "+all.map(function(a){var t=a.days.filter(function(D){return D.wing||D.surf})[0];return a.spot.name+", "+(t?(t.wing?"wingfoil ":"windsurf ")+dayName(t.day,true).toLowerCase():"nothing rideable")}).join("; ")+". Opens the Wind tab.");
-    var box=$("windAll");box.innerHTML="";
-    all.forEach(function(a){var div=document.createElement("div");div.innerHTML=spotHTML(a.spot,a.days,W,true);var el=div.firstChild;box.appendChild(el);wireDetail(el,a.spot,a.days,W)});
-    sessions.sort(function(a,b){return a.D.day<b.D.day?-1:a.D.day>b.D.day?1:b.r.len-a.r.len});var n=sessions[0];
-    var until=n?Math.round((new Date(n.D.day+"T00:00:00")-today)/864e5):0,dl=n?(until<=1?dayName(n.D.day,true):new Date(n.D.day+"T00:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"})):"";
-    $("lead").innerHTML=n?(until<=1?esc(dl)+" looks good at ":"Next good wind: "+esc(dl)+", ")+esc(n.spot.name)+'. <span>'+(n.k==="wing"?"Wingfoil":"Windsurf")+" "+n.r.from+"–"+n.r.to+", around "+n.r.kn+" kn from the "+n.r.dir+(until>1?". That's "+until+" days away":"")+".</span>"
-      :"No rideable wind in the next 7 days. <span>The morning alert tells you when that changes.</span>";
-    $("windSub").textContent=stale?"Offline, forecast from "+stamp(net.windAt)+". Daylight hours.":"Next 7 days, daylight hours"}
-  /* water temperature (Open-Meteo Marine); lakes and failures simply show nothing */
-  var WATER=LS.get("radar-water",{});
-  function suit(c){return c>=22?"boardshorts or a shorty":c>=18?"3/2 wetsuit":c>=15?"4/3 wetsuit":c>=12?"5/4 wetsuit and boots":c>=9?"5/4 or 6/5 with boots and gloves":"6/5 hooded, boots and gloves"}
-  function waterText(spot){var c=WATER[spot.id];if(c==null)return "";return "Water "+Math.round(c)+"°C, "+suit(c)}
-  function paintWater(){document.querySelectorAll("#windAll .spot").forEach(function(el){var sp=CONFIG.wind.spots.filter(function(x){return x.id===el.dataset.spot})[0],w=el.querySelector(".water");if(sp&&w)w.textContent=waterText(sp)})}
-  function isSea(s){return s.water!=null?!!s.water:!/\blake\b/i.test((s.sub||"")+" "+s.name)}
-  function loadWater(){var sp=CONFIG.wind.spots.filter(isSea);if(!sp.length)return;
-    var u="https://marine-api.open-meteo.com/v1/marine?latitude="+sp.map(function(s){return s.lat}).join(",")+"&longitude="+sp.map(function(s){return s.lon}).join(",")+
-      "&daily=sea_surface_temperature_max&timezone=Europe%2FAmsterdam&forecast_days=3";
-    return fetch(u).then(function(r){if(!r.ok)throw r.status;return r.json()}).then(function(res){if(!Array.isArray(res))res=[res];var out={};
-      sp.forEach(function(s,i){var v=res[i]&&res[i].daily&&res[i].daily.sea_surface_temperature_max;v=v&&v.filter(function(x){return x!=null})[0];if(typeof v==="number")out[s.id]=v});
-      WATER=out;LS.set("radar-water",out);paintWater()}).catch(function(){paintWater()})}
-  function goWind(){document.querySelector('.tab[data-v="wind"]').click()}
-  $("todayWind").onclick=goWind;$("todayWind").onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();goWind()}};
-  /* placeholder ribbons so the page doesn't jump when the forecast arrives */
-  function skeleton(){if(document.querySelector("#todayWind .spot"))return;var W=CONFIG.wind;
-    var row=function(sp,sub){var r="";for(var i=0;i<7;i++){var b="";for(var h=W.daylight[0];h<W.daylight[1];h++)b+='<i class="bar" style="height:12%"></i>';r+='<div class="rday"><div class="bars">'+b+'</div><div class="rlab">&nbsp;</div></div>'}
-      return '<div class="spot skel"><div class="spot-top"><span class="spot-name">'+esc(sp.name)+'</span><span class="spot-verdict">Checking…</span></div>'+(sub?'<div class="spot-sub">'+esc(sp.sub||"")+'<span class="water'+(isSea(sp)?" sea":"")+'"></span></div>':'')+'<div class="ribbon" aria-hidden="true">'+r+'</div></div>'};
-    $("todayWind").innerHTML=W.spots.map(function(sp){return row(sp,false)}).join("");$("windAll").innerHTML=W.spots.map(function(sp){return row(sp,true)}).join("")}
-  function loadWind(){var sp=CONFIG.wind.spots;
-    var u="https://api.open-meteo.com/v1/forecast?latitude="+sp.map(function(s){return s.lat}).join(",")+"&longitude="+sp.map(function(s){return s.lon}).join(",")+
-      "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn&timezone=Europe%2FAmsterdam&forecast_days=7";
-    loadWater();
-    return fetch(u).then(function(r){if(!r.ok)throw r.status;return r.json()}).then(function(res){if(!Array.isArray(res))res=[res];net.wind="live";net.windAt=Date.now();LS.set("radar-wind",{t:net.windAt,res:res});drawWind(res,false)})
-      .catch(function(){var c=LS.get("radar-wind",null);if(c){net.wind="cache";net.windAt=c.t;drawWind(c.res,true)}else{net.wind=null;$("lead").textContent="The forecast needs a connection. Radar will try again when you're back online."}})}
-
-  /* feed */
-  var KINDS=[["all","Everything"],["concert","Music"],["exhibition","Art"],["restaurant","Food"],["story","Books & film"],["meditation","Meditation"],["bucket","Bucket list"]];
-  var WORK_KINDS=[["all","Everything"],["work","Jobs & calls"],["freelance","Freelance"]];
-  function isWork(it){return it.kind==="work"||it.kind==="freelance"};
-  var KLABEL={concert:"Music",release:"Music",exhibition:"Art",restaurant:"Food",story:"Books & film",meditation:"Meditation",work:"Work",freelance:"Freelance",news:"Music",bucket:"Bucket list"};
-  var KCOLOR={concert:"#7b5ea7",release:"#7b5ea7",news:"#7b5ea7",exhibition:"var(--marine)",restaurant:"var(--buoy)",story:"#a0567a",meditation:"var(--kelp)",work:"var(--slate)",freelance:"var(--reef)",bucket:"var(--flag)"};
-  var REGIONS=[["all","Anywhere"],["nl","Netherlands"],["near","Belgium, Germany, EU"],["jp","Japan"]];
-  function km(a,b,c,e){var R=6371,x=(c-a)*Math.PI/180,y=(e-b)*Math.PI/180,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h))}
-  function inJapan(){var F=CONFIG.focus;return !!(F&&/japan/i.test(F.place)&&(!F.until||d(F.until)>=today))}
-  function past(it){var e=d(it.end)||(it.kind==="concert"?d(it.start):null);return e&&e<today}
-  function visible(it){return !past(it)&&!(it.region==="jp"&&!inJapan())}
-  function status(it){var s=d(it.start),e=d(it.end),f=d(it.found);
-    if(endsSoon(it))return ["soon",it.kind==="freelance"?"Deadline soon":"Ends soon"];
-    if(f&&(today-f)/864e5<=3)return ["new","New"];
-    if(s&&s<=today&&(!e||e>=today)&&it.kind!=="restaurant"&&it.kind!=="story")return ["now","On now"];
-    if(it.pick)return ["","Suggestion"];if(it.kind==="bucket")return ["now","Good time"];return null}
-  function dueHTML(it){var e=d(it.end);if(it.kind!=="freelance"||!e)return "";var n=Math.floor((e-today)/864e5);
-    return '<div class="due'+(n<=14?" close":"")+'">Apply by '+e.toLocaleDateString("en-GB",{weekday:n<7?"long":undefined,day:"numeric",month:"long"})+(n===0?", today":n===1?", tomorrow":n<=14?", "+n+" days left":"")+'</div>'}
-  function when(it){var s=d(it.start),e=d(it.end),f=function(x){return x.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
-    if(it.kind==="freelance")return s?"From "+f(s):"";
-    if(s&&e&&+s!==+e)return f(s)+" to "+f(e);if(s)return f(s);if(e)return "Until "+f(e);return ""}
-  function score(it){var sc=0,r=reactions[it.id];if(r)sc+=r.v*50;if(saved[it.id])sc+=40;
-    if(it.kind==="bucket")sc+=35;var st=status(it);if(st&&st[0]==="new")sc+=30;if(st&&st[0]==="soon")sc+=25;
-    var s=d(it.start);if(s&&s>=today)sc+=Math.max(0,20-(s-today)/864e5/3);
-    if(here&&it.lat!=null){var k=km(here.lat,here.lon,it.lat,it.lon);sc+=k<5?25:k<30?15:k<100?5:0}
-    var txt=(it.title+" "+it.why+" "+it.summary).toLowerCase();
-    (TASTE.more||[]).forEach(function(m){if(txt.indexOf(String(m).toLowerCase())>=0)sc+=15});
-    (TASTE.less||[]).forEach(function(m){if(txt.indexOf(String(m).toLowerCase())>=0)sc-=15});return sc}
-  var ICON={up:'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2.2 2.6L12.8 10H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg>',
-    down:'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M7 13V4H4v9zM7 13l4 7c1.5 0 2.5-1 2.2-2.6l-.4-3.4H19a2 2 0 0 0 2-2.3l-1.2-6A2 2 0 0 0 17.8 4H7"/></svg>',
-    save:'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>',
-    saveOn:'<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>',
-    hide:'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-    unhide:'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>'};
-  function placeOf(it){var place=[it.place,it.city].filter(Boolean).join(", ");
-    if(here&&it.lat!=null){var k=km(here.lat,here.lon,it.lat,it.lon);place+=(place?", ":"")+(k<10?k.toFixed(1):Math.round(k))+" km away"}return place}
-  function topLine(it){var st=status(it),w=when(it);
-    return '<span class="dot" aria-hidden="true" style="background:'+(KCOLOR[it.kind]||"var(--haze)")+'"></span><span>'+esc(KLABEL[it.kind]||it.kind)+'</span>'+(w?'<span>'+esc(w)+'</span>':'')+(st?'<span class="state '+st[0]+'">'+st[1]+'</span>':'')}
-  function flagsHTML(it){return it.flags&&it.flags.length?'<div class="flags">'+it.flags.map(function(f){return '<span class="flag">'+esc(f)+'</span>'}).join("")+'</div>':''}
-  function reactButtons(it,labels){var r=reactions[it.id],L=function(t){return labels?'<span>'+esc(t)+'</span>':''};
-    return '<button class="ib up'+(r&&r.v>0?" on":"")+'" data-a="up" type="button" aria-label="More like this" aria-pressed="'+!!(r&&r.v>0)+'">'+ICON.up+L("More")+'</button>'+
-      '<button class="ib down'+(r&&r.v<0?" on":"")+'" data-a="down" type="button" aria-label="Less like this" aria-pressed="'+!!(r&&r.v<0)+'">'+ICON.down+L("Less")+'</button>'+
-      '<button class="ib save'+(saved[it.id]?" on":"")+'" data-a="save" type="button" aria-label="Save" aria-pressed="'+!!saved[it.id]+'">'+(saved[it.id]?ICON.saveOn:ICON.save)+L(saved[it.id]?"Saved":"Save")+'</button>'+
-      '<button class="ib" data-a="hide" type="button" aria-label="'+(hidden[it.id]?"Unhide":"Hide")+'">'+(hidden[it.id]?ICON.unhide:ICON.hide)+L(hidden[it.id]?"Unhide":"Hide")+'</button>'}
-  function calable(it){return !!(it.start||(it.kind==="freelance"&&it.end))}
-  function itemHTML(it,big){var place=placeOf(it);
-    return '<div class="item'+(big?" big":"")+'" data-id="'+esc(it.id)+'"'+(calable(it)?' data-cal="1"':'')+'><div class="item-top">'+topLine(it)+'</div><h3><button class="open" type="button" aria-haspopup="dialog">'+esc(it.title)+'</button></h3>'+(place?'<div class="where">'+esc(place)+'</div>':'')+dueHTML(it)+'<p class="clip">'+esc(it.summary)+'</p>'+
-      flagsHTML(it)+
-      '<div class="acts">'+(it.url?'<a class="go" href="'+esc(it.url)+'" target="_blank" rel="noopener">Open details</a>':'<span class="go"></span>')+reactButtons(it,false)+'</div></div>'}
-  function mount(box,list,big,empty){box.innerHTML=list.length?list.map(function(it){return itemHTML(it,big)}).join(""):'<div class="empty">'+empty+'</div>';
-    box.querySelectorAll(".item").forEach(function(el){var it=byId[el.dataset.id];
-      el.querySelector(".open").onclick=function(){openSheet(it)};
-      el.querySelectorAll(".ib").forEach(function(b){b.onclick=function(){act(it,b.dataset.a)}})})}
-
-  /* item detail sheet */
-  var sheetItem=null,lastFocus=null;
-  function longDate(x){return x.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"long",year:x.getFullYear()!==today.getFullYear()?"numeric":undefined})}
-  function sheetHTML(it){var s=d(it.start),e=d(it.end),rows=[],place=placeOf(it);
-    if(it.kind==="freelance"){if(s)rows.push(["Starts",longDate(s)]);if(e)rows.push(["Apply by",longDate(e),"due"])}
-    else if(s&&e&&+s!==+e)rows.push(["Dates",longDate(s)+" to "+longDate(e)]);else if(s)rows.push(["Date",longDate(s)]);else if(e)rows.push(["Until",longDate(e)]);
-    if(it.why)rows.push(["Why it fits",it.why]);
-    if(it.found)rows.push(["Found",d(it.found).toLocaleDateString("en-GB",{day:"numeric",month:"long"})]);
-    var acts=[];
-    if(it.url)acts.push('<a class="btn" href="'+esc(it.url)+'" target="_blank" rel="noopener">Open details</a>');
-    if(it.lat!=null&&it.lon!=null)acts.push('<a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query='+(+it.lat)+'%2C'+(+it.lon)+'" target="_blank" rel="noopener">Show on map</a>');
-    if(calable(it))acts.push('<button class="btn ghost" type="button" data-a="ics">'+(it.kind==="freelance"&&it.end?"Add deadline to calendar":"Add to calendar")+'</button>');
-    return '<div class="item-top">'+topLine(it)+'</div><h2 id="sheetTitle">'+esc(it.title)+'</h2>'+(place?'<div class="where">'+esc(place)+'</div>':'')+dueHTML(it)+
-      '<p class="full">'+esc(it.summary)+'</p>'+flagsHTML(it)+
-      (rows.length?'<dl class="facts">'+rows.map(function(r){return '<div><dt>'+r[0]+'</dt><dd'+(r[2]?' class="'+r[2]+'"':'')+'>'+esc(r[1])+'</dd></div>'}).join("")+'</dl>':'')+
-      (acts.length?'<div class="sheet-acts">'+acts.join("")+'</div>':'')+
-      '<div class="react">'+reactButtons(it,true)+'</div>'}
-  function renderSheet(){var it=sheetItem,b=$("sheetBody");b.innerHTML=sheetHTML(it);
-    b.querySelectorAll(".ib").forEach(function(x){x.onclick=function(){act(it,x.dataset.a)}});
-    var c=b.querySelector('[data-a="ics"]');if(c)c.onclick=function(){ics(it)}}
-  function openSheet(it){sheetItem=it;lastFocus=document.activeElement;renderSheet();var dl=$("sheet"),pn=$("panel");
-    dl.classList.add("show");pn.scrollTop=0;pn.style.transform="";document.body.style.overflow="hidden";
-    requestAnimationFrame(function(){requestAnimationFrame(function(){dl.classList.add("in");pn.focus({preventScroll:true})})})}
-  function closeSheet(){if(!sheetItem)return;var dl=$("sheet"),pn=$("panel");sheetItem=null;dl.classList.remove("in");pn.style.transform="";document.body.style.overflow="";
-    var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setTimeout(function(){if(!sheetItem)dl.classList.remove("show")},reduce?0:320);
-    if(lastFocus&&lastFocus.focus&&document.body.contains(lastFocus))lastFocus.focus({preventScroll:true})}
-  $("scrim").onclick=closeSheet;
-  document.addEventListener("keydown",function(e){if(!sheetItem)return;if(e.key==="Escape"){closeSheet();return}
-    if(e.key==="Tab"){var f=$("panel").querySelectorAll("a[href],button"),a=f[0],z=f[f.length-1];if(!f.length)return;
-      if(e.shiftKey&&(document.activeElement===a||document.activeElement===$("panel"))){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
-  (function(){var pn=$("panel"),y0=null,dy=0;
-    pn.addEventListener("touchstart",function(e){y0=pn.scrollTop<=0?e.touches[0].clientY:null;dy=0},{passive:true});
-    pn.addEventListener("touchmove",function(e){if(y0==null)return;dy=e.touches[0].clientY-y0;if(dy>0){pn.style.transition="none";pn.style.transform="translateY("+dy+"px)";if(e.cancelable)e.preventDefault()}},{passive:false});
-    pn.addEventListener("touchend",function(){if(y0==null)return;pn.style.transition="";y0=null;if(dy>90)closeSheet();else pn.style.transform=""})})();
-  function ics(it){var dead=it.kind==="freelance"&&it.end,s=dead?d(it.end):d(it.start),e=dead?s:(d(it.end)||s);if(e<s)e=s;var end=new Date(e);end.setDate(end.getDate()+1);
-    var f=function(x){return x.getFullYear()+pad(x.getMonth()+1)+pad(x.getDate())},t=function(v){return String(v||"").replace(/\\/g,"\\\\").replace(/([,;])/g,"\\$1").replace(/\r?\n/g,"\\n")};
-    var now=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
-    var lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Radar//EN","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:"+String(it.id).replace(/[^\w.-]/g,"")+"@radar","DTSTAMP:"+now,
-      "DTSTART;VALUE=DATE:"+f(s),"DTEND;VALUE=DATE:"+f(end),"SUMMARY:"+t((dead?"Deadline: ":"")+it.title)];
-    var loc=[it.place,it.city].filter(Boolean).join(", ");if(loc)lines.push("LOCATION:"+t(loc));
-    lines.push("DESCRIPTION:"+t(it.summary+(it.url?"\n\n"+it.url:"")));var one=function(v){return String(v||"").replace(/[\r\n]+/g," ")};if(it.url)lines.push("URL:"+one(it.url));
-    if(it.lat!=null&&isFinite(it.lat)&&isFinite(it.lon))lines.push("GEO:"+(+it.lat)+";"+(+it.lon));lines.push("END:VEVENT","END:VCALENDAR");
-    var blob=new Blob([lines.join("\r\n")+"\r\n"],{type:"text/calendar"}),a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);a.download=(String(it.id||"radar").replace(/[^\w.-]/g,"")||"radar")+".ics";document.body.appendChild(a);a.click();
-    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}
-  function drawAll(){drawTop();drawFeed();drawWork();drawSaved();fbBar()}
-  function endsSoon(it){var s=d(it.start),e=d(it.end);return !!(e&&e>=today&&(e-today)/864e5<=14&&(!s||s<=today||it.kind==="freelance"))}
-  function drawTop(){var pool=FEED.items.filter(function(it){return visible(it)&&!hidden[it.id]&&!(reactions[it.id]&&reactions[it.id].v<0)});
-    var first=pool.filter(endsSoon).sort(function(a,b){return d(a.end)-d(b.end)||score(b)-score(a)}).slice(0,2);
-    var list=first.concat(pool.filter(function(it){return first.indexOf(it)<0}).sort(function(a,b){return score(b)-score(a)})).slice(0,4);
-    mount($("top"),list,true,"Nothing urgent. Explore has everything Radar found.")}
-  function regionMatch(it){if(state.region==="all")return true;var r=it.region;if(state.region==="near")return ["be","de","eu","uk"].indexOf(r)>=0;return r===state.region||r==="all"}
-  function drawFeed(){var items=FEED.items.filter(function(it){if(!visible(it)||isWork(it))return false;if(hidden[it.id]&&!state.showHidden)return false;
-      if(state.kind!=="all"&&it.kind!==state.kind&&!(state.kind==="concert"&&(it.kind==="release"||it.kind==="news")))return false;return regionMatch(it)}).sort(function(a,b){if(state.kind==="freelance"){var x=d(a.end),y=d(b.end);if(x&&y&&+x!==+y)return x-y;if(x&&!y)return -1;if(y&&!x)return 1}return score(b)-score(a)});
-    var limit=state.all?items.length:12;
-    mount($("feed"),items.slice(0,limit),false,"Nothing here yet. The daily update adds new finds every morning.");
-    if(items.length>limit){var m=document.createElement("button");m.className="more";m.type="button";m.textContent="Show "+(items.length-limit)+" more";m.onclick=function(){state.all=true;drawFeed()};$("feed").appendChild(m)}
-    $("feedSub").textContent=items.length+" things for you, updated "+ago(FEED.updated)}
-  function drawWork(){var items=FEED.items.filter(function(it){return isWork(it)&&visible(it)&&(state.showHidden||!hidden[it.id])&&(state.work==="all"||it.kind===state.work)})
-      .sort(function(a,b){var x=a.kind==="freelance"?d(a.end):null,y=b.kind==="freelance"?d(b.end):null;if(x&&y&&+x!==+y)return x-y;if(x&&!y)return -1;if(y&&!x)return 1;return score(b)-score(a)});
-    mount($("workFeed"),items,false,state.work==="freelance"?"No freelance leads right now. The daily update checks every morning.":"Nothing here yet. The daily update adds new roles and calls every morning.");
-    var n=items.length;$("workSub").textContent=(n===1?"1 opportunity":n+" opportunities")+", updated "+ago(FEED.updated)}
-  function drawSaved(){mount($("savedList"),FEED.items.filter(function(it){return saved[it.id]&&!past(it)}),false,"Nothing saved yet. Tap the star on anything you want to keep.");
-    drawBucket();
-    $("learned").innerHTML=(TASTE.learned||[]).map(function(l){return "<li>"+esc(l)+"</li>"}).join("")||"<li>Nothing yet. Use thumbs up and down.</li>"}
-  function drawBucket(){var wishes=(CONFIG.bucketlist||[]).slice(),known={};wishes.forEach(function(b){known[b.title.toLowerCase()]=1});
-    var sent=bucketSent.filter(function(b){return !known[b.title.toLowerCase()]});bucketSent=sent;LS.set("radar-bucket-sent",sent);
-    var box=$("bucketList");if(!wishes.length&&!sent.length){box.innerHTML='<div class="empty">Nothing on it yet. Add the things you want to do once in your life, and what would make it a good moment.</div>';return}
-    box.innerHTML=wishes.map(function(b){var hits=FEED.items.filter(function(it){return it.kind==="bucket"&&it.bucket===b.id&&!past(it)&&!hidden[it.id]});
-      return '<div class="bk"><h3>'+esc(b.title)+'</h3>'+(b.good_time?'<div class="bw">Good moment: '+esc(b.good_time)+'</div>':'')+
-        (hits.length?'<div class="bs hot">'+(hits.length===1?"1 good chance right now":hits.length+" good chances right now")+'</div><div class="bkhits" data-b="'+esc(b.id)+'"></div>':'<div class="bs">Watching. Radar will flag it when the timing is right.</div>')+'</div>'}).join("")+
-      sent.map(function(b){return '<div class="bk"><h3>'+esc(b.title)+'</h3>'+(b.good_time?'<div class="bw">Good moment: '+esc(b.good_time)+'</div>':'')+'<div class="bs">Sent. Radar starts watching after the next morning update.</div></div>'}).join("");
-    box.querySelectorAll(".bkhits").forEach(function(el){mount(el,FEED.items.filter(function(it){return it.kind==="bucket"&&it.bucket===el.dataset.b&&!past(it)&&!hidden[it.id]}),false,"")})}
-  function segs(id,list,key){var box=$(id);box.innerHTML="";list.forEach(function(c){var b=document.createElement("button");b.type="button";b.className="pill"+(state[key]===c[0]?" on":"");b.setAttribute("aria-pressed",state[key]===c[0]);b.textContent=c[1];
-    b.onclick=function(){state[key]=c[0];state.all=false;segs(id,list,key);(key==="work"?drawWork:drawFeed)()};box.appendChild(b)})}
-  function act(it,a){if(a==="save"){if(saved[it.id])delete saved[it.id];else saved[it.id]=1;LS.set("radar-saved",saved)}
-    else if(a==="hide"){if(hidden[it.id])delete hidden[it.id];else{hidden[it.id]=1;react(it,-1,true)}LS.set("radar-hidden",hidden)}
-    else react(it,a==="up"?1:-1);drawAll();if(sheetItem===it)renderSheet()}
-  function react(it,v,soft){var r=reactions[it.id];if(r&&r.v===v&&!soft)delete reactions[it.id];
-    else if(!(soft&&r))reactions[it.id]={v:v,t:Date.now(),title:it.title,kind:it.kind,why:it.why||"",sent:false};LS.set("radar-reactions",reactions)}
-  function pending(){return Object.keys(reactions).filter(function(k){return !reactions[k].sent})}
-  // Reactions waiting to be sent. A new reaction pops a short notice that fades by itself (or tap x);
-  // the lasting place to send them is Saved > Teach it more, flagged by a dot on the Saved tab.
-  var toastFor=-1,toastTimer=null;
-  function hideToast(){clearTimeout(toastTimer);toastTimer=null;$("fbBar").classList.remove("show")}
-  function armToast(){clearTimeout(toastTimer);toastTimer=setTimeout(hideToast,5000)}
-  function fbBar(){var p=pending(),n=p.length,txt=n===1?"1 reaction ready to teach Radar":n+" reactions ready to teach Radar";
-    $("fbText").textContent=txt;$("teachText").textContent=txt;$("teachBox").hidden=!n;
-    var tab=document.querySelector('.tab[data-v="saved"]'),b=tab.querySelector(".badge");
-    if(n&&!b){b=document.createElement("span");b.className="badge";b.setAttribute("aria-hidden","true");tab.appendChild(b)}else if(!n&&b)b.remove();
-    tab.setAttribute("aria-label",n?"Saved, "+txt:"Saved");
-    if(toastFor<0){toastFor=n;return}
-    if(!n){hideToast()}else if(n>toastFor){$("fbBar").classList.add("show");armToast()}
-    toastFor=n}
-  $("fbClose").onclick=hideToast;
-  $("fbBar").addEventListener("pointerenter",function(){clearTimeout(toastTimer)});
-  $("fbBar").addEventListener("pointerleave",function(){if($("fbBar").classList.contains("show"))armToast()});
-  $("fbBar").addEventListener("focusin",function(){clearTimeout(toastTimer)});
-  $("fbBar").addEventListener("focusout",function(){if($("fbBar").classList.contains("show"))armToast()});
-  /* background notes: a GitHub token kept only on this phone */
-  var API="https://api.github.com/repos/2vrg2vjks9-wq/Almanac";
-  var ghKey=LS.get("radar-gh-key",""), outbox=LS.get("radar-outbox",[]), sayTimer;
-  function say(t){var e=$("say");e.textContent=t;e.classList.add("show");clearTimeout(sayTimer);sayTimer=setTimeout(function(){e.classList.remove("show")},3200)}
-  function postIssue(n){return fetch(API+"/issues",{method:"POST",headers:{"Authorization":"Bearer "+ghKey,"Accept":"application/vnd.github+json","Content-Type":"application/json"},
-    body:JSON.stringify({title:n.title,body:n.body,labels:n.labels})}).then(function(r){if(r.status===401)throw "key";if(r.status===403||r.status===404)throw "perm";if(!r.ok)throw "net";return true})}
-  function flush(){if((!ghKey&&!SERVER)||!outbox.length||!navigator.onLine)return Promise.resolve();var n=outbox[0];
-    return (SERVER?fetch("/api/note",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:n.title,body:n.body,label:n.labels[0]})}).then(function(r){if(!r.ok)throw "net";return true}):postIssue(n)).then(function(){outbox.shift();LS.set("radar-outbox",outbox);return flush()}).catch(function(e){if(e==="key"){say("GitHub no longer accepts Radar's token (expired or revoked). Your note is kept; reconnect in Saved.");ghKey="";LS.set("radar-gh-key","");paintConn()}
-      else if(e==="perm"){say("GitHub refused the note: the token needs access to Almanac with Issues set to read and write. Your note is kept.");ghKey="";LS.set("radar-gh-key","");paintConn()}})}
-  /* sends a note to the morning update; falls back to opening GitHub when not connected */
-  var SERVER=!/github\.io$/.test(location.hostname)&&location.hostname!=="localhost"&&location.hostname!=="127.0.0.1";
-  function note(title,body,label,done){
-    if(SERVER){fetch("/api/note",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:title,body:body,label:label})})
-      .then(function(r){if(!r.ok)throw r.status;say(done)}).catch(function(){outbox.push({title:title,body:body,labels:[label]});LS.set("radar-outbox",outbox);say("Saved. It goes out when Radar can reach the server again.")});return}
-    if(!ghKey){outbox.push({title:title,body:body,labels:[label]});LS.set("radar-outbox",outbox);paintConn();say("Saved on your phone. It sends as soon as Radar is connected (Saved tab).");return}
-    outbox.push({title:title,body:body,labels:[label]});LS.set("radar-outbox",outbox);
-    if(!navigator.onLine){say("Saved. It goes out when you're back online.");return}
-    flush().then(function(){if(ghKey)say(done)})}
-  function paintConn(){if(SERVER){$("conn").closest(".sheet").hidden=true;var h=$("conn").closest(".sheet").previousElementSibling;if(h)h.hidden=true;return}$("connState").textContent=ghKey?"Connected. Notes go straight to the morning update"+(outbox.length?" ("+outbox.length+" waiting to send).":"."):"Not connected yet."+(outbox.length?" "+outbox.length+(outbox.length===1?" note is":" notes are")+" waiting on this phone and will send once you connect.":" Notes wait on this phone until you connect.");
-    $("connOpen").hidden=!!ghKey;$("connOff").hidden=!ghKey;$("connForm").hidden=true;$("connBtns").hidden=false}
-  $("connOpen").onclick=function(){$("connForm").hidden=false;$("connBtns").hidden=true;$("connKey").focus()};
-  $("connCancel").onclick=paintConn;
-  $("connOff").onclick=function(){ghKey="";LS.set("radar-gh-key","");paintConn();say("Disconnected. The token is removed from this phone.")};
-  $("connSave").onclick=function(){var k=($("connKey").value||"").trim();if(!k)return;$("connState").textContent="Checking the token…";
-    fetch(API,{headers:{"Authorization":"Bearer "+k,"Accept":"application/vnd.github+json"}}).then(function(r){
-      if(!r.ok){$("connState").textContent="That token can't reach the Almanac repository. Check it has access to Almanac only, with Issues read and write.";return}
-      ghKey=k;LS.set("radar-gh-key",k);$("connKey").value="";paintConn();say("Connected. Notes now send in the background.");flush().then(paintConn)})
-      .catch(function(){$("connState").textContent="Couldn't reach GitHub. Try again when you're online."})};
-  window.addEventListener("online",function(){flush().then(paintConn)});
-  function sendReactions(){var p=pending();if(!p.length)return;
-    var body="Radar feedback, sent from the app.\n\n"+p.map(function(k){var r=reactions[k];return (r.v>0?"+1":"-1")+" | "+r.kind+" | "+r.title+" | because: "+r.why+" | id: "+k}).join("\n")+"\n\nAnything to add about why? Write it here, e.g. 'more Ando, less street photography':\n";
-    note("Radar feedback "+new Date().toISOString().slice(0,10),body,"radar-feedback","Sent. Tomorrow morning's update learns from it.");
-    p.forEach(function(k){reactions[k].sent=true});LS.set("radar-reactions",reactions);fbBar()}
-  $("fbSend").onclick=sendReactions;$("fbSend2").onclick=sendReactions;
-  $("addBtn").onclick=function(){var t=prompt("What should Radar keep an eye on? For example: Fred again.. concerts, padel tournaments in Den Haag, new Noguchi exhibitions.");if(!t)return;
-    t=t.trim();if(!t)return;note("Add interest: "+t,"Please add to Radar: "+t,"radar-interest","Added. Radar starts looking for \u201c"+t+"\u201d tomorrow morning.")};
-  $("bucketBtn").onclick=function(){var t=prompt("What do you want to do once in your life? For example: see the northern lights, sleep in a mountain forest hut.");if(!t)return;t=t.trim();if(!t)return;
-    var g=prompt("What would make it a good moment? For example: flights under €150, clear dark skies, a hut under €60 a night. Leave empty and Radar will work it out.")||"";g=g.trim();
-    bucketSent.push({title:t,good_time:g,added:new Date().toISOString().slice(0,10)});LS.set("radar-bucket-sent",bucketSent);drawBucket();
-    note("Bucket list: "+t,"Add to my Radar bucket list: "+t+"\n\nA good moment would be: "+(g||"(work it out)"),"radar-bucket","On your bucket list. Radar checks the timing every morning.")};
-  $("showHidden").onclick=function(){state.showHidden=!state.showHidden;this.textContent=state.showHidden?"Hide hidden":"Show hidden";document.querySelector('.tab[data-v="explore"]').click();drawFeed();drawWork()};
-  function ago(iso){var h=(Date.now()-new Date(iso))/36e5;if(h<1)return "just now";if(h<1.5)return "an hour ago";if(h<24)return Math.round(h)+" hours ago";var n=Math.round(h/24);return n===1?"yesterday":n+" days ago"}
-
-  /* around me */
-  function hint(t){$("nearHint").textContent=t}
-  function locate(){return new Promise(function(ok,no){if(!navigator.geolocation)return no("none");
-    navigator.geolocation.getCurrentPosition(function(p){here={lat:p.coords.latitude,lon:p.coords.longitude,t:Date.now()};LS.set("radar-here",here);ok(here)},function(e){no(e&&e.code===1?"denied":"failed")},{timeout:15000,maximumAge:600000})})}
-  var DENIED="Location is off for Radar. Turn it on in Settings, Privacy & Security, Location Services, Safari Websites.";
-  function overpass(h){var a="(around:2500,"+h.lat+","+h.lon+")";
-    var q="[out:json][timeout:20];(nwr[tourism=museum]"+a+";nwr[tourism=gallery]"+a+";nwr[tourism=artwork][artwork_type~\"sculpture|installation|land_art\"]"+a+";nwr[amenity~\"restaurant|cafe\"][\"diet:gluten_free\"~\"only|yes\"]"+a+";nwr[amenity~\"restaurant|cafe\"][\"diet:vegan\"=only]"+a+";nwr[amenity=place_of_worship][religion=buddhist][name]"+a+";);out center tags 120;";
-    return fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}}).then(function(r){return r.json()})}
-  function classify(t){if(t.tourism==="museum")return["🏛","Museum",3];if(t.tourism==="gallery")return["🖼","Gallery",3];if(t.tourism==="artwork")return["🗿","Sculpture or artwork",2];
-    if(t.amenity==="place_of_worship"){var z=/zen|rinzai|soto/i.test(t.denomination||"");return["☸",z?"Zen temple":"Temple",z?3:1]}
-    var gf=t["diet:gluten_free"],vg=t["diet:vegan"],l=[];if(gf==="only")l.push("Fully gluten-free");else if(gf==="yes")l.push("Gluten-free options");if(vg==="only")l.push(l.length?"vegan":"Vegan");
-    return["🍽",(t.amenity==="cafe"?"Café, ":"")+l.join(", "),gf==="only"?4:gf?2:1]}
-  function drawNear(h,els){var seen={},list=[];
-    els.forEach(function(e){var t=e.tags||{},nm=t["name:en"]||t.name;if(!nm)return;var la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);if(la==null)return;
-      var key=nm+Math.round(la*1e3);if(seen[key])return;seen[key]=1;var c=classify(t),dist=km(h.lat,h.lon,la,lo);
-      list.push({nm:nm,local:t["name:en"]&&t.name!==t["name:en"]?t.name:"",c:c,dist:dist,lat:la,lon:lo,rank:c[2]*2-dist})});
-    list.sort(function(a,b){return b.rank-a.rank});
-    $("nearList").innerHTML=list.slice(0,15).map(function(x){return '<a class="ni" href="https://www.google.com/maps/search/?api=1&query='+x.lat+'%2C'+x.lon+'" target="_blank" rel="noopener"><span class="g" aria-hidden="true">'+x.c[0]+'</span><span><b>'+esc(x.nm)+'</b><small>'+esc(x.c[1])+(x.local?", "+esc(x.local):"")+'</small></span><span class="km">'+(x.dist<1?Math.round(x.dist*1000)+" m":x.dist.toFixed(1)+" km")+'</span></a>'}).join("");
-    hint(list.length?"From OpenStreetMap, so unrated. Places with gluten-free options aren't dedicated kitchens; ask about oats, dairy and eggs.":"Nothing tagged within 2.5 km. OpenStreetMap is thinner outside city centres.")}
-  $("nearBtn").onclick=function(){hint("Finding you…");locate().then(function(h){hint("Looking around…");drawAll();return overpass(h).then(function(r){drawNear(h,r.elements||[])})})
-    .catch(function(e){hint(e==="denied"?DENIED:"The search didn't respond. Try again in a minute.")})};
-  $("hereBtn").onclick=function(){hint("Finding your city…");
-    locate().then(function(h){return fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat="+h.lat+"&lon="+h.lon).then(function(r){return r.json()})})
-    .then(function(g){var a=g.address||{},city=a.city||a.town||a.village||a.municipality||a.county||"",place=[city,a.state,a.country].filter(Boolean).join(", ");
-      var until=prompt("Scout "+place+"? Until when are you here? (optional, like 5 Oct)","");if(until===null){hint("Scouting cancelled.");return}
-      note("I'm in "+place+(until?" until "+until:""),"Radar: focus research on "+place+(until?" until "+until:"")+".\nCity only; no exact location is shared.","radar-location","Tomorrow's update scouts "+city+".");
-      hint(ghKey||SERVER?"Sent. Tomorrow's update scouts "+city+".":"Saved. Tomorrow's update scouts "+city+" once Radar is connected.")}).catch(function(e){hint(e==="denied"?DENIED:"Couldn't work out your city. Try again.")})};
-
-  /* first-run welcome */
-  (function(){if(LS.get("radar-welcomed",false))return;var w=$("welcome"),cards=$("wcards"),next=$("wNext"),dots=w.querySelectorAll(".wdots i"),n=dots.length;
-    function idx(){return Math.round(cards.scrollLeft/Math.max(1,cards.clientWidth))}
-    function paint(){var i=idx();dots.forEach(function(x,j){x.classList.toggle("on",j===i)});next.textContent=i>=n-1?"Start":"Next"}
-    function done(){LS.set("radar-welcomed",true);w.classList.remove("show");document.body.style.overflow="";var t=document.querySelector(".tab.on");if(t)t.focus({preventScroll:true})}
-    cards.addEventListener("scroll",paint,{passive:true});
-    next.onclick=function(){var i=idx();if(i>=n-1)return done();var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
-      cards.scrollTo({left:(i+1)*cards.clientWidth,behavior:reduce?"auto":"smooth"});setTimeout(paint,reduce?0:400)};
-    $("wSkip").onclick=done;w.addEventListener("keydown",function(e){if(e.key==="Escape")done()});
-    w.classList.add("show");document.body.style.overflow="hidden";w.focus({preventScroll:true})})();
-  /* loading, refresh and freshness */
-  var net={feed:null,wind:null,windAt:null,started:false,busy:false};
-  function stamp(t){if(!t)return "earlier";var x=new Date(t),k=new Date(t);k.setHours(0,0,0,0);var n=Math.round((today-k)/864e5);
-    return (n===0?"today":n===1?"yesterday":x.toLocaleDateString("en-GB",{weekday:"long"}))+" at "+hm(t)}
-  function hm(t){var x=new Date(t);return pad(x.getHours())+":"+pad(x.getMinutes())}
-  function fresh(){var el=$("fresh");if(!el)return;var off=net.feed==="cache"||net.wind==="cache",t=[];
-    if(FEED&&FEED.updated)t.push("Feed updated "+ago(FEED.updated));
-    if(net.windAt)t.push("wind "+(net.wind==="cache"?"from "+stamp(net.windAt):"checked at "+hm(net.windAt)));
-    el.textContent=(off?"Offline, showing the last copy. ":"")+t.join(", ")+(t.length?".":"");el.classList.toggle("off",off)}
-  function loadAll(){if(net.busy)return;net.busy=true;$("refresh").classList.add("spin");$("refresh").setAttribute("aria-busy","true");
-    var feed=Promise.all([fetchJSON("interests.json"),fetchJSON("feed.json"),fetchJSON("taste.json").catch(function(){return {learned:[]}})])
-      .then(function(a){CONFIG=a[0];FEED=a[1];TASTE=a[2];net.feed="live";LS.set("radar-cache",{c:CONFIG,f:FEED,t:TASTE})})
-      .catch(function(){var c=LS.get("radar-cache",null);if(c&&!FEED){CONFIG=c.c;FEED=c.f;TASTE=c.t}net.feed=FEED?"cache":null});
-    return feed.then(function(){if(!FEED){$("lead").textContent="Radar needs a connection the first time you open it.";return}
-      start();return loadWind()}).then(function(){net.busy=false;$("refresh").classList.remove("spin");$("refresh").removeAttribute("aria-busy");fresh()})}
-  paintConn();flush().then(paintConn);
-  function start(){byId={};FEED.items.forEach(function(it){byId[it.id]=it});
-    if(!net.started){if(!inJapan())REGIONS=REGIONS.filter(function(r){return r[0]!=="jp"});segs("kinds",KINDS,"kind");segs("regions",REGIONS,"region");segs("workKinds",WORK_KINDS,"work");net.started=true}
-    drawAll();skeleton();fresh()}
-  $("refresh").onclick=function(){loadAll()};
-  window.addEventListener("online",function(){if(net.feed==="cache"||net.wind==="cache")loadAll()});
-  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&net.windAt&&Date.now()-net.windAt>30*6e4)loadAll()});
-  (function(){var y0=null,dy=0,ptr=$("ptr"),txt=$("ptrText");
-    document.addEventListener("touchstart",function(e){y0=(window.scrollY<=0&&!sheetItem&&$("v-today").classList.contains("on"))?e.touches[0].clientY:null;dy=0},{passive:true});
-    document.addEventListener("touchmove",function(e){if(y0==null)return;dy=e.touches[0].clientY-y0;if(dy<=0){ptr.style.height="0";return}
-      ptr.style.transition="none";ptr.style.height=Math.min(56,dy/2.2)+"px";txt.textContent=dy>110?"Release to refresh":"Pull to refresh"},{passive:true});
-    document.addEventListener("touchend",function(){if(y0==null)return;y0=null;ptr.style.transition="";ptr.style.height="0";if(dy>110)loadAll()})})();
-  loadAll();
-  if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){r.update()}).catch(function(){})});
-  // A home-screen app on iPhone often resumes from memory instead of reloading, so it can keep
-  // showing an old version. On open and whenever it comes back to the front, compare with the
-  // live page and reload once if there's a newer one.
-  var APP_VERSION="2026-09-28a";
-  $("appVersion").textContent="Version "+APP_VERSION;
-  function checkVersion(){if(!navigator.onLine)return;
-    fetch("index.html?v="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():""}).then(function(t){
-      var m=t.match(/var APP_VERSION="([^"]+)"/);if(!m||m[1]===APP_VERSION)return;
-      var tried=null;try{tried=sessionStorage.getItem("radar-reload-for")}catch(e){}
-      if(tried===m[1])return;try{sessionStorage.setItem("radar-reload-for",m[1])}catch(e){}
-      location.reload()}).catch(function(){})}
-  checkVersion();
-  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")checkVersion()});
-})();
-</script>
 </body>
 </html>

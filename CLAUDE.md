@@ -1,10 +1,10 @@
 # Almanac
 
-GitHub Pages site (served from `main`) with Guus's home-screen apps: `radar/`, `polder/`, `nakasendo/`, `curiosity/`, `enso/`, `proxima/`, `loam/`.
+GitHub Pages site (served from `main`) with the owner's home-screen apps: `radar/`, `polder/`, `nakasendo/`, `curiosity/`, `enso/`, `proxima/`, `loam/`.
 
 ## Safety check — required for every app, every change
 
-Guus asked for this on all current and future apps. The repo is public and the apps run on his phone.
+The owner asked for this on all current and future apps. The repo is public and the apps run on his phone.
 
 1. **Automatic:** `tools/safety_check.py` runs as a PreToolUse hook before every Artifact publish and blocks it on secrets, scripts or requests to hosts outside its allowlist, or eval-style code. Also run it by hand before pushing any app: `python3 tools/safety_check.py <app>/*.html <app>/*.js <app>/*.json`. Adding a host to `ALLOWED_HOSTS` needs a reason in the comment.
 2. **Manual review** (a script can't judge these), before publishing or pushing:
@@ -12,7 +12,7 @@ Guus asked for this on all current and future apps. The repo is public and the a
    - Prompts sent to Claude from a page can't be steered by other viewers into doing something harmful, and Claude's replies are treated as untrusted text.
    - No personal data (names, emails, precise locations, notification topics that act as passwords) is committed to the public repo; say what leaves the device (e.g. location sent to an API) and when.
    - Offline service workers only cache same-site files and fonts.
-3. **Report it:** tell Guus what was checked and anything found, fixed or left as is.
+3. **Report it:** tell the owner what was checked and anything found, fixed or left as is.
 
 ## Apps published from Claude artifacts
 
@@ -29,5 +29,5 @@ Guus asked for this on all current and future apps. The repo is public and the a
 - Ensō poem ids are stored in readers' "kept" lists: give new poems the next free id, never renumber. Only public-domain texts, or fresh translations of pre-modern originals (note: "translated for Ensō").
 - Proxima invention ids are array positions stored in readers' kept/seen lists: append new inventions at the end of `ALL`, never insert or reorder. Keep the "Seeds today" notes factual.
 - Loam project ids are array positions stored in readers' kept, seen (Discover) and tried lists: append new projects at the end of `ALL`, never insert or reorder. Only include projects that are running now, and keep figures rounded and sourced from the project or the press. Mark new-science, new-technology and new-law projects with `fx: true` (the ⚡ Frontier filter). Always republish Loam with `capabilities: {sample: {}}` (its Ask Claude box, which only sends that project's text and the reader's question).
-- Proxima's lab (artifact only, owner only): once Guus has seen nearly everything, Claude invents 3 more per tap, after a confirm, at most 3 batches a day (`LAB_DAILY`, counted in db `labmeta/usage`), at most 9 waiting. Drafts wait in db `lab/<id>`; approved ones move to `catalogue/<id>` and show in the artifact as id `g-<id>`. db rules make everything owner-write-only and `lab`/`labmeta` owner-read-only. Always republish with `capabilities: {sample: {}, user: {}, db: {rules: [{path: "", read: "view", write: "owner"}, {path: "lab", read: "owner", write: "owner"}, {path: "labmeta", read: "owner", write: "owner"}]}}`.
+- Proxima's lab (artifact only, owner only): once the owner has seen nearly everything, Claude invents 3 more per tap, after a confirm, at most 3 batches a day (`LAB_DAILY`, counted in db `labmeta/usage`), at most 9 waiting. Drafts wait in db `lab/<id>`; approved ones move to `catalogue/<id>` and show in the artifact as id `g-<id>`. db rules make everything owner-write-only and `lab`/`labmeta` owner-read-only. Always republish with `capabilities: {sample: {}, user: {}, db: {rules: [{path: "", read: "view", write: "owner"}, {path: "lab", read: "owner", write: "owner"}, {path: "labmeta", read: "owner", write: "owner"}]}}`.
 - To bring approved lab inventions to the home-screen app ("sync Proxima"): read `catalogue` with ArtifactData, fact-check each entry, append it to the end of `ALL` with `gid: "<doc id>"` plus its `plain`/`wow`/`ideas` in `POP`, publish, then set `synced: true` on those docs. The page skips db entries whose gid is already in `ALL` and moves readers' kept/seen marks over.

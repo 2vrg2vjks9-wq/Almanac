@@ -10,4 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # RADAR_KEY opens the encrypted data (radar/tools/vault.mjs). Set it under
+      # Settings > Secrets and variables > Actions. The log is public, so the script prints no details.
       - run: python3 radar/tools/wind_alert.py
+        env:
+          RADAR_KEY: ${{ secrets.RADAR_KEY }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
