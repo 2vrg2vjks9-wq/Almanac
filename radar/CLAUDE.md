@@ -111,6 +111,11 @@ in commit messages, issue comments or Actions logs.
   from interests (no position).
   What leaves the phone: coordinates to OpenStreetMap, Wikipedia and (Whole city or away) Nominatim, on tap; the
   city name and dates to Claude only when asked.
+- **Concert alerts:** the "Radar concert alert" Claude task checks every evening whether an artist in
+  `interests.concertAlerts.artists` has announced a show (own concert or festival slot) in the Netherlands, Belgium or
+  Germany near the border, and pushes a notification once per show. Shows already notified are listed (by
+  artist|date|city) in `interests.concertAlerts.notified`; the daily update reads the same list so nobody is told twice.
+  New shows also go into the feed as `concert` items.
 - **Wind alert:** `.github/workflows/radar-wind.yml` runs `radar/tools/wind_alert.py` every morning (Actions
   secret `RADAR_KEY`; topic from `alerts.ntfy` or the `NTFY_TOPIC` secret) and pushes to ntfy.sh. The Actions log
   is public: it prints only a count. Keep it working if you touch the wind section.
