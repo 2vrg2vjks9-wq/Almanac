@@ -31,12 +31,13 @@ const sortAds = (list) => list.slice().sort((x, y) => (x.match === "hit" ? 0 : 1
   String(y.found || "").localeCompare(String(x.found || "")) || (x.price || 0) - (y.price || 0));
 
 function rowHTML(a, maybeLabel) {
-  const s = SITES[a.site] || [a.site || "", (a.country || "").toUpperCase()];
+  // marketplaces have a fixed label; dismantlers (sloperijen) and parts networks bring their own name
+  const s = a.seller ? [a.seller, (a.country || "").toUpperCase()] : SITES[a.site] || [a.site || "", (a.country || "").toUpperCase()];
   return html`<article class="ad" data-id="${a.id}">
     <a class="ad-main" href="${safeUrl(a.url)}" target="_blank" rel="noopener">
       <span class="ad-top"><span class="ad-site">${s[1]} · ${s[0]}</span>${a.match === "hit" ? html`<span class="state now">Match</span>` : html`<span class="state">${maybeLabel}</span>`}${isNew(a) ? html`<span class="state new">New</span>` : ""}</span>
       <b>${a.title}</b>
-      <small>${[a.size, a.location, a.shipping ? "ships" : "", age(a)].filter(Boolean).join(" · ")}</small>
+      <small>${[a.size, a.location, a.shipping ? "ships" : "", a.warranty ? a.warranty + " warranty" : "", age(a)].filter(Boolean).join(" · ")}</small>
       ${a.note ? html`<small class="ad-note">${a.note}</small>` : ""}
     </a>
     <span class="ad-price">${euro(a.price)}</span>

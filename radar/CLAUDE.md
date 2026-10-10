@@ -79,7 +79,9 @@ in commit messages, issue comments or Actions logs.
     budget, where, queries per site}); the wingfoil search uses the rules in `interests.gear` and shows on the Wind tab
     ("Gear for sale"); every other search shows under **You › Wanted**, one block per search. "Look for something
     second-hand" in Wanted sends a sealed `radar-interest` note starting "Wanted:" that the daily task turns into a
-    new `interests.wanted` entry. The phone never contacts those sites; it opens an ad on tap. Ads can be hidden per
+    new `interests.wanted` entry. A search can list extra `sources` (e.g. sloperij networks such as Onderdelenlijn,
+    TotalParts, Proxyparts, RRR.lt and Volvo dismantlers for the C30 seats); ads from those carry `site` "sloperij" or
+    "parts", `seller` (shown instead of the marketplace name) and optional `warranty`. The phone never contacts those sites; it opens an ad on tap. Ads can be hidden per
     phone (`radar-gear-hidden`).
 - **Travel focus:** items in a travel region (today only `jp`) show, and get a region filter, only while
   `focus` points there (`focus.region`, or `focus.place` matches) and `focus.until` hasn't passed.

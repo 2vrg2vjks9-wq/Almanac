@@ -85,6 +85,7 @@ def fixtures():
         {"id": "ka-1", "site": "kleinanzeigen", "country": "de", "type": "foil", "title": "Foil komplett <b>bold</b>", "price": 200, "location": "Kleve", "posted": DAY(-1), "found": DAY(-1), "url": "https://www.kleinanzeigen.de/s-anzeige/test-3", "match": "maybe", "note": "Front wing size not stated", "shipping": True},
         {"id": "bad-1", "site": "marktplaats", "type": "wing", "title": "No link ad", "price": 100, "url": "javascript:alert(1)", "match": "hit"},
         {"id": "mp-seat-1", "search": "car-seats", "site": "marktplaats", "country": "nl", "type": "interior", "title": "Full leather interior, test car", "price": 350, "location": "Delft", "found": DAY(0), "url": "https://www.marktplaats.nl/v/test-seat-1", "match": "hit"},
+        {"id": "sl-seat-3", "search": "car-seats", "site": "sloperij", "seller": "Test sloperij", "country": "nl", "type": "seat", "title": "Front seats L+R, leather", "price": 290, "location": "Rotterdam", "found": DAY(0), "url": "https://example.org/sloperij/seat", "match": "hit", "warranty": "3 months"},
         {"id": "ka-seat-2", "search": "car-seats", "site": "kleinanzeigen", "country": "de", "type": "interior", "title": "Ledersitze from a sister model", "price": 200, "location": "Aachen", "found": DAY(-1), "url": "https://www.kleinanzeigen.de/s-anzeige/test-seat-2", "match": "maybe", "note": "Sister model: rails differ"},
     ]}
     return {"interests": interests, "feed": feed, "taste": taste, "things": things, "gear": gear}
@@ -386,8 +387,9 @@ def tabs_suite(browser, site, scheme):
     check(page.locator("#savedList .item").count() == 1, "%s: saved item listed in Saved" % scheme)
     check(page.locator("#bucketList .bk").count() >= 1, "%s: bucket list shown" % scheme)
     check(page.locator("#learned li").count() >= 1, "%s: What Radar has learned shown" % scheme)
-    check(page.locator("#wanted .want").count() == 1 and page.locator("#wanted .ad").count() == 2, "%s: Wanted lists the car-seat search with its ads, not wingfoil" % scheme)
+    check(page.locator("#wanted .want").count() == 1 and page.locator("#wanted .ad").count() == 3, "%s: Wanted lists the car-seat search with its ads, not wingfoil" % scheme)
     check("Check fit" in page.inner_text("#wanted") and "Match" in page.inner_text("#wanted"), "%s: Wanted marks matches and unsure fits" % scheme)
+    check("NL · Test sloperij" in page.inner_text("#wanted") and "3 months warranty" in page.inner_text("#wanted"), "%s: sloperij finds show the seller and warranty" % scheme)
     page.locator("#wanted").scroll_into_view_if_needed(); shot(page, "wanted-%s.png" % scheme, False)
     check(page.is_hidden("#connBox"), "%s: GitHub connect hidden on the Cloudflare site" % scheme)
     check("Radar version" in page.inner_text("#appVersion"), "%s: version line in You" % scheme)
