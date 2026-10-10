@@ -276,6 +276,12 @@ button.rday:active { background: var(--sunk); }
 .ad-main .ad-note { font: italic 13px/1.45 var(--read); }
 .ad-price { flex: none; font: 600 18px/1 var(--ui); font-variant-numeric: tabular-nums; }
 
+.want + .want { border-top: 1px solid var(--rule); }
+.want { padding: 14px 0 4px; }
+.want h3 { font: 500 18px/1.3 var(--read); margin: 0; }
+.want-sub { font-size: 13px; color: var(--ink-2); margin: 4px 0 2px; }
+.want-list .ad:first-child { border-top: 1px solid var(--rule); }
+
 /* --- Around you ----------------------------------------------------------------------------- */
 .around .duo { padding-bottom: 12px; }
 #around:empty { display: none; }

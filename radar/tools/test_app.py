@@ -49,6 +49,7 @@ def fixtures():
         "focus": {"place": "Kyoto, Japan", "until": DAY(10), "since": DAY(-2)},
         "bucketlist": [{"id": "aurora", "title": "See the northern lights", "good_time": "dark skies", "where": "north", "added": DAY(-5)}],
         "alerts": {"ntfy": "radar-test-topic"},
+        "wanted": [{"id": "wingfoil", "title": "Wingfoil gear"}, {"id": "car-seats", "title": "Leather seats for the test car", "short": "A test search."}],
     }
     it = lambda **k: dict({"region": "nl", "place": "", "city": "", "start": None, "end": None, "summary": "A test item.", "why": "test", "url": "https://example.org/", "found": DAY(-10)}, **k)
     feed = {"updated": DAY(0) + "T07:00:00+02:00", "note": "test", "items": [
@@ -83,6 +84,8 @@ def fixtures():
         {"id": "2dh-1", "site": "2dehands", "country": "be", "type": "board", "title": "Hard wingboard 110 L", "price": 300, "size": "110 L", "location": "Gent", "posted": DAY(-2), "found": DAY(-2), "url": "https://www.2dehands.be/v/test-2", "match": "hit"},
         {"id": "ka-1", "site": "kleinanzeigen", "country": "de", "type": "foil", "title": "Foil komplett <b>bold</b>", "price": 200, "location": "Kleve", "posted": DAY(-1), "found": DAY(-1), "url": "https://www.kleinanzeigen.de/s-anzeige/test-3", "match": "maybe", "note": "Front wing size not stated", "shipping": True},
         {"id": "bad-1", "site": "marktplaats", "type": "wing", "title": "No link ad", "price": 100, "url": "javascript:alert(1)", "match": "hit"},
+        {"id": "mp-seat-1", "search": "car-seats", "site": "marktplaats", "country": "nl", "type": "interior", "title": "Full leather interior, test car", "price": 350, "location": "Delft", "found": DAY(0), "url": "https://www.marktplaats.nl/v/test-seat-1", "match": "hit"},
+        {"id": "ka-seat-2", "search": "car-seats", "site": "kleinanzeigen", "country": "de", "type": "interior", "title": "Ledersitze from a sister model", "price": 200, "location": "Aachen", "found": DAY(-1), "url": "https://www.kleinanzeigen.de/s-anzeige/test-seat-2", "match": "maybe", "note": "Sister model: rails differ"},
     ]}
     return {"interests": interests, "feed": feed, "taste": taste, "things": things, "gear": gear}
 
@@ -383,6 +386,9 @@ def tabs_suite(browser, site, scheme):
     check(page.locator("#savedList .item").count() == 1, "%s: saved item listed in Saved" % scheme)
     check(page.locator("#bucketList .bk").count() >= 1, "%s: bucket list shown" % scheme)
     check(page.locator("#learned li").count() >= 1, "%s: What Radar has learned shown" % scheme)
+    check(page.locator("#wanted .want").count() == 1 and page.locator("#wanted .ad").count() == 2, "%s: Wanted lists the car-seat search with its ads, not wingfoil" % scheme)
+    check("Check fit" in page.inner_text("#wanted") and "Match" in page.inner_text("#wanted"), "%s: Wanted marks matches and unsure fits" % scheme)
+    page.locator("#wanted").scroll_into_view_if_needed(); shot(page, "wanted-%s.png" % scheme, False)
     check(page.is_hidden("#connBox"), "%s: GitHub connect hidden on the Cloudflare site" % scheme)
     check("Radar version" in page.inner_text("#appVersion"), "%s: version line in You" % scheme)
     check("radar-test-topic" in page.inner_text("#alertLine"), "%s: wind alert topic shown from the encrypted interests" % scheme)

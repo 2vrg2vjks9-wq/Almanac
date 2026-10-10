@@ -72,11 +72,15 @@ in commit messages, issue comments or Actions logs.
     cats: art, music, stage, film, talk, festival, market, outdoors, calm, food, design, odd. `when` is free text
     for times or recurring things ("Daily 10–16, book a slot"); undated ideas show as "Any time". Ids are stored
     in the owner's answers: keep them stable, never reuse one.
-  - `gear` — Gear for sale on the Wind tab (`js/gear.js`): `{updated, note, ads:[{id, site (marktplaats | 2dehands |
-    kleinanzeigen), country (nl | be | de), type (wing | board | foil | set), brand?, title, price (EUR number), size?,
-    location?, posted?, found, url, match (hit | maybe), note?, shipping?}]}`. Filled a few times a day by the "Radar
-    gear" Claude task using the rules in `interests.gear`. The phone never contacts those sites; it opens an ad on tap.
-    Ads can be hidden per phone (`radar-gear-hidden`).
+  - `gear` — second-hand finds (`js/gear.js`): `{updated, note, ads:[{id, search (an `interests.wanted` id; missing =
+    "wingfoil"), site (marktplaats | 2dehands | kleinanzeigen), country (nl | be | de), type, brand?, title, price (EUR
+    number), size?, location?, posted?, found, url, match (hit | maybe), note?, shipping?}]}`. Filled a few times a day
+    by the "Radar gear" Claude task. `interests.wanted` lists the searches ({id, title, short?, look_for, fit, check,
+    budget, where, queries per site}); the wingfoil search uses the rules in `interests.gear` and shows on the Wind tab
+    ("Gear for sale"); every other search shows under **You › Wanted**, one block per search. "Look for something
+    second-hand" in Wanted sends a sealed `radar-interest` note starting "Wanted:" that the daily task turns into a
+    new `interests.wanted` entry. The phone never contacts those sites; it opens an ad on tap. Ads can be hidden per
+    phone (`radar-gear-hidden`).
 - **Travel focus:** items in a travel region (today only `jp`) show, and get a region filter, only while
   `focus` points there (`focus.region`, or `focus.place` matches) and `focus.until` hasn't passed.
 - **localStorage keys** (never rename; the owner's saves live there): radar-saved, radar-reactions, radar-hidden,
