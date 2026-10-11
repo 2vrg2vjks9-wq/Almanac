@@ -6,7 +6,7 @@
 // passphrase through PBKDF2-SHA256 with the salt and iteration count in radar/vault.json. The app
 // derives the same key with WebCrypto once and keeps it on the phone.
 //
-// The passphrase is read from the RADAR_KEY environment variable. Never commit it.
+// The passphrase is read from the RADAR_KEY environment variable (or PK). Never commit it.
 //
 //   node radar/tools/vault.mjs unlock        decrypt into radar/.plain/<name>.json (git-ignored)
 //   node radar/tools/vault.mjs lock          encrypt radar/.plain/*.json back into radar/data/
@@ -50,11 +50,11 @@ export function decrypt(k, box, aad) {
 }
 
 const meta = () => JSON.parse(readFileSync(META, "utf8"));
-export function key(pass = process.env.RADAR_KEY) {
+export function key(pass = process.env.RADAR_KEY || process.env.PK) {
   pass = String(pass || "").trim();
-  if (!pass) die("Set RADAR_KEY to the Radar passphrase first.");
+  if (!pass) die("Set RADAR_KEY (or PK) to the Radar passphrase first.");
   const m = meta(), k = derive(pass, m);
-  try { decrypt(k, m.check, "check"); } catch (e) { die("RADAR_KEY is not the Radar passphrase (the check value doesn't open)."); }
+  try { decrypt(k, m.check, "check"); } catch (e) { die("RADAR_KEY/PK is not the Radar passphrase (the check value doesn't open)."); }
   return k;
 }
 
@@ -93,7 +93,7 @@ function main(argv) {
     console.log(sealNote(key(), arg));
   } else if (cmd === "init") {
     let old = {};
-    if (existsSync(META) && process.env.RADAR_KEY) {
+    if (existsSync(META) && (process.env.RADAR_KEY || process.env.PK)) {
       const k = key();
       NAMES.filter((n) => existsSync(file(n))).forEach((n) => { old[n] = read(k, n); });
     }

@@ -15,8 +15,8 @@ in commit messages, issue comments or Actions logs.
   via PBKDF2-SHA256 (salt, iterations and a check value in `radar/vault.json`). The file name is bound in as
   additional data. The app (`js/vault.js`, WebCrypto) and `radar/tools/vault.mjs` (Node, no dependencies) use
   the same format.
-- The passphrase is the `RADAR_KEY` environment variable (Claude tasks: an environment variable in the cloud environment; GitHub Actions and
-  optionally Cloudflare: a secret). To edit data:
+- The passphrase is the `RADAR_KEY` environment variable, or `PK` (Claude tasks: an environment variable in the cloud environment; GitHub Actions:
+  the `PK` or `RADAR_KEY` secret; optionally Cloudflare: a secret). To edit data:
   `node radar/tools/vault.mjs unlock` → edit `radar/.plain/*.json` (git-ignored) → `node radar/tools/vault.mjs lock`
   (only changed files are rewritten) → commit `radar/data/*.enc.json`.
 - Notes from the app arrive as GitHub issues titled "Radar note" with a sealed body (`radar-sealed:v1:…`);

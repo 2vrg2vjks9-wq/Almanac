@@ -5,8 +5,8 @@ NTFY_TOPIC environment variable, or else from interests "alerts.ntfy"."""
 import json, math, os, subprocess, sys, urllib.request, urllib.parse, datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-if not os.environ.get("RADAR_KEY"):
-    sys.exit("RADAR_KEY is not set: add it as a GitHub Actions secret (Settings, Secrets and variables, Actions).")
+if not (os.environ.get("RADAR_KEY") or os.environ.get("PK")):
+    sys.exit("RADAR_KEY (or PK) is not set: add it as a GitHub Actions secret (Settings, Secrets and variables, Actions).")
 out = subprocess.run(["node", os.path.join(HERE, "vault.mjs"), "show", "interests"], capture_output=True, text=True)
 if out.returncode:
     sys.exit(out.stderr.strip() or "Couldn't open the encrypted interests file.")
