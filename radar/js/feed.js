@@ -5,6 +5,9 @@ import { D, emit, visible, past, isWork, focusRegion, REGION_NAME } from "./data
 
 export const KINDS = [["all", "Everything"], ["concert", "Music"], ["exhibition", "Art"], ["restaurant", "Food"], ["story", "Books & film"], ["meditation", "Meditation"], ["bucket", "Bucket list"]];
 export const WORK_KINDS = [["all", "Everything"], ["event", "Events"], ["call", "Calls & grants"], ["job", "Jobs"], ["freelance", "Freelance"], ["insight", "Reading"]];
+// Where a work lead is: from its region (nl | be/de/uk/eu → Europe | jp | anything else → Global/remote)
+export const WORK_PLACES = [["all", "Anywhere"], ["nl", "Netherlands"], ["eu", "Europe"], ["jp", "Japan"], ["global", "Global"]];
+const workPlace = (it) => (it.region === "nl" ? "nl" : ["eu", "be", "de", "uk", "fr", "lu", "ie"].includes(it.region) ? "eu" : it.region === "jp" ? "jp" : "global");
 // Work items carry an optional `sub` (event | call | grant | job | freelance | insight) and `deadline`
 // (application or registration date). Older items without them are sorted into place.
 const WORK_LABEL = { event: "Event", call: "Call", grant: "Grant", job: "Job", freelance: "Freelance", insight: "Reading" };
@@ -23,7 +26,7 @@ export function deadline(it) {
 }
 const KLABEL = { concert: "Music", release: "Music", news: "Music", exhibition: "Art", restaurant: "Food", story: "Books & film", meditation: "Meditation", work: "Work", freelance: "Freelance", bucket: "Bucket list" };
 const MUSIC = ["concert", "release", "news"];
-export const state = { kind: "all", region: "all", work: "all", showHidden: false, all: false, q: "" };
+export const state = { kind: "all", region: "all", work: "all", wplace: "all", showHidden: false, all: false, q: "" };
 const textMatch = (it) => !state.q || [it.title, it.summary, it.why, it.place, it.city].join(" ").toLowerCase().includes(state.q);
 
 export function regions() {
@@ -180,6 +183,8 @@ function actBy(it) {
   return null;
 }
 function workMatch(it) {
+  // Europe includes the Netherlands
+  if (state.wplace !== "all" && workPlace(it) !== state.wplace && !(state.wplace === "eu" && workPlace(it) === "nl")) return false;
   if (state.work === "all") return true;
   const s = workSub(it);
   return s === state.work || (state.work === "call" && s === "grant");

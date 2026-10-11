@@ -145,7 +145,7 @@ in commit messages, issue comments or Actions logs.
   grey for "Worth the trip"). Everything else is paper, ink and hairlines: sentence case, no all-caps, no gradients.
 - Floating capsule tab bar: Today · Do · Wind · Explore · Work · You (`data-v="saved"`). Mobile-first (390 px), safe-area insets,
   44 px tap targets. Explore has a search box. Work holds `work` and `freelance`, kept out of Explore: "Next deadlines"
-  (three nearest), then all leads filtered Everything / Events / Calls & grants / Jobs / Freelance / Reading, sorted
+  (three nearest), then all leads filtered Everything / Events / Calls & grants / Jobs / Freelance / Reading and by place (Anywhere / Netherlands / Europe, which includes NL / Japan / Global, from `region`), sorted
   by the nearest date to act on (deadline ahead, else event start).
 - In list rows the title button stretches over the row (tap anywhere opens it); action buttons sit above that layer.
 - **Do rule (the owner's wish):** Den Haag is the most comprehensive; the farther away, the stronger the match

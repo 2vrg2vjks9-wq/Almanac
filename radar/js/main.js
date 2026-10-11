@@ -3,7 +3,7 @@ import { $, ago, hm, stamp } from "./util.js";
 import { D, loadData, on, mergePicks } from "./data.js";
 import { initTabs, initSheet, initPullToRefresh, initWelcome } from "./ui.js";
 import { initWind, loadWind, skeleton, net } from "./wind.js";
-import { drawTop, drawFeed, drawWork, segs, KINDS, WORK_KINDS, regions, setOpener, initSearch } from "./feed.js";
+import { drawTop, drawFeed, drawWork, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
 import { openItem, refreshItem } from "./detail.js";
 import { initNotes } from "./notes.js";
 import { initSaved, drawSaved, paintTeach, ask } from "./saved.js";
@@ -77,6 +77,7 @@ function start() {
     segs("kinds", KINDS, "kind", drawFeed);
     segs("regions", regions(), "region", drawFeed);
     segs("workKinds", WORK_KINDS, "work", drawWork);
+    segs("workPlaces", WORK_PLACES, "wplace", drawWork);
     initSearch();
     initDo(ask);
     initGear();
