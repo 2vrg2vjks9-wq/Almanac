@@ -14,8 +14,8 @@ jobs:
         with:
           node-version: 22
       # RADAR_KEY opens the encrypted data (radar/tools/vault.mjs). Set it under
-      # Settings > Secrets and variables > Actions. The log is public, so the script prints no details.
+      # Settings > Secrets and variables > Actions (as RADAR_KEY, or PK). The log is public, so the script prints no details.
       - run: python3 radar/tools/wind_alert.py
         env:
-          RADAR_KEY: ${{ secrets.RADAR_KEY }}
+          RADAR_KEY: ${{ secrets.RADAR_KEY || secrets.PK }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
