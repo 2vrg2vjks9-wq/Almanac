@@ -500,6 +500,7 @@ def scout_suite(browser, site, scheme):
         t = unseal(n["body"]).split("\n")[0].replace("Title: ", "")
         check(t.startswith("I'm in Kyoto, Japan until 20") and CFG["focus"]["until"] in t, "%s: sealed note names the city and the focus end date: %s" % (scheme, t))
     check("arrive within the hour" in page.inner_text("#around .scout"), "%s: says picks arrive within the hour" % scheme)
+    check("isn't switched on yet" in page.inner_text("#around .scout"), "%s: says why instant research didn't run (no Cloudflare key)" % scheme)
     page.locator(".sheet.around").screenshot(path=os.path.join(OUT, "scout-%s.png" % scheme))
     # changing the date sends one correction; looking again the same day does not resend
     page.fill("#scoutUntil", "2026-12-01"); page.dispatch_event("#scoutUntil", "change"); page.wait_for_timeout(500)
@@ -515,6 +516,29 @@ PICKS = {"items": [
     {"kind": "restaurant", "title": "Quiet vegan kitchen", "place": "Gion", "city": "Kyoto", "start": None, "end": None, "summary": "Another test pick.", "why": "Food that suits", "url": "https://example.org/kitchen", "flags": ["check oats"], "lat": 35.0, "lon": 135.78},
     {"kind": "exhibition", "title": "<img src=x onerror=alert(1)>", "place": "", "city": "Kyoto", "start": None, "end": None, "summary": "Markup must stay text.", "why": "", "url": "javascript:alert(1)", "flags": [], "lat": None, "lon": None},
 ]}
+
+
+def signin_suite(browser, site):
+    """An expired Cloudflare Access sign-in: the site's own requests redirect to the login page."""
+    ctx, page, errors = new_page(browser, site)
+    m = Mocks(page)
+    page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
+    check(page.locator("#signin").is_hidden(), "signin: no bar while signed in")
+    login = {"status": 302, "headers": {"Location": "https://example.cloudflareaccess.com/cdn-cgi/access/login"}}
+    page.route("**/radar/index.html?v=*", lambda r: r.fulfill(**login))
+    page.route("**/api/scout", lambda r: r.fulfill(**login))
+    page.route("**/api/note", lambda r: r.fulfill(**login))
+    page.evaluate("document.dispatchEvent(new Event('visibilitychange'))")
+    page.wait_for_selector("#signin:not([hidden])", timeout=5000)
+    check("sign-in has expired" in page.inner_text("#signin"), "signin: the bar says the sign-in expired")
+    page.click("#nearBtn"); page.wait_for_selector("#scoutGo", timeout=8000)
+    page.click("#scoutGo")
+    page.wait_for_function("/once you sign in again/.test(document.querySelector('#around').innerText)", timeout=8000)
+    check("waits on this phone" in page.inner_text("#around .scout"), "signin: the note waits on the phone")
+    check(page.evaluate("JSON.parse(localStorage.getItem('radar-outbox')||'[]').length") == 1, "signin: the note stays in the outbox")
+    shot(page, "signin.png", False)
+    check(not real_errors(errors), "signin: no JS errors %s" % real_errors(errors))
+    ctx.close()
 
 
 def instant_suite(browser, site):
@@ -726,6 +750,7 @@ def run():
         denied_suite(browser, site)
         home_suite(browser, site)
         instant_suite(browser, site)
+        signin_suite(browser, site)
         notes_suite(browser, site, local)
         server_key_suite(browser, site)
         browser.close()

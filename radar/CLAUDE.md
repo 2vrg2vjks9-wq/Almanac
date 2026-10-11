@@ -48,7 +48,7 @@ in commit messages, issue comments or Actions logs.
   - `js/detail.js` item detail sheet and the `.ics` calendar file
   - `js/notes.js` notes to Claude (/api/note, GitHub token fallback, outbox)
   - `js/saved.js` You tab: saved items, bucket list, learned, teach (reactions + Do answers, notice + tab dot), forms
-  - `js/around.js` Look around here and Scout this city
+  - `js/around.js` Look around (one button) and the Ask Claude offer with instant research
   - `js/vault.js` unlock (passphrase → key), open data files, seal notes, lock
   - `js/do.js` the Do tab: decide card (yes/no/later, swipe), yes list, filters, Hague-first rule, Today's "Coming up"
   - `sw.js` offline cache (network first; only same-site files and Google Fonts; never `/api/`). Bump `CACHE`
@@ -113,10 +113,15 @@ in commit messages, issue comments or Actions logs.
   with web search, needs the Cloudflare secret `ANTHROPIC_API_KEY`, owner-only). The picks (feed-item format, escaped,
   `picked: true`) show at once, are kept in `radar-picks` until the stay ends and join Explore; the sealed note then
   carries them so the hourly task checks them and puts the good ones in the feed. Without the secret, or on failure,
-  the hourly task researches from the note as before. The request carries the city, dates and the owner's tastes
+  the hourly task researches from the note as before, and the box says why instant research didn't run (secret
+  missing = 404, sign-in expired, or no answer). The request carries the city, dates and the owner's tastes
   from interests (no position).
   What leaves the phone: coordinates to OpenStreetMap, Wikipedia and (Whole city or away) Nominatim, on tap; the
   city name and dates to Claude only when asked.
+- **Expired sign-in:** behind Cloudflare Access an expired session turns the site's own requests into redirects to the
+  login page, so the app could silently stay on an old copy and notes would only queue. `checkVersion` (on open and on
+  every return to the front), `/api/note` and `/api/scout` fetch with `redirect: "manual"`; an opaque redirect or a
+  non-JSON 401/403 shows the **Sign in** bar (`#signin`, `signedOut()` in `js/notes.js`), which reloads through the login.
 - **Concert alerts:** the "Radar concert alert" Claude task checks every evening whether an artist in
   `interests.concertAlerts.artists` has announced a show (own concert or festival slot) in the Netherlands, Belgium or
   Germany near the border, and pushes a notification once per show. Shows already notified are listed (by

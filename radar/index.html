@@ -18,11 +18,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-10-11a";</script>
+<script>var APP_VERSION="2026-10-11b";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
 <div class="wrap">
+  <div class="signin" id="signin" role="alert" hidden>
+    <p><b>Your sign-in has expired.</b> Radar can't update or send notes until you sign in again.</p>
+    <button class="btn" id="signinBtn" type="button">Sign in</button>
+  </div>
 
   <section class="view on" id="v-today" aria-labelledby="hello">
     <div class="ptr" id="ptr" aria-hidden="true"><span id="ptrText">Pull to refresh</span></div>

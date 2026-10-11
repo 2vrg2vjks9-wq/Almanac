@@ -11,7 +11,7 @@ import { initAround } from "./around.js";
 import { initDo, drawDo } from "./do.js";
 import { initGear, drawGear } from "./gear.js";
 import { restore, unlock, unlockFromServer, forget, supported } from "./vault.js";
-import { SERVER } from "./notes.js";
+import { SERVER, authFailed, signedOut } from "./notes.js";
 
 const APP_VERSION = window.APP_VERSION || "dev";
 
@@ -109,10 +109,14 @@ async function loadAll() {
 // A home-screen app on iPhone often resumes from memory instead of reloading, so it can keep
 // showing an old version. On open and whenever it comes back to the front, compare with the
 // live index.html and reload once if there's a newer one.
+// An expired Cloudflare sign-in shows up here first (see signedOut in notes.js).
 async function checkVersion() {
   if (!navigator.onLine) return;
   try {
-    const t = await (await fetch("index.html?v=" + Date.now(), { cache: "no-store" })).text();
+    const r = await fetch("index.html?v=" + Date.now(), { cache: "no-store", redirect: "manual" });
+    signedOut(authFailed(r));
+    if (!r.ok) return;
+    const t = await r.text();
     const m = t.match(/var APP_VERSION="([^"]+)"/);
     if (!m || m[1] === APP_VERSION) return;
     let tried = null;
@@ -120,7 +124,7 @@ async function checkVersion() {
     if (tried === m[1]) return;
     try { sessionStorage.setItem("radar-reload-for", m[1]); } catch (e) { /* ignore */ }
     location.reload();
-  } catch (e) { /* offline or signed out: try next time */ }
+  } catch (e) { /* offline: try next time */ }
 }
 
 greet();

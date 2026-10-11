@@ -11,7 +11,7 @@
 import { $, html, put, km, kmText, getJSON, fetchT, mapUrl, safeUrl, hm, stamp, today, isoDay, d, longDate } from "./util.js";
 import { S, save, get, set, KEYS } from "./store.js";
 import { D, focusRegion } from "./data.js";
-import { note, SERVER } from "./notes.js";
+import { note, SERVER, authFailed, signedOut } from "./notes.js";
 import { openSheet } from "./ui.js";
 import { openItem } from "./detail.js";
 import { emit } from "./data.js";
@@ -302,16 +302,19 @@ function profile() {
     food: { avoid: (C.diet && C.diet.avoid) || [], rule: C.restaurants && C.restaurants.rule }, learned: T.learned, more: T.more, less: T.less };
 }
 // Instant research on the Cloudflare site (/api/scout, Claude with web search, about a minute).
-// Resolves the picks, or null when it isn't set up or fails (then the hourly task takes over).
+// Resolves {items} with the picks, or {why}: "setup" (no ANTHROPIC_API_KEY in Cloudflare yet),
+// "signin" (Cloudflare sign-in expired) or "fail". Without picks the hourly task researches from the note.
 async function instant(c, until) {
-  if (!SERVER || !navigator.onLine) return null;
+  if (!SERVER || !navigator.onLine) return { why: "fail" };
   try {
-    const r = await fetchT("/api/scout", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" },
+    const r = await fetchT("/api/scout", { method: "POST", credentials: "same-origin", redirect: "manual", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ city: c.city, country: c.country, until, profile: profile() }) }, 180000);
-    if (!r.ok) return null;
+    if (authFailed(r)) { signedOut(true); return { why: "signin" }; }
+    if (r.status === 404) return { why: "setup" };
+    if (!r.ok) return { why: "fail" };
     const j = await r.json();
-    return Array.isArray(j.items) && j.items.length ? j.items : null;
-  } catch (e) { return null; }
+    return Array.isArray(j.items) && j.items.length ? { items: j.items } : { why: "fail" };
+  } catch (e) { return { why: "fail" }; }
 }
 async function scout(c, until) {
   const place = [c.city, c.country].filter(Boolean).join(", ");
@@ -325,8 +328,10 @@ async function scout(c, until) {
   let picks = null;
   if (fresh && SERVER) {
     A.scout.status = "researching"; paint();
-    picks = await instant(c, until);
+    const res = await instant(c, until);
     if (!A.scout || A.scout.place !== place) return;
+    picks = res.items || null;
+    A.scout.why = res.why;
     if (picks) {
       const stamp = isoDay(new Date());
       picks = picks.map((p, i) => Object.assign({}, p, { id: "pick-" + place.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + i, region: "all", found: stamp, picked: true }));
@@ -366,10 +371,17 @@ function scoutHTML() {
     sending: html`Telling Claude you're in ${s.city}…`,
     sent: html`<b>Claude is researching ${s.city}.</b> Curated picks arrive within the hour, in Today and Explore.`,
     already: html`<b>Claude is researching ${s.city}</b> (asked at ${hm(s.sentAt)}). Curated picks arrive within the hour, in Today and Explore.`,
-    queued: html`<b>Your note about ${s.city} waits on this phone.</b> It goes out when Radar is back online; Claude's curated picks follow within the hour.`,
+    queued: s.why === "signin"
+      ? html`<b>Your note about ${s.city} waits on this phone.</b> It goes out once you sign in again (the bar at the top); Claude's curated picks follow within the hour.`
+      : html`<b>Your note about ${s.city} waits on this phone.</b> It goes out when Radar is back online; Claude's curated picks follow within the hour.`,
     waiting: html`<b>Connect Radar in Saved so Claude hears about ${s.city}.</b> Your note waits on this phone until then.`,
   }[s.status];
-  return html`<div class="scout" role="status"><p>${msg}</p>
+  const why = {
+    setup: html`<p class="why">Instant research isn't switched on yet: it needs the ANTHROPIC_API_KEY secret in Cloudflare.</p>`,
+    signin: s.status === "queued" ? "" : html`<p class="why">Instant research needs you to sign in again (the bar at the top).</p>`,
+    fail: html`<p class="why">Instant research didn't answer this time.</p>`,
+  }[s.why] || "";
+  return html`<div class="scout" role="status"><p>${msg}</p>${why}
     <label class="until"><span>Here until</span><input type="date" id="scoutUntil" value="${s.until}" min="${isoDay(today())}"></label></div>`;
 }
 function rowHTML(p, i) {

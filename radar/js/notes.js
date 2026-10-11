@@ -16,6 +16,18 @@ const REPO_API = "https://api.github.com/repos/2vrg2vjks9-wq/Almanac";
 const host = location.hostname;
 export const SERVER = !/github\.io$/.test(host) && host !== "localhost" && host !== "127.0.0.1";
 
+// Behind Cloudflare Access an expired sign-in turns the site's own requests into redirects to the
+// login page: Radar can't update, send notes or research. Show the "Sign in" bar (index.html #signin).
+// (Radar's own functions answer 401 with JSON when the owner check fails; that's a setup problem, not a sign-in.)
+export const authFailed = (r) => SERVER && (r.type === "opaqueredirect" ||
+  ((r.status === 401 || r.status === 403) && !/json/.test(r.headers.get("content-type") || "")));
+export function signedOut(yes) {
+  const b = $("signin");
+  if (!b) return;
+  b.hidden = !yes;
+  $("signinBtn").onclick = () => { location.href = location.pathname + "?signin=" + Date.now(); };
+}
+
 // What GitHub gets: a generic title and the sealed text (title + body).
 async function sealed(n) {
   if (!unlocked()) throw new Error("locked");
@@ -24,10 +36,14 @@ async function sealed(n) {
 async function postServer(n) {
   const x = await sealed(n);
   return fetch("/api/note", {
-    method: "POST", credentials: "same-origin",
+    method: "POST", credentials: "same-origin", redirect: "manual",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title: x.title, body: x.body, label: n.labels[0] }),
-  }).then((r) => { if (!r.ok) throw new Error(r.status === 401 ? "signin" : "net"); return true; });
+  }).then((r) => {
+    if (authFailed(r)) { signedOut(true); throw new Error("signin"); }
+    if (!r.ok) throw new Error("net");
+    return true;
+  });
 }
 async function postGitHub(n) {
   const x = await sealed(n);
@@ -92,7 +108,7 @@ export async function note(title, body, label, doneText) {
   } catch (e) {
     S.outbox.push(n); save("outbox"); handle(e); paintConn();
     const m = e && e.message;
-    if (m !== "key" && m !== "perm") say(m === "signin" ? "Saved on this phone. Open Radar in Safari to sign in again, then it sends." : "Saved on this phone. It goes out when Radar can reach the server.");
+    if (m !== "key" && m !== "perm") say(m === "signin" ? "Saved on this phone. Sign in again (the bar at the top) and it sends." : "Saved on this phone. It goes out when Radar can reach the server.");
     return "queued";
   }
 }
