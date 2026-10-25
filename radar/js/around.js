@@ -12,6 +12,7 @@ import { $, html, put, km, kmText, getJSON, fetchT, mapUrl, safeUrl, hm, stamp, 
 import { S, save, get, set, KEYS } from "./store.js";
 import { D, focusRegion } from "./data.js";
 import { note, SERVER, authFailed, signedOut } from "./notes.js";
+import { signed } from "./vault.js";
 import { openSheet } from "./ui.js";
 import { openItem } from "./detail.js";
 import { emit } from "./data.js";
@@ -302,15 +303,17 @@ function profile() {
     food: { avoid: (C.diet && C.diet.avoid) || [], rule: C.restaurants && C.restaurants.rule }, learned: T.learned, more: T.more, less: T.less };
 }
 // Instant research on the Cloudflare site (/api/scout, Claude with web search, about a minute).
-// Resolves {items} with the picks, or {why}: "setup" (no ANTHROPIC_API_KEY in Cloudflare yet),
+// Signed like notes (signed() in vault.js). Resolves {items} with the picks, or {why}: "setup" (a Cloudflare
+// secret missing or not matching this phone: 404, 401 or 503),
 // "signin" (Cloudflare sign-in expired) or "fail". Without picks the hourly task researches from the note.
 async function instant(c, until) {
   if (!SERVER || !navigator.onLine) return { why: "fail" };
   try {
-    const r = await fetchT("/api/scout", { method: "POST", credentials: "same-origin", redirect: "manual", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ city: c.city, country: c.country, until, profile: profile() }) }, 180000);
+    const body = JSON.stringify({ city: c.city, country: c.country, until, profile: profile() });
+    const r = await fetchT("/api/scout", { method: "POST", credentials: "same-origin", redirect: "manual",
+      headers: Object.assign({ "Content-Type": "application/json" }, await signed("/api/scout", body)), body }, 180000);
     if (authFailed(r)) { signedOut(true); return { why: "signin" }; }
-    if (r.status === 404) return { why: "setup" };
+    if (r.status === 404 || r.status === 401 || r.status === 503) return { why: "setup" };
     if (!r.ok) return { why: "fail" };
     const j = await r.json();
     return Array.isArray(j.items) && j.items.length ? { items: j.items } : { why: "fail" };
@@ -377,7 +380,7 @@ function scoutHTML() {
     waiting: html`<b>Connect Radar in Saved so Claude hears about ${s.city}.</b> Your note waits on this phone until then.`,
   }[s.status];
   const why = {
-    setup: html`<p class="why">Instant research isn't switched on yet: it needs the ANTHROPIC_API_KEY secret in Cloudflare.</p>`,
+    setup: html`<p class="why">Instant research isn't switched on yet: it needs the RADAR_AUTH and ANTHROPIC_API_KEY secrets in Cloudflare.</p>`,
     signin: s.status === "queued" ? "" : html`<p class="why">Instant research needs you to sign in again (the bar at the top).</p>`,
     fail: html`<p class="why">Instant research didn't answer this time.</p>`,
   }[s.why] || "";

@@ -3,7 +3,7 @@
 Radar is a personal "interest radar": a fullscreen home-screen web app on the owner's iPhone that shows
 wind for their windsports spots, things to do (Den Haag first), and a curated feed of things they'd like
 (music, art, food, books & film, meditation, work opportunities). Live at https://almanac-dgf.pages.dev/radar/
-(behind Cloudflare Access).
+(no login page: the passphrase is the only lock, see the vault).
 
 ## Privacy: the vault (read this first)
 
@@ -23,15 +23,21 @@ in commit messages, issue comments or Actions logs.
   read one with `node radar/tools/vault.mjs open '<body>'` (the text starts with `Title: <real title>`). When you
   close an issue, comment only "Done." — never repeat its content.
 - The phone keeps only the derived key (`radar-key`); "Lock Radar on this phone" in You removes it and the
-  decrypted cache. On the Cloudflare site `/api/key` (`functions/api/key.js`, owner-only) can hand out the
-  passphrase if the `RADAR_KEY` secret is set there, so the owner doesn't have to type it.
+  decrypted cache. The owner types the passphrase once per phone (there is no `/api/key` any more: it relied on a login).
+- **The passphrase also guards the server functions** (`functions/api/note.js`, `scout.js`), so the site needs no
+  Cloudflare Access login: the phone signs each request (`signed()` in `js/vault.js`: headers `X-Radar-Time` and
+  `X-Radar-Sig` = HMAC-SHA256(proof key, time + "\n" + path + "\n" + body), proof key = HMAC-SHA256(vault key,
+  "radar-auth-v1")). Cloudflare holds only the proof key as the secret `RADAR_AUTH` (print it with
+  `node radar/tools/vault.mjs auth`); it can check requests but can't open the data. Unsigned, wrong, retargeted or
+  over-5-minutes-old requests get 401; a missing secret 503 (note) / 404 (scout). `radar/tools/test_functions.mjs` covers this.
 - Rotating the passphrase: `RADAR_KEY=<old> node radar/tools/vault.mjs init` prints a new one and re-encrypts;
-  then update every place that holds it.
+  then update every place that holds it, including `RADAR_AUTH` in Cloudflare.
 
 ## How it works (keep this architecture)
 
-- **Hosting.** Cloudflare Pages serves `main` at https://almanac-dgf.pages.dev/radar/ behind Cloudflare Access
-  (login). Every other branch gets a preview at `https://<branch>.almanac-dgf.pages.dev/radar/`: work on a branch,
+- **Hosting.** Cloudflare Pages serves `main` at https://almanac-dgf.pages.dev/radar/ (public static files: the code is
+  public anyway and the data is encrypted; the functions check signatures, see the vault). Cloudflare secrets:
+  `RADAR_AUTH`, `GITHUB_TOKEN` (notes), `ANTHROPIC_API_KEY` (instant research). Every other branch gets a preview at `https://<branch>.almanac-dgf.pages.dev/radar/`: work on a branch,
   let the owner test the preview, merge after approval. The GitHub Pages copy still works (github.io mode below).
   The repo is **public**: never commit secrets, tokens or personal data (names, diet specifics, employer, email).
 - **Static site, no build step, no framework.** Native ES modules, iOS Safari 16+:
@@ -110,7 +116,7 @@ in commit messages, issue comments or Actions logs.
   the radar-location note. After that, changing the date sends one update; the same city isn't resent within 12 hours.
   At home nothing is offered or sent, and Walking distance doesn't call Nominatim.
   **Instant research:** on the Cloudflare site the tap first calls `/api/scout` (`functions/api/scout.js`: Claude API
-  with web search, needs the Cloudflare secret `ANTHROPIC_API_KEY`, owner-only). The picks (feed-item format, escaped,
+  with web search, needs the Cloudflare secrets `ANTHROPIC_API_KEY` and `RADAR_AUTH`, signed requests only). The picks (feed-item format, escaped,
   `picked: true`) show at once, are kept in `radar-picks` until the stay ends and join Explore; the sealed note then
   carries them so the hourly task checks them and puts the good ones in the feed. Without the secret, or on failure,
   the hourly task researches from the note as before, and the box says why instant research didn't run (secret
@@ -118,7 +124,7 @@ in commit messages, issue comments or Actions logs.
   from interests (no position).
   What leaves the phone: coordinates to OpenStreetMap, Wikipedia and (Whole city or away) Nominatim, on tap; the
   city name and dates to Claude only when asked.
-- **Expired sign-in:** behind Cloudflare Access an expired session turns the site's own requests into redirects to the
+- **Expired sign-in** (only while Cloudflare Access is still switched on in front of the site): an expired session turns the site's own requests into redirects to the
   login page, so the app could silently stay on an old copy and notes would only queue. `checkVersion` (on open and on
   every return to the front), `/api/note` and `/api/scout` fetch with `redirect: "manual"`; an opaque redirect or a
   non-JSON 401/403 shows the **Sign in** bar (`#signin`, `signedOut()` in `js/notes.js`), which reloads through the login.

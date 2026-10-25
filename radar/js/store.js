@@ -15,7 +15,7 @@ export const KEYS = {
   around: "radar-around",        // last Around me / city guide result
   scout: "radar-scout",          // {city, until, sent} last city sent to Claude
   key: "radar-key",              // vault key derived from the passphrase (never leaves the phone)
-  locked: "radar-locked",        // true after "Lock Radar on this phone": don't unlock from /api/key
+  locked: "radar-locked",        // true after "Lock Radar on this phone"
   do: "radar-do",                // {ideaId: {v: 1 yes | -1 no | 0 later, t, title, cat, city, sent}}
   doView: "radar-do-view",       // {when, city, cat} last Do filters
   gearHidden: "radar-gear-hidden", // {adId: time} gear ads hidden on this phone

@@ -1,22 +1,25 @@
 // Cloudflare Pages Function: POST /api/scout
 // Instant city research for Radar's "Ask Claude about <city>": Claude (with web search) picks
 // 8–15 things for the owner's stay and the app shows them right away, instead of waiting for the
-// hourly task. Optional: without the ANTHROPIC_API_KEY secret it answers 404 and the app falls back
-// to the sealed note that the hourly task handles.
-// Cloudflare Access sits in front of the whole site; OWNER_EMAIL is checked as a second lock.
+// hourly task. Optional: without the ANTHROPIC_API_KEY or RADAR_AUTH secret it answers 404 and the app
+// falls back to the sealed note that the hourly task handles.
+// No login page: like /api/note, only requests signed with Radar's vault proof key get through (authorised()).
 // Plain HTTP to the Messages API: this site has no build step to bundle the Anthropic SDK.
 // Claude's reply is untrusted text: the app escapes every field and only links http(s) URLs.
+import { authorised } from "./note.js";
+
 const API = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-opus-5-5";
 const KINDS = ["exhibition", "restaurant", "meditation", "concert", "story", "news"];
 
 export async function onRequestPost({ request, env }) {
-  const who = request.headers.get("Cf-Access-Authenticated-User-Email") || "";
-  if (!env.OWNER_EMAIL || who.toLowerCase() !== env.OWNER_EMAIL.toLowerCase()) return json({ error: "not signed in" }, 401);
-  if (!env.ANTHROPIC_API_KEY) return json({ error: "not set up" }, 404);
+  if (!env.ANTHROPIC_API_KEY || !env.RADAR_AUTH) return json({ error: "not set up" }, 404);
+  const raw = await request.text();
+  if (raw.length > 20000) return json({ error: "too large" }, 413);
+  if (!(await authorised(request, env, raw))) return json({ error: "not allowed" }, 401);
 
   let q;
-  try { q = await request.json(); } catch (e) { return json({ error: "bad request" }, 400); }
+  try { q = JSON.parse(raw); } catch (e) { return json({ error: "bad request" }, 400); }
   const city = clip(q.city, 80), country = clip(q.country, 80), until = clip(q.until, 10);
   if (!city) return json({ error: "bad request" }, 400);
   const profile = clip(JSON.stringify(q.profile || {}), 6000);

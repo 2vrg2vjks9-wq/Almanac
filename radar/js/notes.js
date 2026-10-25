@@ -2,21 +2,21 @@
 // that the daily and hourly Claude tasks read. The repo is public, so a note leaves the phone
 // sealed: the issue title is generic ("Radar note") and the body is encrypted with the vault key
 // (radar-sealed:v1:…); only the Claude tasks, which hold the passphrase, can read it.
-// - On the Cloudflare site: POST /api/note (same origin, behind Cloudflare Access; the token lives
-//   in Cloudflare, never on the phone). Body {title, body, label}.
+// - On the Cloudflare site: POST /api/note (same origin, signed with the vault's proof key, see signed()
+//   in vault.js; the GitHub token lives in Cloudflare, never on the phone). Body {title, body, label}.
 // - On github.io / localhost: the GitHub Issues API with a token the owner pasted on this phone.
 // Unsent notes wait in the outbox (radar-outbox) and retry when Radar is back online.
 // Radar never opens GitHub in the browser.
 import { $ } from "./util.js";
 import { S, save } from "./store.js";
 import { say } from "./ui.js";
-import { sealNote, unlocked } from "./vault.js";
+import { sealNote, unlocked, signed } from "./vault.js";
 
 const REPO_API = "https://api.github.com/repos/2vrg2vjks9-wq/Almanac";
 const host = location.hostname;
 export const SERVER = !/github\.io$/.test(host) && host !== "localhost" && host !== "127.0.0.1";
 
-// Behind Cloudflare Access an expired sign-in turns the site's own requests into redirects to the
+// While Cloudflare Access is still in front of the site, an expired sign-in turns the site's own requests into redirects to the
 // login page: Radar can't update, send notes or research. Show the "Sign in" bar (index.html #signin).
 // (Radar's own functions answer 401 with JSON when the owner check fails; that's a setup problem, not a sign-in.)
 export const authFailed = (r) => SERVER && (r.type === "opaqueredirect" ||
@@ -35,12 +35,14 @@ async function sealed(n) {
 }
 async function postServer(n) {
   const x = await sealed(n);
+  const body = JSON.stringify({ title: x.title, body: x.body, label: n.labels[0] });
   return fetch("/api/note", {
     method: "POST", credentials: "same-origin", redirect: "manual",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title: x.title, body: x.body, label: n.labels[0] }),
+    headers: Object.assign({ "Content-Type": "application/json" }, await signed("/api/note", body)),
+    body,
   }).then((r) => {
     if (authFailed(r)) { signedOut(true); throw new Error("signin"); }
+    if (r.status === 401 || r.status === 503) throw new Error("setup");
     if (!r.ok) throw new Error("net");
     return true;
   });
@@ -108,7 +110,9 @@ export async function note(title, body, label, doneText) {
   } catch (e) {
     S.outbox.push(n); save("outbox"); handle(e); paintConn();
     const m = e && e.message;
-    if (m !== "key" && m !== "perm") say(m === "signin" ? "Saved on this phone. Sign in again (the bar at the top) and it sends." : "Saved on this phone. It goes out when Radar can reach the server.");
+    if (m !== "key" && m !== "perm") say(m === "signin" ? "Saved on this phone. Sign in again (the bar at the top) and it sends."
+      : m === "setup" ? "Saved on this phone. Radar's server doesn't accept notes from this phone yet (the RADAR_AUTH secret in Cloudflare)."
+      : "Saved on this phone. It goes out when Radar can reach the server.");
     return "queued";
   }
 }

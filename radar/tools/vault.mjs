@@ -14,9 +14,11 @@
 //   node radar/tools/vault.mjs open 'radar-sealed:v1:…'   decrypt a sealed note (an issue body); '-' reads stdin
 //   node radar/tools/vault.mjs seal 'text'   make a sealed note (for tests)
 //   node radar/tools/vault.mjs init          new salt + passphrase (printed once; re-encrypts existing data)
+//   node radar/tools/vault.mjs auth          print RADAR_AUTH, the Cloudflare secret that checks the phone's signed
+//                                            requests (HMAC of the key; it can't open the data). Redo after init.
 //
 // `lock` only rewrites a file when its content changed, so unchanged data makes no commit noise.
-import { pbkdf2Sync, randomBytes, randomInt, createCipheriv, createDecipheriv } from "node:crypto";
+import { pbkdf2Sync, randomBytes, randomInt, createCipheriv, createDecipheriv, createHmac } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -72,6 +74,8 @@ export function openNote(k, s) {
   const m = String(s).match(/radar-sealed:v1:([A-Za-z0-9+/=]+)\.([A-Za-z0-9+/=]+)/);
   return m ? decrypt(k, { iv: m[1], ct: m[2] }, "note") : String(s);
 }
+// The proof key for Radar's server functions (see signed() in radar/js/vault.js and functions/api/note.js).
+export const authKey = (k) => createHmac("sha256", k).update("radar-auth-v1").digest("hex");
 export function sealNote(k, text) { const b = encrypt(k, text, "note"); return SEAL + b.iv + "." + b.ct; }
 
 function main(argv) {
@@ -89,6 +93,8 @@ function main(argv) {
     console.log(JSON.stringify(JSON.parse(read(key(), arg)), null, 1));
   } else if (cmd === "open" && arg) {
     console.log(openNote(key(), arg === "-" ? readFileSync(0, "utf8") : arg));
+  } else if (cmd === "auth") {
+    console.log(authKey(key()));
   } else if (cmd === "seal" && arg) {
     console.log(sealNote(key(), arg));
   } else if (cmd === "init") {

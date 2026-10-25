@@ -10,8 +10,8 @@ import { initSaved, drawSaved, paintTeach, ask } from "./saved.js";
 import { initAround } from "./around.js";
 import { initDo, drawDo } from "./do.js";
 import { initGear, drawGear } from "./gear.js";
-import { restore, unlock, unlockFromServer, forget, supported } from "./vault.js";
-import { SERVER, authFailed, signedOut } from "./notes.js";
+import { restore, unlock, forget, supported } from "./vault.js";
+import { authFailed, signedOut } from "./notes.js";
 
 const APP_VERSION = window.APP_VERSION || "dev";
 
@@ -150,7 +150,7 @@ document.addEventListener("visibilitychange", () => {
   checkVersion();
 });
 (async () => {
-  if (!(await restore()) && !(SERVER && (await unlockFromServer()))) { showLock(); return; }
+  if (!(await restore())) { showLock(); return; }
   loadAll();
 })();
 checkVersion();

@@ -9,6 +9,8 @@ const b64 = (u) => { let s = ""; new Uint8Array(u).forEach((c) => { s += String.
 const subtle = () => (window.crypto && window.crypto.subtle) || null;
 
 let KEY = null;
+let AUTH = null;
+const hex = (u) => Array.from(new Uint8Array(u), (c) => c.toString(16).padStart(2, "0")).join("");
 
 async function meta() {
   const r = await fetch("vault.json?v=" + Date.now(), { cache: "no-store" });
@@ -53,26 +55,34 @@ export async function unlock(pass) {
   try { if ((await open(m.check, "check")) !== "radar-ok") throw new Error("check"); }
   catch (e) { KEY = prev; return "wrong"; }
   set(KEYS.key, b64(await subtle().exportKey("raw", k)));
+  AUTH = null;
   set(KEYS.locked, false);
   KEY = await importRaw(get(KEYS.key, "")); // keep a non-extractable copy in memory
   return "ok";
 }
 
-// On the Cloudflare site (behind Cloudflare Access) the passphrase can come from /api/key, so the
-// owner never has to type it. Anywhere else, or if that isn't set up, this quietly returns false.
-export async function unlockFromServer() {
-  if (get(KEYS.locked, false)) return false;
-  try {
-    const r = await fetch("/api/key", { credentials: "same-origin", cache: "no-store" });
-    if (!r.ok) return false;
-    const j = await r.json();
-    return j && j.key ? (await unlock(j.key)) === "ok" : false;
-  } catch (e) { return false; }
+// Radar's own server functions (/api/note, /api/scout on Cloudflare) need no separate login: each request
+// carries proof that this phone holds the vault key. The proof key is HMAC(vault key, "radar-auth-v1");
+// Cloudflare keeps only that (the RADAR_AUTH secret), which can check requests but can't open the data.
+// X-Radar-Sig = HMAC(proof key, time + "\n" + path + "\n" + body); the server refuses anything over 5 minutes old.
+async function authKey() {
+  if (AUTH) return AUTH;
+  const raw = get(KEYS.key, "");
+  if (!raw || !supported()) throw new Error("locked");
+  const k = await subtle().importKey("raw", unb64(raw), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const a = await subtle().sign("HMAC", k, te.encode("radar-auth-v1"));
+  AUTH = await subtle().importKey("raw", a, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return AUTH;
+}
+export async function signed(path, body) {
+  const t = String(Math.floor(Date.now() / 1000));
+  const sig = await subtle().sign("HMAC", await authKey(), te.encode(t + "\n" + path + "\n" + body));
+  return { "X-Radar-Time": t, "X-Radar-Sig": hex(sig) };
 }
 
 // Forget the key and every decrypted copy on this phone.
 export function forget() {
-  KEY = null;
+  KEY = null; AUTH = null;
   [KEYS.key, KEYS.cache, KEYS.around].forEach((k) => { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } });
   set(KEYS.locked, true);
 }

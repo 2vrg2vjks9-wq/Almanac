@@ -1,6 +1,6 @@
 """Tests for Radar. Builds a throwaway copy of the site with made-up data encrypted under a test
 passphrase (never the owner's data or key), serves it, mocks every live API (Open-Meteo forecast and
-marine, Overpass and its mirrors, Wikipedia, Nominatim, /api/note, /api/key, the GitHub API, Google
+marine, Overpass and its mirrors, Wikipedia, Nominatim, /api/note (checking its signature), /api/scout, the GitHub API, Google
 Fonts), and checks:
 
   - static: JSON files parse, no plain data files in radar/, data files are encrypted, JS modules pass
@@ -21,7 +21,7 @@ The Cloudflare site is simulated with the host name radar.localhost (Chromium ma
 127.0.0.1 and treats it as a secure context), so the app takes its /api/note path; 127.0.0.1
 stands in for github.io. Needs Playwright for Python.
 Exits non-zero when something fails."""
-import base64, datetime, functools, glob, hashlib, http.server, json, math, os, shutil, socketserver, subprocess, sys, tempfile, threading
+import base64, datetime, functools, glob, hashlib, hmac, http.server, json, math, os, shutil, socketserver, subprocess, sys, tempfile, threading, time
 
 from playwright.sync_api import sync_playwright
 
@@ -199,6 +199,14 @@ WIKI = {"batchcomplete": True, "query": {"pages": [
 NOMINATIM = {"lat": "35.0116", "lon": "135.7681", "address": {"city": "Kyoto", "state": "Kyoto Prefecture", "country": "Japan"}}
 
 
+def signed_ok(req, path):
+    """What functions/api/note.js checks: X-Radar-Sig = HMAC(HMAC(vault key, "radar-auth-v1"), time\npath\nbody)."""
+    auth = hmac.new(base64.b64decode(KEYB64), b"radar-auth-v1", hashlib.sha256).digest()
+    t, sig = req.headers.get("x-radar-time", ""), req.headers.get("x-radar-sig", "")
+    want = hmac.new(auth, ("%s\n%s\n%s" % (t, path, req.post_data or "")).encode(), hashlib.sha256).hexdigest()
+    return bool(t) and abs(time.time() - int(t)) < 300 and hmac.compare_digest(sig, want)
+
+
 class Mocks:
     """Routes every outside request of a page; records notes sent to /api/note and GitHub."""
 
@@ -213,7 +221,6 @@ class Mocks:
         r("**/en.wikipedia.org/**", lambda x: x.fulfill(status=200, headers=JSONH, body=json.dumps(WIKI)))
         r("**/nominatim.openstreetmap.org/**", lambda x: x.fulfill(status=200, headers=JSONH, body=json.dumps(NOMINATIM)))
         r("**/api/note", self.note)
-        r("**/api/key", lambda x: x.fulfill(status=404, headers=JSONH, body='{"error":"not set up"}'))
         r("**/api/scout", lambda x: x.fulfill(status=404, headers=JSONH, body='{"error":"not set up"}'))
         r("**/api.github.com/**", self.gh)
         r("**/fonts.googleapis.com/**", lambda x: x.fulfill(status=200, headers={"content-type": "text/css", "access-control-allow-origin": "*"}, body=""))
@@ -228,6 +235,8 @@ class Mocks:
     def note(self, route):
         if route.request.method != "POST":
             return route.fulfill(status=405, body="")
+        if not signed_ok(route.request, "/api/note"):  # like the real function: unsigned notes are refused
+            return route.fulfill(status=401, headers=JSONH, body='{"error":"not allowed"}')
         self.notes.append(json.loads(route.request.post_data or "{}"))
         route.fulfill(status=201, headers=JSONH, body='{"ok":true}')
 
@@ -260,6 +269,8 @@ def static_checks():
         check(r.returncode == 0, "node --check %s %s" % (os.path.relpath(f, ROOT), r.stderr.strip()))
     r = subprocess.run(["node", "--check", os.path.join(ROOT, "radar", "sw.js")], capture_output=True, text=True)
     check(r.returncode == 0, "node --check radar/sw.js " + r.stderr.strip())
+    r = subprocess.run(["node", os.path.join(ROOT, "radar", "tools", "test_functions.mjs")], capture_output=True, text=True)
+    check(r.returncode == 0, "Cloudflare functions only accept signed requests (test_functions.mjs) " + (r.stdout + r.stderr).strip()[-600:])
     idx = open(os.path.join(ROOT, "radar", "index.html")).read()
     check('var APP_VERSION="' in idx, "index.html carries the APP_VERSION line older copies look for")
     sw = open(os.path.join(ROOT, "radar", "sw.js")).read()
@@ -545,7 +556,7 @@ def instant_suite(browser, site):
     ctx, page, errors = new_page(browser, site)
     m = Mocks(page)
     asked = []
-    page.route("**/api/scout", lambda r: (asked.append(json.loads(r.request.post_data or "{}")), r.fulfill(status=200, headers=JSONH, body=json.dumps(PICKS))))
+    page.route("**/api/scout", lambda r: (asked.append(json.loads(r.request.post_data or "{}")), r.fulfill(status=200, headers=JSONH, body=json.dumps(PICKS))) if signed_ok(r.request, "/api/scout") else r.fulfill(status=401, headers=JSONH, body="{}"))
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
     page.click("#nearBtn"); page.wait_for_selector("#scoutGo", timeout=8000)
     page.click("#scoutGo")
@@ -650,16 +661,6 @@ def lock_suite(browser, site, scheme):
     ctx.close()
 
 
-def server_key_suite(browser, site):
-    ctx, page, errors = new_page(browser, site, unlocked=False)
-    Mocks(page)
-    page.route("**/api/key", lambda r: r.fulfill(status=200, headers=JSONH, body=json.dumps({"key": PASS})))
-    page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=10000)
-    check(not page.is_visible("#lock"), "Cloudflare: /api/key unlocks without typing")
-    check(not real_errors(errors), "Cloudflare key: no JS errors %s" % real_errors(errors))
-    ctx.close()
-
-
 def do_suite(browser, site, scheme):
     ctx, page, errors = new_page(browser, site, scheme)
     m = Mocks(page)
@@ -752,7 +753,6 @@ def run():
         instant_suite(browser, site)
         signin_suite(browser, site)
         notes_suite(browser, site, local)
-        server_key_suite(browser, site)
         browser.close()
     srv.shutdown()
     shutil.rmtree(SITE, ignore_errors=True)
