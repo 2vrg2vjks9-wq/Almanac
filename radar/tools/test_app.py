@@ -250,7 +250,7 @@ class Mocks:
 
 # --- Static checks -----------------------------------------------------------------------------------
 def static_checks():
-    for f in ["vault.json", "manifest.webmanifest"] + ["data/%s.enc.json" % n for n in ("interests", "feed", "taste", "things", "gear")]:
+    for f in ["vault.json", "manifest.webmanifest"] + ["data/%s.enc.json" % n for n in ("interests", "feed", "taste", "things", "gear", "tasks")]:
         try:
             j = json.load(open(os.path.join(ROOT, "radar", f))); check(True, "%s is valid JSON" % f)
             if f.startswith("data/"):

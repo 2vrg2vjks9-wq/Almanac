@@ -15,8 +15,8 @@ in commit messages, issue comments or Actions logs.
   via PBKDF2-SHA256 (salt, iterations and a check value in `radar/vault.json`). The file name is bound in as
   additional data. The app (`js/vault.js`, WebCrypto) and `radar/tools/vault.mjs` (Node, no dependencies) use
   the same format.
-- The passphrase is the `RADAR_KEY` environment variable, or `PK` (Claude tasks: an environment variable in the cloud environment; GitHub Actions:
-  the `PK` or `RADAR_KEY` secret; optionally Cloudflare: a secret). To edit data:
+- The passphrase is the `RADAR_KEY` environment variable, or `PK` (GitHub Actions, which runs the wind alert and
+  the Claude tasks: the `PK` secret). To edit data:
   `node radar/tools/vault.mjs unlock` → edit `radar/.plain/*.json` (git-ignored) → `node radar/tools/vault.mjs lock`
   (only changed files are rewritten) → commit `radar/data/*.enc.json`.
 - Notes from the app arrive as GitHub issues titled "Radar note" with a sealed body (`radar-sealed:v1:…`);
@@ -81,7 +81,7 @@ in commit messages, issue comments or Actions logs.
   - `gear` — second-hand finds (`js/gear.js`): `{updated, note, ads:[{id, search (an `interests.wanted` id; missing =
     "wingfoil"), site (marktplaats | 2dehands | kleinanzeigen), country (nl | be | de), type, brand?, title, price (EUR
     number), size?, location?, posted?, found, url, match (hit | maybe), note?, shipping?}]}`. Filled a few times a day
-    by the "Radar gear" Claude task. `interests.wanted` lists the searches ({id, title, short?, look_for, fit, check,
+    by the `finds` Claude task. `interests.wanted` lists the searches ({id, title, short?, look_for, fit, check,
     budget, where, queries per site}); the wingfoil search uses the rules in `interests.gear` and shows on the Wind tab
     ("Gear for sale"); every other search shows under **You › Wanted**, one block per search. "Look for something
     second-hand" in Wanted sends a sealed `radar-interest` note starting "Wanted:" that the daily task turns into a
@@ -128,11 +128,22 @@ in commit messages, issue comments or Actions logs.
   login page, so the app could silently stay on an old copy and notes would only queue. `checkVersion` (on open and on
   every return to the front), `/api/note` and `/api/scout` fetch with `redirect: "manual"`; an opaque redirect or a
   non-JSON 401/403 shows the **Sign in** bar (`#signin`, `signedOut()` in `js/notes.js`), which reloads through the login.
-- **Concert alerts:** the "Radar concert alert" Claude task checks every evening whether an artist in
+- **Concert alerts:** the `concerts` Claude task checks every evening whether an artist in
   `interests.concertAlerts.artists` has announced a show (own concert or festival slot) in the Netherlands, Belgium or
   Germany near the border, and pushes a notification once per show. Shows already notified are listed (by
   artist|date|city) in `interests.concertAlerts.notified`; the daily update reads the same list so nobody is told twice.
   New shows also go into the feed as `concert` items.
+- **Claude tasks** (`.github/workflows/radar-tasks.yml`, `radar/tools/task.py`): GitHub Actions runs Claude Code for
+  `daily` (~06:52), `inbox` (hourly, only when the phone sent a city/interest/bucket note), `finds` (08:10, 13:10, 19:10)
+  and `concerts` (18:47); "Run workflow" runs one by hand. Their instructions are encrypted in `radar/data/tasks.enc.json`
+  (vault name `tasks`; edit with unlock/lock like the rest, never commit them plain). `task.py prepare` unlocks the data into
+  `radar/.plain/` and opens the task's notes into `radar/.plain/notes.json`; Claude then runs **without** the passphrase or a
+  GitHub token (checkout without credentials) and edits only `radar/.plain/`; `task.py finish` validates the JSON, encrypts
+  and commits only the data files (never `tasks`, so a run can't rewrite its own instructions; anything else is discarded),
+  closes the notes with "Done." and sends Claude's final message to the phone via ntfy (fixed "nothing new" replies stay
+  quiet). The log is public: Claude's output stays in a temp file and the log shows counts only. Secrets: `PK`,
+  `ANTHROPIC_API_KEY` (or `CLAUDE_CODE_OAUTH_TOKEN`), optional `NTFY_TOPIC`. These replaced the Claude cloud routines, which
+  couldn't get the passphrase.
 - **Wind alert:** `.github/workflows/radar-wind.yml` runs `radar/tools/wind_alert.py` every morning (Actions
   secret `RADAR_KEY`; topic from `alerts.ntfy` or the `NTFY_TOPIC` secret) and pushes to ntfy.sh. The Actions log
   is public: it prints only a count. Keep it working if you touch the wind section.

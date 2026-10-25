@@ -27,7 +27,7 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url))); // radar/
 const META = join(ROOT, "vault.json");
 const DATA = join(ROOT, "data");
 const PLAIN = join(ROOT, ".plain");
-export const NAMES = ["interests", "feed", "taste", "things", "gear"];
+export const NAMES = ["interests", "feed", "taste", "things", "gear", "tasks"]; // tasks: instructions for radar-tasks.yml
 const SEAL = "radar-sealed:v1:";
 const CHECK = "radar-ok";
 
