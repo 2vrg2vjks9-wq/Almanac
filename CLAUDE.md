@@ -1,6 +1,6 @@
 # Almanac
 
-GitHub Pages site (served from `main`) with the owner's home-screen apps: `radar/`, `polder/`, `nakasendo/`, `curiosity/`, `enso/`, `proxima/`, `loam/`.
+GitHub Pages site (served from `main`) with the owner's home-screen apps: `radar/`, `polder/`, `fuerteventura/`, `nakasendo/`, `curiosity/`, `enso/`, `proxima/`, `loam/`.
 
 ## Safety check — required for every app, every change
 
@@ -13,6 +13,11 @@ The owner asked for this on all current and future apps. The repo is public and 
    - No personal data (names, emails, precise locations, notification topics that act as passwords) is committed to the public repo; say what leaves the device (e.g. location sent to an API) and when.
    - Offline service workers only cache same-site files and fonts.
 3. **Report it:** tell the owner what was checked and anything found, fixed or left as is.
+
+## Apps edited directly in the repo
+
+- Polder, Nakasendō and Fuerteventura have no artifact source: edit `<app>/index.html` directly, run the safety check, then commit and push.
+- Fuerteventura (`fuerteventura/`) was built from the Polder template. Fact ids are array positions stored in readers' kept/seen lists: append new facts at the end of `FACTS`, never insert or reorder. Its storage keys start with `fuerte-almanac-`; bump `CACHE` in `fuerteventura/sw.js` when it changes.
 
 ## Apps published from Claude artifacts
 

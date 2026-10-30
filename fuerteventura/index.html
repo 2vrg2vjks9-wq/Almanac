@@ -1,0 +1,1436 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fuerteventura">
+<meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130f" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script>
+/* Offline support for the home-screen app. */
+(function(){if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});})();
+</script><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Fuerteventura Almanac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f6f1e7;
+    --panel:#ffffff;
+    --ink:#1c1712;
+    --ink-soft:#4a4036;
+    --delft:#0f6577;
+    --delft-soft:#3f8796;
+    --orange:#b5502a;
+    --grey:#7a6f62;
+    --rule:rgba(28,23,18,0.15);
+    --rule-strong:rgba(28,23,18,0.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --paper:#16130f;
+      --panel:#1f1b16;
+      --ink:#efe8dc;
+      --ink-soft:#c4b9a8;
+      --delft:#6fc0cf;
+      --delft-soft:#4f9cab;
+      --orange:#e39468;
+      --grey:#9c907f;
+      --rule:rgba(239,232,220,0.16);
+      --rule-strong:rgba(239,232,220,0.32);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --paper:#16130f;
+    --panel:#1f1b16;
+    --ink:#efe8dc;
+    --ink-soft:#c4b9a8;
+    --delft:#6fc0cf;
+    --delft-soft:#4f9cab;
+    --orange:#e39468;
+    --grey:#9c907f;
+    --rule:rgba(239,232,220,0.16);
+    --rule-strong:rgba(239,232,220,0.32);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    padding:clamp(24px,5vw,56px) 20px calc(48px + env(safe-area-inset-bottom,0px));
+    min-height:100%;
+    display:flex;
+    justify-content:center;
+    overflow-x:hidden;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:620px;
+  }
+
+  /* masthead */
+  header{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    padding-bottom:16px;
+    border-bottom:2px solid var(--ink);
+    margin-bottom:0;
+  }
+  .mark{ width:42px; height:42px; flex:none; display:block; }
+  .masthead{ flex:1; min-width:0; }
+  h1{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-weight:700;
+    font-size:clamp(1.5rem,5.5vw,2rem);
+    letter-spacing:-0.02em;
+    line-height:1;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  .strap{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.68rem;
+    font-weight:500;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--grey);
+  }
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.68rem;
+    font-weight:500;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--grey);
+    padding:10px 0;
+    border-bottom:1px solid var(--rule);
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* fact panel */
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--rule);
+    border-top:4px solid var(--delft);
+    padding:clamp(22px,4.5vw,34px);
+    margin-top:clamp(22px,4vw,32px);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .place-tag{ color:var(--delft); }
+  .place-tag .sub{ color:var(--grey); font-weight:500; }
+  .head-right{ display:flex; align-items:baseline; gap:10px; }
+  .fresh{
+    color:var(--orange);
+    border:1px solid var(--orange);
+    padding:2px 6px;
+    letter-spacing:.12em;
+  }
+  .index{ color:var(--grey); font-variant-numeric:tabular-nums; }
+
+  .fact{
+    font-size:clamp(1.2rem,3.6vw,1.45rem);
+    line-height:1.55;
+    font-weight:400;
+  }
+  .fact em{ font-style:italic; color:var(--delft); }
+
+  .panel-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    padding-top:4px;
+    border-top:1px solid var(--rule);
+  }
+  .keep-btn, .story-btn{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.68rem;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    background:transparent;
+    cursor:pointer;
+    padding:8px 0;
+    border:none;
+    color:var(--ink-soft);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .keep-btn .box{
+    width:11px; height:11px;
+    border:1.5px solid currentColor;
+    flex:none;
+  }
+  .keep-btn:hover, .story-btn:hover{ color:var(--delft); }
+  .keep-btn.kept{ color:var(--orange); }
+  .keep-btn.kept .box{ background:var(--orange); border-color:var(--orange); }
+  .story-btn{ text-decoration:underline; text-decoration-color:var(--rule-strong); text-underline-offset:4px; }
+  .keep-btn:focus-visible, .story-btn:focus-visible{ outline:2px solid var(--delft); outline-offset:3px; }
+
+  .deep-wrap{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .4s ease;
+  }
+  .deep-wrap.open{ grid-template-rows:1fr; }
+  .deep-inner{ overflow:hidden; }
+  .deep{
+    border-top:1px solid var(--rule);
+    padding-top:16px;
+    font-size:.98rem;
+    line-height:1.7;
+    color:var(--ink-soft);
+  }
+  .deep .cap{
+    display:block;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.64rem;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--grey);
+    margin-bottom:9px;
+  }
+  .deep em{ font-style:italic; color:var(--delft-soft); }
+
+  /* controls */
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin-top:clamp(20px,4vw,28px);
+  }
+  .nav-btn{
+    width:36px; height:36px; flex:none;
+    border:1px solid var(--rule-strong);
+    background:transparent;
+    color:var(--ink-soft);
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.95rem;
+    cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .nav-btn:hover:not(:disabled){ border-color:var(--delft); color:var(--delft); }
+  .nav-btn:disabled{ opacity:.25; cursor:default; }
+  button.next{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.72rem;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--panel);
+    background:var(--delft);
+    border:1px solid var(--delft);
+    padding:12px 24px;
+    cursor:pointer;
+  }
+  button.next:hover:not(:disabled){ background:var(--ink); border-color:var(--ink); }
+  button.next:disabled{ opacity:.4; cursor:default; }
+  .nav-btn:focus-visible, button.next:focus-visible{ outline:2px solid var(--orange); outline-offset:3px; }
+
+  .progress{
+    margin-top:14px;
+    text-align:center;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem;
+    font-weight:500;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--grey);
+    font-variant-numeric:tabular-nums;
+  }
+  .remove-place, .saved-toggle{
+    display:block;
+    margin:8px auto 0;
+    background:transparent;
+    border:none;
+    font-family:'Source Serif 4', serif;
+    font-size:.86rem;
+    color:var(--grey);
+    cursor:pointer;
+    text-decoration:underline;
+    text-decoration-color:var(--rule);
+    text-underline-offset:3px;
+    padding:2px 4px;
+  }
+  .remove-place:hover, .saved-toggle:hover{ color:var(--delft); }
+  .remove-place:focus-visible, .saved-toggle:focus-visible{ outline:2px solid var(--delft); outline-offset:2px; }
+
+  .exhausted{
+    margin:14px auto 0;
+    max-width:440px;
+    border:1px solid var(--rule);
+    border-left:3px solid var(--orange);
+    padding:14px 16px;
+    font-size:.92rem;
+    line-height:1.6;
+    color:var(--ink-soft);
+    text-align:left;
+  }
+  .exhausted-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+  .small-btn{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--delft);
+    background:transparent;
+    border:1px solid var(--delft);
+    padding:8px 14px;
+    cursor:pointer;
+  }
+  .small-btn:hover{ background:var(--delft); color:var(--panel); }
+  .small-btn:focus-visible{ outline:2px solid var(--orange); outline-offset:2px; }
+
+  /* kept list */
+  .saved-panel{ margin-top:clamp(22px,4vw,30px); border-top:1px solid var(--rule); padding-top:18px; }
+  .saved-panel h2{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.7rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--grey); margin:0 0 12px;
+  }
+  .saved-item{
+    display:flex; align-items:flex-start; gap:12px;
+    padding:13px 0; border-bottom:1px solid var(--rule);
+  }
+  .saved-item:first-of-type{ border-top:1px solid var(--rule); }
+  .saved-item .txt{
+    flex:1; background:transparent; border:none; text-align:left;
+    font-family:'Source Serif 4', serif; font-size:.96rem; line-height:1.55;
+    color:var(--ink); cursor:pointer; padding:0;
+  }
+  .saved-item .txt:hover{ color:var(--delft); }
+  .saved-item .txt:focus-visible{ outline:2px solid var(--delft); outline-offset:3px; }
+  .saved-item .txt em{ font-style:italic; color:var(--delft-soft); }
+  .saved-item .rm{
+    flex:none; width:22px; height:22px; line-height:1;
+    background:transparent; border:1px solid var(--rule-strong);
+    color:var(--grey); cursor:pointer; font-size:.8rem;
+  }
+  .saved-item .rm:hover{ color:var(--orange); border-color:var(--orange); }
+  .saved-empty{ color:var(--grey); font-size:.9rem; }
+
+  /* places */
+  .places{ margin-top:clamp(26px,5vw,38px); border-top:2px solid var(--ink); padding-top:18px; }
+  .places-label{
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--grey); margin-bottom:14px;
+  }
+  .chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{
+    display:inline-flex; align-items:baseline; gap:6px;
+    background:transparent;
+    border:1px solid var(--rule-strong);
+    padding:6px 10px;
+    cursor:pointer;
+    font-family:'Archivo', system-ui, sans-serif;
+    color:var(--ink-soft);
+  }
+  .chip-name{ font-size:.78rem; font-weight:600; letter-spacing:.01em; }
+  .chip-sub{ font-size:.62rem; font-weight:500; color:var(--grey); letter-spacing:.06em; text-transform:uppercase; }
+  .chip:hover{ border-color:var(--delft); color:var(--delft); }
+  .chip.active{ background:var(--delft); border-color:var(--delft); color:var(--panel); }
+  .chip.active .chip-sub{ color:var(--panel); opacity:.8; }
+  .chip.done{ opacity:.45; }
+  .chip.done.active{ opacity:1; }
+  .chip.custom{ border-style:dashed; }
+  .chip:focus-visible{ outline:2px solid var(--orange); outline-offset:2px; }
+
+  .add-place{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+  .add-input{
+    flex:1 1 220px; max-width:340px;
+    background:transparent; border:none; border-bottom:1px solid var(--rule-strong);
+    color:var(--ink); font-family:'Source Serif 4', serif; font-size:.95rem; padding:7px 2px;
+  }
+  .add-input::placeholder{ color:var(--grey); font-style:italic; }
+  .add-input:focus{ outline:none; border-bottom-color:var(--delft); }
+  .add-btn{
+    flex:none;
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.66rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); background:transparent; border:1px solid var(--rule-strong);
+    padding:8px 14px; cursor:pointer;
+  }
+  .add-btn:hover:not(:disabled){ border-color:var(--delft); color:var(--delft); }
+  .add-btn:focus-visible{ outline:2px solid var(--delft); outline-offset:2px; }
+  .add-note{ margin-top:10px; font-size:.86rem; font-style:italic; color:var(--grey); }
+  .add-note.bad{ color:var(--orange); }
+
+  footer{
+    margin-top:clamp(26px,5vw,36px);
+    padding-top:14px;
+    border-top:1px solid var(--rule);
+    font-family:'Archivo', system-ui, sans-serif;
+    font-size:.64rem; font-weight:500; letter-spacing:.1em;
+    color:var(--grey); line-height:1.8;
+  }
+  .sync-note{ color:var(--grey); }
+  .sync-note.synced{ color:var(--delft); }
+
+  @media (prefers-reduced-motion: reduce){
+    .deep-wrap{ transition:none; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <svg class="mark" viewBox="0 0 42 42" aria-hidden="true">
+      <rect x="1" y="1" width="40" height="40" fill="none" stroke="var(--ink)" stroke-width="2"/>
+      <circle cx="28" cy="14" r="7" fill="var(--orange)"/>
+      <path d="M2 30 Q12 20 22 28 T40 26 V40 H2 Z" fill="var(--ink)" opacity=".18"/>
+      <path d="M2 34 Q9 31 16 34 T30 34 T40 34" fill="none" stroke="var(--delft)" stroke-width="2.4"/>
+    </svg>
+    <div class="masthead">
+      <h1>Fuerteventura Almanac</h1>
+      <div class="strap">Small facts from the oldest island</div>
+    </div>
+  </header>
+
+  <div class="meta-row">
+    <span id="datebar"></span>
+    <span id="corpusCount"></span>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <span class="place-tag" id="placeTag">Across the island</span>
+      <span class="head-right">
+        <span class="fresh" id="freshTag" hidden>newly written</span>
+        <span class="index" id="indexTag">&numero; 000</span>
+      </span>
+    </div>
+
+    <div class="fact" id="fact">Loading a fact&hellip;</div>
+
+    <div class="panel-actions">
+      <button class="keep-btn" id="keepBtn" type="button" aria-pressed="false">
+        <span class="box"></span>
+        <span id="keepLabel">Keep this one</span>
+      </button>
+      <button class="story-btn" id="storyBtn" type="button" aria-expanded="false">
+        <span id="storyLabel">Read the full story</span>
+      </button>
+    </div>
+
+    <div class="deep-wrap" id="deepWrap">
+      <div class="deep-inner">
+        <div class="deep" id="deepText"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="nav-btn" id="backBtn" type="button" aria-label="Previous fact" title="Previous fact" disabled>&#8592;</button>
+    <button class="next" id="nextBtn" type="button">Another fact</button>
+    <button class="nav-btn" id="fwdBtn" type="button" aria-label="Forward" title="Forward" disabled>&#8594;</button>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <button class="remove-place" id="removePlaceBtn" type="button" hidden>Remove this place</button>
+
+  <div class="exhausted" id="exhausted" hidden>
+    <span id="exhaustedText"></span>
+    <div class="exhausted-actions">
+      <button class="small-btn" id="retryBtn" type="button" hidden>Try writing more again</button>
+      <button class="small-btn" id="resetBtn" type="button">Start this set over</button>
+    </div>
+  </div>
+
+  <button class="saved-toggle" id="savedToggle" type="button">Kept facts (0)</button>
+
+  <div class="saved-panel" id="savedPanel" hidden>
+    <h2>Kept facts</h2>
+    <div class="saved-list" id="savedList"></div>
+  </div>
+
+  <div class="places">
+    <div class="places-label">Tap where you are</div>
+    <div class="chips" id="chips"></div>
+    <form class="add-place" id="addPlaceForm">
+      <input class="add-input" id="addPlaceInput" type="text" maxlength="40" autocomplete="off"
+        placeholder="Add a place &mdash; Lajares, Tef&iacute;a, Morro Jable&hellip;" aria-label="Add a place on Fuerteventura">
+      <button class="add-btn" id="addPlaceBtn" type="submit">Add</button>
+    </form>
+    <div class="add-note" id="addNote" hidden></div>
+  </div>
+
+  <footer>
+    <span class="sync-note" id="syncNote">Kept facts and progress are saved on this iPhone</span><br>
+    Facts are gathered, not guaranteed. Ones marked newly written have not been checked.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PLACES = [
+    {key:"corralejo", name:"Corralejo & Lobos", sub:"The north"},
+    {key:"cotillo", name:"El Cotillo & Lajares", sub:"North-west"},
+    {key:"laoliva", name:"La Oliva & Tindaya", sub:"Northern interior"},
+    {key:"puerto", name:"Puerto del Rosario", sub:"The capital"},
+    {key:"betancuria", name:"Betancuria", sub:"The old capital"},
+    {key:"ajuy", name:"Pájara & Ajuy", sub:"West coast"},
+    {key:"antigua", name:"Antigua & Caleta", sub:"Centre-east"},
+    {key:"tuineje", name:"Tuineje & Gran Tarajal", sub:"South-east"},
+    {key:"sotavento", name:"Costa Calma & Sotavento", sub:"The isthmus"},
+    {key:"jandia", name:"Jandía & Cofete", sub:"The southern peninsula"}
+  ];
+
+  var FACTS = [
+    // --- Across the island ---
+    {tag:"general", text:"Fuerteventura is the oldest of the Canary Islands. Its first volcanoes broke the surface roughly twenty million years ago, and erosion has had so long to work that the old shield volcanoes are worn down to the low, bald hills you see today.",
+      deep:"The Canaries formed one after another as the African plate crept over a hotspot, so the islands get younger from east to west: Fuerteventura and Lanzarote first, La Palma and El Hierro last. Most of Fuerteventura's surface was built around five million years ago, and it has been weathering ever since. The result is an island of rounded ridges and wide valleys whose highest point, Pico de la Zarza, reaches only 807 metres, while much younger Teide on Tenerife stands at 3,715."},
+    {tag:"general", text:"The name almost certainly has nothing to do with wind. A chart drawn in 1339 already labels the island <em>Forte Ventura</em>, and the likeliest reading is &ldquo;great fortune&rdquo; or &ldquo;strong venture&rdquo; &mdash; luck or destiny, not the trade winds.",
+      deep:"The windy explanation is so neat that it is repeated everywhere, but historians treat it as a later folk etymology. Angelino Dulcert's Majorcan chart of 1339 names the island decades before the Norman conquest, when <em>ventura</em> meant fortune. Other theories tie it to the classical Fortunate Isles. The Indigenous name is usually given as <em>Erbania</em>. That the island turned out to be one of the windiest places in Europe is a happy coincidence for the sailors who came later."},
+    {tag:"general", text:"Islanders are called <em>majoreros</em>, and the word is usually traced back to footwear. The pre-conquest people wore a goatskin shoe called a <em>maho</em>, and the name for the shoe became a name for the people who wore it.",
+      deep:"The Indigenous islanders are known today as the Majos or Mahos. The northern kingdom was called Maxorata, and the modern demonym is linked to both words. Goats were the centre of their economy, giving milk, meat, skins and the leather for those shoes, and that pastoral way of life outlasted the conquest by centuries. You still see <em>majorero</em> everywhere: on the cheese, the goat breed, the island's newspapers and the people themselves."},
+    {tag:"general", text:"When the Normans arrived in 1402 the island was split between two kingdoms, Maxorata in the north and Jandía in the south, and a wall is said to have run across the narrow isthmus between them. The village there is still called La Pared &mdash; &ldquo;the wall&rdquo;.",
+      deep:"The isthmus of La Pared is the island's waist, only about five kilometres wide, which made it a natural frontier. Chroniclers record the northern king as Guize and the southern one as Ayoze. Low stone remains on the isthmus have long been linked to the boundary, though how continuous the wall ever was is debated. The Erbania name for the whole island is said by some to come from this wall too."},
+    {tag:"general", text:"The conquest of the Canaries began here and on Lanzarote, and it was led not by a Spaniard but by a Norman knight. Jean de B&eacute;thencourt held the islands as a vassal of the King of Castile, and the island's first town still carries his name.",
+      deep:"B&eacute;thencourt and his partner Gadifer de La Salle sailed in 1402 with an expedition that dwindled badly on the way: by one count only 63 of the original 283 men remained. Lanzarote fell first, then Fuerteventura by 1405. The two leaders quarrelled bitterly, and B&eacute;thencourt went to Castile to secure the lordship for himself. Betancuria, founded in 1404 in a sheltered inland valley, is simply his surname written the Spanish way."},
+    {tag:"general", text:"Fuerteventura gets roughly 100 to 150 millimetres of rain a year, less than a fifth of what falls on the Netherlands, and most of it comes in a few winter downpours that run straight off bare slopes into the sea.",
+      deep:"The island was not always this bare. Accounts from the nineteenth century still mention patches of mountain woodland, all since cut for fuel and building. Centuries of free-ranging goats then stripped what shrubs remained. With almost nothing to slow it down, estimates suggest that up to four-fifths of winter rainwater runs off unused. It is why reforestation and the old water-harvesting fields matter so much here: every drop the soil can hold is a drop not lost to the Atlantic."},
+    {tag:"general", text:"Most of the island's tap water started the day as seawater. Fuerteventura runs on desalination plants, and studies of its water use find that a tourist goes through roughly twice as much water per day as a resident.",
+      deep:"With little rain and over-pumped aquifers, the island turned to desalination as tourism took off. That makes water an energy question: every litre has to be pushed through membranes by electricity, much of it still generated from imported fuel. It also means the island's water supply scales with power plants rather than rainfall. Pools, gardens and hotel laundries explain much of the gap between visitors and locals."},
+    {tag:"general", text:"In a place with almost no rain, farmers grew wheat and barley by trapping floods. A <em>gavia</em> is a flat field ringed by earth walls: when a storm sends water racing down the hills, channels steer it in and the walls hold it until it soaks into the soil.",
+      deep:"Gavias are a form of macrocatchment farming: each field drinks the runoff of a hillside many times its own size, with catchment-to-field ratios of eight to one or even fifty to one. They only fill when rain is heavy enough to run off, so a single good storm can water a whole season's crop. No fertiliser is used; the floodwater brings fresh silt each time. Studies find gavia soils hold more carbon and nitrogen and less salt than the land around them, and the island has been restoring abandoned ones."},
+    {tag:"general", text:"For two centuries this desert island was a breadbasket. From the 1500s to the 1700s Fuerteventura and Lanzarote shipped wheat and barley to Tenerife and Gran Canaria, whose fertile land was busy growing sugar, wine and other cash crops.",
+      deep:"The trade made sense because the western islands had turned their best land over to export crops, while the flat eastern islands could grow cereals in their gavias and on rain-fed slopes in a good year. In a bad year there was famine, and emigration to the other islands and to the Americas followed every long drought. The windmills dotted across the island are the leftovers of that grain economy: they ground the toasted cereal flour called <em>gofio</em>."},
+    {tag:"general", text:"Fuerteventura's windmills come in two genders. The older <em>molino</em> is a stone tower whose cap turns to face the wind; the <em>molina</em> is a lighter wooden mill on top of a small building, and the whole upper machine turns.",
+      deep:"The molina descends from a design by Isidoro Ortega S&aacute;nchez, conceived around 1868 on La Palma, whose key trick was a pivot that let the whole mill swing into the wind. In 1873 Ortega built one in the island's capital. Majorero carpenters copied it because it was cheap and simple, replacing his wooden boards with canvas sails, and the molina became the island's own type. Restored pairs of molino and molina stand side by side at places like Lajares, Tef&iacute;a and Villaverde."},
+    {tag:"general", text:"Majorero cheese got its protected designation of origin in 1996, and you can recognise it by a criss-cross diamond pattern on the side of the rind. The pattern comes from moulds traditionally woven from palm leaves.",
+      deep:"It is made from the milk of the majorera goat, one of three native Canary breeds, with up to 15 per cent sheep's milk allowed. It is sold soft, semi-cured or cured, and the older cheeses are often rubbed with oil, paprika or <em>gofio</em>, which is why some rinds are a deep rusty red. It is one of only two Canarian cheeses with a protected designation. Cured majorero takes on a peppery edge that surprises people who expect goat cheese to be mild."},
+    {tag:"general", text:"Goats here are still rounded up the old way. In an <em>apañada</em>, herders on foot sweep a stretch of open hillside and drive the semi-wild goats into a communal stone corral, where each owner picks out and marks his animals.",
+      deep:"For centuries much of the island was open grazing land, with goats roaming freely and only gathered a few times a year. The corrals, called <em>gambuesas</em>, are often walled pens built against a slope. The apañada was as much a social event as farm work, with neighbours from several villages taking part. The system also explains the island's look: generations of browsing goats are a big reason the hills are so bare."},
+    {tag:"general", text:"The houbara bustard, a long-necked desert bird, is one of the island's two official natural symbols. Its Canary subspecies lives only on the eastern islands, and tracking showed its biggest human threats are power lines and cars.",
+      deep:"Researchers from Spain's National Museum of Natural Sciences fitted 51 birds with trackers between 2018 and 2022. Houbaras escape danger by flying, and those panicked flights are what send them into cables and traffic. During the 2020 lockdown, with tourists gone and roads empty, the birds' flights fell by 76 per cent and deaths dropped. The researchers' advice was simple: keep off-road driving and recreation to set zones and leave the bustards' open plains quiet."},
+    {tag:"general", text:"There is a bird that lives on Fuerteventura and nowhere else on Earth. The Canary Islands stonechat, locally the <em>caldereta</em>, numbers somewhere around 1,300 to 1,700 adults, all of them on this one island.",
+      deep:"A second subspecies once lived on the islets north of Lanzarote, on Alegranza and Monta&ntilde;a Clara, but it vanished in the early twentieth century, probably to introduced predators and habitat loss. The survivors breed in rocky ravines with scattered shrubs and palms. Their threats read like a list of the island's pressures: building, desertification made worse by goats, falling water tables, and cats and rats raiding nests."},
+    {tag:"general", text:"The Canarian Egyptian vulture, the <em>guirre</em>, once ranged across the archipelago. Its stronghold today is Fuerteventura, and birds hatched here have begun to settle on Lanzarote again.",
+      deep:"Canary guirres were recognised in 2002 as a distinct subspecies, and unlike their mainland relatives they do not migrate to Africa for the winter. The population fell to a few dozen pairs in the late twentieth century, killed by poison baits, lead shot and collisions with power lines. Conservation projects, including an EU-funded programme focused on Fuerteventura, insulated pylons and ran feeding stations, and the population has been slowly recovering."},
+    {tag:"general", text:"The chipmunk-like squirrels begging for food at every viewpoint are North African immigrants. Barbary ground squirrels were brought to Fuerteventura in 1965, reportedly as just a few pets, and now live across most of the island.",
+      deep:"With plenty of stone walls to hide in and few predators, the population exploded. They are classed as invasive: they raid crops, eat the seeds and shoots of native plants, and are suspected of taking eggs and endemic snails. Feeding them, as visitors at viewpoints often do, helps keep their numbers high. Several have even hitched rides to Lanzarote, where authorities trap any that turn up."},
+    {tag:"general", text:"For a few days a year the sky turns yellow-brown and the temperature can jump by around ten degrees. That is <em>calima</em>: hot, dusty air blowing in from the Sahara, which lies only about a hundred kilometres east.",
+      deep:"The dust is extremely fine, fine enough to cross the ocean and coat cars and terraces, and during strong episodes flights can be disrupted. Calima tends to arrive when the usual north-east trade wind breaks down and an easterly takes over. Oddly, the island's famous white dunes are not made of this Saharan dust at all: the dust is too fine to pile up into dunes, which are built from crushed shells instead."},
+    {tag:"general", text:"The wind that made the island famous among windsurfers is the north-east trade wind, the <em>alisio</em>, and it blows hardest in summer, not winter. July and August are typically the windiest months.",
+      deep:"The trades are driven by the Azores high, which strengthens and moves north in summer, tightening the pressure gradient off north-west Africa. Fuerteventura's long, low shape barely slows the wind, and where it squeezes through gaps, such as the isthmus of La Pared or the strait to Lanzarote, it accelerates further. Winter is more varied: lighter trades, occasional westerly swells for surfers and the rare calm, glassy day."},
+    {tag:"general", text:"In the 1780s the island found a strange export: a salty succulent called <em>barrilla</em>. It was grown, dried and burned, and its ash, rich in soda, was shipped to Europe for making glass and soap.",
+      deep:"The plant is the common ice plant, which thrives on dry, salty ground where little else grows. Its ash was one of the main sources of sodium carbonate before industrial chemistry. The boom lasted until manufactured soda, made from salt by the Leblanc process and its successors, made plant ash uneconomic in the nineteenth century. Like the island's later lime and tomato booms, it was a reminder of how much a dry island depended on whatever the world wanted to buy."},
+    {tag:"general", text:"Mass tourism arrived remarkably late. The island's first hotel opened in 1965 and its airport in 1969, and today around two million visitors a year come to an island of roughly 130,000 people.",
+      deep:"For most of the twentieth century Fuerteventura was the poorest and emptiest corner of the Canaries, a place of emigration and, under the dictatorship, of internal exile. When the beach economy took off in the 1980s the population roughly doubled in less than a decade, drawing workers from the other islands, mainland Spain and abroad. By 2005 roughly half the residents had been born outside the Canaries."},
+    {tag:"general", text:"The whole island, land and a stretch of the surrounding sea, has been a UNESCO Biosphere Reserve since 2009. That is not a ban on development but a commitment to manage people and nature together.",
+      deep:"Biosphere reserves have protected cores, buffer zones and areas where people live and work normally. On Fuerteventura the cores include the dunes of Corralejo, the islet of Lobos and the Jand&iacute;a massif, and more than a quarter of the island sits inside thirteen protected natural areas. The marine part reflects how much of the island's life is offshore: whales, dolphins, turtles and the fishing that fed the coast for centuries."},
+    {tag:"general", text:"The island has around 150 separate beaches adding up to some 77 kilometres of coast, including the longest stretches of white sand in the whole archipelago.",
+      deep:"The contrast with the western islands is stark. Young volcanic islands like La Palma have mostly black, steep shores, while old, eroded Fuerteventura has had millions of years to build up sand from shells and coral fragments. About two thirds of its beach length is pale sand and most of the rest is dark volcanic shingle. The longest single beaches, on the Jand&iacute;a peninsula, run for many kilometres without a building in sight."},
+    {tag:"general", text:"Canary wrestling, <em>lucha canaria</em>, is still a serious sport here, fought in a sand circle called a <em>terrero</em>. To win a bout you make your opponent touch the sand with any part of the body other than the soles of the feet.",
+      deep:"Its roots are pre-conquest: early chroniclers described the islanders wrestling. Modern matches are team contests of twelve wrestlers a side, fought in short bouts, and wrestlers grip each other by the rolled-up legs of their shorts. Strength matters, but leverage and timing matter more, with named throws handed down for generations. Many villages on Fuerteventura have their own terrero, and big matches still draw loyal local crowds."},
+
+    // --- Corralejo & Lobos ---
+    {tag:"place", place:"corralejo", text:"The great white dunes of Corralejo are not Saharan sand. They are made of crushed shells, sea-urchin spines and the skeletons of tiny marine creatures, with no quartz at all.",
+      deep:"The sand is thought to come from the sea floor between Fuerteventura and Lanzarote. During the last ice age, sea levels were far lower and that shelf lay dry; the trade winds then blew its shell sand south onto the island. Saharan dust does reach the Canaries, but it is far too fine to build dunes. Look closely at a handful and you can still see fragments of shell, the white sand being essentially pulverised sea life."},
+    {tag:"place", place:"corralejo", text:"Two large hotels stand inside the protected dunes of Corralejo. They were built in the 1970s, before the area became a natural park in 1982, and their position in the middle of the sand has been argued over ever since.",
+      deep:"The park was originally declared together with the islet of Lobos and later split into two. Because the hotels predated protection, they kept operating on government concessions, and the question of what happens when those concessions end has passed between the courts, the coastal authorities and the island government for years. Ecologists argue the buildings disturb the movement of sand that keeps the dunes alive."},
+    {tag:"place", place:"corralejo", text:"The little island off Corralejo is called Lobos, &ldquo;wolves&rdquo;, because of the sea wolves: the Mediterranean monk seals that once lived here in large numbers.",
+      deep:"After the conquest the seals were hunted for meat, oil and skins until none were left, and today one is only seen there now and then. Monk seals remain among the most endangered marine mammals in the world, with the nearest large colony far to the south on the coast of the Sahara. The islet has been a natural park since 1982, and its small size, just under five square kilometres, makes it walkable in a few hours."},
+    {tag:"place", place:"corralejo", text:"The last people to live on Lobos were the lighthouse keeper's family. They stayed until the light at Punta Marti&ntilde;o was automated in the 1960s, and a school in Corralejo is named after the keeper.",
+      deep:"Life at the lighthouse meant water by boat, supplies by boat and long stretches of isolation, with the keeper's family running a small fishing and farming existence around the light. The keeper Antonio, known as Anto&ntilde;ito el farero, is still remembered locally. Today the islet has no permanent residents, camping has been banned since 2007, and visitors arrive by day ferry and stay on marked paths."},
+    {tag:"place", place:"corralejo", text:"The long-distance trail that crosses every Canary Island, the GR 131, starts on Lobos. Its first stage is a loop around the islet before the route ferries across to Corralejo and heads south through Fuerteventura.",
+      deep:"The GR 131 links all seven main islands, hopping between them by ferry, and its Fuerteventura section runs the island's whole length to the Jand&iacute;a peninsula. Beginning on Lobos gives walkers the islet's crater, Monta&ntilde;a La Caldera, at 127 metres, half of it broken open to the sea. From the top you can see the dunes of Corralejo on one side and the volcanoes of Lanzarote on the other."},
+
+    // --- El Cotillo & Lajares ---
+    {tag:"place", place:"cotillo", text:"The squat round tower above El Cotillo harbour, the Torre del Tost&oacute;n, was built around 1700 on the ruins of a much older fort raised by the Norman conquerors.",
+      deep:"Military engineer Claudio de L'Isle built it to guard the harbour and its boats against French, English and North African raiders. It has two floors and was armed with three iron cannons, and it is nearly a twin of other Canary towers of the same era. By 1740, when English privateers raided the island, towers here and at Caleta de Fuste were part of the island's coastal defences. Today it is a gallery and viewpoint."},
+    {tag:"place", place:"cotillo", text:"El Cotillo was once an export port for lime. In the first half of the nineteenth century several kilns were built around the old harbour of Tost&oacute;n to burn limestone into quicklime, which ships then carried away.",
+      deep:"Lime was the cement and whitewash of the islands: mixed into mortar for building and painted on walls to reflect the sun. Fuerteventura had plenty of the raw rock and the trade was busy enough to dot the coast with kilns. Later in the century the business moved to Puerto de Cabras, today Puerto del Rosario, where new kilns were built. The old kilns are still visible cut into the slope above El Cotillo's harbour."},
+    {tag:"place", place:"cotillo", text:"At Lajares you can see both of the island's windmill types side by side: a stone tower <em>molino</em> and a wooden <em>molina</em>, both restored.",
+      deep:"Lajares sat in the middle of grain country, close to fields and to the coast for shipping. The molino, with its turning cap and heavy stones, is the older European design; the molina is the island's adaptation of an 1860s invention, lighter and cheaper, whose whole top swings into the wind. Seeing them together is the easiest way to understand the difference, and why the molina spread so fast once carpenters had copied it."},
+
+    // --- La Oliva & Tindaya ---
+    {tag:"place", place:"laoliva", text:"Mount Tindaya, rising alone from the plain to about 400 metres, was sacred to the island's first people. Around 300 engravings cover it, many of them in the shape of human feet.",
+      deep:"These podomorphs, as archaeologists call them, cluster on the side of the mountain facing Tenerife and Gran Canaria; on a clear day the silhouette of Teide can be seen from the summit. Foot-shaped engravings on Lanzarote appear to point towards Tindaya. Their exact meaning is unknown, with ideas ranging from astronomical markers to ritual sites. The mountain is a natural monument and protected cultural site, and climbing it needs a permit."},
+    {tag:"place", place:"laoliva", text:"The sculptor Eduardo Chillida wanted to hollow out Mount Tindaya. His plan was a vast cube of empty space inside the mountain, roughly 45 by 50 by 65 metres, open to the sky and sea through shafts of light.",
+      deep:"Chillida had searched for years for the right site for what he called a monument to tolerance, and chose Tindaya in the 1990s. Engineers worked out how to carve one of the largest artificial caverns ever attempted. The project became one of the island's longest controversies, mixing art, archaeology, protection of the sacred mountain and disputes over quarrying, and it was never built. Chillida died in 2002 without seeing it."},
+    {tag:"place", place:"laoliva", text:"The grand house in La Oliva, the Casa de los Coroneles, was the seat of the island's military colonels. From the early 1700s the post of colonel was hereditary, and the family who held it became the island's real power.",
+      deep:"Fuerteventura's garrison was formally established in 1708, and its colonel carried a hereditary title as governor at arms. While Betancuria remained the formal capital, the colonels in La Oliva controlled the militia, much of the land and a great deal of island life. Their house, with its towers and long fa&ccedil;ade, is one of the most imposing buildings on the island. Military rule over the island only ended in 1859."},
+    {tag:"place", place:"laoliva", text:"Under the plain near Villaverde runs Cueva del Llano, a lava tube several hundred metres long and unusually old: it formed in the Pleistocene, while most lava tubes collapse within tens of thousands of years.",
+      deep:"The tube was made by a lava flow from a nearby volcano: the outside cooled into a crust while molten rock kept flowing inside, then drained away and left a tunnel. The entrance is a spot where the roof fell in. Inside live species found nowhere else, including a tiny spider, <em>Maiorerus randoi</em>, known only from this cave and so unusual it may represent a new genus. Fossil snails and vertebrate bones have also been recovered."},
+
+    // --- Puerto del Rosario ---
+    {tag:"place", place:"puerto", text:"Until 1956 the island's capital was called Puerto de Cabras, &ldquo;Goat Harbour&rdquo;. It was renamed Puerto del Rosario after the parish's patron, Our Lady of the Rosary.",
+      deep:"The goats were real: the bay was a watering place for herds, and the harbour grew up around them. The port became the capital when military rule over the island ended in 1859 and the administration moved to the coast, leaving inland Betancuria behind. Many locals still call the town simply Puerto. Today it holds about a third of the island's population, and it has become known for its street sculpture and murals."},
+    {tag:"place", place:"puerto", text:"In 1924 the dictatorship of Primo de Rivera exiled the philosopher Miguel de Unamuno to Fuerteventura for criticising the king and the regime. He arrived in March and left four months later, in July, for exile in France.",
+      deep:"He lived in a small hotel in Puerto de Cabras, now a museum house dedicated to him. He saw the island at first as an open-air prison, then came to love its bareness, writing about it with affection and comparing it to a skeleton of a land. On the island he began the sonnets later published as <em>De Fuerteventura a Par&iacute;s</em>. A statue of him stands on the slopes of Monta&ntilde;a Quemada, near Tindaya."},
+    {tag:"place", place:"puerto", text:"Inland at Tef&iacute;a, Franco's regime ran a penal labour colony from 1954 to 1966. Among its few hundred prisoners were men convicted for being homosexual under the law on &ldquo;vagrants and crooks&rdquo;.",
+      deep:"In 1954 the regime added homosexuality to the 1933 <em>Ley de Vagos y Maleantes</em>, allowing men to be declared a danger to society. Tef&iacute;a, built on a disused airfield, held between 300 and 350 prisoners, about twenty of them for homosexuality. Survivors described forced labour, beatings, humiliation and constant hunger. The Canary government now lists it as a site of historical memory, and survivors' testimony has made it one of the best-known places of LGBT repression in Spain."},
+    {tag:"place", place:"puerto", text:"The island's airport sits just south of the capital at El Matorral, and it began on a military airfield. Work started in the early 1940s, and the present airport opened in 1969, just as tourism arrived.",
+      deep:"Before it, travel meant boats: to Gran Canaria, Lanzarote and, for many, onward to the Americas. The airfield was built in the war years for strategic reasons, at a time when the Canaries were watched closely by all sides. The 1969 airport made package tourism possible, and within a couple of decades the island's economy, population and coastline were transformed."},
+
+    // --- Betancuria ---
+    {tag:"place", place:"betancuria", text:"Betancuria, founded in 1404, was the island's capital for over four centuries, hidden in an inland valley where raiders could not see it from the sea. Today it has well under a thousand residents.",
+      deep:"Its founder Jean de B&eacute;thencourt gave it his name, and it became the seat of the island's lords, its church and its records. Hiding the capital inland was a deliberate defence, but it was not enough: in 1593 a Berber raiding force led by Xab&aacute;n Arr&aacute;ez marched all the way to the town and burned it. The administration moved to the coast in the nineteenth century, leaving Betancuria as a quiet, carefully preserved village."},
+    {tag:"place", place:"betancuria", text:"When Xab&aacute;n Arr&aacute;ez's raiders burned Betancuria in 1593, they destroyed the church and convent and with them most of the island's records. Historians still struggle to reconstruct sixteenth-century Fuerteventura because the paper simply no longer exists.",
+      deep:"The church of Santa Mar&iacute;a had been begun around 1410 in French Gothic style, a sign of its Norman founders. After the raid it was rebuilt, and much of what you see today, including the main altarpiece of around 1680, dates from the following century. Inside, the island's patron image of the Virgin and Child is thought to have arrived from Seville around 1520. The church was declared a protected cultural monument in 2019."},
+    {tag:"place", place:"betancuria", text:"For a few years in the fifteenth century Fuerteventura had its own bishop. Pope Martin V created a diocese in 1424, with its seat at Betancuria, and it was abolished in 1431.",
+      deep:"The Canaries' early church history is a series of moving seats: an early bishopric at Telde on Gran Canaria, then San Marcial del Rubic&oacute;n on Lanzarote, then Betancuria briefly, before the see settled in Las Palmas in the 1480s. The short-lived Fuerteventura diocese is why Betancuria's church is sometimes, a little generously, called the islands' old cathedral."},
+    {tag:"place", place:"betancuria", text:"The roofless ruin at the edge of Betancuria is the convent of San Buenaventura, among the first Franciscan houses in the Canaries. Saint Bonaventure is still the patron of both the town and the island.",
+      deep:"The Franciscans arrived with the conquest and played a large role in converting the surviving Majos. The convent was burned in the 1593 raid along with the church, and later rebuilt, before falling out of use when religious orders were suppressed in the nineteenth century. Its walls still stand without a roof, with the bare valley behind them. Every July the island celebrates its patron saint here."},
+
+    // --- Pájara & Ajuy ---
+    {tag:"place", place:"ajuy", text:"The rocks at Ajuy are some of the oldest in the Canaries, roughly a hundred million years old. They began as sediment on the deep Atlantic floor, long before any volcano broke the surface, and were later pushed up into the island.",
+      deep:"Geologists call this part of Fuerteventura the basal complex: the island's foundations, made of old ocean-floor sediments and the roots of the earliest volcanoes, now exposed because erosion has removed so much of what lay above. At Ajuy you can walk over pale, layered rock that looks nothing like the dark lava elsewhere. The site is a protected natural monument within the Betancuria rural park."},
+    {tag:"place", place:"ajuy", text:"The sea caves at Ajuy were carved by the Atlantic into layers of ancient seabed and fossil dunes. A path from the black-sand beach leads past cliffs striped like a cross-section of the island's history.",
+      deep:"Waves exploit the softer layers in the cliff, hollowing out chambers big enough to walk into. Above them lie old dune sands turned to stone, and fossils of marine creatures from times when sea levels were different. The little harbour at Ajuy was once a working port for the old capital inland at Betancuria, and later for the lime trade, which is why such a small hamlet has such a long history."},
+    {tag:"place", place:"ajuy", text:"The doorway of the church in P&aacute;jara is carved with suns, snakes, birds and big cats, a decoration so unlike anything else in the Canaries that some experts see the influence of Aztec art from Mexico.",
+      deep:"The church of Nuestra Se&ntilde;ora de Regla dates from the late seventeenth and early eighteenth centuries, a time when many Canary islanders were going to and returning from the Americas. Nobody knows for sure who carved the fa&ccedil;ade or why, and the Aztec theory is debated. What is clear is that the motifs are not the standard repertoire of a Spanish parish church, and the doorway has become the town's main attraction."},
+
+    // --- Antigua & Caleta ---
+    {tag:"place", place:"antigua", text:"At the Salinas del Carmen south of Caleta de Fuste, salt has been made from seawater since the eighteenth century, and it still is, using the same shallow pans, the sun and the wind.",
+      deep:"Seawater is let into a series of clay-lined pans, where it slowly evaporates and grows more concentrated until salt crystals form and can be raked up. Salt was vital for preserving fish and meat on islands without refrigeration, and it was a tradeable product in its own right. In the nineteenth century the site was known as the Salinas de la Hondurilla. A small museum explains the process alongside working pans."},
+    {tag:"place", place:"antigua", text:"The little stone fort by the marina at Caleta de Fuste was built in the eighteenth century by the same engineer as El Cotillo's tower, and you still enter it by a drawbridge on iron chains.",
+      deep:"Claudio de L'Isle designed both, under orders from the islands' commanding general, to defend against French, English and North African raiders. The Castillo de San Buenaventura has a vaulted interior held up by a solid central pillar, two cannons, a lookout turret and a cistern on the roof to collect rainwater. It is a good example of how the island's defences were small, cheap and spread out rather than grand."},
+    {tag:"place", place:"antigua", text:"The island's cheese museum sits in Antigua, next to a restored windmill. It is a reminder that the most valuable product of the island's dry interior has always been goat's milk, not crops.",
+      deep:"The museum explains how majorero cheese is made, from the native goat breed through to the rubbed and aged rinds, and how the island's pastoral culture shaped everything from land use to festivals. Antigua lies on the central plain, once a farming area of gavias and threshing floors."},
+
+    // --- Tuineje & Gran Tarajal ---
+    {tag:"place", place:"tuineje", text:"In 1740 English privateers landed at Gran Tarajal and marched on Tuineje. Twice they were beaten by local militia armed mostly with farm tools, stones and a few guns, who, according to one account, sheltered behind a line of camels.",
+      deep:"The raids came during the War of Jenkins' Ear. In October about fifty men landed; the islanders killed thirty and captured the rest at the battle of El Cuchillete. Six weeks later a larger force returned and was destroyed at Tamasite, with estimates of the dead varying. The camel shield comes from the eighteenth-century writer George Glas. Each October Tuineje re-enacts the battles."},
+    {tag:"place", place:"tuineje", text:"Tuineje's festival of Saint Michael is called the <em>Fiestas Juradas</em>, the &ldquo;sworn festivals&rdquo;, because after the victories over the English raiders in 1740 the islanders vowed to celebrate their patron saint every year.",
+      deep:"The vow turned the October fiesta into a commemoration of the battles, combining religious processions with the re-enactment of Tamasite. It is a striking case of local history kept alive through ritual rather than books: generations of islanders have grown up acting out the fight against the privateers. The festival is one of the biggest in the south of the island."},
+    {tag:"place", place:"tuineje", text:"The lighthouse at Punta de La Entallada, above Las Playitas, is the closest point in the Canaries to Africa, about a hundred kilometres from the coast of the Sahara. Its light shines from almost 200 metres above the sea.",
+      deep:"Completed in 1955, it was designed with deliberately Moorish touches: three square towers on the seaward side, whitewashed mortar and coloured stone from Tet&iacute;r, with a glass lantern on the tallest tower. The building is only about twelve metres tall; the height comes from the cliff it sits on. Locals say that on exceptionally clear days the African coast can be made out on the horizon."},
+
+    // --- Costa Calma & Sotavento ---
+    {tag:"place", place:"sotavento", text:"The first windsurfing world cup at Sotavento was held in 1986, and at that first event the French sailor Pascal Maka set a windsurfing speed record of nearly 39 knots, around 72 kilometres an hour.",
+      deep:"Ren&eacute; Egli, who ran the windsurf centre on the beach, persuaded the professional tour that the conditions here were special, and organised the event for decades. Freestyle joined in 1997, kiteboarding in 2001, and the Super-X format debuted here in 2003. The event has been one of the longest-running stops in professional windsurfing, held every summer when the trade winds are strongest."},
+    {tag:"place", place:"sotavento", text:"At high tide the sea floods over a sandbar and fills a huge shallow lagoon behind the beach at Sotavento, creating flat, waist-deep water with strong wind: ideal for learning to windsurf, kite or wing.",
+      deep:"The lagoon empties and fills with the tides, so its size changes through the day, and on big spring tides it can become a vast sheet of water. Sotavento means &ldquo;leeward&rdquo;, the sheltered side of the island from the trade winds, which still blow hard across this coast after crossing the low isthmus. The beach itself has shifted and shrunk over the years, and in 2014 the windsurf centre moved to keep up with it."},
+    {tag:"place", place:"sotavento", text:"Across the isthmus of La Pared the island narrows to about five kilometres. Wind squeezed through the gap between the northern hills and the Jand&iacute;a massif accelerates, which is part of why the beaches below it are so windy.",
+      deep:"It is a classic venturi: air forced through a narrower space has to speed up. On the west side of the isthmus the Atlantic swell hits wild, steep beaches; on the east side the same wind blows across flatter water and long sand. Before the conquest this narrow neck was the border between the two kingdoms, and the village here is still named after the wall that once marked it."},
+
+    // --- Jandía & Cofete ---
+    {tag:"place", place:"jandia", text:"The island's highest point, Pico de la Zarza on the Jand&iacute;a peninsula, is just 807 metres high, but its north face drops in a sheer wall to the empty beach of Cofete below.",
+      deep:"Jand&iacute;a's peaks catch the moist trade winds, so their upper slopes often wear a cap of cloud while the rest of the island is in sun. That moisture supports plants found nowhere else, and the whole massif is a protected natural park. The contrast is remarkable: on the southern side, gentle valleys lead down to hotels; on the northern side the cliff falls to kilometres of untouched sand, reachable only by a rough track."},
+    {tag:"place", place:"jandia", text:"The <em>card&oacute;n de Jand&iacute;a</em>, a spiny, cactus-like spurge, grows wild in only a few valleys on the southern slopes of the Jand&iacute;a massif, and nowhere else in the world. It is one of the island's two natural symbols.",
+      deep:"<em>Euphorbia handiensis</em> looks like a cactus, with thick leafless stems and long spines, but belongs to the spurge family; the resemblance to American cacti is convergent evolution in similar dry conditions. It grows up to about 80 centimetres tall, in valleys such as Gran Valle and Jor&oacute;s, below about 150 metres. Its tiny reddish flowers are easy to miss. Its small range makes it vulnerable, and it is protected along with its habitat."},
+    {tag:"place", place:"jandia", text:"The lonely villa above Cofete beach was built by the German engineer Gustav Winter, and it has attracted rumours for decades: secret Nazi bases, U-boat signals, hidden tunnels. None of it has been proven.",
+      deep:"Winter, born in 1893, worked in Spain from the First World War onwards and developed land on the Jand&iacute;a peninsula. The only firm documentary date for the house is 1949, when plans were filed with the town hall of P&aacute;jara. Its tower lamp, isolation and thick walls fed the legends. His widow said it was built to exploit the area's farming potential, and recent investigations have tended to support the less dramatic story."},
+    {tag:"place", place:"jandia", text:"Between 2006 and 2011 loggerhead turtle eggs were brought from Cape Verde and reburied on Cofete beach, in an attempt to bring back nesting turtles that had been absent from the Canaries for around three centuries.",
+      deep:"The idea relies on how turtles return to nest near the beach where they hatched. Some 60 nests produced about 2,300 hatchlings, which were raised for a time at a turtle nursery in Morro Jable before being released. Loggerheads take many years to mature, so the project was always a long bet: success means females returning to lay eggs on Fuerteventura's beaches, decades after their journey began."}
+  ];
+
+  FACTS.forEach(function(f, i){ f.id = i; });
+
+  // Curated facts carry numeric ids; ones Claude writes later carry string ids.
+  var genFacts = [];
+  var ALL = FACTS.slice();
+  var factById = {};
+  function reindex(){
+    ALL = FACTS.concat(genFacts);
+    factById = {};
+    ALL.forEach(function(f){ factById[f.id] = f; });
+  }
+  reindex();
+
+  var KEPT_KEY = "fuerte-almanac-kept";
+  var SEEN_KEY = "fuerte-almanac-seen";
+  var FILTER_KEY = "fuerte-almanac-filter";
+  var GEN_KEY = "fuerte-almanac-written";
+  var PLACES_KEY = "fuerte-almanac-places";
+
+  function validId(n){
+    return Number.isInteger(n) || (typeof n === "string" && n.length > 0);
+  }
+  function readLocal(key){
+    try{
+      var raw = window.localStorage.getItem(key);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.filter(validId) : [];
+    } catch(e){ return []; }
+  }
+  function readJsonLocal(key){
+    try{
+      var raw = window.localStorage.getItem(key);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeLocal(key, value){
+    try{ window.localStorage.setItem(key, JSON.stringify(value)); } catch(e){ /* private mode: stay in memory */ }
+  }
+
+  // Generated text is rendered as HTML, so allow only the markup this page uses.
+  function safeHtml(s){
+    var out = String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    out = out.replace(/&lt;em&gt;/g, "<em>").replace(/&lt;\/em&gt;/g, "</em>");
+    out = out.replace(/&amp;(mdash|ndash|ldquo|rdquo|lsquo|rsquo|hellip|nbsp|numero);/g, "&$1;");
+    return out;
+  }
+
+  var keptIds = readLocal(KEPT_KEY);
+  var seenIds = readLocal(SEEN_KEY);
+
+  var docs = { kept:null, seen:null };
+  var writeState = { kept:{busy:false,queued:false}, seen:{busy:false,queued:false} };
+
+  function push(which){
+    var ref = docs[which];
+    if(!ref) return;
+    var st = writeState[which];
+    if(st.busy){ st.queued = true; return; }
+    st.busy = true;
+    ref.set({ ids: (which === "kept" ? keptIds : seenIds).slice() })["catch"](function(){})
+      .then(function(){
+        st.busy = false;
+        if(st.queued){ st.queued = false; push(which); }
+      });
+  }
+  function saveKept(){ writeLocal(KEPT_KEY, keptIds); push("kept"); }
+
+  var seenTimer = null;
+  function saveSeen(immediate){
+    writeLocal(SEEN_KEY, seenIds);
+    if(seenTimer){ clearTimeout(seenTimer); seenTimer = null; }
+    if(immediate){ push("seen"); return; }
+    seenTimer = setTimeout(function(){ seenTimer = null; push("seen"); }, 1200);
+  }
+
+  var factEl = document.getElementById("fact");
+  var placeTag = document.getElementById("placeTag");
+  var indexTag = document.getElementById("indexTag");
+  var freshTag = document.getElementById("freshTag");
+  var btn = document.getElementById("nextBtn");
+  var backBtn = document.getElementById("backBtn");
+  var fwdBtn = document.getElementById("fwdBtn");
+  var keepBtn = document.getElementById("keepBtn");
+  var keepLabel = document.getElementById("keepLabel");
+  var storyBtn = document.getElementById("storyBtn");
+  var storyLabel = document.getElementById("storyLabel");
+  var deepWrap = document.getElementById("deepWrap");
+  var deepText = document.getElementById("deepText");
+  var savedToggle = document.getElementById("savedToggle");
+  var savedPanel = document.getElementById("savedPanel");
+  var savedList = document.getElementById("savedList");
+  var chipsEl = document.getElementById("chips");
+  var progressEl = document.getElementById("progress");
+  var exhaustedEl = document.getElementById("exhausted");
+  var exhaustedText = document.getElementById("exhaustedText");
+  var resetBtn = document.getElementById("resetBtn");
+  var retryBtn = document.getElementById("retryBtn");
+  var addPlaceForm = document.getElementById("addPlaceForm");
+  var addPlaceInput = document.getElementById("addPlaceInput");
+  var addNote = document.getElementById("addNote");
+  var removePlaceBtn = document.getElementById("removePlaceBtn");
+  var corpusCount = document.getElementById("corpusCount");
+
+  var current = null;
+
+  var BASE_PLACES = PLACES;
+  var customPlaces = readJsonLocal(PLACES_KEY).filter(function(p){
+    return p && typeof p.key === "string" && typeof p.name === "string";
+  });
+
+  var placeByKey = {};
+  var CHIPS = [];
+  function rebuildPlaces(){
+    PLACES = BASE_PLACES.concat(customPlaces);
+    placeByKey = {};
+    PLACES.forEach(function(p){ placeByKey[p.key] = p; });
+    CHIPS = [{key:null, name:"Everything", sub:"All"}].concat(PLACES);
+  }
+  rebuildPlaces();
+
+  var storedFilter = null;
+  try{ storedFilter = window.localStorage.getItem(FILTER_KEY); } catch(e){ storedFilter = null; }
+
+  var filter = null;
+  function validFilter(key){
+    if(!key) return false;
+    for(var i=0;i<CHIPS.length;i++){
+      if(CHIPS[i].key && CHIPS[i].key === key) return true;
+    }
+    return false;
+  }
+  if(validFilter(storedFilter)){ filter = storedFilter; }
+
+  function inPool(f){
+    if(!filter) return true;
+    return f.place === filter;
+  }
+  function poolFacts(){ return ALL.filter(inPool); }
+  function unseenFacts(){
+    return poolFacts().filter(function(f){ return seenIds.indexOf(f.id) === -1; });
+  }
+  function unseenCountFor(key){
+    var n = 0;
+    for(var i=0;i<ALL.length;i++){
+      var f = ALL[i];
+      if((key === null || f.place === key) && seenIds.indexOf(f.id) === -1){ n++; }
+    }
+    return n;
+  }
+  function filterLabel(){
+    if(!filter) return "the whole almanac";
+    var p = placeByKey[filter];
+    return p ? p.name : "this set";
+  }
+
+  // ---- New facts, written by Claude when a set runs dry ----
+  var sampleFn = null;
+  var samplingOff = false;
+  var genCollection = null;
+  var genBusy = {};
+  var genFailed = {};
+  var dbBatches = [];
+  var localBatches = readJsonLocal(GEN_KEY);
+  var stuck = false;
+
+  function poolKey(key){ return key === null ? "_all" : key; }
+  function canGenerate(){ return !!sampleFn && !samplingOff; }
+
+  function factsFromBatches(batches){
+    var out = [];
+    batches.forEach(function(b){
+      if(!b || !Array.isArray(b.facts)) return;
+      b.facts.forEach(function(f, i){
+        if(!f || !f.text) return;
+        var entry = {
+          id: "g:" + b.id + ":" + i,
+          text: safeHtml(f.text),
+          deep: safeHtml(f.deep || ""),
+          gen: true
+        };
+        if(b.place){ entry.tag = "place"; entry.place = b.place; }
+        else { entry.tag = "general"; }
+        out.push(entry);
+      });
+    });
+    return out;
+  }
+
+  function rebuildGen(){
+    genFacts = factsFromBatches(dbBatches).concat(factsFromBatches(localBatches));
+    reindex();
+    updateChips();
+    updateProgress();
+    if(stuck && unseenFacts().length){
+      stuck = false;
+      nextFact();
+    }
+  }
+
+  function stripMarkup(s){
+    return String(s).replace(/<[^>]*>/g, "").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim();
+  }
+
+  function buildPrompt(key, count){
+    var place = key ? placeByKey[key] : null;
+    var subject;
+    if(!place){
+      subject = "Fuerteventura as a whole, not tied to any one town or area";
+    } else if(place.custom){
+      subject = place.name + ", a place on Fuerteventura in the Canary Islands";
+    } else {
+      subject = place.name + " (" + place.sub + "), on Fuerteventura in the Canary Islands";
+    }
+    var needsSub = !!(place && place.custom && !place.sub);
+    var existing = ALL
+      .filter(function(f){ return key === null ? f.tag === "general" : f.place === key; })
+      .map(function(f){ return "- " + stripMarkup(f.text).slice(0, 130); })
+      .slice(-60)
+      .join("\n");
+
+    return [
+      "You are writing new entries for a carefully curated almanac of facts about Fuerteventura, in the Canary Islands. Write " + count + " new entries about " + subject + ".",
+      "",
+      "House style, follow exactly:",
+      "- Each entry has two fields: text and deep.",
+      "- text: one or two sentences, 35 to 55 words, stating a single concrete and genuinely surprising fact.",
+      "- deep: 60 to 90 words giving the fuller story behind it: the origin, the mechanism, the consequence, or a vivid specific detail.",
+      "- Pitch it at a well-read person, including people who live on the island, who already knows the obvious things. No sun-and-beach cliches, nothing a first-time visitor learns on day one.",
+      "- Favour origins, mechanisms, geology, wildlife, history, local customs and specific strangeness over scenic description.",
+      "- State only what you are confident is true. If unsure of a name, date or number, write the entry without it rather than guessing.",
+      "- Markup: <em> and </em> around Spanish or foreign terms, &mdash; for dashes, &ldquo; and &rdquo; for quotation marks. No other HTML, no markdown.",
+      "- Do not repeat, paraphrase or overlap with any existing entry listed below.",
+      "",
+      existing ? "Existing entries, do not repeat or restate these:\n" + existing : "",
+      "",
+      (place && place.custom
+        ? "If the name above is not a recognizable place on Fuerteventura, or you cannot tell what it refers to, reply with only {\"notInCountry\":true} and no entries.\n"
+        : ""),
+      "Reply with only JSON in exactly this shape:",
+      (needsSub
+        ? "{\"sub\":\"the municipality it is in\",\"facts\":[{\"text\":\"...\",\"deep\":\"...\"}]}"
+        : "{\"facts\":[{\"text\":\"...\",\"deep\":\"...\"}]}")
+    ].join("\n");
+  }
+
+  function storeBatch(key, facts){
+    var place = key || "";
+    if(genCollection){
+      return genCollection.add({ place: place, facts: facts, createdAt: new Date().toISOString() });
+    }
+    localBatches.push({ id: "local-" + Date.now(), place: place, facts: facts });
+    writeLocal(GEN_KEY, localBatches);
+    rebuildGen();
+    return Promise.resolve();
+  }
+
+  function generateFor(key){
+    var pk = poolKey(key);
+    if(!canGenerate() || genBusy[pk]) return;
+    genBusy[pk] = true;
+    genFailed[pk] = null;
+    updateProgress();
+
+    var place = key ? placeByKey[key] : null;
+    var firstRun = !!(place && place.custom && !place.sub);
+
+    sampleFn.json(buildPrompt(key, 8), { modelTier: "default", cache: false })
+      .then(function(data){
+        if(data && data.notInCountry){ return Promise.reject({ code: "not_in_country" }); }
+        var list = (data && Array.isArray(data.facts)) ? data.facts : [];
+        var cleaned = [];
+        list.forEach(function(item){
+          if(item && typeof item.text === "string" && item.text.trim()){
+            cleaned.push({ text: item.text.trim(), deep: typeof item.deep === "string" ? item.deep.trim() : "" });
+          }
+        });
+        if(!cleaned.length){ return Promise.reject({ code: "empty_completion" }); }
+        if(place && place.custom && !place.sub && typeof data.sub === "string" && data.sub.trim()){
+          place.sub = data.sub.trim().slice(0, 24);
+          savePlaces();
+          applyPlaces();
+        }
+        return storeBatch(key, cleaned);
+      })
+      .then(function(){
+        genBusy[pk] = false;
+        if(firstRun && place){ addNoteSay(place.name + " added, with its first facts.", false); }
+        updateChips();
+        updateProgress();
+      })
+      ["catch"](function(e){
+        genBusy[pk] = false;
+        var code = (e && e.code) || "upstream_error";
+        if(code === "not_in_country"){
+          if(place && place.custom){
+            addNoteSay("Couldn't place " + place.name + " on Fuerteventura — check the spelling and try again.", true);
+            removePlace(place.key);
+            return;
+          }
+        }
+        if(code === "not_granted" || code === "sampling_disabled" || code === "not_declared" ||
+           code === "capability_disabled" || code === "capability_removed"){
+          samplingOff = true;
+        } else {
+          genFailed[pk] = code;
+        }
+        if(firstRun && place){
+          addNoteSay("Added " + place.name + ", but writing its facts didn't work just now.", true);
+        }
+        updateProgress();
+      });
+  }
+
+  // ---- Places you add yourself ----
+  var placesDoc = null;
+
+  function savePlaces(){
+    writeLocal(PLACES_KEY, customPlaces);
+    if(placesDoc){ placesDoc.set({ items: customPlaces })["catch"](function(){}); }
+  }
+
+  function applyPlaces(){
+    rebuildPlaces();
+    buildChips();
+    if(!filter && validFilter(storedFilter)){ filter = storedFilter; }
+    if(filter && !validFilter(filter)){ filter = null; }
+    updateChips();
+    updateProgress();
+    updateRemoveBtn();
+  }
+
+  function updateRemoveBtn(){
+    var p = filter ? placeByKey[filter] : null;
+    removePlaceBtn.hidden = !(p && p.custom);
+  }
+
+  function slugFor(name){
+    var base = "c:" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    if(base === "c:"){ base = "c:place"; }
+    var key = base, n = 2;
+    while(placeByKey[key]){ key = base + "-" + n; n++; }
+    return key;
+  }
+
+  function addNoteSay(msg, bad){
+    addNote.textContent = msg || "";
+    addNote.classList.toggle("bad", !!bad);
+    addNote.hidden = !msg;
+  }
+
+  function addPlace(rawName){
+    var name = rawName.replace(/\s+/g, " ").trim();
+    if(!name) return;
+    if(name.length > 40){ name = name.slice(0, 40); }
+
+    var existing = null;
+    PLACES.forEach(function(p){
+      if(p.name.toLowerCase() === name.toLowerCase()){ existing = p; }
+    });
+    if(existing){
+      addNoteSay(existing.name + " is already on the list.", false);
+      setFilter(existing.key);
+      return;
+    }
+    if(!canGenerate()){
+      addNoteSay("Adding a place needs Claude to write its facts, which isn't available here.", true);
+      return;
+    }
+
+    var place = { key: slugFor(name), name: name, sub: "", custom: true };
+    customPlaces.push(place);
+    savePlaces();
+    applyPlaces();
+    addPlaceInput.value = "";
+    addNoteSay("Writing the first facts about " + place.name + "…", false);
+    setFilter(place.key);
+  }
+
+  function removePlace(key){
+    customPlaces = customPlaces.filter(function(p){ return p.key !== key; });
+    savePlaces();
+    if(filter === key){ filter = null; }
+    try{ window.localStorage.removeItem(FILTER_KEY); } catch(e){ /* ignore */ }
+    storedFilter = null;
+    applyPlaces();
+    addNoteSay("Removed. Facts already written for it stay in Everything.", false);
+    var f = pickFact();
+    if(f){ visit(f); }
+  }
+
+  function maybeTopUp(threshold){
+    if(!canGenerate()) return;
+    if(genFailed[poolKey(filter)]) return;
+    if(unseenFacts().length > threshold) return;
+    generateFor(filter);
+  }
+
+  function buildChips(){
+    chipsEl.innerHTML = "";
+    CHIPS.forEach(function(c){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = c.custom ? "chip custom" : "chip";
+      b.setAttribute("data-key", c.key === null ? "" : c.key);
+      var n = document.createElement("span");
+      n.className = "chip-name";
+      n.textContent = c.name;
+      b.appendChild(n);
+      if(c.sub){
+        var s = document.createElement("span");
+        s.className = "chip-sub";
+        s.textContent = c.sub;
+        b.appendChild(s);
+      }
+      b.addEventListener("click", function(){ setFilter(c.key); });
+      chipsEl.appendChild(b);
+    });
+  }
+  buildChips();
+
+  function updateChips(){
+    var nodes = chipsEl.querySelectorAll(".chip");
+    for(var i=0;i<nodes.length;i++){
+      var key = nodes[i].getAttribute("data-key") || null;
+      var active = key === filter;
+      nodes[i].classList.toggle("active", active);
+      nodes[i].classList.toggle("done", unseenCountFor(key) === 0);
+      nodes[i].setAttribute("aria-pressed", active ? "true" : "false");
+    }
+    corpusCount.textContent = ALL.length + " facts";
+  }
+
+  function updateProgress(){
+    var total = poolFacts().length;
+    var left = unseenFacts().length;
+    var pk = poolKey(filter);
+    var writing = !!genBusy[pk];
+    progressEl.textContent = (total - left) + " of " + total + " read · " + filterLabel() +
+      (writing ? " · writing more" : "");
+
+    var done = left === 0;
+    btn.disabled = done;
+    exhaustedEl.hidden = !done;
+    if(!done) return;
+
+    var label = filterLabel();
+    if(writing){
+      exhaustedText.textContent = "That's every fact in " + label + ". Claude is writing more now — usually under a minute.";
+    } else if(genFailed[pk] === "rate_limited"){
+      exhaustedText.textContent = "That's every fact in " + label + ". New ones couldn't be written just now: your Claude usage limit was reached.";
+    } else if(genFailed[pk]){
+      exhaustedText.textContent = "That's every fact in " + label + ". Writing new ones didn't work just now.";
+    } else if(canGenerate()){
+      exhaustedText.textContent = "That's every fact in " + label + ". More are on the way.";
+    } else {
+      exhaustedText.textContent = "You've read every fact in " + label + ". Nothing repeats until you reset this set.";
+    }
+    retryBtn.hidden = !(canGenerate() && !writing && genFailed[pk]);
+  }
+
+  function setFilter(key){
+    filter = key;
+    try{
+      if(key === null){ window.localStorage.removeItem(FILTER_KEY); }
+      else { window.localStorage.setItem(FILTER_KEY, key); }
+    } catch(e){ /* ignore */ }
+    updateChips();
+    updateProgress();
+    updateRemoveBtn();
+    var fact = pickFact();
+    if(fact){ visit(fact); }
+    else { stuck = true; maybeTopUp(2); }
+    window.scrollTo({ top:0, behavior:"smooth" });
+  }
+
+  (function setDatebar(){
+    var opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+    document.getElementById("datebar").textContent = new Date().toLocaleDateString('en-GB', opts);
+  })();
+
+  function pickFact(){
+    var pool = unseenFacts();
+    if(!pool.length) return null;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function updateKeepBtn(){
+    var isKept = current && keptIds.indexOf(current.id) !== -1;
+    keepBtn.classList.toggle("kept", !!isKept);
+    keepBtn.setAttribute("aria-pressed", isKept ? "true" : "false");
+    keepLabel.textContent = isKept ? "Kept" : "Keep this one";
+  }
+
+  function renderSavedList(){
+    savedToggle.textContent = "Kept facts (" + keptIds.length + ")";
+    savedList.innerHTML = "";
+    if(keptIds.length === 0){
+      var empty = document.createElement("p");
+      empty.className = "saved-empty";
+      empty.textContent = "Nothing kept yet. The box under a fact saves it here.";
+      savedList.appendChild(empty);
+      return;
+    }
+    keptIds.forEach(function(id){
+      var fact = factById[id];
+      if(!fact) return;
+      var row = document.createElement("div");
+      row.className = "saved-item";
+
+      var txt = document.createElement("button");
+      txt.type = "button";
+      txt.className = "txt";
+      txt.innerHTML = fact.text;
+      txt.addEventListener("click", function(){ visit(fact); window.scrollTo({top:0, behavior:"smooth"}); });
+
+      var rm = document.createElement("button");
+      rm.type = "button";
+      rm.className = "rm";
+      rm.setAttribute("aria-label","Remove from kept facts");
+      rm.textContent = "×";
+      rm.addEventListener("click", function(){
+        keptIds = keptIds.filter(function(n){ return n !== id; });
+        saveKept();
+        renderSavedList();
+        updateKeepBtn();
+      });
+
+      row.appendChild(txt);
+      row.appendChild(rm);
+      savedList.appendChild(row);
+    });
+  }
+
+  function closeStory(){
+    deepWrap.classList.remove("open");
+    storyBtn.setAttribute("aria-expanded", "false");
+    storyLabel.textContent = "Read the full story";
+  }
+
+  function pad(n){ return n < 10 ? "00" + n : (n < 100 ? "0" + n : "" + n); }
+
+  function render(fact){
+    current = fact;
+    factEl.innerHTML = fact.text;
+    freshTag.hidden = !fact.gen;
+    indexTag.innerHTML = "&numero; " + (typeof fact.id === "number" ? pad(fact.id + 1) : "NEW");
+    updateKeepBtn();
+    deepText.innerHTML = '<span class="cap">The fuller story</span>' + (fact.deep || "");
+    closeStory();
+
+    if(fact.tag === "general"){
+      placeTag.innerHTML = "Across the island";
+    } else {
+      var place = placeByKey[fact.place];
+      if(place){
+        placeTag.innerHTML = place.name + (place.sub ? ' <span class="sub">' + place.sub + '</span>' : "");
+      } else {
+        placeTag.innerHTML = "Somewhere on Fuerteventura";
+      }
+    }
+  }
+
+  var trail = [];
+  var cursor = -1;
+
+  function updateNav(){
+    backBtn.disabled = cursor <= 0;
+    fwdBtn.disabled = cursor >= trail.length - 1;
+  }
+
+  function visit(fact){
+    trail = trail.slice(0, cursor + 1);
+    trail.push(fact);
+    if(trail.length > 100){ trail.shift(); }
+    cursor = trail.length - 1;
+    render(fact);
+    updateNav();
+    if(seenIds.indexOf(fact.id) === -1){
+      seenIds.push(fact.id);
+      saveSeen(false);
+      updateChips();
+    }
+    updateProgress();
+    maybeTopUp(2);
+  }
+
+  function step(delta){
+    var target = cursor + delta;
+    if(target < 0 || target >= trail.length) return;
+    cursor = target;
+    render(trail[cursor]);
+    updateNav();
+  }
+
+  function nextFact(){
+    var fact = pickFact();
+    if(!fact){ stuck = true; maybeTopUp(2); updateProgress(); return; }
+    visit(fact);
+  }
+
+  btn.addEventListener("click", nextFact);
+  backBtn.addEventListener("click", function(){ step(-1); });
+  fwdBtn.addEventListener("click", function(){ step(1); });
+
+  document.addEventListener("keydown", function(e){
+    if(e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if(e.key === "ArrowLeft"){ step(-1); }
+    else if(e.key === "ArrowRight"){ step(1); }
+  });
+
+  keepBtn.addEventListener("click", function(){
+    if(!current) return;
+    var idx = keptIds.indexOf(current.id);
+    if(idx === -1){ keptIds.push(current.id); }
+    else { keptIds.splice(idx, 1); }
+    saveKept();
+    updateKeepBtn();
+    renderSavedList();
+  });
+
+  storyBtn.addEventListener("click", function(){
+    var willOpen = !deepWrap.classList.contains("open");
+    deepWrap.classList.toggle("open", willOpen);
+    storyBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    storyLabel.textContent = willOpen ? "Close the story" : "Read the full story";
+  });
+
+  savedToggle.addEventListener("click", function(){
+    savedPanel.hidden = !savedPanel.hidden;
+    if(!savedPanel.hidden){ renderSavedList(); }
+  });
+
+  retryBtn.addEventListener("click", function(){ generateFor(filter); });
+
+  addPlaceForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    addPlace(addPlaceInput.value);
+  });
+
+  removePlaceBtn.addEventListener("click", function(){
+    var p = filter ? placeByKey[filter] : null;
+    if(p && p.custom){ removePlace(p.key); }
+  });
+
+  resetBtn.addEventListener("click", function(){
+    var poolIds = poolFacts().map(function(f){ return f.id; });
+    seenIds = seenIds.filter(function(id){ return poolIds.indexOf(id) === -1; });
+    saveSeen(true);
+    updateChips();
+    nextFact();
+  });
+
+  // opening state
+  applyPlaces();
+  rebuildGen();
+  var opening = pickFact();
+  if(opening){ visit(opening); }
+  else { stuck = true; updateProgress(); }
+  renderSavedList();
+
+  var syncNote = document.getElementById("syncNote");
+  var firstKept = true;
+  var firstSeen = true;
+
+  function union(a, b){
+    var out = a.slice();
+    b.forEach(function(id){ if(out.indexOf(id) === -1){ out.push(id); } });
+    return out;
+  }
+
+  function adoptKept(serverIds){
+    if(firstKept){
+      firstKept = false;
+      var merged = union(serverIds, keptIds);
+      keptIds = merged;
+      writeLocal(KEPT_KEY, keptIds);
+      if(merged.length !== serverIds.length){ push("kept"); }
+    } else {
+      keptIds = serverIds;
+      writeLocal(KEPT_KEY, keptIds);
+    }
+    renderSavedList();
+    updateKeepBtn();
+  }
+
+  function adoptSeen(serverIds){
+    if(firstSeen){
+      firstSeen = false;
+      var merged = union(serverIds, seenIds);
+      seenIds = merged;
+      writeLocal(SEEN_KEY, seenIds);
+      if(merged.length !== serverIds.length){ push("seen"); }
+    } else {
+      seenIds = serverIds;
+      writeLocal(SEEN_KEY, seenIds);
+    }
+    updateChips();
+    updateProgress();
+  }
+
+  (function connectStore(){
+    if(!(window.claude && window.claude.use)) return;
+
+    Promise.resolve(window.claude.use("sample")).then(function(s){
+      sampleFn = s || null;
+      updateProgress();
+      maybeTopUp(0);
+    })["catch"](function(){});
+
+    Promise.resolve(window.claude.use("db")).then(function(db){
+      if(!db) return;
+      docs.kept = db.doc("kept/list");
+      docs.seen = db.doc("progress/seen");
+      genCollection = db.collection("generated");
+      placesDoc = db.doc("places/custom");
+
+      placesDoc.onSnapshot(function(snap){
+        var body = snap.exists ? snap.data() : null;
+        var items = (body && Array.isArray(body.items)) ? body.items : [];
+        var clean = [];
+        items.forEach(function(p){
+          if(p && typeof p.key === "string" && typeof p.name === "string" && p.key.indexOf("c:") === 0){
+            clean.push({
+              key: p.key,
+              name: String(p.name).slice(0, 40),
+              sub: typeof p.sub === "string" ? p.sub.slice(0, 24) : "",
+              custom: true
+            });
+          }
+        });
+        var folded = false;
+        customPlaces.forEach(function(local){
+          var known = clean.some(function(p){ return p.key === local.key; });
+          if(!known){ clean.push(local); folded = true; }
+        });
+        customPlaces = clean;
+        writeLocal(PLACES_KEY, customPlaces);
+        if(folded){ placesDoc.set({ items: customPlaces })["catch"](function(){}); }
+        applyPlaces();
+      }, function(){ placesDoc = null; });
+
+      genCollection.onSnapshot(function(snap){
+        dbBatches = snap.docs.map(function(d){
+          var body = d.data() || {};
+          return {
+            id: d.id,
+            place: typeof body.place === "string" ? body.place : "",
+            facts: Array.isArray(body.facts) ? body.facts : []
+          };
+        });
+        rebuildGen();
+      }, function(){ genCollection = null; });
+
+      syncNote.textContent = "Kept facts, progress and newly written facts follow you across devices";
+      syncNote.classList.add("synced");
+
+      function lost(){
+        syncNote.textContent = "Kept facts and progress are saved on this iPhone";
+        syncNote.classList.remove("synced");
+        docs.kept = null;
+        docs.seen = null;
+      }
+
+      docs.kept.onSnapshot(function(snap){
+        var body = snap.exists ? snap.data() : null;
+        adoptKept((body && Array.isArray(body.ids)) ? body.ids.filter(validId) : []);
+      }, lost);
+
+      docs.seen.onSnapshot(function(snap){
+        var body = snap.exists ? snap.data() : null;
+        adoptSeen((body && Array.isArray(body.ids)) ? body.ids.filter(validId) : []);
+      }, lost);
+    })["catch"](function(){});
+  })();
+})();
+</script>
+
+</body></html>
