@@ -17,7 +17,7 @@ The owner asked for this on all current and future apps. The repo is public and 
 ## Apps edited directly in the repo
 
 - Polder, Nakasendō and Fuerteventura have no artifact source: edit `<app>/index.html` directly, run the safety check, then commit and push.
-- Fuerteventura (`fuerteventura/`) was built from the Polder template. Fact ids are array positions stored in readers' kept/seen lists: append new facts at the end of `FACTS`, never insert or reorder. Its storage keys start with `fuerte-almanac-`; bump `CACHE` in `fuerteventura/sw.js` when it changes.
+- Fuerteventura (`fuerteventura/`) was built from the Polder template. Fact ids are array positions stored in readers' kept/seen lists: append new facts at the end of `FACTS`, never insert or reorder. Its "Things to do" list (`TODO`, filtered by the area chip, "done" marks stored by array position) is append-only too. Its storage keys start with `fuerte-almanac-`; bump `CACHE` in `fuerteventura/sw.js` when it changes.
 
 ## Apps published from Claude artifacts
 

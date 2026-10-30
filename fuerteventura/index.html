@@ -388,6 +388,33 @@
   .add-note{ margin-top:10px; font-size:.86rem; font-style:italic; color:var(--grey); }
   .add-note.bad{ color:var(--orange); }
 
+  /* things to do */
+  .todo{ margin-top:clamp(26px,5vw,36px); border-top:2px solid var(--ink); padding-top:16px; }
+  .todo h2{
+    font-family:'Archivo', system-ui, sans-serif; font-size:.7rem; font-weight:600;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--ink); margin:0 0 14px;
+  }
+  .todo-where{ color:var(--grey); font-weight:500; }
+  .todo-item{ padding:14px 0; border-bottom:1px solid var(--rule); }
+  .todo-item:first-child{ border-top:1px solid var(--rule); }
+  .todo-top{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+  .todo-kind{
+    font-family:'Archivo', system-ui, sans-serif; font-size:.62rem; font-weight:600;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--orange);
+  }
+  .todo-kind .todo-area{ color:var(--grey); font-weight:500; }
+  .todo-title{ font-family:'Archivo', system-ui, sans-serif; font-weight:600; font-size:1.02rem; margin:4px 0 6px; color:var(--ink); }
+  .todo-text{ font-size:.98rem; line-height:1.55; color:var(--ink-soft); margin:0; }
+  .todo-tip{ font-size:.88rem; line-height:1.5; color:var(--grey); margin:8px 0 0; font-style:italic; }
+  .todo-done{
+    flex:none; font-family:'Archivo', system-ui, sans-serif; font-size:.6rem; font-weight:600;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--grey); background:transparent;
+    border:1px solid var(--rule-strong); padding:5px 8px; cursor:pointer;
+  }
+  .todo-done[aria-pressed="true"]{ color:var(--panel); background:var(--delft); border-color:var(--delft); }
+  .todo-done:focus-visible{ outline:2px solid var(--orange); outline-offset:2px; }
+  .todo-item.is-done .todo-title{ text-decoration:line-through; text-decoration-color:var(--grey); }
+
   footer{
     margin-top:clamp(26px,5vw,36px);
     padding-top:14px;
@@ -486,6 +513,11 @@
     <div class="add-note" id="addNote" hidden></div>
   </div>
 
+  <section class="todo" aria-labelledby="todoHead">
+    <h2 id="todoHead"><span>Things to do</span> <span class="todo-where" id="todoWhere">across the island</span></h2>
+    <div class="todo-list" id="todoList"></div>
+  </section>
+
   <footer>
     <span class="sync-note" id="syncNote">Kept facts and progress are saved on this iPhone</span><br>
     Facts are gathered, not guaranteed. Ones marked newly written have not been checked.
@@ -506,7 +538,8 @@
     {key:"antigua", name:"Antigua & Caleta", sub:"Centre-east"},
     {key:"tuineje", name:"Tuineje & Gran Tarajal", sub:"South-east"},
     {key:"sotavento", name:"Costa Calma & Sotavento", sub:"The isthmus"},
-    {key:"jandia", name:"Jandía & Cofete", sub:"The southern peninsula"}
+    {key:"jandia", name:"Jandía & Cofete", sub:"The southern peninsula"},
+    {key:"nearby", name:"Lanzarote & beyond", sub:"Nearby islands"}
   ];
 
   var FACTS = [
@@ -517,8 +550,8 @@
       deep:"The windy explanation is so neat that it is repeated everywhere, but historians treat it as a later folk etymology. Angelino Dulcert's Majorcan chart of 1339 names the island decades before the Norman conquest, when <em>ventura</em> meant fortune. Other theories tie it to the classical Fortunate Isles. The Indigenous name is usually given as <em>Erbania</em>. That the island turned out to be one of the windiest places in Europe is a happy coincidence for the sailors who came later."},
     {tag:"general", text:"Islanders are called <em>majoreros</em>, and the word is usually traced back to footwear. The pre-conquest people wore a goatskin shoe called a <em>maho</em>, and the name for the shoe became a name for the people who wore it.",
       deep:"The Indigenous islanders are known today as the Majos or Mahos. The northern kingdom was called Maxorata, and the modern demonym is linked to both words. Goats were the centre of their economy, giving milk, meat, skins and the leather for those shoes, and that pastoral way of life outlasted the conquest by centuries. You still see <em>majorero</em> everywhere: on the cheese, the goat breed, the island's newspapers and the people themselves."},
-    {tag:"general", text:"When the Normans arrived in 1402 the island was split between two kingdoms, Maxorata in the north and Jandía in the south, and a wall is said to have run across the narrow isthmus between them. The village there is still called La Pared &mdash; &ldquo;the wall&rdquo;.",
-      deep:"The isthmus of La Pared is the island's waist, only about five kilometres wide, which made it a natural frontier. Chroniclers record the northern king as Guize and the southern one as Ayoze. Low stone remains on the isthmus have long been linked to the boundary, though how continuous the wall ever was is debated. The Erbania name for the whole island is said by some to come from this wall too."},
+    {tag:"general", text:"When the Normans arrived in 1402 the island was split between two kingdoms, Maxorata in the north and Jandía in the south, and the conquerors' chronicle says a great stone wall crossed the island between them.",
+      deep:"The chronicle <em>Le Canarien</em> mentions the wall but not where it ran. Later records draw the line between the two halves across the middle of the island, while a second wall seems to have closed off the Jand&iacute;a peninsula as a pasture, which may be how the village on the narrow isthmus got its name, La Pared, &ldquo;the wall&rdquo;. The wall was probably never continuous, and by the 1600s it had largely gone. Some writers derive the old island name <em>Erbania</em> from it."},
     {tag:"general", text:"The conquest of the Canaries began here and on Lanzarote, and it was led not by a Spaniard but by a Norman knight. Jean de B&eacute;thencourt held the islands as a vassal of the King of Castile, and the island's first town still carries his name.",
       deep:"B&eacute;thencourt and his partner Gadifer de La Salle sailed in 1402 with an expedition that dwindled badly on the way: by one count only 63 of the original 283 men remained. Lanzarote fell first, then Fuerteventura by 1405. The two leaders quarrelled bitterly, and B&eacute;thencourt went to Castile to secure the lordship for himself. Betancuria, founded in 1404 in a sheltered inland valley, is simply his surname written the Spanish way."},
     {tag:"general", text:"Fuerteventura gets roughly 100 to 150 millimetres of rain a year, less than a fifth of what falls on the Netherlands, and most of it comes in a few winter downpours that run straight off bare slopes into the sea.",
@@ -638,7 +671,7 @@
     {tag:"place", place:"sotavento", text:"At high tide the sea floods over a sandbar and fills a huge shallow lagoon behind the beach at Sotavento, creating flat, waist-deep water with strong wind: ideal for learning to windsurf, kite or wing.",
       deep:"The lagoon empties and fills with the tides, so its size changes through the day, and on big spring tides it can become a vast sheet of water. Sotavento means &ldquo;leeward&rdquo;, the sheltered side of the island from the trade winds, which still blow hard across this coast after crossing the low isthmus. The beach itself has shifted and shrunk over the years, and in 2014 the windsurf centre moved to keep up with it."},
     {tag:"place", place:"sotavento", text:"Across the isthmus of La Pared the island narrows to about five kilometres. Wind squeezed through the gap between the northern hills and the Jand&iacute;a massif accelerates, which is part of why the beaches below it are so windy.",
-      deep:"It is a classic venturi: air forced through a narrower space has to speed up. On the west side of the isthmus the Atlantic swell hits wild, steep beaches; on the east side the same wind blows across flatter water and long sand. Before the conquest this narrow neck was the border between the two kingdoms, and the village here is still named after the wall that once marked it."},
+      deep:"It is a classic venturi: air forced through a narrower space has to speed up. On the west side of the isthmus the Atlantic swell hits wild, steep beaches; on the east side the same wind blows across flatter water and long sand. The village here, La Pared, is named after an old wall that seems to have closed off the Jand&iacute;a peninsula as grazing land."},
 
     // --- Jandía & Cofete ---
     {tag:"place", place:"jandia", text:"The island's highest point, Pico de la Zarza on the Jand&iacute;a peninsula, is just 807 metres high, but its north face drops in a sheer wall to the empty beach of Cofete below.",
@@ -649,7 +682,69 @@
       deep:"Winter, born in 1893, worked in Spain from the First World War onwards and developed land on the Jand&iacute;a peninsula. The only firm documentary date for the house is 1949, when plans were filed with the town hall of P&aacute;jara. Its tower lamp, isolation and thick walls fed the legends. His widow said it was built to exploit the area's farming potential, and recent investigations have tended to support the less dramatic story."},
     {tag:"place", place:"jandia", text:"Between 2006 and 2011 loggerhead turtle eggs were brought from Cape Verde and reburied on Cofete beach, in an attempt to bring back nesting turtles that had been absent from the Canaries for around three centuries.",
       deep:"The idea relies on how turtles return to nest near the beach where they hatched. Some 60 nests produced about 2,300 hatchlings, which were raised for a time at a turtle nursery in Morro Jable before being released. Loggerheads take many years to mature, so the project was always a long bet: success means females returning to lay eggs on Fuerteventura's beaches, decades after their journey began."}
+    ,
+    // --- Added: origins of the people and the nature ---
+    {tag:"general", text:"The island's first people came from North Africa. Ancient DNA from burials across the archipelago points to Amazigh (Berber) ancestors, and radiocarbon dates show people were living on the islands by around 1000 CE at the latest.",
+      deep:"A 2019 study read 48 ancient mitochondrial genomes from 25 sites on all seven main islands. Most lineages trace to North Africa, some found today only in central North Africa, and four turned out to be unique to the Canaries. Their distribution varied with each island's distance from the continent, which suggests at least two separate waves of arrival rather than a single landing. The settlers' ancestors had already mixed with Mediterranean peoples before they ever crossed."},
+    {tag:"general", text:"The first islanders arrived by sea with goats, sheep, pigs, dogs, and seed of barley, wheat and lentils, then seem to have stopped sailing altogether. There is no trace of boats or seafaring among them when the Europeans arrived.",
+      deep:"That puzzle shapes everything about pre-conquest Canary history: each island developed largely on its own, with its own names, customs and even dialects. On Fuerteventura that meant a society built around herds of goats, toasted cereal flour that survives today as <em>gofio</em>, and goatskin clothing. How the first settlers crossed a hundred kilometres of open Atlantic, and whether they came willingly or were brought, is still argued over."},
+    {tag:"general", text:"After their surrender in January 1405 the two Majo kings were baptised under French names, Louis and Alphonse. Their Majo names, Guize and Ayoze, only appear in a history written more than two centuries later.",
+      deep:"The conquerors' own chronicle, <em>Le Canarien</em>, records the baptisms but never the native names. Those come from the friar Juan de Abreu Galindo, writing around 1632. Yet the division outlived the kingdoms: island council records from 1606 to 1774 still split Fuerteventura into &ldquo;Guise's side&rdquo; and &ldquo;Ayose's side&rdquo;, each electing its own councillors and organising its own roundups of wild livestock. Today two four-metre bronze statues of the kings stand at a pass on the road to Betancuria."},
+    {tag:"general", text:"During the last ice age, about 20,000 years ago, Fuerteventura and Lanzarote were one island. The strait between them is only about 11 kilometres wide and some 40 metres deep, and with sea levels far lower it ran dry.",
+      deep:"Geologists sometimes call the joined island Mahan. The exposed shelf between the two islands was a plain of shell sand, and as the sea rose again the trade winds blew that sand south, which is where Corralejo's white dunes come from. The two islands sit on the same volcanic ridge and share much of their wildlife: the same shrew, the same bustards and coursers, and the same family of lizards."},
+    {tag:"general", text:"The islands once had their own mouse. The lava mouse, a rodent about 20 centimetres long, lived only on Fuerteventura, Lanzarote and their islets, and disappeared after about 1270 AD, most likely pushed out by rats that arrived with people.",
+      deep:"It was only described by science in 1988, from bones found in old deposits, and its scientific name <em>Malpaisomys</em> comes from <em>malpa&iacute;s</em>, the rough lava fields where its remains turn up. Radiocarbon dating places its last days after Europeans started visiting the archipelago. It is a textbook example of how island species with no defences against newcomers can vanish quietly, long before anyone thinks to record them."},
+    {tag:"general", text:"Not every native mammal is gone. The Canarian shrew lives only on Fuerteventura, Lanzarote and a couple of small islets, and it was only formally described in 1987. It is listed as endangered.",
+      deep:"It hunts insects and other small prey in rocky, dry scrub and in the cracks of old lava fields, and it is rarely seen. It once lived on La Graciosa and Alegranza too, but no longer does. Its biggest threats are the loss of its stony habitat to building and roads, and predation by feral cats. Together with bats, it is one of the very few land mammals that reached the islands without human help."},
+    {tag:"general", text:"The small lizards darting across warm stones belong to <em>Gallotia</em>, a lizard genus found only in the Canaries. The Fuerteventura population is its own subspecies, named <em>mahoratae</em> after the island's old name.",
+      deep:"The eastern islands have the smallest member of the genus, the Atlantic lizard, while the western islands evolved giants many times its size, some of them now extinct and others reduced to a few hundred animals. The genus's closest living relatives are lizards of the western Mediterranean. Males of the Atlantic lizard often show blue spots along their sides in the breeding season."},
+    {tag:"general", text:"Much of the island's wild vegetation has African roots. The sweet <em>tabaiba</em>, a squat succulent spurge that dots the hills, has close relatives on the coasts of Morocco, the Sahara and Mauritania, and even in parts of East Africa.",
+      deep:"Botanists read these scattered relatives as remnants of a dry-country flora that once stretched across Africa, broken up as the Sahara expanded. On the Canaries it survived in the low, hot zone known as <em>cardonal-tabaibal</em>, named after its spiny spurges. The plants are built for drought: water-storing stems, leaves that drop in the driest months and shallow, wide roots. Many of the island's endemic plants grow only in its few steep, cloud-touched places, out of reach of goats."},
+    {tag:"place", place:"corralejo", text:"The first proof that Romans reached the Canaries was found on Lobos in 2012: a small workshop from the first century BC where people made purple dye, one of the most valuable products of the ancient world, from sea snails.",
+      deep:"Excavations at the site, known as Lobos 1, on the islet's southern shore, uncovered industrial and residential structures and pottery from Roman Spain, but no trace of the island's own people. The workers seem to have come seasonally to harvest snails from the rocks. Archaeologists still puzzle over why anyone chose a tiny islet without fresh water. The site is fenced and covered by sand to protect it."},
+    {tag:"place", place:"antigua", text:"In the Pozo Negro valley lie the remains of La Atalayita, a Majo settlement of more than 115 low stone structures spread over a rocky lava field, some of them over six centuries old.",
+      deep:"The Majos built houses half sunk into the ground, with thick dry-stone walls, and used the rough lava field as protection: it was a hard place to approach unseen. A small visitor centre explains daily life there, and you can step inside some of the structures. Climbing the nearby hill gives the best view of how the houses cluster together across the malpa&iacute;s."},
+    {tag:"place", place:"nearby", text:"Lanzarote's volcanic heart was born in living memory of the Enlightenment. From 1730 to 1736 eruptions in what is now Timanfaya National Park buried a quarter of the island, including villages and some of its best farmland.",
+      deep:"It was one of the longest eruptions in recorded history, documented by the parish priest of Yaiza, who described new mountains rising and lava reaching the sea. Another, smaller eruption followed in 1824. The ground is still hot just below the surface: at the park's centre, rangers pour water into a pipe in the ground and it shoots back out as a geyser of steam within seconds."},
+    {tag:"place", place:"nearby", text:"Lanzarote looks the way it does largely because of one artist. C&eacute;sar Manrique campaigned for low, white buildings, no billboards and architecture fitted into the volcanic landscape, and the island adopted much of it.",
+      deep:"Manrique returned home from New York in the 1960s and spent the rest of his life turning lava tubes, quarries and viewpoints into public spaces, such as Jameos del Agua and the Mirador del R&iacute;o, while lobbying against high-rise tourism. He died in 1992, but his rules still shape the island. Crossing from Fuerteventura, the difference in building styles between the two islands is easy to spot."},
+    {tag:"place", place:"nearby", text:"La Graciosa, off the northern tip of Lanzarote, is an inhabited island where visitors can't bring cars. You arrive by ferry from &Oacute;rzola in about 25 minutes, and its small port town has unpaved streets.",
+      deep:"It is the largest island of the Chinijo archipelago, a marine reserve where fishing is tightly limited. Most visitors walk or cycle between beaches like Las Conchas and La Francesa, or hire one of the island's 4x4 taxis. It became officially recognised as the eighth inhabited Canary Island in 2018, and its few hundred residents live mostly in Caleta de Sebo."}
   ];
+
+  // Things to do. Ids are array positions stored in readers' "done" lists: append only, never reorder.
+  var TODO = [
+    {place:"corralejo", kind:"Walk", title:"Walk the dunes at sunset", text:"Leave the road anywhere along the park and walk out into the white shell-sand dunes. Late afternoon light turns them gold, with Lobos and Lanzarote on the horizon.", tip:"Stay off the plants holding the dunes together, and bring water: there's no shade."},
+    {place:"corralejo", kind:"Day trip", title:"Isla de Lobos", text:"A short boat ride from Corralejo harbour. Walk the loop to the crater of La Caldera (127 m), the lighthouse at Punta Martiño and the sheltered lagoon of La Concha for a swim.", tip:"You need a free online authorisation from the Cabildo before you go. Visits are capped at 200 people per shift (10:00–14:00 or 14:00–18:00)."},
+    {place:"corralejo", kind:"Water", title:"Wing or kite at Flag Beach", text:"The north-east's main kite and wing beach, just south of Corralejo. Best in north to north-west wind.", tip:"Go at mid to high tide: volcanic rocks show at low tide. Be careful if the wind swings north-east, as it can drop suddenly."},
+    {place:"cotillo", kind:"Water", title:"Swim in the Cotillo lagoons", text:"North of El Cotillo, low reefs shelter a string of calm, shallow lagoons with white sand: the gentlest swimming on a coast known for big Atlantic waves.", tip:"Calmest at mid tide. Head back to the old harbour for the sunset."},
+    {place:"cotillo", kind:"Culture", title:"Torre del Tostón and the lime kilns", text:"The squat 18th-century tower above the old harbour is now a small gallery and viewpoint. The old lime kilns are cut into the slope close by.", tip:"Combine with sunset over the harbour."},
+    {place:"laoliva", kind:"Walk", title:"Calderón Hondo volcano", text:"An easy 5 km loop from Lajares to the rim of a deep, perfectly round crater, with views over the northern lava fields. About 1.5 hours.", tip:"Start on the track from Lajares towards Majanicho. Squirrels will beg at the top: don't feed them, they're invasive."},
+    {place:"laoliva", kind:"Culture", title:"Mount Tindaya and the Unamuno monument", text:"See the sacred mountain of the Majos from its base, then visit the statue of Unamuno on nearby Montaña Quemada.", tip:"Climbing Tindaya needs a permit from the Cabildo's environment department, and access to the summit has at times been closed. Check before you go."},
+    {place:"laoliva", kind:"Nature", title:"Cueva del Llano lava tube", text:"A guided walk into a Pleistocene lava tube near Villaverde, home to a tiny spider found nowhere else on Earth.", tip:"Visits are guided, so check opening days first."},
+    {place:"laoliva", kind:"Culture", title:"Casa de los Coroneles", text:"The fortified mansion of the hereditary colonels who really ran the island in the 18th century, in La Oliva.", tip:"The village church of La Oliva is close by."},
+    {place:"puerto", kind:"Culture", title:"Casa Museo Unamuno", text:"The small former hotel where the exiled philosopher lived for four months in 1924, now a house museum in the centre of Puerto del Rosario.", tip:"Walk on along the seafront, where the town's open-air sculptures and murals are."},
+    {place:"betancuria", kind:"Culture", title:"The old capital", text:"Wander Betancuria's single valley of white houses: the rebuilt church of Santa María and the roofless Franciscan convent at the edge of town.", tip:"Go early or late in the day to avoid tour coaches."},
+    {place:"betancuria", kind:"View", title:"Guise and Ayose, and Morro Velosa", text:"At the pass on the FV-30, two four-metre bronze statues of the last Majo kings look out over the island. Nearby, the Morro Velosa viewpoint (669 m) gives one of the widest views on Fuerteventura.", tip:"It's windy and cool up here, even in summer."},
+    {place:"betancuria", kind:"Walk", title:"Vega de Río Palmas to the Ermita de la Peña", text:"A walk from the palm-filled valley of Vega de Río Palmas down the gorge of Las Peñitas to a tiny chapel tucked into the rock.", tip:"The rock in the gorge is slippery after rain."},
+    {place:"ajuy", kind:"Walk", title:"Ajuy caves", text:"From the black-sand beach at Ajuy, a cliff path leads past 100-million-year-old ocean-floor rock to sea caves big enough to walk into.", tip:"Wear proper shoes and stay away from the cliff edge when the swell is big."},
+    {place:"ajuy", kind:"Sky", title:"Stargazing at Sicasumbre", text:"Fuerteventura has been a Starlight Reserve since 2015. The astronomical viewpoint at Sicasumbre, on the road between Pájara and La Pared, has signs to help you find the constellations.", tip:"Pick a night near new moon and bring a warm layer."},
+    {place:"ajuy", kind:"Culture", title:"The carved door at Pájara", text:"Look closely at the doorway of the church of Nuestra Señora de Regla: suns, snakes, birds and big cats, possibly with Aztec influence.", tip:"Shady village square for a coffee next door."},
+    {place:"antigua", kind:"Culture", title:"Salinas del Carmen", text:"Salt is still made here in shallow pans by sun and wind, as it has been since the 18th century. A small museum explains how.", tip:"South of Caleta de Fuste, on the coast road."},
+    {place:"antigua", kind:"Food", title:"Majorero cheese museum", text:"In Antigua, next to a restored windmill: how the island's goat cheese is made and aged.", tip:"Afterwards, try a cured majorero with a paprika or gofio rind."},
+    {place:"antigua", kind:"Culture", title:"La Atalayita", text:"Walk among the low stone houses of a Majo settlement in the Pozo Negro valley, with a small visitor centre.", tip:"Climb the hill by the site for the best overview."},
+    {place:"tuineje", kind:"View", title:"Faro de la Entallada", text:"The Moorish-style lighthouse on the cliffs above Las Playitas: the closest point in the Canaries to Africa.", tip:"The last stretch of road is narrow and steep, and it's very windy at the top."},
+    {place:"tuineje", kind:"Culture", title:"Fiestas Juradas in October", text:"Tuineje re-enacts the 1740 battles against English privateers during its festival of Saint Michael.", tip:"Check the dates for the re-enactment each year."},
+    {place:"sotavento", kind:"Water", title:"Sotavento lagoon", text:"At high tide the sea fills a huge shallow lagoon behind the beach: flat, waist-deep water with strong wind, perfect for learning to windsurf, kite or wing.", tip:"Windiest in summer, when the world cup is held here. Schools rent gear on the beach."},
+    {place:"jandia", kind:"Nature", title:"Cofete beach and Villa Winter", text:"Kilometres of empty sand under the sheer wall of the Jandía massif, reached by a dirt track from Morro Jable. The mysterious Villa Winter is on the way.", tip:"The 4x4 bus line 111 leaves Morro Jable at 10:00 and 14:00. Many rental cars aren't insured off asphalt. Strong currents: swimming is dangerous."},
+    {place:"jandia", kind:"Walk", title:"Pico de la Zarza", text:"The island's highest point (807 m). A long, steady climb from Solana Matorral rewards you with the view down to Cofete. About 15 km return, 4 to 5 hours.", tip:"No shade or water on the way: start early. The cliff falls away sharply just past the summit."},
+    {place:null, kind:"Culture", title:"Watch a Canary wrestling match", text:"Many villages have a terrero, a sand ring, for lucha canaria. Local matches are a great way to see island life.", tip:"Ask at the town hall or a local bar when the next bout is."},
+    {place:"nearby", kind:"Day trip", title:"Ferry to Lanzarote", text:"Ferries cross from Corralejo to Playa Blanca in about 25 to 35 minutes, with many sailings a day from several companies.", tip:"Book the first boat and take a car, or join a tour, to fit in Timanfaya and the north."},
+    {place:"nearby", kind:"Nature", title:"Timanfaya National Park", text:"Lava fields from the 1730–1736 eruptions. One ticket covers the bus tour of the Ruta de los Volcanes and the geothermal demonstrations.", tip:"Pay at the Taro de Entrada on the LZ-67. The free visitor centre at Mancha Blanca is worth a stop first."},
+    {place:"nearby", kind:"Day trip", title:"La Graciosa", text:"Ferry from Órzola in the north of Lanzarote, about 25 minutes. No visitor cars: walk or cycle to beaches like Las Conchas.", tip:"Bikes can go on the ferry, or hire one in Caleta de Sebo."},
+    {place:"nearby", kind:"Day trip", title:"Gran Canaria", text:"Ferries from Morro Jable reach Las Palmas in about 1 hour 45 minutes to 2 hours: enough for a long day in the old town of Vegueta, or stay over and head up to the mountains.", tip:"Check the return times before you plan the day."}
+  ];
+
 
   FACTS.forEach(function(f, i){ f.id = i; });
 
@@ -1115,8 +1210,60 @@
     retryBtn.hidden = !(canGenerate() && !writing && genFailed[pk]);
   }
 
+  // ---- Things to do (rendered with textContent only) ----
+  var TODO_DONE_KEY = "fuerte-almanac-todo-done";
+  var todoDone = readLocal(TODO_DONE_KEY);
+  var todoListEl = document.getElementById("todoList");
+  var todoWhereEl = document.getElementById("todoWhere");
+  function renderTodo(){
+    var place = filter ? placeByKey[filter] : null;
+    todoWhereEl.textContent = place ? "· " + place.name : "· across the island and beyond";
+    while(todoListEl.firstChild){ todoListEl.removeChild(todoListEl.firstChild); }
+    var shown = 0;
+    TODO.forEach(function(t, id){
+      if(filter && t.place !== filter) return;
+      shown++;
+      var done = todoDone.indexOf(id) !== -1;
+      var item = document.createElement("div");
+      item.className = "todo-item" + (done ? " is-done" : "");
+      var top = document.createElement("div"); top.className = "todo-top";
+      var kind = document.createElement("span"); kind.className = "todo-kind";
+      kind.textContent = t.kind;
+      if(!filter && t.place && placeByKey[t.place]){
+        var area = document.createElement("span"); area.className = "todo-area";
+        area.textContent = " · " + placeByKey[t.place].name;
+        kind.appendChild(area);
+      }
+      var btnDone = document.createElement("button");
+      btnDone.type = "button"; btnDone.className = "todo-done";
+      btnDone.setAttribute("aria-pressed", done ? "true" : "false");
+      btnDone.textContent = done ? "Done ✓" : "Done it?";
+      btnDone.addEventListener("click", function(){
+        var k = todoDone.indexOf(id);
+        if(k === -1){ todoDone.push(id); } else { todoDone.splice(k, 1); }
+        writeLocal(TODO_DONE_KEY, todoDone);
+        renderTodo();
+      });
+      top.appendChild(kind); top.appendChild(btnDone);
+      var title = document.createElement("div"); title.className = "todo-title"; title.textContent = t.title;
+      var text = document.createElement("p"); text.className = "todo-text"; text.textContent = t.text;
+      item.appendChild(top); item.appendChild(title); item.appendChild(text);
+      if(t.tip){
+        var tip = document.createElement("p"); tip.className = "todo-tip"; tip.textContent = "Tip: " + t.tip;
+        item.appendChild(tip);
+      }
+      todoListEl.appendChild(item);
+    });
+    if(!shown){
+      var none = document.createElement("p"); none.className = "todo-tip";
+      none.textContent = "Nothing listed for this place yet.";
+      todoListEl.appendChild(none);
+    }
+  }
+
   function setFilter(key){
     filter = key;
+    renderTodo();
     try{
       if(key === null){ window.localStorage.removeItem(FILTER_KEY); }
       else { window.localStorage.setItem(FILTER_KEY, key); }
@@ -1134,6 +1281,7 @@
     var opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
     document.getElementById("datebar").textContent = new Date().toLocaleDateString('en-GB', opts);
   })();
+  renderTodo();
 
   function pickFact(){
     var pool = unseenFacts();
