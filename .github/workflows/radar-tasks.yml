@@ -72,6 +72,8 @@ jobs:
         run: |
           [ -n "$ANTHROPIC_API_KEY" ] || unset ANTHROPIC_API_KEY
           [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || unset CLAUDE_CODE_OAUTH_TOKEN
+          # Prefer the subscription token (no per-use billing) over the API key when both are set.
+          [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] || unset ANTHROPIC_API_KEY
           if [ -z "${ANTHROPIC_API_KEY:-}${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
             echo "radar-task: no Claude key: add the ANTHROPIC_API_KEY secret"; exit 1
           fi
