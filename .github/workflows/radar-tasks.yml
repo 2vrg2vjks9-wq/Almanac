@@ -10,7 +10,7 @@ name: Radar tasks
 # - The instructions are encrypted in the vault (radar/data/tasks.enc.json) because they hold personal details.
 # - Claude's output goes to a file in the runner's temp folder, never to the log; the log shows counts only.
 #   The final message goes to the phone via ntfy (topic from the NTFY_TOPIC secret or interests.alerts.ntfy).
-# Secrets: PK (or RADAR_KEY) = the passphrase; ANTHROPIC_API_KEY (or CLAUDE_CODE_OAUTH_TOKEN) for Claude.
+# Secrets: PK (or RADAR_KEY) = the passphrase; ANTHROPIC_API_KEY (or PK2, or CLAUDE_CODE_OAUTH_TOKEN) for Claude.
 on:
   schedule:
     - cron: "52 5 * * *"        # daily
@@ -66,7 +66,7 @@ jobs:
       - name: Claude
         if: steps.prep.outputs.run == 'true'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY || secrets.PK2 }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           MODEL: ${{ steps.prep.outputs.model }}
         run: |

@@ -142,7 +142,7 @@ in commit messages, issue comments or Actions logs.
   and commits only the data files (never `tasks`, so a run can't rewrite its own instructions; anything else is discarded),
   closes the notes with "Done." and sends Claude's final message to the phone via ntfy (fixed "nothing new" replies stay
   quiet). The log is public: Claude's output stays in a temp file and the log shows counts only. Secrets: `PK`,
-  `ANTHROPIC_API_KEY` (or `CLAUDE_CODE_OAUTH_TOKEN`), optional `NTFY_TOPIC`. These replaced the Claude cloud routines, which
+  `ANTHROPIC_API_KEY` (or `PK2`, or `CLAUDE_CODE_OAUTH_TOKEN`), optional `NTFY_TOPIC`. These replaced the Claude cloud routines, which
   couldn't get the passphrase.
 - **Wind alert:** `.github/workflows/radar-wind.yml` runs `radar/tools/wind_alert.py` every morning (Actions
   secret `RADAR_KEY`; topic from `alerts.ntfy` or the `NTFY_TOPIC` secret) and pushes to ntfy.sh. The Actions log
