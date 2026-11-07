@@ -2,8 +2,11 @@ name: Radar tasks
 # Radar's research tasks, run by Claude Code on GitHub (they used to be Claude cloud routines):
 #   daily     every morning ~06:52 Amsterdam: feedback, Do ideas, feed, work, bucket list
 #   inbox     hourly, only when the phone sent a city, interest or bucket note (otherwise no Claude run)
-#   finds     08:10, 13:10, 19:10: second-hand ads for the wanted list
-#   concerts  18:47: new shows by the alert artists
+#   finds     08:10: second-hand ads for the wanted list (opens marketplace pages, no web searches)
+#   concerts  Sundays 18:47: new shows by the alert artists
+# Cost: on the API key every run uses Haiku with a search allowance, a cap per run and a monthly budget
+# (radar/tools/task.py, RADAR_BUDGET_USD, spend in radar/spend.json). With CLAUDE_CODE_OAUTH_TOKEN (the
+# owner's subscription) nothing is billed per use and the task's own model runs.
 # Privacy (this repo and its Actions logs are public):
 # - Claude never gets the passphrase or a GitHub token. radar/tools/task.py unlocks the data into the
 #   git-ignored radar/.plain/ before Claude runs, and encrypts, commits and closes notes afterwards.
@@ -15,8 +18,8 @@ on:
   schedule:
     - cron: "52 5 * * *"        # daily
     - cron: "38 * * * *"        # inbox
-    - cron: "10 7,12,18 * * *"  # finds
-    - cron: "47 17 * * *"       # concerts
+    - cron: "10 7 * * *"        # finds
+    - cron: "47 17 * * 0"       # concerts
   workflow_dispatch:
     inputs:
       task:
@@ -49,8 +52,8 @@ jobs:
         run: |
           case "$SCHEDULE" in
             "52 5 * * *") t=daily ;;
-            "10 7,12,18 * * *") t=finds ;;
-            "47 17 * * *") t=concerts ;;
+            "10 7 * * *") t=finds ;;
+            "47 17 * * 0") t=concerts ;;
             "38 * * * *") t=inbox ;;
             *) t="$INPUT" ;;
           esac
@@ -62,6 +65,8 @@ jobs:
         env:
           PK: ${{ secrets.PK || secrets.RADAR_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
+          SUBSCRIPTION: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+          RADAR_BUDGET_USD: ${{ vars.RADAR_BUDGET_USD }}
         run: python3 radar/tools/task.py prepare "${{ steps.pick.outputs.task }}"
       - name: Claude
         if: steps.prep.outputs.run == 'true'
@@ -69,6 +74,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY || secrets.PK2 }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           MODEL: ${{ steps.prep.outputs.model }}
+          CAP: ${{ steps.prep.outputs.cap }}
+          NOSEARCH: ${{ steps.prep.outputs.nosearch }}
         run: |
           [ -n "$ANTHROPIC_API_KEY" ] || unset ANTHROPIC_API_KEY
           [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || unset CLAUDE_CODE_OAUTH_TOKEN
@@ -78,8 +85,14 @@ jobs:
             echo "radar-task: no Claude key: add the ANTHROPIC_API_KEY secret"; exit 1
           fi
           npm install -g @anthropic-ai/claude-code > /dev/null 2>&1
+          extra=()
+          if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+            touch "$RUNNER_TEMP/billed"
+            [ -z "$CAP" ] || extra+=(--max-budget-usd "$CAP")
+            [ "$NOSEARCH" != "true" ] || extra+=(--disallowedTools WebSearch)
+          fi
           set +e
-          claude -p --model "$MODEL" --output-format json --dangerously-skip-permissions \
+          claude -p --model "$MODEL" --output-format json --dangerously-skip-permissions "${extra[@]}" \
             < "$RUNNER_TEMP/prompt.txt" > "$RUNNER_TEMP/out.json" 2> "$RUNNER_TEMP/claude.err"
           echo "radar-task: Claude finished (exit $?)"
       - name: Save, close notes, notify
@@ -88,7 +101,9 @@ jobs:
           PK: ${{ secrets.PK || secrets.RADAR_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          CAP: ${{ steps.prep.outputs.cap }}
+          RADAR_BUDGET_USD: ${{ vars.RADAR_BUDGET_USD }}
         run: python3 radar/tools/task.py finish "${{ steps.pick.outputs.task }}"
       - name: Wipe
         if: always()
-        run: rm -rf radar/.plain "$RUNNER_TEMP/out.json" "$RUNNER_TEMP/prompt.txt" "$RUNNER_TEMP/claude.err"
+        run: rm -rf radar/.plain "$RUNNER_TEMP/billed" "$RUNNER_TEMP/out.json" "$RUNNER_TEMP/prompt.txt" "$RUNNER_TEMP/claude.err"

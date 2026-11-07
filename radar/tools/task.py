@@ -23,6 +23,31 @@ PLAIN = os.path.join(ROOT, "radar", ".plain")
 TMP = os.environ.get("RUNNER_TEMP") or "/tmp"
 REPO = os.environ.get("GITHUB_REPOSITORY", "2vrg2vjks9-wq/Almanac")
 DATA = ["interests", "feed", "taste", "things", "gear"]  # what a task may change (not "tasks")
+SPEND = os.path.join(ROOT, "radar", "spend.json")  # API spend per month (amounts only, nothing personal)
+
+# Low-cost mode (the owner's limit: about 5 euro a month on the API key). Haiku is cheap per token, so the
+# real cost is web searches (1 cent each): every task gets a search allowance, a hard cap per run
+# (claude --max-budget-usd) and a monthly budget paced over the month, so the total can't pass BUDGET.
+# With the subscription token (CLAUDE_CODE_OAUTH_TOKEN) nothing is billed per use: the task's own model
+# is used and the budget guard is off.
+BUDGET = float(os.environ.get("RADAR_BUDGET_USD") or 5.0)
+CHEAP = "claude-haiku-5-5"
+LOW = {  # task: (cap per run in USD, web searches allowed; 0 = WebSearch switched off)
+    "daily": (0.12, 6),
+    "inbox": (0.08, 4),
+    "finds": (0.03, 0),
+    "concerts": (0.06, 4),
+}
+RULES = """Cost rules for this run (they come before everything below):
+- You are on a small monthly budget. Use at most {n} web searches in this run{off}. Web pages you open with
+  WebFetch cost almost nothing: prefer opening known pages (venue agendas, organisers, marketplace search
+  pages, artist tour pages) over searching.
+- Read and change the data files with small, targeted commands (python or jq on radar/.plain/*.json); don't
+  print whole files. Keep the files valid JSON after every change, so a stopped run still leaves good data.
+- Do the most valuable work first: notes from the phone, then removing past items, then new items.
+- Stop when the allowance is used. Fewer, solid items beat many thin ones.
+
+"""
 
 
 def say(msg):
@@ -70,10 +95,51 @@ def prepare(name):
     notes.sort(key=lambda n: n["number"])
     json.dump(notes, open(os.path.join(PLAIN, "notes.json"), "w"), indent=1, ensure_ascii=False)
     open(os.path.join(TMP, "notes.txt"), "w").write(" ".join(str(n["number"]) for n in notes))
-    open(os.path.join(TMP, "prompt.txt"), "w").write(t["prompt"])
     run = bool(notes) or not t.get("needs_notes")
-    output(model=t.get("model") or "claude-sonnet-5-5", run=str(run).lower())
-    say("%d note(s); %s" % (len(notes), "running Claude" if run else "nothing to do"))
+    billed = os.environ.get("SUBSCRIPTION") != "true"
+    cap, searches = LOW.get(name, (0.05, 2))
+    prompt = t["prompt"]
+    if billed:
+        prompt = RULES.format(n=searches, off=" (WebSearch is switched off: open pages directly)" if not searches else "") + prompt
+        if run:
+            spent, allowed = budget_now()
+            if spent + cap > allowed:
+                say("budget: $%.2f of $%.2f used this month, $%.2f allowed so far: skipping this run" % (spent, BUDGET, allowed))
+                run = False
+    open(os.path.join(TMP, "prompt.txt"), "w").write(prompt)
+    output(model=CHEAP if billed else (t.get("model") or "claude-sonnet-5-5"), run=str(run).lower(),
+           cap=("%.2f" % cap) if billed else "", nosearch="true" if billed and not searches else "false")
+    say("%d note(s); %s" % (len(notes), ("running Claude (%s)" % ("low-cost" if billed else "subscription")) if run else "nothing to do"))
+
+
+def month():
+    return subprocess.run(["date", "-u", "+%Y-%m"], capture_output=True, text=True).stdout.strip()
+
+
+def ledger():
+    try:
+        return json.load(open(SPEND))
+    except Exception:
+        return {}
+
+
+def budget_now():
+    """Spend so far this month, and how much may be spent by today (the budget paced evenly over the month,
+    one day ahead), so a busy week can't use up the month."""
+    import calendar, datetime
+    d = datetime.datetime.utcnow()
+    days = calendar.monthrange(d.year, d.month)[1]
+    spent = float(ledger().get(month(), 0))
+    return spent, min(BUDGET, BUDGET * (d.day + 1) / days)
+
+
+def record(cost):
+    """Add a billed run's cost to the ledger and commit it (even when the run failed: the money is spent)."""
+    led = ledger()
+    led[month()] = round(float(led.get(month(), 0)) + cost, 4)
+    led = {k: led[k] for k in sorted(led)[-12:]}
+    json.dump(led, open(SPEND, "w"), indent=1)
+    open(SPEND, "a").write("\n")
 
 
 def run_facts():
@@ -111,6 +177,28 @@ def result():
         return None
 
 
+def stopped_at_cap():
+    try:
+        out = json.load(open(os.path.join(TMP, "out.json")))
+    except Exception:
+        return False
+    return "budget" in str(out.get("subtype", "")).lower()
+
+
+def save_spend():
+    """Commit only the spend ledger (used when a billed run failed and nothing else is saved)."""
+    if not os.path.exists(SPEND) or not os.path.exists(os.path.join(TMP, "billed")):
+        return
+    subprocess.run(["git", "add", "--", "radar/spend.json"], cwd=ROOT)
+    if subprocess.run(["git", "diff", "--cached", "--quiet", "--", "radar/spend.json"], cwd=ROOT).returncode == 0:
+        return
+    subprocess.run(["git", "-c", "user.name=Radar", "-c", "user.email=radar@users.noreply.github.com",
+                    "commit", "-q", "-m", "Radar spend"], cwd=ROOT)
+    for _ in range(3):
+        if git("pull", "-q", "--rebase", "origin", "main").returncode == 0 and git("push", "-q", "origin", "HEAD:main").returncode == 0:
+            return
+
+
 def git(*args):
     tok = base64.b64encode(("x-access-token:" + os.environ["GITHUB_TOKEN"]).encode()).decode()
     return subprocess.run(["git", "-c", "http.https://github.com/.extraheader=AUTHORIZATION: basic " + tok] + list(args),
@@ -142,10 +230,20 @@ def finish(name):
         ran = os.path.exists(os.path.join(TMP, "out.json"))
         if ran:
             run_facts()
+            if os.path.exists(os.path.join(TMP, "billed")):
+                try:
+                    cost = float(json.load(open(os.path.join(TMP, "out.json"))).get("total_cost_usd"))
+                except Exception:
+                    cost = float(os.environ.get("CAP") or 0.1)  # unknown: count the whole cap
+                record(cost)
         if not ran:
             say("Claude didn't run"); return
+        if res is None and stopped_at_cap():
+            res = ""  # stopped at its spending cap: keep what it saved so far (still validated below)
+            say("stopped at the cost cap: saving what it finished")
         if res is None:
             say("Claude didn't finish: nothing saved, notes stay open")
+            save_spend()
             notify("Radar's %s task didn't finish today; it tries again next time." % name)
             sys.exit(1)
         # validate what Claude left, then encrypt (only changed files are rewritten)
@@ -154,13 +252,14 @@ def finish(name):
                 json.load(open(f))
             except Exception:
                 say("a data file isn't valid JSON: nothing saved, notes stay open")
+                save_spend()
                 notify("Radar's %s task left broken data, so nothing was saved; it tries again next time." % name)
                 sys.exit(1)
         # Claude may only change the data: its instructions (tasks.json) are never re-encrypted from what it
         # left, and only the known data files are committed; anything else it touched is thrown away.
         os.remove(os.path.join(PLAIN, "tasks.json"))
         vault("lock")
-        files = ["radar/data/%s.enc.json" % n for n in DATA]
+        files = ["radar/data/%s.enc.json" % n for n in DATA] + (["radar/spend.json"] if os.path.exists(SPEND) else [])
         subprocess.run(["git", "add", "--"] + files, cwd=ROOT, check=True)
         changed = subprocess.run(["git", "diff", "--cached", "--quiet", "--"] + files, cwd=ROOT).returncode != 0
         if changed:

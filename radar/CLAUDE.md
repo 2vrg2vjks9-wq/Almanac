@@ -134,8 +134,13 @@ in commit messages, issue comments or Actions logs.
   artist|date|city) in `interests.concertAlerts.notified`; the daily update reads the same list so nobody is told twice.
   New shows also go into the feed as `concert` items.
 - **Claude tasks** (`.github/workflows/radar-tasks.yml`, `radar/tools/task.py`): GitHub Actions runs Claude Code for
-  `daily` (~06:52), `inbox` (hourly, only when the phone sent a city/interest/bucket note), `finds` (08:10, 13:10, 19:10)
-  and `concerts` (18:47); "Run workflow" runs one by hand. Their instructions are encrypted in `radar/data/tasks.enc.json`
+  `daily` (~06:52), `inbox` (hourly, only when the phone sent a city/interest/bucket note), `finds` (08:10, no web searches)
+  and `concerts` (Sundays 18:47); "Run workflow" runs one by hand. **Low-cost mode** (the owner's limit: about €5 a month
+  on the API key): `task.py` runs every task on Haiku with a search allowance and a cap per run (`LOW`,
+  `claude --max-budget-usd`), prefixes the instructions with the cost rules, and paces a monthly budget (`BUDGET`, $5, or
+  the repo variable `RADAR_BUDGET_USD`) over the month: a run that would pass it is skipped. Spend is kept in
+  `radar/spend.json` (amounts only) and every run logs outcome, turns, cost and error kind. With the subscription token
+  nothing is billed per use, so the task's own model runs and the guard is off. Their instructions are encrypted in `radar/data/tasks.enc.json`
   (vault name `tasks`; edit with unlock/lock like the rest, never commit them plain). `task.py prepare` unlocks the data into
   `radar/.plain/` and opens the task's notes into `radar/.plain/notes.json`; Claude then runs **without** the passphrase or a
   GitHub token (checkout without credentials) and edits only `radar/.plain/`; `task.py finish` validates the JSON, encrypts
