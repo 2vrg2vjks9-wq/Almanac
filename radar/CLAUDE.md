@@ -135,7 +135,10 @@ in commit messages, issue comments or Actions logs.
   New shows also go into the feed as `concert` items.
 - **Claude tasks** (`.github/workflows/radar-tasks.yml`, `radar/tools/task.py`): GitHub Actions runs Claude Code for
   `daily` (~06:52), `inbox` (hourly, only when the phone sent a city/interest/bucket note), `finds` (08:10, no web searches)
-  and `concerts` (Sundays 18:47); "Run workflow" runs one by hand. **Low-cost mode** (the owner's limit: about €5 a month
+  `concerts` (Sundays 18:47) and `work` (Tuesdays and Fridays 08:40: freelance and work leads; its instructions are in
+  `BUILTIN` in task.py, kept free of personal details, and the sources it reuses are saved encrypted in
+  `interests.freelance.sources`); "Run workflow" runs one by hand. GitHub sometimes skips scheduled runs, so the hourly
+  run catches up a daily, finds or work run that didn't happen that day (`radar/last-run.json`, dates only). **Low-cost mode** (the owner's limit: about €5 a month
   on the API key): `task.py` runs every task on Haiku with a search allowance and a cap per run (`LOW`,
   `claude --max-budget-usd`), prefixes the instructions with the cost rules, and paces a monthly budget (`BUDGET`, $5, or
   the repo variable `RADAR_BUDGET_USD`) over the month: a run that would pass it is skipped. Spend is kept in

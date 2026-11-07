@@ -37,6 +37,35 @@ LOW = {  # task: (cap per run in USD, web searches allowed; 0 = WebSearch switch
     "inbox": (0.08, 4),
     "finds": (0.03, 0),
     "concerts": (0.06, 4),
+    "work": (0.10, 5),
+}
+LASTRUN = os.path.join(ROOT, "radar", "last-run.json")  # date each task last ran (so missed schedules catch up)
+
+# Tasks whose instructions live here instead of in the vault. Keep them free of personal details: they point
+# at the encrypted interests for everything about the owner.
+BUILTIN = {
+    "work": {
+        "prompt": """Radar's work search: find freelance and work opportunities for the owner of this Radar.
+
+Read radar/.plain/interests.json: `about`, `work` and `freelance` describe who this is for and what to look
+for (field, kind of assignments, rates, languages, places, what to avoid). Then update radar/.plain/feed.json.
+
+1. Remove work and freelance items whose deadline (or `end`) has passed, or that are clearly filled.
+2. Sources: `interests.freelance.sources` is a list of pages worth checking every time (freelance platforms,
+   tender and assignment boards, interim agencies, funders' calls, networks and newsletters in the owner's
+   field). Open each with WebFetch. If the list is missing or has fewer than 8 good sources, use your web
+   searches to find more that fit the profile, and save the good ones there as {name, url, what} so later
+   runs can open them without searching. Drop sources that no longer list anything useful.
+3. Add new items (aim for at least 6 live `freelance` items and a few `work` items in total; don't duplicate
+   by url or title). Freelance: kind "freelance", sub "freelance", `end` and `deadline` = the date to apply by
+   (YYYY-MM-DD) when known, org, format (in person / online / hybrid), region (nl, be, de, eu, uk, jp, all),
+   a short summary, a `why` that names the match with the profile, the url you opened, and found = today.
+   Jobs, calls and grants that fit: kind "work" with sub job | call | grant. Only include things you opened
+   and that are open now.
+4. Your final message is sent to the owner's phone: one or two plain sentences naming the best new leads,
+   or exactly "No new work leads." when nothing new was added.""",
+        "quiet": ["No new work leads."],
+    },
 }
 RULES = """Cost rules for this run (they come before everything below):
 - You are on a small monthly budget. Use at most {n} web searches in this run{off}. Web pages you open with
@@ -83,7 +112,7 @@ def tasks():
 
 def prepare(name):
     vault("unlock")
-    t = tasks().get(name)
+    t = tasks().get(name) or BUILTIN.get(name)
     if not isinstance(t, dict):
         say("unknown task"); sys.exit(1)
     notes = []
@@ -150,6 +179,17 @@ def stamp():
             open(f, "a").write("\n")
             n += 1
     say("stamped as updated: %d file(s)" % n)
+
+
+def mark_run(name):
+    """Note the day this task ran (a date only), so the hourly run can catch up a schedule GitHub skipped."""
+    try:
+        d = json.load(open(LASTRUN))
+    except Exception:
+        d = {}
+    d[name] = subprocess.run(["date", "-u", "+%F"], capture_output=True, text=True).stdout.strip()
+    json.dump(dict(sorted(d.items())), open(LASTRUN, "w"), indent=1)
+    open(LASTRUN, "a").write("\n")
 
 
 def month():
@@ -232,10 +272,11 @@ def stopped_at_cap():
 
 def save_spend():
     """Commit only the spend ledger (used when a billed run failed and nothing else is saved)."""
-    if not os.path.exists(SPEND) or not os.path.exists(os.path.join(TMP, "billed")):
+    files = [f for f in ("radar/spend.json", "radar/last-run.json") if os.path.exists(os.path.join(ROOT, f))]
+    if not files:
         return
-    subprocess.run(["git", "add", "--", "radar/spend.json"], cwd=ROOT)
-    if subprocess.run(["git", "diff", "--cached", "--quiet", "--", "radar/spend.json"], cwd=ROOT).returncode == 0:
+    subprocess.run(["git", "add", "--"] + files, cwd=ROOT)
+    if subprocess.run(["git", "diff", "--cached", "--quiet", "--"] + files, cwd=ROOT).returncode == 0:
         return
     subprocess.run(["git", "-c", "user.name=Radar", "-c", "user.email=radar@users.noreply.github.com",
                     "commit", "-q", "-m", "Radar spend"], cwd=ROOT)
@@ -271,7 +312,7 @@ def notify(text):
 def finish(name):
     try:
         res = result()
-        t = tasks().get(name, {}) if os.path.exists(os.path.join(PLAIN, "tasks.json")) else {}
+        t = (tasks().get(name) if os.path.exists(os.path.join(PLAIN, "tasks.json")) else None) or BUILTIN.get(name, {})
         ran = os.path.exists(os.path.join(TMP, "out.json"))
         if ran:
             run_facts()
@@ -281,6 +322,8 @@ def finish(name):
                 except Exception:
                     cost = float(os.environ.get("CAP") or 0.1)  # unknown: count the whole cap
                 record(cost)
+        if ran:
+            mark_run(name)
         if not ran:
             say("Claude didn't run"); return
         if res is None and stopped_at_cap():
@@ -305,7 +348,8 @@ def finish(name):
         os.remove(os.path.join(PLAIN, "tasks.json"))
         stamp()
         vault("lock")
-        files = ["radar/data/%s.enc.json" % n for n in DATA] + (["radar/spend.json"] if os.path.exists(SPEND) else [])
+        files = ["radar/data/%s.enc.json" % n for n in DATA] + [f for f in ("radar/spend.json", "radar/last-run.json")
+                                                                   if os.path.exists(os.path.join(ROOT, f))]
         subprocess.run(["git", "add", "--"] + files, cwd=ROOT, check=True)
         changed = subprocess.run(["git", "diff", "--cached", "--quiet", "--"] + files, cwd=ROOT).returncode != 0
         if changed:

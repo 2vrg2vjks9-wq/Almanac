@@ -4,6 +4,9 @@ name: Radar tasks
 #   inbox     hourly, only when the phone sent a city, interest or bucket note (otherwise no Claude run)
 #   finds     08:10: second-hand ads for the wanted list (opens marketplace pages, no web searches)
 #   concerts  Sundays 18:47: new shows by the alert artists
+#   work      Tuesdays and Fridays 08:40: freelance and work leads (instructions in task.py, sources kept in interests)
+# GitHub sometimes skips scheduled runs: the hourly run then catches up a daily, finds or work run that
+# didn't happen (radar/last-run.json holds the date each task last ran).
 # Cost: on the API key every run uses Haiku with a search allowance, a cap per run and a monthly budget
 # (radar/tools/task.py, RADAR_BUDGET_USD, spend in radar/spend.json). With CLAUDE_CODE_OAUTH_TOKEN (the
 # owner's subscription) nothing is billed per use and the task's own model runs.
@@ -20,12 +23,13 @@ on:
     - cron: "38 * * * *"        # inbox
     - cron: "10 7 * * *"        # finds
     - cron: "47 17 * * 0"       # concerts
+    - cron: "40 7 * * 2,5"      # work
   workflow_dispatch:
     inputs:
       task:
         description: Task to run
         type: choice
-        options: [daily, inbox, finds, concerts]
+        options: [daily, inbox, finds, concerts, work]
         default: inbox
 permissions:
   contents: write
@@ -54,10 +58,20 @@ jobs:
             "52 5 * * *") t=daily ;;
             "10 7 * * *") t=finds ;;
             "47 17 * * 0") t=concerts ;;
+            "40 7 * * 2,5") t=work ;;
             "38 * * * *") t=inbox ;;
             *) t="$INPUT" ;;
           esac
-          case "$t" in daily|inbox|finds|concerts) ;; *) echo "unknown task"; exit 1 ;; esac
+          if [ "$t" = inbox ]; then
+            # catch up a scheduled run GitHub skipped today (daily from 06 UTC, finds from 08, work Tue/Fri from 09)
+            last() { python3 -c "import json,sys;print(json.load(open('radar/last-run.json')).get(sys.argv[1],''))" "$1" 2>/dev/null; }
+            today=$(date -u +%F); h=$((10#$(date -u +%H))); dow=$(date -u +%u)
+            if [ "$h" -ge 6 ] && [ "$(last daily)" != "$today" ]; then t=daily
+            elif [ "$h" -ge 8 ] && [ "$(last finds)" != "$today" ]; then t=finds
+            elif [ "$h" -ge 9 ] && { [ "$dow" = 2 ] || [ "$dow" = 5 ]; } && [ "$(last work)" != "$today" ]; then t=work
+            fi
+          fi
+          case "$t" in daily|inbox|finds|concerts|work) ;; *) echo "unknown task"; exit 1 ;; esac
           echo "task=$t" >> "$GITHUB_OUTPUT"
           echo "radar-task: $t"
       - name: Unlock and gather notes
