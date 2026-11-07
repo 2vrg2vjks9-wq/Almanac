@@ -106,4 +106,4 @@ jobs:
         run: python3 radar/tools/task.py finish "${{ steps.pick.outputs.task }}"
       - name: Wipe
         if: always()
-        run: rm -rf radar/.plain "$RUNNER_TEMP/billed" "$RUNNER_TEMP/out.json" "$RUNNER_TEMP/prompt.txt" "$RUNNER_TEMP/claude.err"
+        run: rm -rf radar/.plain "$RUNNER_TEMP/billed" "$RUNNER_TEMP/snap.json" "$RUNNER_TEMP/out.json" "$RUNNER_TEMP/prompt.txt" "$RUNNER_TEMP/claude.err"

@@ -95,6 +95,12 @@ def prepare(name):
     notes.sort(key=lambda n: n["number"])
     json.dump(notes, open(os.path.join(PLAIN, "notes.json"), "w"), indent=1, ensure_ascii=False)
     open(os.path.join(TMP, "notes.txt"), "w").write(" ".join(str(n["number"]) for n in notes))
+    snap = {}
+    for n in DATA:
+        f = os.path.join(PLAIN, n + ".json")
+        if os.path.exists(f):
+            snap[n] = content_hash(json.load(open(f)))
+    json.dump(snap, open(os.path.join(TMP, "snap.json"), "w"))
     run = bool(notes) or not t.get("needs_notes")
     billed = os.environ.get("SUBSCRIPTION") != "true"
     cap, searches = LOW.get(name, (0.05, 2))
@@ -110,6 +116,40 @@ def prepare(name):
     output(model=CHEAP if billed else (t.get("model") or "claude-sonnet-5-5"), run=str(run).lower(),
            cap=("%.2f" % cap) if billed else "", nosearch="true" if billed and not searches else "false")
     say("%d note(s); %s" % (len(notes), ("running Claude (%s)" % ("low-cost" if billed else "subscription")) if run else "nothing to do"))
+
+
+STAMPED = ["feed", "things", "taste", "gear"]  # files whose `updated` the app shows ("updated 3 days ago")
+
+
+def content_hash(d):
+    import hashlib
+    d = dict(d) if isinstance(d, dict) else d
+    if isinstance(d, dict):
+        d.pop("updated", None)
+    return hashlib.sha256(json.dumps(d, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def stamp():
+    """Set `updated` to now on every shown data file whose content this run changed (Claude often forgets,
+    and the app would keep saying "updated 39 days ago")."""
+    import datetime
+    try:
+        snap = json.load(open(os.path.join(TMP, "snap.json")))
+    except Exception:
+        snap = {}
+    now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    n = 0
+    for name in STAMPED:
+        f = os.path.join(PLAIN, name + ".json")
+        if not os.path.exists(f):
+            continue
+        d = json.load(open(f))
+        if isinstance(d, dict) and content_hash(d) != snap.get(name):
+            d["updated"] = now
+            json.dump(d, open(f, "w"), indent=1, ensure_ascii=False)
+            open(f, "a").write("\n")
+            n += 1
+    say("stamped as updated: %d file(s)" % n)
 
 
 def month():
@@ -263,6 +303,7 @@ def finish(name):
         # Claude may only change the data: its instructions (tasks.json) are never re-encrypted from what it
         # left, and only the known data files are committed; anything else it touched is thrown away.
         os.remove(os.path.join(PLAIN, "tasks.json"))
+        stamp()
         vault("lock")
         files = ["radar/data/%s.enc.json" % n for n in DATA] + (["radar/spend.json"] if os.path.exists(SPEND) else [])
         subprocess.run(["git", "add", "--"] + files, cwd=ROOT, check=True)
