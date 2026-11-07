@@ -2,7 +2,7 @@
 // Add to calendar (.ics made on the phone) and the reaction buttons.
 import { html, d, pad, longDate, safeUrl, mapUrl } from "./util.js";
 import { openSheet, paintSheet, sheetOpen } from "./ui.js";
-import { metaLine, dueHTML, flagsHTML, reactButtons, placeOf, calable, act, deadline, workSub } from "./feed.js";
+import { metaLine, dueHTML, flagsHTML, reactButtons, placeOf, calable, act, deadline, workSub, trackButtons, setTrack } from "./feed.js";
 import { isWork } from "./data.js";
 
 let current = null;
@@ -32,7 +32,8 @@ function body(it) {
     ${it.summary ? html`<p class="full">${it.summary}</p>` : ""}${flagsHTML(it)}
     ${rows.length ? html`<dl class="facts">${rows.map((r) => html`<div><dt>${r[0]}</dt><dd${r[2] ? html` class="${r[2]}"` : ""}>${r[1]}</dd></div>`)}</dl>` : ""}
     ${acts.length ? html`<div class="sheet-acts">${acts}</div>` : ""}
-    <div class="react">${reactButtons(it, true)}</div>`;
+    <div class="react">${isWork(it) ? trackButtons(it, true) : reactButtons(it, true)}</div>
+    ${isWork(it) ? html`<p class="fine tight">Interested: Radar reminds you 3 days and 1 day before the deadline.</p>` : ""}`;
 }
 
 export function openItem(it) {
@@ -40,6 +41,7 @@ export function openItem(it) {
   current = it;
   openSheet(() => body(current), (el) => {
     el.querySelectorAll(".ib").forEach((b) => { b.onclick = () => act(current, b.dataset.a); });
+    el.querySelectorAll(".tk").forEach((b) => { b.onclick = () => setTrack(current, b.dataset.t); });
     const c = el.querySelector('[data-a="ics"]');
     if (c) c.onclick = () => ics(current);
   }, it.title);

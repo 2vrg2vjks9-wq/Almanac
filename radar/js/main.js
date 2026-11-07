@@ -1,14 +1,16 @@
 // Radar start-up: wires the modules, loads data and wind, keeps things fresh.
 import { $, ago, hm, stamp } from "./util.js";
 import { D, loadData, on, mergePicks } from "./data.js";
-import { initTabs, initSheet, initPullToRefresh, initWelcome } from "./ui.js";
+import { initTabs, initSheet, initPullToRefresh, initWelcome, currentTab } from "./ui.js";
 import { initWind, loadWind, skeleton, net } from "./wind.js";
-import { drawTop, drawFeed, drawWork, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
+import { state, drawFeed, drawForYou, drawWork, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
 import { openItem, refreshItem } from "./detail.js";
 import { initNotes } from "./notes.js";
 import { initSaved, drawSaved, paintTeach, ask } from "./saved.js";
 import { initAround } from "./around.js";
-import { initDo, drawDo } from "./do.js";
+import { initDo, drawDo, drawList } from "./do.js";
+import { drawToday, setTodayOpener, drawWeekend } from "./today.js";
+import { initSettings, drawSettings } from "./settings.js";
 import { initGear, drawGear } from "./gear.js";
 import { restore, unlock, forget, supported } from "./vault.js";
 import { authFailed, signedOut } from "./notes.js";
@@ -21,18 +23,13 @@ function greet() {
   $("today").textContent = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 }
 
-function drawAll() { drawTop(); drawFeed(); drawWork(); drawSaved(); drawDo(); drawGear(); paintAlert(); }
-
-// The ntfy topic lives in the encrypted interests file (anyone who knows it can read the alerts).
-function paintAlert() {
-  const t = D.config && D.config.alerts && D.config.alerts.ntfy, el = $("alertLine");
-  if (!t) { el.hidden = true; return; }
-  el.hidden = false;
-  el.textContent = "";
-  el.append("Morning wind alert: in the free ntfy app, subscribe to ");
-  const c = document.createElement("span"); c.className = "alert-topic"; c.textContent = t;
-  el.append(c, ". Keep it to yourself: anyone with the topic can read the alerts.");
+function drawRegions() {
+  const r = regions();
+  if (!r.some((x) => x[0] === state.region)) state.region = "all";
+  const both = () => { drawFeed(); drawForYou(); drawRegions(); };
+  segs("regions", r, "region", both); segs("forRegions", r, "region", both);
 }
+function drawAll() { drawRegions(); drawFeed(); drawForYou(); drawWork(); drawSaved(); drawDo(); drawGear(); drawToday(); if (currentTab() === "settings") drawSettings(); }
 
 // --- Lock screen ---------------------------------------------------------------------------
 function showLock(text) {
@@ -75,10 +72,9 @@ let started = false, busy = false;
 function start() {
   if (!started) {
     segs("kinds", KINDS, "kind", drawFeed);
-    segs("regions", regions(), "region", drawFeed);
     segs("workKinds", WORK_KINDS, "work", drawWork);
     segs("workPlaces", WORK_PLACES, "wplace", drawWork);
-    initSearch();
+    initSearch(drawList);
     initDo(ask);
     initGear();
     started = true;
@@ -133,6 +129,8 @@ initLock();
 initSheet();
 initWind();
 setOpener(openItem);
+setTodayOpener(openItem);
+initSettings();
 initNotes();
 initSaved();
 initAround();
@@ -140,6 +138,7 @@ initWelcome();
 initPullToRefresh(loadAll);
 on("change", () => { drawAll(); refreshItem(); paintTeach(); });
 on("picks", () => { if (D.feed) { mergePicks(); drawAll(); } });
+on("wind", () => { if (D.feed) drawWeekend(); });
 $("refresh").onclick = loadAll;
 $("appVersion").textContent = "Radar version " + APP_VERSION;
 window.addEventListener("online", () => { if (D.source === "cache" || net.wind === "cache") loadAll(); });

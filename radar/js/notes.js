@@ -116,17 +116,41 @@ export async function note(title, body, label, doneText) {
   S.outbox.push(n); save("outbox");
   if (!canSend()) {
     paintConn();
-    say(SERVER ? "Saved on this phone. " + why("locked") : "Saved on this phone. It sends once Radar is connected (Saved tab).");
+    if (doneText !== "") say(SERVER ? "Saved on this phone. " + why("locked") : "Saved on this phone. It sends once Radar is connected (Settings).");
     return "waiting";
   }
   const fail = await flush();
   if (!S.outbox.includes(n)) { if (doneText) say(doneText); return "sent"; }
   paintConn();
-  if (fail !== "key" && fail !== "perm") say("Saved on this phone. " + why(fail === "offline" ? "" : fail));
+  if (fail !== "key" && fail !== "perm" && doneText !== "") say("Saved on this phone. " + why(fail === "offline" ? "" : fail));
   return "queued";
 }
 
 // --- "Send in the background" section in Saved (github.io only) -------------------------
+// --- Settings and the Work tracker ---------------------------------------------------------------------
+// Both travel as small sealed JSON notes that a script (task.py apply) merges into the encrypted interests,
+// without Claude. Changes are gathered for a few seconds so a flurry of taps sends one note.
+let pend = {}, pendTimer = null;
+export function track(patch) {
+  if (patch.bucket) patch = Object.assign({}, patch, { bucket: Object.assign({}, pend.bucket || {}, patch.bucket) });
+  if (patch.spend) patch = Object.assign({}, patch, { spend: (pend.spend || 0) + patch.spend });
+  Object.assign(pend, patch);
+  clearTimeout(pendTimer);
+  pendTimer = setTimeout(sendTracked, 4000);
+}
+function sendTracked() {
+  const p = pend; pend = {};
+  if (p.settings) note("Radar settings", JSON.stringify(p.settings), "radar-settings", "");
+  const t = {};
+  if (p.work) t.work = p.work;
+  if (p.bucket) t.bucket = p.bucket;
+  if (p.artists) t.artists = p.artists;
+  if (p.spend) t.spend = p.spend;
+  if (Object.keys(t).length) note("Radar tracker", JSON.stringify(t), "radar-track", "");
+}
+export const outboxCount = () => S.outbox.length;
+export const outboxWhy = () => (lastWhy && lastWhy !== "key" && lastWhy !== "perm" ? why(lastWhy) : "");
+
 export function paintConn() {
   const box = $("connBox");
   if (!box) return;

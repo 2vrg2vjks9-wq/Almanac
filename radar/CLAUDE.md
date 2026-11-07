@@ -53,10 +53,15 @@ in commit messages, issue comments or Actions logs.
   - `js/feed.js` ranking (reactions, saves, taste.json, distance), item rows, Today/Explore/Work lists, reactions
   - `js/detail.js` item detail sheet and the `.ics` calendar file
   - `js/notes.js` notes to Claude (/api/note, GitHub token fallback, outbox)
-  - `js/saved.js` You tab: saved items, bucket list, learned, teach (reactions + Do answers, notice + tab dot), forms
-  - `js/around.js` Look around (one button) and the Ask Claude offer with instant research
+  - `js/saved.js` You tab: saved items, bucket list (edit, remove, Brainstorm wishes), Following (artists and concert-alert
+    bells), learned, teach (reactions and answers send by themselves 6 s after the last one, with Undo), forms
+  - `js/today.js` Today's morning brief and Act now; the weekend planner on Wind
+  - `js/settings.js` Settings (You › gear): status from `status.json`, notification and task switches, monthly budget
+  - `js/around.js` Look around (Discover › Nearby) and the Ask Claude offer with instant research
   - `js/vault.js` unlock (passphrase → key), open data files, seal notes, lock
-  - `js/do.js` the Do tab: decide card (yes/no/later, swipe), yes list, filters, Hague-first rule, Today's "Coming up"
+  - `js/do.js` Discover › Go: decide card (yes/no/later, swipe), yes list, filters, Hague-first rule, Find more ideas now
+    (`/api/ideas`). The list merges things.json ideas with the feed's concerts, exhibitions and food and a trip's instant
+    picks (`data.js` mergeIdeas, ids `f-<feed id>`, `trip: true` skips the distance rule) and instant ideas (`radar-more`)
   - `sw.js` offline cache (network first; only same-site files and Google Fonts; never `/api/`). Bump `CACHE`
     when files change and add new modules to `FILES`.
 - **Data files** (encrypted, see the vault; read by the app, written by the Claude tasks — keep them backward compatible):
@@ -94,7 +99,9 @@ in commit messages, issue comments or Actions logs.
 - **localStorage keys** (never rename; the owner's saves live there): radar-saved, radar-reactions, radar-hidden,
   radar-outbox, radar-gh-key, radar-welcomed, radar-bucket-sent, radar-here, radar-wind, radar-water, radar-cache,
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
-  radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden. sessionStorage: radar-reload-for.
+  radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
+  radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow.
+  sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
   Every note is sealed before it leaves the phone (generic title, encrypted body). Do answers go with the
@@ -138,7 +145,10 @@ in commit messages, issue comments or Actions logs.
   `concerts` (Sundays 18:47) and `work` (Tuesdays and Fridays 08:40: freelance and work leads; its instructions are in
   `BUILTIN` in task.py, kept free of personal details, and the sources it reuses are saved encrypted in
   `interests.freelance.sources`); "Run workflow" runs one by hand. GitHub sometimes skips scheduled runs, so the hourly
-  run catches up a daily, finds or work run that didn't happen that day (`radar/last-run.json`, dates only). **Low-cost mode** (the owner's limit: about €5 a month
+  run catches up a daily, finds or work run that didn't happen that day (`radar/status.json`: per task when it last ran,
+  the outcome and cost, plus the month's spend; public, nothing personal, shown in Settings). A note from the phone
+  starts its task at once (`issues: opened`, only for issues the owner opens). When money runs low, finds, concerts and
+  inbox give way first (they need 25% of the paced budget left over). **Low-cost mode** (the owner's limit: about €5 a month
   on the API key): `task.py` runs every task on Haiku with a search allowance and a cap per run (`LOW`,
   `claude --max-budget-usd`), prefixes the instructions with the cost rules, and paces a monthly budget (`BUDGET`, $5, or
   the repo variable `RADAR_BUDGET_USD`) over the month: a run that would pass it is skipped. Spend is kept in
@@ -173,15 +183,34 @@ in commit messages, issue comments or Actions logs.
 - Two bold moments: the **wind ribbon** (one bar per daylight hour, height = strength, colour = rideable for which
   sport, hatched = wrong direction, dotted lines at the thresholds) and the **Do card** (yellow band for Den Haag,
   grey for "Worth the trip"). Everything else is paper, ink and hairlines: sentence case, no all-caps, no gradients.
-- Floating capsule tab bar: Today · Do · Wind · Explore · Work · You (`data-v="saved"`). Mobile-first (390 px), safe-area insets,
-  44 px tap targets. Explore has a search box. Work holds `work` and `freelance`, kept out of Explore: "Next deadlines"
+- Floating capsule tab bar: Today · Discover · Wind · Work · You (`data-v="saved"`; Settings opens from its gear icon,
+  `v-settings`). Each thing lives in one place: Today = morning brief + Act now (deadlines, tickets to book, last
+  chances, yes-list soon, bucket moments); Discover = For you (one ranked feed with "Because", location filters
+  built from the items' regions plus Near me), Go (things to go to), Read & listen (release, story, news, meditation),
+  Nearby (Look around), one search box with a clear button over the first three; Wind = forecast + weekend planner;
+  You = saved, bucket list, Following, Finds (all second-hand searches, wingfoil first: ad age, price vs similar ads,
+  Good deal at 20% under), learned. List rows swipe (right yes/more/Interested, left no/hide/Not for me) and keep
+  their order after a reaction until the next load. Mobile-first (390 px), safe-area insets (a paper strip covers the
+  status bar), 44 px tap targets. Work holds `work` and `freelance`, kept out of Discover. Work tracker: Interested /
+  Applied / Not for me (`radar-work`, sent as a sealed `radar-track` note; Interested gets ntfy reminders 3 days and
+  1 day before the deadline from `tools/remind.py`; Not for me hides and teaches). Work filters: "Next deadlines"
   (three nearest), then all leads filtered Everything / Events / Calls & grants / Jobs / Freelance / Reading and by place (Anywhere / Netherlands / Europe, which includes NL / Japan / Global, from `region`), sorted
   by the nearest date to act on (deadline ahead, else event start).
 - In list rows the title button stretches over the row (tap anywhere opens it); action buttons sit above that layer.
 - **Do rule (the owner's wish):** Den Haag is the most comprehensive; the farther away, the stronger the match
   must be. The app enforces it with `fit`: ≤15 km from Den Haag any fit, ≤40 km 3+, ≤80 km (Amsterdam, Utrecht) 4+, beyond 5.
-- **Reactions:** a new 👍/👎 pops a short notice (fades after 5 s, not on the Do tab). The lasting place to send
-  them is You › Teach it more, flagged by a red dot. Don't make the notice sticky.
+- **Reactions:** thumbs and yes/no answers send themselves 6 s after the last one; the notice says so and offers Undo
+  (takes back the whole batch: reactions, answers and hides). You › Teach it more sends at once.
+
+## Settings, tracker, bucket edits and artists (no Claude)
+
+The phone sends small sealed JSON notes: `radar-settings` ({notify, tasks, budget}) and `radar-track` ({work, bucket,
+artists, spend}). `task.py apply` (first step of every task run, and right away when such a note arrives through the
+`issues: opened` trigger) merges them into the encrypted interests: `settings`, `tracked`, `bucketlist` edits/removals,
+`artists` and `concertAlerts.artists`, and adds instant-research spend to the ledger. `settings.notify.<key> === false`
+silences a push (wind, weekend, deadlines, work, concerts, daily, finds); `settings.tasks.<task> === false` skips
+finds, concerts or work; `settings.budget` (1–100 USD) replaces the default. Instant calls (`/api/ideas` for Find more
+ideas and the bucket brainstorm, `/api/scout` for cities) run on Haiku and report their cost.
 
 ## Do research (daily task)
 

@@ -20,6 +20,12 @@ export const KEYS = {
   doView: "radar-do-view",       // {when, city, cat} last Do filters
   gearHidden: "radar-gear-hidden", // {adId: time} gear ads hidden on this phone
   picks: "radar-picks",          // {place, until, t, items} Claude's instant picks for the current trip
+  work: "radar-work",            // {itemId: {state: interested|applied|skip, t, title, deadline, url, org}} Work tracker
+  settings: "radar-settings",    // {notify: {key: bool}, budget, tasks: {key: bool}, sent} Settings, sent sealed to Radar
+  more: "radar-more",            // {t, items} ideas found right away by "Find more ideas now", until the tasks keep them
+  pane: "radar-pane",            // last Discover pane: foryou | go | read | near
+  follow: "radar-follow",        // {add: [names], remove: [names], alerts: {name: bool}} artist changes not yet in interests
+  bucketEdits: "radar-bucket-edits", // {wishId: {title, good_time, where, remove, t}} edits sent but not yet in interests
 };
 
 export function get(key, fallback) {
@@ -39,5 +45,9 @@ export const S = {
   bucketSent: get(KEYS.bucketSent, []),
   here: get(KEYS.here, null),
   do: get(KEYS.do, {}),
+  work: get(KEYS.work, {}),
+  settings: get(KEYS.settings, {}),
+  bucketEdits: get(KEYS.bucketEdits, {}),
+  follow: get(KEYS.follow, { add: [], remove: [], alerts: {} }),
 };
 export function save(name) { set(KEYS[name], S[name]); }

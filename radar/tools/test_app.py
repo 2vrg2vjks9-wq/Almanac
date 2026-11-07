@@ -30,7 +30,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else tempfile.mkdtemp(prefix="radar-test-
 os.makedirs(OUT, exist_ok=True)
 JSONH = {"access-control-allow-origin": "*", "content-type": "application/json"}
 KYOTO = {"latitude": 35.0036, "longitude": 135.7785}
-TABS = ("today", "do", "wind", "explore", "saved")
+TABS = ("today", "discover", "wind", "work", "saved")
 DAY = lambda n: str(datetime.date.today() + datetime.timedelta(days=n))
 
 
@@ -50,6 +50,7 @@ def fixtures():
         "bucketlist": [{"id": "aurora", "title": "See the northern lights", "good_time": "dark skies", "where": "north", "added": DAY(-5)}],
         "alerts": {"ntfy": "radar-test-topic"},
         "wanted": [{"id": "wingfoil", "title": "Wingfoil gear"}, {"id": "car-seats", "title": "Leather seats for the test car", "short": "A test search."}],
+        "artists": ["Test Artist", "Quiet Band"], "concertAlerts": {"artists": ["Quiet Band"], "notified": []},
     }
     it = lambda **k: dict({"region": "nl", "place": "", "city": "", "start": None, "end": None, "summary": "A test item.", "why": "test", "url": "https://example.org/", "found": DAY(-10)}, **k)
     feed = {"updated": DAY(0) + "T07:00:00+02:00", "note": "test", "items": [
@@ -83,6 +84,8 @@ def fixtures():
         {"id": "mp-1", "site": "marktplaats", "country": "nl", "type": "wing", "brand": "Gong", "title": "Gong Plus 5.0 wing", "price": 260, "size": "5.0 m²", "location": "Utrecht", "posted": DAY(0), "found": DAY(0), "url": "https://www.marktplaats.nl/v/test-1", "match": "hit", "note": "Gong, so up to €350"},
         {"id": "2dh-1", "site": "2dehands", "country": "be", "type": "board", "title": "Hard wingboard 110 L", "price": 300, "size": "110 L", "location": "Gent", "posted": DAY(-2), "found": DAY(-2), "url": "https://www.2dehands.be/v/test-2", "match": "hit"},
         {"id": "ka-1", "site": "kleinanzeigen", "country": "de", "type": "foil", "title": "Foil komplett <b>bold</b>", "price": 200, "location": "Kleve", "posted": DAY(-1), "found": DAY(-1), "url": "https://www.kleinanzeigen.de/s-anzeige/test-3", "match": "maybe", "note": "Front wing size not stated", "shipping": True},
+        {"id": "mp-2", "site": "marktplaats", "country": "nl", "type": "wing", "title": "Cheap 5 m wing", "price": 150, "size": "5.0 m²", "location": "Leiden", "posted": DAY(-30), "found": DAY(0), "url": "https://www.marktplaats.nl/v/test-4", "match": "maybe"},
+        {"id": "mp-3", "site": "marktplaats", "country": "nl", "type": "wing", "title": "Pricey 5 m wing", "price": 280, "size": "5.0 m²", "location": "Leiden", "posted": DAY(-3), "found": DAY(-3), "url": "https://www.marktplaats.nl/v/test-5", "match": "maybe"},
         {"id": "bad-1", "site": "marktplaats", "type": "wing", "title": "No link ad", "price": 100, "url": "javascript:alert(1)", "match": "hit"},
         {"id": "mp-seat-1", "search": "car-seats", "site": "marktplaats", "country": "nl", "type": "interior", "title": "Full leather interior, test car", "price": 350, "location": "Delft", "found": DAY(0), "url": "https://www.marktplaats.nl/v/test-seat-1", "match": "hit"},
         {"id": "sl-seat-3", "search": "car-seats", "site": "sloperij", "seller": "Test sloperij", "country": "nl", "type": "seat", "title": "Front seats L+R, leather", "price": 290, "location": "Rotterdam", "found": DAY(0), "url": "https://example.org/sloperij/seat", "match": "hit", "warranty": "3 months"},
@@ -311,6 +314,10 @@ def tab(page, name):
     page.click('.tab[data-v="%s"]' % name); page.wait_for_timeout(150)
 
 
+def near(page):
+    tab(page, "discover"); page.click('#panes [data-p="near"]'); page.wait_for_timeout(100); page.click("#nearBtn")
+
+
 def shot(page, name, full=True):
     page.screenshot(path=os.path.join(OUT, name), full_page=full)
 
@@ -326,39 +333,53 @@ def tabs_suite(browser, site, scheme):
 
     page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
     check("Reading the wind" not in page.inner_text("#lead"), "%s: lead sentence filled" % scheme)
-    check(page.locator("#top .item").count() == 4, "%s: 4 items in Worth your attention" % scheme)
+    check(page.locator("#act .mini").count() >= 2, "%s: Act now lists things to act on" % scheme)
+    act = page.inner_text("#act")
+    check("Test lead, deadline soon" in act and "Aurora window" in act, "%s: Act now has the near deadline and the bucket moment" % scheme)
+    check("Far-off festival that sells out" in act or "Adventurous music festival" in act, "%s: Act now lists tickets to book" % scheme)
+    check(page.is_visible("#brief") and "Decide" in page.inner_text("#brief"), "%s: morning brief shown" % scheme)
     check("updated" in page.inner_text("#fresh"), "%s: freshness line shown" % scheme)
     check(page.locator("#todayWind .bar.wing").count() > 0 and page.locator("#todayWind .bar.off").count() > 0, "%s: ribbons show wingfoil and wrong-direction hours" % scheme)
-    check(page.locator("#todayDo .mini").count() >= 2 and "Moss garden" in page.inner_text("#todayDo"), "%s: Today lists what's coming up in Den Haag" % scheme)
+    check(page.locator("#nearBtn").count() == 1 and not page.is_visible("#nearBtn"), "%s: Look around moved out of Today" % scheme)
     shot(page, "today-%s.png" % scheme)
     shot(page, "today-%s-top.png" % scheme, False)
 
     tab(page, "wind")
     check("°C" in page.inner_text("#windAll"), "%s: water temperature shown" % scheme)
     check("wetsuit" in page.inner_text("#windAll"), "%s: wetsuit hint shown" % scheme)
+    check("This weekend" in page.inner_text("#weekend"), "%s: weekend planner on Wind" % scheme)
     page.locator("#windAll .spot").first.locator(".rday").nth(1).click(); page.wait_for_timeout(300)
     check(page.is_visible("#windAll .detail svg"), "%s: hourly chart opens" % scheme)
-    check(page.locator("#gear .ad").count() == 3, "%s: gear ads listed (bad links left out)" % scheme)
-    check(page.locator("#gear .ad b").first.inner_text() in ("Gong Plus 5.0 wing", "Hard wingboard 110 L") and page.locator("#gear b b").count() == 0, "%s: gear matches first, titles stay text" % scheme)
-    page.click('#gearTypes .pill:has-text("Foils")'); page.wait_for_timeout(150)
-    check(page.locator("#gear .ad").count() == 1 and "Check size" in page.inner_text("#gear"), "%s: gear type filter; unclear sizes say so" % scheme)
-    page.click('#gearTypes .pill:has-text("All")'); page.locator("#gear [data-hide]").first.click(); page.wait_for_timeout(150)
-    check(page.locator("#gear .ad").count() == 2, "%s: hiding an ad removes it" % scheme)
-    page.locator("#gear").scroll_into_view_if_needed(); shot(page, "gear-%s.png" % scheme, False)
+    check(page.locator("#v-wind #gear").count() == 0, "%s: gear moved out of Wind" % scheme)
     shot(page, "wind-%s.png" % scheme, False)
     shot(page, "wind-%s-full.png" % scheme)
 
-    tab(page, "explore")
-    check(page.locator('#kinds .pill:has-text("Freelance")').count() == 0, "%s: work kinds live in Work, not Explore" % scheme)
+    tab(page, "discover")
+    check(page.is_visible("#pane-foryou") and page.locator("#forYou .item").count() >= 5, "%s: Discover opens on the For you feed" % scheme)
+    check("Because:" in page.inner_text("#forYou"), "%s: For you says why each item is there" % scheme)
+    check(page.locator("#forYou .item h3").first.inner_text() in ("Aurora window", "Stone garden show", "Light and space"), "%s: For you ranks the best first" % scheme)
+    shot(page, "foryou-%s.png" % scheme, False)
+    page.click('#panes [data-p="read"]'); page.wait_for_timeout(150)
+    check(page.locator('#kinds .pill:has-text("Freelance")').count() == 0 and page.locator('#kinds .pill:has-text("Art")').count() == 0, "%s: Read & listen has no work or go-to kinds" % scheme)
     check(page.locator('#regions .pill:has-text("Japan")').count() == 1, "%s: Japan filter shows while the focus is Japan" % scheme)
+    check(page.locator('#forRegions .pill').count() >= 3, "%s: For you has location filters from the items" % scheme)
+    feed_titles = page.locator("#feed .item h3").all_inner_texts()
+    check(feed_titles and not any(t in feed_titles for t in ("Stone garden show", "Quiet band live", "Test kitchen", "Aurora window")), "%s: Read & listen leaves out things to go to %s" % (scheme, feed_titles))
     n_all = page.locator("#feed .item").count()
-    page.click('#kinds .pill:has-text("Art")'); page.wait_for_timeout(150)
-    check(0 < page.locator("#feed .item").count() < n_all + 1, "%s: Art filter narrows the feed" % scheme)
+    page.click('#kinds .pill:has-text("Meditation")'); page.wait_for_timeout(150)
+    check(0 < page.locator("#feed .item").count() < n_all, "%s: Meditation filter narrows the list" % scheme)
     page.click('#kinds .pill:has-text("Everything")'); page.wait_for_timeout(150)
+    shot(page, "read-%s.png" % scheme, False)
+    page.click('#panes [data-p="go"]'); page.wait_for_timeout(150)
+    go = page.inner_text("#doAll")
+    check("Stone garden show" in go and "Test kitchen" in go, "%s: Go merges the feed's exhibitions and food into the list" % scheme)
+    check("Kyoto garden show" in go, "%s: trip items show in Go while the trip lasts" % scheme)
     page.fill("#q", "stone garden"); page.wait_for_timeout(150)
-    check(page.locator("#feed .item").count() == 1, "%s: search narrows Explore" % scheme)
-    page.fill("#q", ""); page.wait_for_timeout(150)
-    shot(page, "explore-%s.png" % scheme, False)
+    check(page.locator("#doAll .idea").count() == 1, "%s: search narrows Discover" % scheme)
+    check(page.is_visible("#qClear"), "%s: search shows a clear button" % scheme)
+    page.click("#qClear"); page.wait_for_timeout(150)
+    check(page.input_value("#q") == "" and page.locator("#doAll .idea").count() > 1 and not page.is_visible("#qClear"), "%s: clear empties the search" % scheme)
+    shot(page, "discover-%s.png" % scheme, False)
 
     tab(page, "work")
     check(page.locator("#workFeed .item").count() >= 1, "%s: Work tab lists opportunities" % scheme)
@@ -367,11 +388,21 @@ def tabs_suite(browser, site, scheme):
     check(len(titles) >= 2 and titles[0] == "Test lead, deadline soon" and titles[1] == "Test lead, later deadline", "%s: Freelance sorted by deadline %s" % (scheme, titles[:2]))
     check("Apply by" in page.inner_text("#workFeed") and "days left" in page.inner_text("#workFeed"), "%s: Freelance shows Apply by and days left" % scheme)
     check(page.is_visible("#workDue") and "Test lead, deadline soon" in page.inner_text("#workDue"), "%s: Work shows the next deadlines" % scheme)
-    check(page.locator("#workKinds .pill").all_inner_texts() == ["Everything", "Events", "Calls & grants", "Jobs", "Freelance", "Reading"], "%s: Work filters by type" % scheme)
+    check(page.locator("#workKinds .pill").all_inner_texts() == ["Everything", "Tracking", "Events", "Calls & grants", "Jobs", "Freelance", "Reading"], "%s: Work filters by type" % scheme)
+    # tracker: interested, then the Tracking filter, then not for me hides
+    page.locator('#workFeed .item:has-text("Test lead, later deadline") .tk.interested').click(); page.wait_for_timeout(200)
+    check(json.loads(page.evaluate("localStorage.getItem('radar-work')"))["test-freelance-later"]["state"] == "interested", "%s: tracker keeps Interested on the phone" % scheme)
+    page.click('#workKinds .pill:has-text("Tracking")'); page.wait_for_timeout(150)
+    check(page.locator("#workFeed .item").count() == 1 and "Interested" in page.inner_text("#workFeed"), "%s: Tracking lists tracked leads" % scheme)
     shot(page, "work-%s.png" % scheme, False)
-    page.click('#workKinds .pill:has-text("Everything")')
-    tab(page, "explore")
+    page.click('#workKinds .pill:has-text("Everything")'); page.wait_for_timeout(150)
+    page.locator('#workFeed .item:has-text("Adaptation finance forum") .tk.skip').click(); page.wait_for_timeout(200)
+    check("Adaptation finance forum" not in page.inner_text("#workFeed"), "%s: Not for me hides the lead" % scheme)
+    page.wait_for_timeout(4500)
+    tr = [n for n in m.notes if n.get("label") == "radar-track"]
+    check(tr and '"interested"' in unseal(tr[-1]["body"]) and '"skip"' in unseal(tr[-1]["body"]), "%s: tracker sent as one sealed note" % scheme)
 
+    tab(page, "discover"); page.click('#panes [data-p="read"]'); page.wait_for_timeout(150)
     page.locator("#feed [data-a=up]").first.click(); page.wait_for_timeout(350)
     check("show" in (page.get_attribute("#fbBar", "class") or ""), "%s: reaction pops the notice" % scheme)
     page.click("#fbClose"); page.wait_for_timeout(350)
@@ -400,15 +431,51 @@ def tabs_suite(browser, site, scheme):
     check(page.locator("#savedList .item").count() == 1, "%s: saved item listed in Saved" % scheme)
     check(page.locator("#bucketList .bk").count() >= 1, "%s: bucket list shown" % scheme)
     check(page.locator("#learned li").count() >= 1, "%s: What Radar has learned shown" % scheme)
-    check(page.locator("#wanted .want").count() == 1 and page.locator("#wanted .ad").count() == 3, "%s: Wanted lists the car-seat search with its ads, not wingfoil" % scheme)
-    check("Check fit" in page.inner_text("#wanted") and "Match" in page.inner_text("#wanted"), "%s: Wanted marks matches and unsure fits" % scheme)
+    fol = page.inner_text("#follow")
+    check("Test Artist" in fol and "Quiet Band" in fol, "%s: Following lists the artists" % scheme)
+    bells = (page.locator('#follow li:has-text("Quiet Band") .bell').get_attribute("aria-pressed"), page.locator('#follow li:has-text("Test Artist") .bell').get_attribute("aria-pressed"))
+    check(bells == ("true", "false"), "%s: bells show which artists have concert alerts %s" % (scheme, bells))
+    check(page.locator("#gear .ad").count() == 5, "%s: wingfoil ads listed under Finds (bad links left out)" % scheme)
+    check(page.locator("#gear b b").count() == 0, "%s: ad titles stay text" % scheme)
+    check("Good deal" in page.inner_text("#gear") and "below similar ads" in page.inner_text("#gear"), "%s: a cheap ad is flagged as a good deal" % scheme)
+    check("online 4 weeks" in page.inner_text("#gear"), "%s: ads say how long they've been online" % scheme)
+    page.click('#gearTypes .pill:has-text("Foils")'); page.wait_for_timeout(150)
+    check(page.locator("#gear .ad").count() == 1 and "Check size" in page.inner_text("#gear"), "%s: gear type filter; unclear sizes say so" % scheme)
+    page.click('#gearTypes .pill:has-text("All")'); page.locator("#gear [data-hide]").first.click(); page.wait_for_timeout(150)
+    check(page.locator("#gear .ad").count() == 4, "%s: hiding an ad removes it" % scheme)
+    page.locator("#wingBox").scroll_into_view_if_needed(); shot(page, "gear-%s.png" % scheme, False)
+    check(page.locator("#wanted .want").count() == 1 and page.locator("#wanted .ad").count() == 3, "%s: Finds lists the car-seat search with its ads" % scheme)
+    check("Check fit" in page.inner_text("#wanted") and "Match" in page.inner_text("#wanted"), "%s: Finds marks matches and unsure fits" % scheme)
     check("NL · Test sloperij" in page.inner_text("#wanted") and "3 months warranty" in page.inner_text("#wanted"), "%s: sloperij finds show the seller and warranty" % scheme)
     page.locator("#wanted").scroll_into_view_if_needed(); shot(page, "wanted-%s.png" % scheme, False)
-    check(page.is_hidden("#connBox"), "%s: GitHub connect hidden on the Cloudflare site" % scheme)
-    check("Radar version" in page.inner_text("#appVersion"), "%s: version line in You" % scheme)
-    check("radar-test-topic" in page.inner_text("#alertLine"), "%s: wind alert topic shown from the encrypted interests" % scheme)
     shot(page, "saved-%s.png" % scheme, False)
     shot(page, "saved-%s-full.png" % scheme)
+
+    # Bucket list: edit a wish
+    page.click('#bucketList [data-e="aurora"]'); page.wait_for_selector("#sheet.show form", timeout=3000); page.wait_for_timeout(400)
+    check(page.input_value('#sheetBody input[name="t"]') == "See the northern lights", "%s: edit form starts with the wish" % scheme)
+    page.fill('#sheetBody textarea[name="g"]', "Clear skies near a good wingfoil spot"); page.click('#sheetBody button[type=submit]'); page.wait_for_timeout(300)
+    check("near a good wingfoil spot" in page.inner_text("#bucketList") and "Changed" in page.inner_text("#bucketList"), "%s: edited wish shows at once" % scheme)
+
+    # Settings
+    page.click("#setBtn"); page.wait_for_timeout(600)
+    check(page.is_visible("#v-settings") and page.locator('.tab[data-v="saved"].on').count() == 1, "%s: Settings opens under You" % scheme)
+    check(page.is_hidden("#connBox"), "%s: GitHub connect hidden on the Cloudflare site" % scheme)
+    check("Radar version" in page.inner_text("#appVersion"), "%s: version line in Settings" % scheme)
+    check("radar-test-topic" in page.inner_text("#alertLine"), "%s: alert topic shown from the encrypted interests" % scheme)
+    check("this month" in page.inner_text("#status") and "Daily update" in page.inner_text("#status"), "%s: status shows spend and last runs" % scheme)
+    check(page.locator("#notifyBox input[type=checkbox]").count() == 7, "%s: notification switches" % scheme)
+    page.locator('#notifyBox input[data-k="weekend"]').click(); page.click('#budgetBox [data-b="3"]'); page.wait_for_timeout(200)
+    st = json.loads(page.evaluate("localStorage.getItem('radar-settings')"))
+    check(st["notify"]["weekend"] is False and st["budget"] == 3, "%s: settings kept on the phone" % scheme)
+    shot(page, "settings-%s.png" % scheme)
+    page.wait_for_timeout(4500)
+    sn = [n for n in m.notes if n.get("label") == "radar-settings"]
+    check(sn and '"weekend": false' in unseal(sn[-1]["body"]).replace('":false', '": false'), "%s: settings sent sealed" % scheme)
+    tr = [n for n in m.notes if n.get("label") == "radar-track"]
+    check(tr and '"aurora"' in unseal(tr[-1]["body"]), "%s: wish edit sent sealed" % scheme)
+    page.click("#setBack"); page.wait_for_timeout(200)
+    check(page.is_visible("#v-saved"), "%s: back returns to You" % scheme)
 
     page.set_viewport_size({"width": 320, "height": 640})
     for v in TABS:
@@ -433,7 +500,7 @@ def around_suite(browser, site, scheme):
     ctx, page, errors = new_page(browser, site, scheme)
     m = Mocks(page)
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
-    page.click("#nearBtn")
+    near(page)
     page.wait_for_selector("#around .pgroup", timeout=8000); page.wait_for_timeout(400)
     groups = page.locator("#around .pgroup h4").all_inner_texts()
     check(groups[:1] == ["Art & museums"] and "Zen & quiet places" in groups and "Food that may suit you" in groups and "Nature & viewpoints" in groups,
@@ -464,7 +531,7 @@ def overpass_down_suite(browser, site):
     ctx, page, errors = new_page(browser, site)
     m = Mocks(page, overpass_up=False)
     page.goto(site); page.wait_for_timeout(600)
-    page.click("#nearBtn")
+    near(page)
     page.wait_for_function("document.querySelector('#around') && /Wikipedia only/.test(document.querySelector('#around').innerText)", timeout=10000)
     check(sorted(set(m.overpass_hits)) == ["overpass-api.de", "overpass.kumi.systems", "overpass.private.coffee"], "Overpass down: all three mirrors tried %s" % m.overpass_hits)
     check(page.locator("#around .place").count() >= 3, "Overpass down: Wikipedia results still show")
@@ -477,7 +544,7 @@ def denied_suite(browser, site):
     ctx, page, errors = new_page(browser, site, geo=False)
     Mocks(page)
     page.goto(site); page.wait_for_timeout(600)
-    page.click("#nearBtn")
+    near(page)
     page.wait_for_selector("#around .astatus.err", timeout=8000)
     t = page.inner_text("#around")
     check("Location Services" in t and "Safari Websites" in t, "location denied: says where to turn it on")
@@ -491,7 +558,7 @@ def scout_suite(browser, site, scheme):
     m = Mocks(page)
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
     check(page.locator("#hereBtn").count() == 0, "%s: one Look around button, no separate Scout" % scheme)
-    page.click("#nearBtn")
+    near(page)
     page.wait_for_selector("#around .pgroup", timeout=8000)
     page.wait_for_selector("#scoutGo", timeout=5000); page.wait_for_timeout(300)
     check(len(m.notes) == 0, "%s: away from home Radar offers to ask Claude but sends nothing by itself" % scheme)
@@ -544,7 +611,7 @@ def signin_suite(browser, site):
     page.evaluate("document.dispatchEvent(new Event('visibilitychange'))")
     page.wait_for_selector("#signin:not([hidden])", timeout=5000)
     check("sign-in has expired" in page.inner_text("#signin"), "signin: the bar says the sign-in expired")
-    page.click("#nearBtn"); page.wait_for_selector("#scoutGo", timeout=8000)
+    near(page); page.wait_for_selector("#scoutGo", timeout=8000)
     page.click("#scoutGo")
     page.wait_for_function("/once you sign in again/.test(document.querySelector('#around').innerText)", timeout=8000)
     check("waits on this phone" in page.inner_text("#around .scout"), "signin: the note waits on the phone")
@@ -560,7 +627,7 @@ def instant_suite(browser, site):
     asked = []
     page.route("**/api/scout", lambda r: (asked.append(json.loads(r.request.post_data or "{}")), r.fulfill(status=200, headers=JSONH, body=json.dumps(PICKS))) if signed_ok(r.request, "/api/scout") else r.fulfill(status=401, headers=JSONH, body="{}"))
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
-    page.click("#nearBtn"); page.wait_for_selector("#scoutGo", timeout=8000)
+    near(page); page.wait_for_selector("#scoutGo", timeout=8000)
     page.click("#scoutGo")
     page.wait_for_function("/Claude's picks for Kyoto/.test(document.querySelector('#around').innerText)", timeout=8000)
     check(len(asked) == 1 and asked[0].get("city") == "Kyoto" and "profile" in asked[0] and "lat" not in json.dumps(asked[0]), "instant: asks /api/scout with the city and tastes, no position")
@@ -571,8 +638,8 @@ def instant_suite(browser, site):
     page.locator("#around .picks .place").first.click(); page.wait_for_selector("#sheet.show", timeout=3000); page.wait_for_timeout(400)
     check("Moss and stone" in page.inner_text("#sheetBody"), "instant: a pick opens its detail sheet")
     page.keyboard.press("Escape"); page.wait_for_timeout(350)
-    tab(page, "explore")
-    check("Quiet vegan kitchen" in page.inner_text("#feed") or page.locator("#feed .more").count() == 1, "instant: picks join Explore")
+    tab(page, "discover"); page.click('#panes [data-p="go"]'); page.wait_for_timeout(150)
+    check("Quiet vegan kitchen" in page.inner_text("#doAll") or "Quiet vegan kitchen" in page.inner_text("#decide"), "instant: picks join Discover")
     check(not real_errors(errors), "instant: no JS errors %s" % real_errors(errors))
     ctx.close()
 
@@ -583,7 +650,7 @@ def home_suite(browser, site):
     nomi = []
     page.route("**/nominatim.openstreetmap.org/**", lambda r: (nomi.append(1), r.fulfill(status=200, headers=JSONH, body=json.dumps(NOMINATIM))))
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
-    page.click("#nearBtn"); page.wait_for_function("document.querySelector('#around .astatus') && !/Finding|Asking/.test(document.querySelector('#around .astatus').innerText)", timeout=8000)
+    near(page); page.wait_for_function("document.querySelector('#around .astatus') && !/Finding|Asking/.test(document.querySelector('#around .astatus').innerText)", timeout=8000)
     check(page.locator("#around .scout").count() == 0 and not nomi and not m.notes, "at home: no offer, no city lookup, nothing sent")
     check(not real_errors(errors), "at home: no JS errors %s" % real_errors(errors))
     ctx.close()
@@ -608,7 +675,7 @@ def notes_suite(browser, site, local):
     check(len(m.notes) == 2 and m.notes[1]["label"] == "radar-bucket", "notes: bucket wish posts radar-bucket")
     check("Walk the Kumano Kodo" in page.inner_text("#bucketList"), "notes: sent wish shows in the bucket list")
     # feedback
-    tab(page, "explore"); page.locator("#feed [data-a=down]").first.click(); page.wait_for_timeout(200)
+    tab(page, "discover"); page.click('#panes [data-p="read"]'); page.locator("#feed [data-a=down]").first.click(); page.wait_for_timeout(200)
     tab(page, "saved"); page.click("#fbSend2"); page.wait_for_timeout(500)
     check(len(m.notes) == 3 and m.notes[2]["label"] == "radar-feedback" and "-1 |" in unseal(m.notes[2]["body"]), "notes: reactions post radar-feedback")
     # offline: queued in the outbox, sent when back online
@@ -647,11 +714,13 @@ def notes_suite(browser, site, local):
     ctx, page, errors = new_page(browser, local)
     m = Mocks(page)
     page.goto(local); page.wait_for_timeout(600)
-    tab(page, "saved")
+    tab(page, "saved"); page.click("#setBtn"); page.wait_for_timeout(300)
     check(page.is_visible("#connBox"), "github.io: Connect section shown")
+    page.click("#setBack"); page.wait_for_timeout(200)
     page.click("#addBtn"); page.wait_for_selector("#sheet.show textarea"); page.wait_for_timeout(400)
     page.fill("#sheetBody textarea", "Noguchi"); page.click('#sheetBody button[type=submit]'); page.wait_for_timeout(400)
     check(not m.notes and len(page.evaluate("JSON.parse(localStorage.getItem('radar-outbox')||'[]')")) == 1, "github.io: note waits without a token")
+    page.click("#setBtn"); page.wait_for_timeout(300)
     page.click("#connOpen"); page.fill("#connKey", "test-token-not-real"); page.click("#connSave"); page.wait_for_timeout(800)
     check(len(m.github) == 1 and m.github[0]["auth"] == "Bearer test-token-not-real" and m.github[0]["body"]["labels"] == ["radar-interest"], "github.io: queued note sent with the phone's token")
     check(m.github and "Noguchi" not in json.dumps(m.github[0]["body"]) and "Noguchi" in unseal(m.github[0]["body"]["body"]), "github.io: the note is sealed")
@@ -675,7 +744,7 @@ def lock_suite(browser, site, scheme):
     check(stored == KEYB64 and PASS not in json.dumps(page.evaluate("Object.assign({}, localStorage)")), "%s: the phone keeps the derived key, not the passphrase" % scheme)
     page.reload(); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=8000)
     check(not page.is_visible("#lock"), "%s: stays unlocked after a reload" % scheme)
-    tab(page, "saved"); page.click("#lockBtn"); page.wait_for_selector("#lock.show", timeout=5000)
+    tab(page, "saved"); page.click("#setBtn"); page.wait_for_timeout(300); page.click("#lockBtn"); page.wait_for_selector("#lock.show", timeout=5000)
     left = page.evaluate("[localStorage.getItem('radar-key'), localStorage.getItem('radar-cache')]")
     check(left == [None, None], "%s: Lock removes the key and the decrypted copy" % scheme)
     check(not real_errors(errors), "%s: no JS errors in the lock flow %s" % (scheme, real_errors(errors)))
@@ -686,9 +755,9 @@ def do_suite(browser, site, scheme):
     ctx, page, errors = new_page(browser, site, scheme)
     m = Mocks(page)
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
-    tab(page, "do")
-    check(page.locator(".tab[data-v=do] .count").count() == 1, "%s: Do tab shows how many ideas wait" % scheme)
-    all_text = page.inner_text("#v-do")
+    tab(page, "discover"); page.click('#panes [data-p="go"]'); page.wait_for_timeout(150)
+    check(page.locator(".tab[data-v=discover] .count").count() == 1, "%s: Discover tab shows how many ideas wait" % scheme)
+    all_text = page.inner_text("#pane-go")
     check("Big dance festival" not in all_text, "%s: far idea with a low fit stays out (Hague first)" % scheme)
     check("Infinity rooms retrospective" in all_text, "%s: far idea with a high fit shows" % scheme)
     check("Closed show" not in all_text, "%s: past ideas stay out" % scheme)
@@ -722,10 +791,10 @@ def do_suite(browser, site, scheme):
     page.click('#doCity .pill:has-text("Amsterdam")'); page.wait_for_timeout(150)
     check(page.locator("#doAll .idea").count() == 1, "%s: city filter" % scheme)
     pills = page.locator("#doCity .pill").all_inner_texts()
-    check(pills == ["All", "Den Haag", "Amsterdam", "Utrecht"], "%s: city filters come from the ideas, nearest first %s" % (scheme, pills))
+    check(pills == ["All", "Den Haag", "Rotterdam", "Amsterdam", "Utrecht", "Kyoto"], "%s: city filters come from the ideas, nearest first %s" % (scheme, pills))
     page.click('#doCity .pill:has-text("All")')
     page.click('#doWhen .pill:has-text("Always on")'); page.wait_for_timeout(150)
-    check(page.locator("#doAll .idea").count() == 1 and "Dawn in the dunes" in page.inner_text("#doAll"), "%s: Always on shows undated ideas" % scheme)
+    check(page.locator("#doAll .idea").count() == 2 and "Dawn in the dunes" in page.inner_text("#doAll") and "Test kitchen" in page.inner_text("#doAll"), "%s: Always on shows undated ideas" % scheme)
     page.click('#doWhen .pill:has-text("Anytime")'); page.wait_for_timeout(150)
     # idea sheet with calendar
     page.locator('#doAll .idea:has-text("Infinity rooms") .open').click(); page.wait_for_selector("#sheet.show", timeout=3000); page.wait_for_timeout(400)
@@ -738,12 +807,17 @@ def do_suite(browser, site, scheme):
     page.keyboard.press("Escape"); page.wait_for_timeout(350)
     check(page.locator("#doPlan .idea").count() == 2, "%s: yes list holds both" % scheme)
     # answers teach Claude, sealed
-    tab(page, "saved")
-    check(page.is_visible("#teachBox") and "answer" in page.inner_text("#teachText"), "%s: Do answers wait to teach Radar" % scheme)
-    page.click("#fbSend2"); page.wait_for_timeout(600)
-    body = unseal(m.notes[-1]["body"]) if m.notes else ""
-    check(m.notes and m.notes[-1]["label"] == "radar-feedback" and "yes | do:calm | Moss garden open days" in body and "no | do:" in body, "%s: yes/no answers reach Claude sealed" % scheme)
-    page.set_viewport_size({"width": 320, "height": 640}); tab(page, "do")
+    check("show" in (page.get_attribute("#fbBar", "class") or "") and "going to Radar" in page.inner_text("#fbText"), "%s: answers say they're going to Radar, with Undo" % scheme)
+    page.wait_for_timeout(6800)
+    fb = [n for n in m.notes if n.get("label") == "radar-feedback"]
+    body = "\n".join(unseal(n["body"]) for n in fb)
+    check(fb and "yes | do:calm | Moss garden open days" in body and "no | do:" in body, "%s: yes/no answers go to Claude by themselves, sealed" % scheme)
+    # Undo takes an answer back before it leaves
+    n0 = len(m.notes)
+    page.locator('#doAll .idea:has-text("Dance premiere") .vote.n').click(); page.wait_for_timeout(300)
+    page.click("#fbUndo"); page.wait_for_timeout(6800)
+    check(len(m.notes) == n0 and "Dance premiere" in page.inner_text("#doAll"), "%s: Undo cancels the answer and nothing is sent" % scheme)
+    page.set_viewport_size({"width": 320, "height": 640}); tab(page, "discover"); page.click('#panes [data-p="go"]')
     w = page.evaluate("Math.max(document.documentElement.scrollWidth, document.body.scrollWidth)")
     check(w <= 320, "%s: no horizontal scroll on Do at 320 px (%d)" % (scheme, w))
     shot(page, "do-%s-320.png" % scheme, False)

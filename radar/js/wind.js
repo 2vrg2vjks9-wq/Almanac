@@ -2,10 +2,10 @@
 // the hourly chart, water temperature with a wetsuit hint, and the Today lead sentence.
 import { $, html, put, pad, stamp } from "./util.js";
 import { get, set, KEYS } from "./store.js";
-import { D } from "./data.js";
+import { D, emit } from "./data.js";
 import { showTab } from "./ui.js";
 
-export const net = { wind: null, windAt: null };
+export const net = { wind: null, windAt: null, sessions: [] }; // sessions: rideable windows, soonest first
 let WATER = get(KEYS.water, {});
 
 const COMPASS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
@@ -178,6 +178,8 @@ function drawWind(res, stale) {
   box.querySelectorAll(".spot").forEach((el, i) => wireDetail(el, all[i].spot, all[i].days, W));
 
   sessions.sort((a, b) => (a.Dy.day < b.Dy.day ? -1 : a.Dy.day > b.Dy.day ? 1 : b.r.len - a.r.len));
+  net.sessions = sessions;
+  emit("wind");
   const n = sessions[0];
   if (n) {
     const until = dayOffset(n.Dy.day);

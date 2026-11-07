@@ -435,7 +435,7 @@ function paint() {
   $("nearBtn").disabled = !!(A && (A.phase === "locating" || A.phase === "searching"));
   if (!A) { put(box, ""); return; }
   const busy = A.phase === "locating" || A.phase === "searching", city = A.mode === "city", canSwitch = !!A.from && A.phase !== "locating";
-  put(box, html`${canSwitch ? html`<div class="switch" role="group" aria-label="How far"><button type="button" id="aNear" aria-pressed="${!city}">Walking distance</button><button type="button" id="aCity" aria-pressed="${city}">Whole city</button></div>` : ""}
+  put(box, html`${canSwitch ? html`<div class="switch" role="group" aria-label="How far"><button type="button" id="aNear" aria-pressed="${String(!city)}">Walking distance</button><button type="button" id="aCity" aria-pressed="${String(city)}">Whole city</button></div>` : ""}
     <div class="around-head"><h3>${A.label}</h3>
       <p class="astatus${A.phase === "error" ? " err" : ""}" role="status" aria-live="polite">${busy ? html`<span class="pulse" aria-hidden="true"></span>` : ""}${statusLine()}</p>
       ${A.fallback ? html`<button class="btn ghost small" type="button" id="useLast">Use where you were at ${hm(A.fallback.t)}</button>` : ""}</div>

@@ -6,9 +6,11 @@
 // - Answers are kept on this phone (radar-do) and sent to Claude, sealed, with the other reactions.
 import { $, html, put, d, today, shortDate, longDate, safeUrl, mapUrl, km, reduceMotion } from "./util.js";
 import { S, save, get, set, KEYS } from "./store.js";
-import { D, emit } from "./data.js";
-import { openSheet, sheetOpen, paintSheet, showTab } from "./ui.js";
+import { D, emit, Q, mergePicks } from "./data.js";
+import { openSheet, sheetOpen, paintSheet, swipeRow, say } from "./ui.js";
 import { ics } from "./detail.js";
+import { signed } from "./vault.js";
+import { note, SERVER, authFailed, signedOut, track } from "./notes.js";
 
 export const CATS = {
   art: "Art", music: "Music", stage: "Theatre & dance", film: "Film", talk: "Talks & ideas", festival: "Festival",
@@ -57,8 +59,8 @@ export const ideaPast = (it) => { const e = d(it.end) || (it.start && !it.end ? 
 // tickets that sell out, a registration or booking (`prep`). The rest wait until they're close.
 const HORIZON = 21;
 const farOut = (it) => { const s = d(it.start); return !!(s && (s - today()) / 864e5 > HORIZON); };
-export function eligible(it) { return !ideaPast(it) && fit(it) >= MIN_FIT[tier(distance(it))] && (!farOut(it) || !!it.prep); }
-const prepText = (it) => (it.prep ? (typeof it.prep === "string" ? it.prep : "Book ahead") : "");
+export function eligible(it) { return !ideaPast(it) && (it.trip || fit(it) >= MIN_FIT[tier(distance(it))]) && (!farOut(it) || !!it.prep); }
+export const prepText = (it) => (it.prep ? (typeof it.prep === "string" ? it.prep : "Book ahead") : "");
 
 // --- Dates --------------------------------------------------------------------------------------
 function range(when) {
@@ -100,6 +102,7 @@ function status(it) {
   if (s && +s === +t) return ["now", "Today"];
   if (it.prep && farOut(it)) return ["soon", "Plan ahead"];
   if (f && (t - f) / 864e5 <= 3) return ["new", "New"];
+  if (it.picked) return ["new", "Just found"];
   if (it.major) return ["", "Big one"];
   if (it.fresh) return ["", "Fresh idea"];
   return null;
@@ -125,10 +128,12 @@ function score(it) {
 }
 
 // --- Answers --------------------------------------------------------------------------------------------
-const ideas = () => ((D.things && D.things.ideas) || []).filter((it) => it && it.id && it.title);
-const byId = (id) => ideas().find((x) => x.id === id);
-const answer = (it) => S.do[it.id];
+export const ideas = () => ((D.things && D.things.ideas) || []).filter((it) => it && it.id && it.title);
+export const byId = (id) => ideas().find((x) => x.id === id);
+export const answer = (it) => S.do[it.id];
+let steady = false, lastOrder = null; // a yes or no doesn't re-rank the list under your finger
 export function decide(it, v) {
+  steady = true; setTimeout(() => { steady = false; }, 0);
   const a = answer(it);
   if (a && a.v === v && v !== 0) delete S.do[it.id];
   else S.do[it.id] = { v, t: Date.now(), title: it.title, cat: it.cat, city: it.city || "", sent: v === 0 };
@@ -157,7 +162,7 @@ function meta(it) {
   const st = status(it);
   return html`<span class="dot c-${it.cat}" aria-hidden="true"></span><span>${CATS[it.cat] || "Idea"}</span>${st ? html`<span class="state ${st[0]}">${st[1]}</span>` : ""}`;
 }
-const placeText = (it) => [it.venue, it.area, it.city].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(", ");
+export const placeText = (it) => [it.venue, it.area, it.city].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(", ");
 function travelText(it) {
   if (it.travel) return it.travel;
   const k = distance(it);
@@ -190,7 +195,7 @@ function rowHTML(it) {
     <div class="meta">${meta(it)}</div>
     <h3><button class="open" type="button" aria-haspopup="dialog">${it.title}</button></h3>
     <div class="where">${[placeText(it), w].filter(Boolean).join(" · ")}</div>
-    <div class="acts"><span class="go"></span><button class="vote n${no ? " on" : ""}" type="button" data-v="-1" aria-pressed="${no}" aria-label="Not for me">${N}</button><button class="vote y${yes ? " on" : ""}" type="button" data-v="1" aria-pressed="${yes}">${Y}${yes ? "Going" : "Yes"}</button></div>
+    <div class="acts"><span class="go"></span><button class="vote n${no ? " on" : ""}" type="button" data-v="-1" aria-pressed="${String(no)}" aria-label="Not for me">${N}</button><button class="vote y${yes ? " on" : ""}" type="button" data-v="1" aria-pressed="${String(yes)}">${Y}${yes ? "Going" : "Yes"}</button></div>
   </div></article>`;
 }
 function wireRows(box) {
@@ -199,8 +204,10 @@ function wireRows(box) {
     if (!it) return;
     el.querySelector(".open").onclick = () => openIdea(it);
     el.querySelectorAll(".vote").forEach((b) => { b.onclick = () => decide(it, +b.dataset.v); });
+    swipeRow(el, () => decide(it, 1), () => decide(it, -1), ["Yes", "No"]);
   });
 }
+const textMatch = (it) => !Q.q || [it.title, it.summary, it.why, it.venue, it.city].join(" ").toLowerCase().includes(Q.q);
 
 // --- Decide card ------------------------------------------------------------------------------------------------
 function drawDecide() {
@@ -253,7 +260,7 @@ function drawDecide() {
 }
 
 // --- Yes list -------------------------------------------------------------------------------------------------------
-function sortByDate(a, b) {
+export function sortByDate(a, b) {
   const x = d(a.start) || d(a.end), y = d(b.start) || d(b.end);
   if (x && y) return x - y;
   if (x) return -1;
@@ -275,13 +282,15 @@ function catMatch(it) {
   return (CAT_GROUP[view.cat] || [view.cat]).includes(it.cat);
 }
 function drawAll() {
-  const list = ideas().filter((it) => eligible(it) && inWhen(it, view.when) && (view.city === "all" || cityKey(it) === view.city) && catMatch(it) &&
+  const list = ideas().filter((it) => eligible(it) && inWhen(it, view.when) && (view.city === "all" || cityKey(it) === view.city) && catMatch(it) && textMatch(it) &&
     (showNo || !(answer(it) && answer(it).v < 0))).sort((a, b) => score(b) - score(a));
+  if (steady && lastOrder) { const pos = new Map(lastOrder.map((id, i) => [id, i])); list.sort((a, b) => (pos.has(a.id) ? pos.get(a.id) : 1e9) - (pos.has(b.id) ? pos.get(b.id) : 1e9)); }
+  lastOrder = list.map((it) => it.id);
   const near = list.filter((it) => cityKey(it) === "haag"), far = list.filter((it) => cityKey(it) !== "haag");
   const group = (title, sub, arr, isFar) => (arr.length ? html`<div class="cityline"><span class="flagmark${isFar ? " far" : ""}" aria-hidden="true"></span><h3>${title}</h3><small>${sub}</small></div><div class="sheet">${arr.map(rowHTML)}</div>` : "");
   put($("doAll"), list.length
     ? html`${group("Den Haag & around", near.length + (near.length === 1 ? " idea" : " ideas"), near, false)}${group("Worth the trip", "only the strongest matches", far, true)}`
-    : html`<div class="sheet"><p class="empty">Nothing for this filter. Try another time or place.</p></div>`);
+    : html`<div class="sheet"><p class="empty">${Q.q ? "Nothing matches “" + Q.q + "”." : "Nothing for this filter. Try another time or place."}</p></div>`);
   wireRows($("doAll"));
   $("doNoBtn").textContent = showNo ? "Hide what I said no to" : "Show what I said no to";
 }
@@ -323,7 +332,7 @@ function sheetBody(it) {
     ${it.flags && it.flags.length ? html`<div class="flags">${it.flags.map((f) => html`<span class="flag">${f}</span>`)}</div>` : ""}
     ${rows.length ? html`<dl class="facts">${rows.map((r) => html`<div><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`)}</dl>` : ""}
     ${acts.length ? html`<div class="sheet-acts">${acts}</div>` : ""}
-    <div class="react two"><button class="vote n${no ? " on" : ""}" type="button" data-v="-1" aria-pressed="${no}">${N}Not for me</button><button class="vote y${yes ? " on" : ""}" type="button" data-v="1" aria-pressed="${yes}">${Y}${yes ? "On my list" : "I'd go"}</button></div>`;
+    <div class="react two"><button class="vote n${no ? " on" : ""}" type="button" data-v="-1" aria-pressed="${String(no)}">${N}Not for me</button><button class="vote y${yes ? " on" : ""}" type="button" data-v="1" aria-pressed="${String(yes)}">${Y}${yes ? "On my list" : "I'd go"}</button></div>`;
 }
 export function openIdea(it) {
   current = it;
@@ -335,50 +344,91 @@ export function openIdea(it) {
 }
 function refreshIdea() { if (sheetOpen() && current && document.querySelector("#sheetBody .react.two")) paintSheet(); }
 
-// --- Today: coming up, Den Haag first --------------------------------------------------------------------------------
-function drawToday() {
-  const box = $("todayDo");
-  if (!box) return;
-  const t = today(), soon = new Date(t); soon.setDate(t.getDate() + 14);
-  const dated = (it) => { const s = d(it.start) || t; return !undated(it) && s <= soon; };
-  const yes = ideas().filter((it) => answer(it) && answer(it).v > 0 && !ideaPast(it) && dated(it)).sort(sortByDate);
-  const open = ideas().filter((it) => eligible(it) && !answer(it) && dated(it) && cityKey(it) === "haag").sort((a, b) => score(b) - score(a));
-  const list = yes.concat(open.filter((x) => !yes.includes(x))).slice(0, 4);
-  const lbl = (it) => { const s = d(it.start); return s && s > t ? s.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" }) : d(it.end) ? "On now" : "Soon"; };
-  put(box, list.length ? html`${list.map((it) => html`<button class="mini" type="button" data-id="${it.id}"><span class="when">${lbl(it)}</span><span class="what"><b>${it.title}</b><small>${answer(it) && answer(it).v > 0 ? "On your list · " : ""}${placeText(it)}</small></span></button>`)}`
-    : html`<p class="empty">Nothing dated in the next two weeks yet. Do has ideas for any time.</p>`);
-  box.querySelectorAll(".mini").forEach((b) => { b.onclick = () => openIdea(byId(b.dataset.id)); });
-}
-
 function paintCount() {
-  const tab = document.querySelector('.tab[data-v="do"]');
+  const tab = document.querySelector('.tab[data-v="discover"]');
   if (!tab) return;
   const n = undecidedCount();
   let c = tab.querySelector(".count");
   if (n && !c) { c = document.createElement("span"); c.className = "count"; c.setAttribute("aria-hidden", "true"); tab.appendChild(c); }
   if (c) { if (n) c.textContent = n > 99 ? "99+" : n; else c.remove(); }
-  tab.setAttribute("aria-label", n ? "Do, " + n + " ideas to decide" : "Do");
+  tab.setAttribute("aria-label", n ? "Discover, " + n + " ideas to decide" : "Discover");
 }
 
+export function drawList() { drawAll(); }
 export function drawDo() {
   const cs = cities();
   if (!cs.some((c) => c[0] === view.city)) view.city = "all";
   segs("doCity", cs, "city");
-  drawDecide(); drawPlan(); drawAll(); drawToday(); paintCount(); refreshIdea();
+  drawDecide(); drawPlan(); drawAll(); paintCount(); refreshIdea();
   const u = D.things && D.things.updated;
   $("doDate").textContent = "Den Haag first" + (u ? ", updated " + shortDate(new Date(u)) : "");
+}
+
+// --- Find more ideas now -----------------------------------------------------------------------------------------
+// On the Cloudflare site Claude finds ideas right away (/api/ideas, signed like notes, about a minute, a few cents).
+// They show at once (kept on this phone in radar-more) and travel in a sealed note, so the next task run checks
+// them and keeps the good ones in things.json. Without the server it falls back to the note alone.
+function profile() {
+  const C = D.config || {}, T = D.taste || {};
+  return { do: C.do, culture: C.culture, museums: C.museums, artists: C.artists, meditation: C.meditation,
+    learned: T.learned, more: T.more, less: T.less,
+    yes: Object.values(S.do).filter((a) => a.v > 0).slice(-15).map((a) => a.title),
+    no: Object.values(S.do).filter((a) => a.v < 0).slice(-15).map((a) => a.title) };
+}
+async function instantIdeas(askText) {
+  if (!SERVER || !navigator.onLine) return { why: "offline" };
+  try {
+    const have = ideas().filter((it) => !ideaPast(it)).map((it) => it.title).slice(0, 80);
+    const body = JSON.stringify({ ask: askText, profile: profile(), have });
+    const r = await fetch("/api/ideas", { method: "POST", credentials: "same-origin", redirect: "manual",
+      headers: Object.assign({ "Content-Type": "application/json" }, await signed("/api/ideas", body)), body });
+    if (authFailed(r)) { signedOut(true); return { why: "signin" }; }
+    if (r.status === 404 || r.status === 401 || r.status === 503) return { why: "setup" };
+    const j = await r.json().catch(() => ({}));
+    if (j.cost) track({ spend: j.cost });
+    return Array.isArray(j.ideas) && j.ideas.length ? { ideas: j.ideas } : { why: "none" };
+  } catch (e) { return { why: "fail" }; }
+}
+let finding = false;
+async function findMore(askText) {
+  if (finding) return;
+  finding = true;
+  const btn = $("doMoreBtn");
+  btn.disabled = true; btn.textContent = "Finding ideas…";
+  say("Claude is looking for ideas. This takes about a minute.");
+  const res = await instantIdeas(askText);
+  finding = false;
+  btn.disabled = false; btn.textContent = "Find more ideas now";
+  const stamp = new Date().toISOString().slice(0, 10);
+  let found = [];
+  if (res.ideas) {
+    const slug = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
+    found = res.ideas.map((x) => Object.assign({}, x, { id: "m-" + slug(x.title), found: stamp, picked: true }));
+    const M = get(KEYS.more, null), keep = (M && M.items) || [], ids = new Set(keep.map((x) => x.id));
+    set(KEYS.more, { t: Date.now(), items: keep.filter((x) => (Date.now() - (M.t || 0)) < 30 * 864e5).concat(found.filter((x) => !ids.has(x.id))) });
+    mergePicks();
+    emit("change");
+    say(found.length + " new ideas. Say yes or no to them first.");
+    window.scrollTo({ top: 0 });
+  } else {
+    const why = { setup: "Instant ideas aren't switched on yet (the ANTHROPIC_API_KEY secret in Cloudflare).", signin: "Sign in again to get ideas right away.",
+      offline: "You're offline.", none: "Claude found nothing it could stand behind right now." }[res.why] || "Claude couldn't be reached.";
+    say(why + " Your request went to Radar; ideas arrive within the hour.");
+  }
+  note("Do: more ideas" + (askText ? " like " + askText : ""),
+    "Please look for more Do ideas (things to do, Den Haag first)" + (askText ? ": " + askText : ".") +
+    (found.length ? "\n\nPicked ideas (instant research, check before keeping):\n" + JSON.stringify(found) : ""),
+    "radar-interest", "");
 }
 
 export function initDo(ask) {
   segs("doWhen", WHEN, "when");
   segs("doCat", CAT_FILTERS, "cat");
-  $("toDo").onclick = () => showTab("do");
   $("doNoBtn").onclick = () => { showNo = !showNo; drawAll(); };
   $("doMoreBtn").onclick = () => ask({
-    title: "Ask for more ideas", intro: "What would you like more of? Radar adds it to what Claude looks for: Den Haag first, further afield when it's worth the trip.",
-    fields: [{ name: "t", label: "More of", placeholder: "Small jazz gigs, sunrise walks, design markets, contemporary dance…", required: true, long: true }],
-    submit: "Send to Radar", label: "radar-interest",
-    note: (v) => ["Do: more ideas like " + v.t, "Please look for more Do ideas (things to do, Den Haag first): " + v.t],
-    done: "Sent. Claude looks for more of that tomorrow morning.",
+    title: "Find more ideas now", intro: "Claude looks right away, Den Haag first and further afield when it's worth the trip. Leave it empty for a fresh mix.",
+    fields: [{ name: "t", label: "More of (optional)", placeholder: "Small jazz gigs, sunrise walks, design markets, contemporary dance…", long: true }],
+    submit: "Find ideas",
+    send: (v) => findMore(v.t),
   });
 }

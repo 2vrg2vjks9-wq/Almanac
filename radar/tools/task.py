@@ -35,11 +35,16 @@ CHEAP = "claude-haiku-5-5"
 LOW = {  # task: (cap per run in USD, web searches allowed; 0 = WebSearch switched off)
     "daily": (0.12, 6),
     "inbox": (0.08, 4),
-    "finds": (0.03, 0),
+    "finds": (0.06, 0),
     "concerts": (0.06, 4),
     "work": (0.10, 5),
 }
-LASTRUN = os.path.join(ROOT, "radar", "last-run.json")  # date each task last ran (so missed schedules catch up)
+STATUS = os.path.join(ROOT, "radar", "status.json")  # public run status for the app (dates, outcomes, spend; nothing personal)
+# When the month's money runs low, these give way first, so the daily refresh and the work search keep running:
+# a low-priority run only goes ahead while it leaves RESERVE of the paced budget for the others.
+LOW_PRIORITY = {"finds", "concerts", "inbox"}
+RESERVE = 0.25
+SWITCHABLE = {"finds", "concerts", "work"}  # tasks the owner can switch off in Settings (daily and inbox stay on)
 
 # Tasks whose instructions live here instead of in the vault. Keep them free of personal details: they point
 # at the encrypted interests for everything about the owner.
@@ -77,6 +82,26 @@ RULES = """Cost rules for this run (they come before everything below):
 - Stop when the allowance is used. Fewer, solid items beat many thin ones.
 
 """
+
+
+EXTRA = {  # added to the cost rules, per task (generic: nothing about the owner)
+    "finds": "- Web search is switched off for this task. Open the marketplaces' own search pages with WebFetch instead,\n"
+             "  one per query in interests.wanted[].queries (or the search title when there are none), and ask WebFetch\n"
+             "  for every ad's title, price, location, date and link:\n"
+             "    Marktplaats:   https://www.marktplaats.nl/q/<query>/\n"
+             "    2dehands:      https://www.2dehands.be/q/<query>/\n"
+             "    Kleinanzeigen: https://www.kleinanzeigen.de/s-<query>/k0   (words joined with -)\n"
+             "  plus any `sources` pages a search lists. Their /lrp/api/ endpoints are off-limits (robots.txt).\n"
+             "- Keep ads that still fit, drop ones no longer listed, add new ones. For every ad record `posted`\n"
+             "  (YYYY-MM-DD; turn 'Vandaag'/'Heute'/'Gisteren'/'Gestern' into dates) and the price as a number, so the\n"
+             "  app can show how long it has been for sale and compare prices.\n",
+    "inbox": "- A note may carry \"Picked ideas\" (JSON that Radar's instant research already found). Open each url;\n"
+             "  add the ones that hold up to radar/.plain/things.json `ideas` with a new unique id (\"m-\" + a short slug),\n"
+             "  found = today, and drop the rest. Picked city items go to feed.json in the same way.\n",
+}
+EXTRA["daily"] = EXTRA["inbox"]
+# Which Settings switch silences a task's push (the owner turns them on and off on the phone).
+PUSH = {"daily": "daily", "inbox": "daily", "finds": "finds", "concerts": "concerts", "work": "work"}
 
 
 def say(msg):
@@ -135,12 +160,18 @@ def prepare(name):
     cap, searches = LOW.get(name, (0.05, 2))
     prompt = t["prompt"]
     if billed:
-        prompt = RULES.format(n=searches, off=" (WebSearch is switched off: open pages directly)" if not searches else "") + prompt
+        rules = RULES.format(n=searches, off=" (WebSearch is switched off: open pages directly)" if not searches else "")
+        prompt = rules.rstrip("\n") + "\n" + EXTRA.get(name, "") + "\n" + prompt
         if run:
             spent, allowed = budget_now()
-            if spent + cap > allowed:
-                say("budget: $%.2f of $%.2f used this month, $%.2f allowed so far: skipping this run" % (spent, BUDGET, allowed))
+            need = spent + cap + (allowed * RESERVE if name in LOW_PRIORITY and not notes else 0)
+            if need > allowed:
+                say("budget: $%.2f of $%.2f used this month, $%.2f allowed so far: skipping this run" % (spent, budget(), allowed))
+                set_status(name, "skipped: budget")
                 run = False
+    if run and name in SWITCHABLE and settings().get("tasks", {}).get(name) is False:
+        say("switched off in Settings")
+        run = False
     open(os.path.join(TMP, "prompt.txt"), "w").write(prompt)
     output(model=CHEAP if billed else (t.get("model") or "claude-sonnet-5-5"), run=str(run).lower(),
            cap=("%.2f" % cap) if billed else "", nosearch="true" if billed and not searches else "false")
@@ -181,15 +212,37 @@ def stamp():
     say("stamped as updated: %d file(s)" % n)
 
 
-def mark_run(name):
-    """Note the day this task ran (a date only), so the hourly run can catch up a schedule GitHub skipped."""
+def status():
     try:
-        d = json.load(open(LASTRUN))
+        d = json.load(open(STATUS))
+        return d if isinstance(d, dict) else {}
     except Exception:
-        d = {}
-    d[name] = subprocess.run(["date", "-u", "+%F"], capture_output=True, text=True).stdout.strip()
-    json.dump(dict(sorted(d.items())), open(LASTRUN, "w"), indent=1)
-    open(LASTRUN, "a").write("\n")
+        return {}
+
+
+def set_status(name, result, cost=None):
+    """Record a task's last run for the app's status card and the catch-up: when, how it went, what it cost.
+    Only dates, fixed outcome words and amounts: the file is public."""
+    import datetime
+    d = status()
+    now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    t = d.setdefault("tasks", {})
+    e = {"at": now, "result": result}
+    if cost is not None:
+        e["cost"] = round(cost, 3)
+    t[name] = e
+    d["month"] = month()
+    d["spent"] = round(float(ledger().get(month(), 0)), 3)
+    d["budget"] = budget()
+    d["mode"] = "subscription" if os.environ.get("SUBSCRIPTION") == "true" else "api"
+    d["updated"] = now
+    json.dump(d, open(STATUS, "w"), indent=1, sort_keys=True)
+    open(STATUS, "a").write("\n")
+
+
+def mark_run(name):
+    """Kept for older callers: a run happened today (the catch-up reads status.json)."""
+    pass
 
 
 def month():
@@ -203,6 +256,24 @@ def ledger():
         return {}
 
 
+def settings():
+    """The owner's Settings (from the phone, applied by `task.py apply`): {notify:{...}, budget, tasks:{...}}."""
+    try:
+        return json.load(open(os.path.join(PLAIN, "interests.json"))).get("settings") or {}
+    except Exception:
+        return {}
+
+
+def budget():
+    try:
+        b = float(settings().get("budget") or 0)
+        if 1 <= b <= 100:
+            return b
+    except Exception:
+        pass
+    return BUDGET
+
+
 def budget_now():
     """Spend so far this month, and how much may be spent by today (the budget paced evenly over the month,
     one day ahead), so a busy week can't use up the month."""
@@ -210,7 +281,8 @@ def budget_now():
     d = datetime.datetime.utcnow()
     days = calendar.monthrange(d.year, d.month)[1]
     spent = float(ledger().get(month(), 0))
-    return spent, min(BUDGET, BUDGET * (d.day + 1) / days)
+    b = budget()
+    return spent, min(b, b * (d.day + 1) / days)
 
 
 def record(cost):
@@ -272,7 +344,7 @@ def stopped_at_cap():
 
 def save_spend():
     """Commit only the spend ledger (used when a billed run failed and nothing else is saved)."""
-    files = [f for f in ("radar/spend.json", "radar/last-run.json") if os.path.exists(os.path.join(ROOT, f))]
+    files = [f for f in ("radar/spend.json", "radar/status.json") if os.path.exists(os.path.join(ROOT, f))]
     if not files:
         return
     subprocess.run(["git", "add", "--"] + files, cwd=ROOT)
@@ -322,8 +394,12 @@ def finish(name):
                 except Exception:
                     cost = float(os.environ.get("CAP") or 0.1)  # unknown: count the whole cap
                 record(cost)
+        cost_now = None
         if ran:
-            mark_run(name)
+            try:
+                cost_now = float(json.load(open(os.path.join(TMP, "out.json"))).get("total_cost_usd"))
+            except Exception:
+                cost_now = None
         if not ran:
             say("Claude didn't run"); return
         if res is None and stopped_at_cap():
@@ -331,6 +407,7 @@ def finish(name):
             say("stopped at the cost cap: saving what it finished")
         if res is None:
             say("Claude didn't finish: nothing saved, notes stay open")
+            set_status(name, "failed", cost_now)
             save_spend()
             notify("Radar's %s task didn't finish today; it tries again next time." % name)
             sys.exit(1)
@@ -340,6 +417,7 @@ def finish(name):
                 json.load(open(f))
             except Exception:
                 say("a data file isn't valid JSON: nothing saved, notes stay open")
+                set_status(name, "failed", cost_now)
                 save_spend()
                 notify("Radar's %s task left broken data, so nothing was saved; it tries again next time." % name)
                 sys.exit(1)
@@ -347,8 +425,9 @@ def finish(name):
         # left, and only the known data files are committed; anything else it touched is thrown away.
         os.remove(os.path.join(PLAIN, "tasks.json"))
         stamp()
+        set_status(name, "ok", cost_now)
         vault("lock")
-        files = ["radar/data/%s.enc.json" % n for n in DATA] + [f for f in ("radar/spend.json", "radar/last-run.json")
+        files = ["radar/data/%s.enc.json" % n for n in DATA] + [f for f in ("radar/spend.json", "radar/status.json")
                                                                    if os.path.exists(os.path.join(ROOT, f))]
         subprocess.run(["git", "add", "--"] + files, cwd=ROOT, check=True)
         changed = subprocess.run(["git", "diff", "--cached", "--quiet", "--"] + files, cwd=ROOT).returncode != 0
@@ -371,16 +450,143 @@ def finish(name):
             gh("POST", "/issues/%s/comments" % num, {"body": "Done."})
             gh("PATCH", "/issues/%s" % num, {"state": "closed", "state_reason": "completed"})
             closed += 1
-        quiet = res in (t.get("quiet") or []) or not res
+        quiet = res in (t.get("quiet") or []) or not res or settings().get("notify", {}).get(PUSH.get(name, name)) is False
         sent = False if quiet else notify(res)
         say("saved: %s; notes closed: %d; notification: %s" % ("yes" if changed else "no changes", closed, "sent" if sent else "none"))
     finally:
         shutil.rmtree(PLAIN, ignore_errors=True)
 
 
+APPLY_LABELS = ["radar-settings", "radar-track"]
+
+
+def _name(x):
+    return (x if isinstance(x, str) else (x.get("name") or x.get("artist") or "") if isinstance(x, dict) else "").strip()
+
+
+def apply_artists(it, ch):
+    """Follow or unfollow artists from the phone: {add: [names], remove: [names], alerts: {name: bool}}.
+    interests.artists keeps its own shape (names or {name, ...}); concert alerts use concertAlerts.artists."""
+    arts = it.get("artists") if isinstance(it.get("artists"), list) else []
+    ca = it.get("concertAlerts") if isinstance(it.get("concertAlerts"), dict) else {}
+    alerts = ca.get("artists") if isinstance(ca.get("artists"), list) else []
+    low = lambda xs: {_name(x).lower() for x in xs}
+    for n in [str(x).strip()[:80] for x in (ch.get("remove") or [])[:50] if str(x).strip()]:
+        arts = [x for x in arts if _name(x).lower() != n.lower()]
+        alerts = [x for x in alerts if _name(x).lower() != n.lower()]
+    for n in [str(x).strip()[:80] for x in (ch.get("add") or [])[:50] if str(x).strip()]:
+        if n.lower() not in low(arts):
+            arts.append({"name": n} if arts and isinstance(arts[0], dict) else n)
+        if n.lower() not in low(alerts):
+            alerts.append({"name": n} if alerts and isinstance(alerts[0], dict) else n)
+    for n, on in list((ch.get("alerts") or {}).items())[:50]:
+        n = str(n).strip()[:80]
+        if on and n.lower() not in low(alerts):
+            alerts.append({"name": n} if alerts and isinstance(alerts[0], dict) else n)
+        if not on:
+            alerts = [x for x in alerts if _name(x).lower() != n.lower()]
+    it["artists"] = arts
+    ca["artists"] = alerts
+    it["concertAlerts"] = ca
+
+
+def apply():
+    """Apply the phone's Settings and Work tracker notes without Claude: they are plain JSON, so a script can
+    merge them into the encrypted interests (settings, tracked) and add the cost of instant research to the
+    spend ledger. Runs at the start of every task run, and right away when such a note arrives."""
+    notes = []
+    for label in APPLY_LABELS:
+        for i in gh("GET", "/issues?state=open&per_page=50&labels=" + label):
+            if "pull_request" not in i:
+                notes.append((i["number"], label, i.get("body") or ""))
+    if not notes:
+        return
+    notes.sort()
+    vault("unlock")
+    try:
+        f = os.path.join(PLAIN, "interests.json")
+        it = json.load(open(f))
+        spend = 0.0
+        done = []
+        for num, label, body in notes:
+            text = vault("open", "-", stdin=body)
+            j = None
+            try:
+                j = json.loads(text[text.index("{"):]) if "{" in text else None
+            except Exception:
+                j = None
+            done.append(num)
+            if not isinstance(j, dict):
+                continue
+            if label == "radar-settings":
+                cur = it.get("settings") if isinstance(it.get("settings"), dict) else {}
+                for k in ("notify", "tasks"):
+                    if isinstance(j.get(k), dict):
+                        cur[k] = {str(a)[:20]: bool(b) for a, b in list(j[k].items())[:20]}
+                try:
+                    b = float(j.get("budget"))
+                    if 1 <= b <= 100:
+                        cur["budget"] = round(b, 2)
+                except Exception:
+                    pass
+                it["settings"] = cur
+            else:
+                if isinstance(j.get("work"), dict):
+                    keep = {}
+                    for k, v in list(j["work"].items())[:200]:
+                        if isinstance(v, dict) and v.get("state") in ("interested", "applied", "skip"):
+                            keep[str(k)[:80]] = {x: str(v.get(x) or "")[:300] for x in ("state", "title", "deadline", "url", "org", "at")}
+                    it["tracked"] = keep
+                if isinstance(j.get("bucket"), dict) and isinstance(it.get("bucketlist"), list):
+                    for bid, ch in list(j["bucket"].items())[:50]:
+                        if not isinstance(ch, dict):
+                            continue
+                        for w in it["bucketlist"]:
+                            if isinstance(w, dict) and str(w.get("id")) == str(bid):
+                                if ch.get("remove"):
+                                    w["_remove"] = True
+                                for k in ("title", "good_time", "where"):
+                                    if isinstance(ch.get(k), str) and ch[k].strip():
+                                        w[k] = ch[k].strip()[:400]
+                    it["bucketlist"] = [w for w in it["bucketlist"] if not (isinstance(w, dict) and w.get("_remove"))]
+                if isinstance(j.get("artists"), dict):
+                    apply_artists(it, j["artists"])
+                try:
+                    c = float(j.get("spend") or 0)
+                    if 0 < c < 2:
+                        spend += c
+                except Exception:
+                    pass
+        json.dump(it, open(f, "w"), indent=1, ensure_ascii=False)
+        os.remove(os.path.join(PLAIN, "tasks.json"))
+        vault("lock")
+        if spend:
+            record(spend)
+        files = ["radar/data/interests.enc.json"] + (["radar/spend.json"] if os.path.exists(SPEND) else [])
+        subprocess.run(["git", "add", "--"] + files, cwd=ROOT, check=True)
+        if subprocess.run(["git", "diff", "--cached", "--quiet", "--"] + files, cwd=ROOT).returncode != 0:
+            subprocess.run(["git", "-c", "user.name=Radar", "-c", "user.email=radar@users.noreply.github.com",
+                            "commit", "-q", "-m", "Radar settings"], cwd=ROOT, check=True)
+            ok = False
+            for _ in range(3):
+                if git("pull", "-q", "--rebase", "origin", "main").returncode == 0 and git("push", "-q", "origin", "HEAD:main").returncode == 0:
+                    ok = True; break
+            if not ok:
+                say("couldn't save settings: notes stay open"); return
+        for num in done:
+            gh("POST", "/issues/%s/comments" % num, {"body": "Done."})
+            gh("PATCH", "/issues/%s" % num, {"state": "closed", "state_reason": "completed"})
+        say("applied %d settings or tracker note(s)" % len(done))
+    finally:
+        shutil.rmtree(PLAIN, ignore_errors=True)
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 3 or sys.argv[1] not in ("prepare", "finish"):
+    if not (len(sys.argv) == 3 and sys.argv[1] in ("prepare", "finish")) and sys.argv[1:] != ["apply"]:
         print(__doc__); sys.exit(2)
     if not (os.environ.get("PK") or os.environ.get("RADAR_KEY")):
         say("no passphrase: add the PK secret"); sys.exit(1)
-    (prepare if sys.argv[1] == "prepare" else finish)(sys.argv[2])
+    if sys.argv[1] == "apply":
+        apply()
+    else:
+        (prepare if sys.argv[1] == "prepare" else finish)(sys.argv[2])

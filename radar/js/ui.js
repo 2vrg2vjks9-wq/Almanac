@@ -4,17 +4,67 @@ import { get, set, KEYS } from "./store.js";
 
 // --- Tabs -----------------------------------------------------------------------
 export function showTab(name) {
+  const lit = name === "settings" ? "saved" : name; // Settings lives under You
   document.querySelectorAll(".tab").forEach((t) => {
-    const on = t.dataset.v === name;
+    const on = t.dataset.v === lit;
     t.classList.toggle("on", on);
     if (on) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current");
   });
   document.querySelectorAll(".view").forEach((v) => v.classList.toggle("on", v.id === "v-" + name));
   window.scrollTo(0, 0);
 }
-export const currentTab = () => (document.querySelector(".tab.on") || {}).dataset?.v || "today";
+export const currentTab = () => ((document.querySelector(".view.on") || {}).id || "v-today").slice(2);
 export function initTabs() {
   document.querySelectorAll(".tab").forEach((t) => { t.onclick = () => showTab(t.dataset.v); });
+  document.querySelectorAll("#panes [data-p]").forEach((b) => { b.onclick = () => showPane(b.dataset.p); });
+  showPane(get(KEYS.pane, "foryou"), true);
+}
+
+// --- Discover panes: For you, Go, Read & listen, Nearby ------------------------------------------
+const PANES = ["foryou", "go", "read", "near"];
+export function showPane(p, quiet) {
+  if (!PANES.includes(p)) p = "foryou";
+  document.querySelectorAll("#panes [data-p]").forEach((b) => {
+    const on = b.dataset.p === p;
+    b.classList.toggle("on", on); b.setAttribute("aria-selected", on);
+  });
+  PANES.forEach((k) => { const el = $("pane-" + k); if (el) el.hidden = k !== p; });
+  set(KEYS.pane, p);
+  if (!quiet) window.scrollTo(0, 0);
+}
+
+// --- Swipe a list row: right = yes / more, left = no / less ---------------------------------------
+// Follows the finger sideways only (vertical scrolling stays normal); past 90 px it acts.
+export function swipeRow(el, right, left, labels) {
+  if (!el || el.dataset.swipe) return;
+  el.dataset.swipe = "1";
+  el.classList.add("swipe");
+  const tag = document.createElement("span");
+  tag.className = "swipe-tag"; tag.setAttribute("aria-hidden", "true");
+  el.appendChild(tag);
+  let x0 = null, y0 = 0, dx = 0, lock = null;
+  el.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" || e.target.closest("a,button,input")) return;
+    x0 = e.clientX; y0 = e.clientY; dx = 0; lock = null;
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (x0 == null) return;
+    dx = e.clientX - x0;
+    if (lock == null && (Math.abs(dx) > 10 || Math.abs(e.clientY - y0) > 10)) lock = Math.abs(dx) > Math.abs(e.clientY - y0) * 1.3 ? "x" : "y";
+    if (lock !== "x") return;
+    el.style.transition = "none";
+    el.style.transform = "translateX(" + dx + "px)";
+    tag.textContent = dx > 0 ? labels[0] : labels[1];
+    tag.className = "swipe-tag " + (dx > 0 ? "r" : "l");
+    tag.style.opacity = Math.min(1, Math.abs(dx) / 90);
+  });
+  const end = () => {
+    if (x0 == null) return;
+    x0 = null; el.style.transition = ""; el.style.transform = ""; tag.style.opacity = 0;
+    if (lock === "x" && Math.abs(dx) > 90) (dx > 0 ? right : left)();
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
 }
 
 // --- Short notice at the top ------------------------------------------------------

@@ -1,10 +1,13 @@
 // The feed: ranking (taste.json + reactions), item rows, and the lists on Today, Explore, Work and Saved.
-import { $, html, put, d, today, shortDate, safeUrl, km, kmText, ago } from "./util.js";
+import { $, html, put, d, today, shortDate, safeUrl, km, kmText, ago, isoDay } from "./util.js";
 import { S, save } from "./store.js";
-import { D, emit, visible, past, isWork, focusRegion, REGION_NAME } from "./data.js";
+import { D, emit, visible, past, isWork, isGo, focusRegion, REGION_NAME, Q } from "./data.js";
+import { swipeRow } from "./ui.js";
+import { track } from "./notes.js";
 
-export const KINDS = [["all", "Everything"], ["concert", "Music"], ["exhibition", "Art"], ["restaurant", "Food"], ["story", "Books & film"], ["meditation", "Meditation"], ["bucket", "Bucket list"]];
-export const WORK_KINDS = [["all", "Everything"], ["event", "Events"], ["call", "Calls & grants"], ["job", "Jobs"], ["freelance", "Freelance"], ["insight", "Reading"]];
+// Read & listen: what you read, watch or listen to. Things to go to (concerts, exhibitions, food) are in Go.
+export const KINDS = [["all", "Everything"], ["concert", "Music"], ["story", "Books & film"], ["meditation", "Meditation"]];
+export const WORK_KINDS = [["all", "Everything"], ["mine", "Tracking"], ["event", "Events"], ["call", "Calls & grants"], ["job", "Jobs"], ["freelance", "Freelance"], ["insight", "Reading"]];
 // Where a work lead is: from its region (nl | be/de/uk/eu → Europe | jp | anything else → Global/remote)
 export const WORK_PLACES = [["all", "Anywhere"], ["nl", "Netherlands"], ["eu", "Europe"], ["jp", "Japan"], ["global", "Global"]];
 const workPlace = (it) => (it.region === "nl" ? "nl" : ["eu", "be", "de", "uk", "fr", "lu", "ie"].includes(it.region) ? "eu" : it.region === "jp" ? "jp" : "global");
@@ -27,12 +30,20 @@ export function deadline(it) {
 const KLABEL = { concert: "Music", release: "Music", news: "Music", exhibition: "Art", restaurant: "Food", story: "Books & film", meditation: "Meditation", work: "Work", freelance: "Freelance", bucket: "Bucket list" };
 const MUSIC = ["concert", "release", "news"];
 export const state = { kind: "all", region: "all", work: "all", wplace: "all", showHidden: false, all: false, q: "" };
-const textMatch = (it) => !state.q || [it.title, it.summary, it.why, it.place, it.city].join(" ").toLowerCase().includes(state.q);
+const textMatch = (it) => !Q.q || [it.title, it.summary, it.why, it.place, it.city].join(" ").toLowerCase().includes(Q.q);
 
+// Location filters come from where the items are: Near me (when Look around knows where you are), the
+// Netherlands, then every other country or region that has something, most items first.
+const RNAME = { nl: "Netherlands", be: "Belgium", de: "Germany", fr: "France", uk: "UK", es: "Spain", pt: "Portugal", it: "Italy",
+  ch: "Switzerland", at: "Austria", dk: "Denmark", eu: "Europe", jp: "Japan", us: "USA", ma: "Morocco", cv: "Cape Verde" };
+const regionName = (r) => REGION_NAME[r] || RNAME[r] || String(r).toUpperCase();
 export function regions() {
-  const list = [["all", "Anywhere"], ["nl", "Netherlands"], ["near", "Belgium, Germany, EU"]];
-  const f = focusRegion();
-  if (f) list.push([f, REGION_NAME[f] || f]);
+  const list = [["all", "Anywhere"]];
+  if (S.here && D.feed && D.feed.items.some((it) => it.lat != null && visible(it))) list.push(["here", "Near me"]);
+  const n = {};
+  (D.feed ? D.feed.items : []).filter((it) => visible(it) && !isWork(it) && it.region && it.region !== "all").forEach((it) => { n[it.region] = (n[it.region] || 0) + 1; });
+  if (n.nl) list.push(["nl", "Netherlands"]);
+  Object.keys(n).filter((r) => r !== "nl").sort((a, b) => n[b] - n[a]).forEach((r) => list.push([r, regionName(r)]));
   return list;
 }
 
@@ -108,7 +119,7 @@ export const flagsHTML = (it) => (it.flags && it.flags.length ? html`<div class=
 export function reactButtons(it, labels) {
   const r = S.reactions[it.id], up = !!(r && r.v > 0), down = !!(r && r.v < 0), sv = !!S.saved[it.id], hd = !!S.hidden[it.id];
   const L = (t) => (labels ? html`<span>${t}</span>` : "");
-  return html`<button class="ib up${up ? " on" : ""}" data-a="up" type="button" aria-label="More like this" aria-pressed="${up}">${I.up}${L("More")}</button><button class="ib down${down ? " on" : ""}" data-a="down" type="button" aria-label="Less like this" aria-pressed="${down}">${I.down}${L("Less")}</button><button class="ib save${sv ? " on" : ""}" data-a="save" type="button" aria-label="${sv ? "Saved" : "Save"}" aria-pressed="${sv}">${sv ? I.saveOn : I.save}${L(sv ? "Saved" : "Save")}</button><button class="ib hide" data-a="hide" type="button" aria-label="${hd ? "Unhide" : "Hide"}">${hd ? I.unhide : I.hide}${L(hd ? "Unhide" : "Hide")}</button>`;
+  return html`<button class="ib up${up ? " on" : ""}" data-a="up" type="button" aria-label="More like this" aria-pressed="${String(up)}">${I.up}${L("More")}</button><button class="ib down${down ? " on" : ""}" data-a="down" type="button" aria-label="Less like this" aria-pressed="${String(down)}">${I.down}${L("Less")}</button><button class="ib save${sv ? " on" : ""}" data-a="save" type="button" aria-label="${sv ? "Saved" : "Save"}" aria-pressed="${String(sv)}">${sv ? I.saveOn : I.save}${L(sv ? "Saved" : "Save")}</button><button class="ib hide" data-a="hide" type="button" aria-label="${hd ? "Unhide" : "Hide"}">${hd ? I.unhide : I.hide}${L(hd ? "Unhide" : "Hide")}</button>`;
 }
 function itemHTML(it, big) {
   const place = placeOf(it), url = safeUrl(it.url);
@@ -117,8 +128,39 @@ function itemHTML(it, big) {
     <h3><button class="open" type="button" aria-haspopup="dialog">${it.title}</button></h3>
     ${place ? html`<div class="where">${place}</div>` : ""}${dueHTML(it)}
     ${it.summary ? html`<p class="clip">${it.summary}</p>` : ""}${flagsHTML(it)}
-    <div class="acts">${url ? html`<a class="go" href="${url}" target="_blank" rel="noopener">Open details</a>` : html`<span class="go"></span>`}${reactButtons(it, false)}</div>
+    <div class="acts">${url ? html`<a class="go" href="${url}" target="_blank" rel="noopener">Open details</a>` : html`<span class="go"></span>`}${isWork(it) ? trackButtons(it) : reactButtons(it, false)}</div>
   </article>`;
+}
+
+// --- Work tracker: interested / applied / not for me ------------------------------------------------
+// Kept on this phone (radar-work) and sent sealed (a radar-track note), so Radar can remind you of deadlines
+// and the work search learns what isn't for you.
+export const tracked = (it) => (S.work[it.id] || {}).state || "";
+const TRACK = [["interested", "Interested"], ["applied", "Applied"], ["skip", "Not for me"]];
+export function trackButtons(it, big) {
+  const st = tracked(it);
+  return html`<span class="track${big ? " big" : ""}" role="group" aria-label="Track this lead">${TRACK.map(([k, label]) =>
+    html`<button class="tk ${k}${st === k ? " on" : ""}" type="button" data-t="${k}" aria-pressed="${String(st === k)}">${label}</button>`)}</span>`;
+}
+export function setTrack(it, st) {
+  holdOrder();
+  const cur = tracked(it);
+  if (cur === st) delete S.work[it.id];
+  else {
+    const dl = deadline(it);
+    S.work[it.id] = { state: st, t: Date.now(), title: it.title, deadline: dl ? isoDay(dl) : "", url: it.url || "", org: it.org || "" };
+    if (st === "skip") { S.hidden[it.id] = 1; save("hidden"); react(it, -1, true); }
+    else if (S.hidden[it.id]) { delete S.hidden[it.id]; save("hidden"); }
+  }
+  save("work");
+  // send what's still current (leads that haven't passed), so reminders and the work search stay in step
+  const snap = {};
+  Object.keys(S.work).forEach((k) => {
+    const w = S.work[k], x = d(w.deadline);
+    if (!x || x >= today() || w.state !== "interested") snap[k] = w;
+  });
+  track({ work: snap });
+  emit("change");
 }
 
 let openItem = () => {};
@@ -129,17 +171,39 @@ function mount(box, list, big, empty) {
     const it = D.byId[el.dataset.id];
     el.querySelector(".open").onclick = () => openItem(it);
     el.querySelectorAll(".ib").forEach((b) => { b.onclick = () => act(it, b.dataset.a); });
+    el.querySelectorAll(".tk").forEach((b) => { b.onclick = () => setTrack(it, b.dataset.t); });
+    if (isWork(it)) swipeRow(el, () => setTrack(it, "interested"), () => setTrack(it, "skip"), ["Interested", "Not for me"]);
+    else swipeRow(el, () => react(it, 1, true) || emit("change"), () => act(it, "hide"), ["More like this", "Hide"]);
   });
 }
 
+// --- Steady order -----------------------------------------------------------------------------------------
+// A reaction changes an item's score; re-sorting right away would make the item you just tapped jump. So a
+// redraw caused by a reaction or save keeps the last order (items that left are dropped, new ones go last);
+// the new ranking shows the next time the list loads or a filter changes.
+const ORDER = {};
+let steady = false;
+function holdOrder() { steady = true; setTimeout(() => { steady = false; }, 0); }
+function ordered(key, items) {
+  const prev = ORDER[key];
+  if (steady && prev) {
+    const pos = new Map(prev.map((id, i) => [id, i]));
+    items = items.slice().sort((a, b) => (pos.has(a.id) ? pos.get(a.id) : 1e9) - (pos.has(b.id) ? pos.get(b.id) : 1e9));
+  }
+  ORDER[key] = items.map((it) => it.id);
+  return items;
+}
+
 // --- Reactions ---------------------------------------------------------------------------
-function react(it, v, soft) {
+export function react(it, v, soft) {
   const r = S.reactions[it.id];
   if (r && r.v === v && !soft) delete S.reactions[it.id];
   else if (!(soft && r)) S.reactions[it.id] = { v, t: Date.now(), title: it.title, kind: it.kind, why: it.why || "", sent: false };
   save("reactions");
+  holdOrder();
 }
 export function act(it, a) {
+  holdOrder();
   if (a === "save") { if (S.saved[it.id]) delete S.saved[it.id]; else S.saved[it.id] = 1; save("saved"); }
   else if (a === "hide") { if (S.hidden[it.id]) delete S.hidden[it.id]; else { S.hidden[it.id] = 1; react(it, -1, true); } save("hidden"); }
   else react(it, a === "up" ? 1 : -1);
@@ -147,34 +211,56 @@ export function act(it, a) {
 }
 
 // --- Lists -----------------------------------------------------------------------------------
-export function drawTop() {
-  const pool = D.feed.items.filter((it) => visible(it) && !S.hidden[it.id] && !(S.reactions[it.id] && S.reactions[it.id].v < 0));
-  const first = pool.filter(endsSoon).sort((a, b) => d(a.end) - d(b.end) || score(b) - score(a)).slice(0, 2);
-  const rest = pool.filter((it) => !first.includes(it)).sort((a, b) => score(b) - score(a));
-  mount($("top"), first.concat(rest).slice(0, 4), true, "Nothing urgent. Explore has everything Radar found.");
-}
 function kindMatch(it) {
   if (state.kind === "all") return true;
   return it.kind === state.kind || (state.kind === "concert" && MUSIC.includes(it.kind));
 }
 function regionMatch(it) {
   if (state.region === "all") return true;
-  if (state.region === "near") return ["be", "de", "eu", "uk"].includes(it.region);
+  if (state.region === "here") return !!(S.here && it.lat != null && km(S.here.lat, S.here.lon, it.lat, it.lon) <= 50);
   return it.region === state.region || it.region === "all";
 }
 export function drawFeed() {
-  const items = D.feed.items.filter((it) => visible(it) && !isWork(it) && (state.showHidden || !S.hidden[it.id]) && kindMatch(it) && regionMatch(it) && textMatch(it))
+  const items = D.feed.items.filter((it) => visible(it) && !isWork(it) && !isGo(it) && it.kind !== "bucket" && (state.showHidden || !S.hidden[it.id]) && kindMatch(it) && regionMatch(it) && textMatch(it))
     .sort((a, b) => score(b) - score(a));
-  const limit = state.all ? items.length : 12;
-  mount($("feed"), items.slice(0, limit), false, state.q ? "Nothing matches “" + state.q + "”." : "Nothing here yet. The daily update adds new finds every morning.");
+  const items2 = ordered("feed", items);
+  const limit = state.all ? items2.length : 12;
+  mount($("feed"), items2.slice(0, limit), false, Q.q ? "Nothing matches “" + Q.q + "”." : "Nothing here yet. The daily update adds new finds every morning.");
   if (items.length > limit) {
     const m = document.createElement("button");
     m.className = "more"; m.type = "button"; m.textContent = "Show " + (items.length - limit) + " more";
     m.onclick = () => { state.all = true; drawFeed(); };
     $("feed").appendChild(m);
   }
-  $("feedSub").textContent = (items.length === 1 ? "1 thing" : items.length + " things") + " for you, updated " + ago(D.feed.updated);
+  $("feedSub").textContent = (items.length === 1 ? "1 thing" : items.length + " things") + " to read, watch and listen to, updated " + ago(D.feed.updated) + ". Swipe right for more like it, left to hide.";
 }
+// --- For you: one feed of everything Radar found (not work), best first --------------------------------------
+// Ranked by score(): taste words, your thumbs and saves, what's new or ending soon, the bucket list. Each card
+// says why it's there (the `why` Claude wrote from your interests). Things you went no on in Go stay out.
+let forAll = false;
+export function drawForYou() {
+  const box = $("forYou");
+  if (!box) return;
+  const no = (it) => { const a = S.do["f-" + it.id]; return !!(a && a.v < 0); };
+  const items = D.feed.items.filter((it) => visible(it) && !isWork(it) && !S.hidden[it.id] && !no(it) && !(S.reactions[it.id] && S.reactions[it.id].v < 0) && regionMatch(it) && textMatch(it))
+    .sort((a, b) => score(b) - score(a));
+  const list = ordered("forYou", items);
+  const limit = forAll ? list.length : 15;
+  mount(box, list.slice(0, limit), true, Q.q ? "Nothing matches “" + Q.q + "”." : "Nothing yet. The morning update fills this in.");
+  if (list.length > limit) {
+    const m = document.createElement("button");
+    m.className = "more"; m.type = "button"; m.textContent = "Show " + (list.length - limit) + " more";
+    m.onclick = () => { forAll = true; drawForYou(); };
+    box.appendChild(m);
+  }
+  box.querySelectorAll(".item").forEach((el) => {
+    const it = D.byId[el.dataset.id];
+    if (!it || !it.why || el.querySelector(".because")) return;
+    const p = document.createElement("p"); p.className = "because"; p.textContent = "Because: " + it.why;
+    const h = el.querySelector("h3"); if (h) h.after(p);
+  });
+}
+
 // The next date that matters: a deadline still ahead, else the event's start.
 function actBy(it) {
   const t = today(), dl = deadline(it), s = d(it.start);
@@ -186,40 +272,48 @@ function workMatch(it) {
   // Europe includes the Netherlands
   if (state.wplace !== "all" && workPlace(it) !== state.wplace && !(state.wplace === "eu" && workPlace(it) === "nl")) return false;
   if (state.work === "all") return true;
+  if (state.work === "mine") return ["interested", "applied"].includes(tracked(it));
   const s = workSub(it);
   return s === state.work || (state.work === "call" && s === "grant");
 }
 export function drawWork() {
-  const all = D.feed.items.filter((it) => isWork(it) && visible(it) && (state.showHidden || !S.hidden[it.id]));
+  const all = D.feed.items.filter((it) => isWork(it) && visible(it) && (state.showHidden || (!S.hidden[it.id] && tracked(it) !== "skip")));
+  const rank = (it) => ({ interested: 0, applied: 1 }[tracked(it)] ?? 2);
   const items = all.filter(workMatch).sort((a, b) => {
+    if (state.work === "mine" && rank(a) !== rank(b)) return rank(a) - rank(b);
     const x = actBy(a), y = actBy(b);
     if (x && y && +x !== +y) return x - y;
     if (x && !y) return -1;
     if (y && !x) return 1;
     return score(b) - score(a);
   });
-  const empty = { freelance: "No freelance leads right now.", event: "No events on the radar right now.", call: "No open calls right now.", job: "No roles right now.", insight: "Nothing to read yet." }[state.work] || "Nothing here yet.";
+  const empty = { mine: "Nothing tracked yet. Mark a lead Interested or Applied, or swipe it right.", freelance: "No freelance leads right now.", event: "No events on the radar right now.", call: "No open calls right now.", job: "No roles right now.", insight: "Nothing to read yet." }[state.work] || "Nothing here yet.";
   mount($("workFeed"), items, false, empty + " The daily update checks every morning.");
-  $("workSub").textContent = (items.length === 1 ? "1 lead" : items.length + " leads") + ", updated " + ago(D.feed.updated);
+  const mine = all.filter((it) => tracked(it) === "interested" || tracked(it) === "applied").length;
+  $("workSub").textContent = (items.length === 1 ? "1 lead" : items.length + " leads") + (mine ? ", " + mine + " tracked" : "") + ", updated " + ago(D.feed.updated) + ". Swipe right for Interested, left for Not for me.";
   // Next deadlines across everything, the three nearest
-  const due = all.filter((it) => { const x = deadline(it); return x && x >= today(); }).sort((a, b) => deadline(a) - deadline(b)).slice(0, 3);
+  const due = all.filter((it) => { const x = deadline(it); return x && x >= today() && tracked(it) !== "applied"; })
+    .sort((a, b) => (tracked(a) === "interested" ? 0 : 1) - (tracked(b) === "interested" ? 0 : 1) || deadline(a) - deadline(b)).slice(0, 3);
   const box = $("workDue");
   box.hidden = !due.length;
   put(box, html`<h2>Next deadlines</h2><div class="sheet brief">${due.map((it) => {
     const x = deadline(it), n = Math.floor((x - today()) / 864e5);
-    return html`<button class="mini" type="button" data-id="${it.id}"><span class="when${n <= 14 ? " close" : ""}">${x.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span><span class="what"><b>${it.title}</b><small>${WORK_LABEL[workSub(it)]}${n === 0 ? " · today" : n === 1 ? " · tomorrow" : " · " + n + " days"}</small></span></button>`;
+    return html`<button class="mini" type="button" data-id="${it.id}"><span class="when${n <= 14 ? " close" : ""}">${x.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span><span class="what"><b>${it.title}</b><small>${tracked(it) === "interested" ? "Interested · " : ""}${WORK_LABEL[workSub(it)]}${n === 0 ? " · today" : n === 1 ? " · tomorrow" : " · " + n + " days"}</small></span></button>`;
   })}</div>`);
   box.querySelectorAll(".mini").forEach((b) => { b.onclick = () => openItem(D.byId[b.dataset.id]); });
 }
 export function drawSavedItems() {
-  mount($("savedList"), D.feed.items.filter((it) => S.saved[it.id] && !past(it)), false, "Nothing saved yet. Tap the star on anything you want to keep.");
+  mount($("savedList"), D.feed.items.filter((it) => S.saved[it.id] && !past(it)), false, "Nothing saved yet. Tap the star on anything you want to keep; your yes list is in Discover.");
 }
+export { mount, endsSoon, status as itemStatus, WORK_LABEL };
 export function mountBucketHits(el, wishId) {
   mount(el, D.feed.items.filter((it) => it.kind === "bucket" && it.bucket === wishId && !past(it) && !S.hidden[it.id]), false, "");
 }
-export function initSearch() {
+export function initSearch(redrawGo) {
   const q = $("q");
-  q.oninput = () => { state.q = q.value.trim().toLowerCase(); state.all = !!state.q; drawFeed(); };
+  const x = $("qClear");
+  q.oninput = () => { Q.q = q.value.trim().toLowerCase(); state.all = !!Q.q; x.hidden = !q.value; drawFeed(); drawForYou(); redrawGo(); };
+  x.onclick = () => { q.value = ""; q.oninput(); q.focus(); };
 }
 export function segs(id, list, key, redraw) {
   const box = $(id);

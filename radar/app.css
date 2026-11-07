@@ -428,7 +428,7 @@ button.rday:active { background: var(--sunk); }
 
 /* --- Tab bar: a floating capsule ---------------------------------------------------------------------- */
 .tabs { position: fixed; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom) + 10px); padding: 0 calc(env(safe-area-inset-right) + 12px) 0 calc(env(safe-area-inset-left) + 12px); z-index: 6; pointer-events: none; }
-.tabs .in { pointer-events: auto; max-width: 520px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, 1fr); padding: 4px; border-radius: 26px; background: var(--tabbar); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4); border: 1px solid var(--rule); box-shadow: 0 8px 26px rgba(0, 0, 0, .12); }
+.tabs .in { pointer-events: auto; max-width: 520px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); padding: 4px; border-radius: 26px; background: var(--tabbar); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4); border: 1px solid var(--rule); box-shadow: 0 8px 26px rgba(0, 0, 0, .12); }
 .tab { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 54px; min-width: 0; border-radius: 20px; font-size: 11px; font-weight: 600; color: var(--ink-3); }
 .tab svg { width: 23px; height: 23px; }
 .tab.on { color: var(--ink); background: var(--sunk); }
@@ -450,3 +450,94 @@ button.rday:active { background: var(--sunk); }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .rbtn.spin svg { opacity: .5; }
 }
+
+/* --- Radar 2: Discover panes, morning brief, tracker, settings, swipes ------------------------- */
+.panes { margin: 14px calc(-1 * var(--gutter)) 4px; }
+.pane[hidden] { display: none; }
+
+/* Today: the morning brief, a quiet paper card with small ink labels */
+.brief-card { margin: 18px 0 0; padding: 12px 16px; background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--marine); border-radius: 14px; }
+.brief-card[hidden] { display: none; }
+.brief-card p { margin: 6px 0; font: 16px/1.5 var(--read); color: var(--ink); }
+.bk-k { display: inline-block; min-width: 54px; font: 600 12px/1 var(--ui); letter-spacing: .02em; color: var(--ink-3); }
+.linkish { font: inherit; color: var(--marine); text-decoration: underline; text-decoration-color: var(--calm); text-underline-offset: 3px; padding: 0; min-height: 0; text-align: left; }
+
+/* Swipeable rows: slide sideways, a label shows what letting go does */
+.swipe { touch-action: pan-y; transition: transform .2s ease; background: var(--surface); }
+.swipe-tag { position: absolute; top: 50%; transform: translateY(-50%); font: 700 13px/1 var(--ui); padding: 6px 10px; border-radius: 999px; opacity: 0; pointer-events: none; z-index: 2; }
+.swipe-tag.r { right: calc(100% + 8px); color: var(--kelp-ink); background: var(--sunk); }
+.swipe-tag.l { left: calc(100% + 8px); color: var(--flag-ink); background: var(--sunk); }
+.sheet:has(.swipe) { overflow: hidden; }
+
+/* Work tracker */
+.track { display: inline-flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.tk { min-height: 36px; padding: 0 11px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--calm); }
+.track.big .tk { min-height: 44px; padding: 0 14px; font-size: 14px; }
+.tk.on.interested { background: var(--marine); color: var(--surface); box-shadow: none; }
+.tk.on.applied { background: var(--kelp); color: var(--surface); box-shadow: none; }
+.tk.on.skip { background: var(--sunk); color: var(--flag-ink); box-shadow: none; }
+.item .acts .track { margin-left: auto; }
+
+/* Wind: weekend planner */
+.wk { padding: 8px 16px; }
+.wk-w { margin: 8px 0; font: 15px/1.45 var(--read); }
+.wk-w b { font-family: var(--ui); font-size: 13px; color: var(--kelp-ink); margin-right: 6px; }
+.wk-w.muted { color: var(--ink-3); }
+
+/* Finds: price against similar ads */
+.state.deal { color: var(--kelp-ink); }
+.ad-deal { display: block; color: var(--ink-3); }
+.ad-deal.good { color: var(--kelp-ink); font-weight: 600; }
+
+/* Bucket list editing, following */
+.bk-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.bk-edit { min-height: 32px; flex: none; }
+.linkbtn.danger { color: var(--flag-ink); margin-top: 6px; }
+.follow { list-style: none; margin: 0; padding: 4px 0; }
+.follow li { display: flex; align-items: center; gap: 4px; min-height: 48px; }
+.follow li + li { border-top: 1px solid var(--rule); }
+.follow .fn { flex: 1; min-width: 0; font: 500 17px/1.3 var(--read); }
+.follow .fn small { font: 13px var(--ui); color: var(--ink-3); }
+.ib.bell.on { color: var(--buoy-ink); background: var(--sunk); }
+
+/* Settings */
+.back { font-weight: 600; font-size: 14px; color: var(--marine); min-height: 32px; padding: 0; margin-bottom: 2px; }
+.toggles { padding: 2px 16px; }
+.tg { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.tg + .tg { border-top: 1px solid var(--rule); }
+.tg > span:first-child { flex: 1; min-width: 0; }
+.tg b { display: block; font-weight: 600; font-size: 15px; }
+.tg small { display: block; font-size: 13px; color: var(--ink-3); margin-top: 2px; line-height: 1.4; }
+.tg input[type=checkbox] { appearance: none; -webkit-appearance: none; flex: none; width: 50px; height: 30px; border-radius: 999px; background: var(--sunk); box-shadow: inset 0 0 0 1px var(--calm); position: relative; transition: background .2s; margin: 0; }
+.tg input[type=checkbox]::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+.tg input[type=checkbox]:checked { background: var(--kelp); box-shadow: none; }
+.tg input[type=checkbox]:checked::after { transform: translateX(20px); }
+.tg input:focus-visible { outline: 2px solid var(--marine); outline-offset: 2px; }
+.tg-note { font-size: 13px; color: var(--ink-3); margin: 4px 0 12px; }
+.seg.small { padding: 0; flex: none; }
+.seg.small .pill { min-height: 36px; padding: 0 11px; }
+.status { padding: 12px 16px; }
+.st-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.st-row b { font: 500 18px/1.3 var(--read); }
+.st-row small { color: var(--ink-3); font-size: 13px; }
+.status .bar { height: 6px; border-radius: 999px; background: var(--sunk); margin: 8px 0 4px; overflow: hidden; }
+.status .bar i { display: block; height: 100%; background: var(--kelp); border-radius: 999px; }
+.st-tasks { list-style: none; margin: 10px 0 0; padding: 0; }
+.st-tasks li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--rule); font-size: 14px; }
+.st-tasks small { color: var(--ink-3); text-align: right; }
+.st-tasks small.bad, .st-warn { color: var(--flag-ink); }
+.st-line { font-size: 13px; color: var(--ink-3); margin: 8px 0 0; }
+@media (prefers-reduced-motion: reduce) { .swipe, .tg input, .tg input::after { transition: none; } }
+.wishes .bk-h .btn { flex: none; min-height: 40px; padding: 6px 16px; }
+.item .because { font: italic 14px/1.5 var(--read); color: var(--ink-3); margin: 4px 0 0; }
+
+/* Paper behind the status bar, so lists don't scroll (and blur) under the clock on iPhone */
+.topcover { position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: var(--bg); z-index: 20; pointer-events: none; }
+
+/* Search with a clear button */
+.searchbox { position: relative; margin: 14px 0 6px; }
+.searchbox .search { margin: 0; padding-right: 48px; }
+.searchbox .search::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+.qclear { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ink-3); }
+.qclear svg { width: 18px; height: 18px; }
+.qclear[hidden] { display: none; }

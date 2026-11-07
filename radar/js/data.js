@@ -5,6 +5,7 @@ import { d, today } from "./util.js";
 import { get, set, KEYS } from "./store.js";
 import { open, unlocked } from "./vault.js";
 
+export const Q = { q: "" }; // the Discover search, shared by Go and Read & listen
 export const D = { config: null, feed: null, taste: { learned: [], more: [], less: [] }, things: { ideas: [] }, gear: { ads: [] }, byId: {}, source: null };
 
 // Tiny event bus so modules can redraw after reactions, saves or new data.
@@ -24,7 +25,32 @@ function adopt(config, feed, taste, things, gear) {
   D.feed = feed && Array.isArray(feed.items) ? feed : { updated: null, items: [] };
   D.taste = taste || { learned: [] };
   D.things = things && Array.isArray(things.ideas) ? things : { updated: null, ideas: [] };
+  D.baseIdeas = D.things.ideas.slice();
   mergePicks();
+}
+
+// --- One list of things to go to ---------------------------------------------------------------
+// Discover › Go shows everything you could go to in one list: the Do ideas from things.json, plus the
+// feed's concerts, exhibitions and restaurants (and a trip's instant picks), turned into ideas so they can
+// be answered yes or no like the rest. Read & listen keeps releases, stories, news and meditation.
+export const GO_KINDS = { concert: "music", exhibition: "art", restaurant: "food" };
+const GO_FIT = { concert: 5, exhibition: 4, restaurant: 3 }; // artist and museum research is a strong match
+function feedIdea(it) {
+  return {
+    id: "f-" + it.id, from: it.id, cat: GO_KINDS[it.kind] || "odd", title: it.title, venue: it.place, city: it.city,
+    start: it.start, end: it.end, summary: it.summary, why: it.why, url: it.url, lat: it.lat, lon: it.lon,
+    flags: it.flags, found: it.found, fit: GO_FIT[it.kind] || 3,
+    trip: isTravelRegion(it.region) || !!it.picked, // trip picks show while the stay lasts, wherever they are
+  };
+}
+function mergeIdeas() {
+  const base = (D.baseIdeas || []).filter((x) => x && x.id && x.title);
+  const seen = new Set(base.map((x) => String(x.title).toLowerCase()));
+  const add = (x) => { const k = String(x.title).toLowerCase(); if (seen.has(k)) return; seen.add(k); base.push(x); };
+  const M = get(KEYS.more, null);
+  (M && Array.isArray(M.items) ? M.items : []).filter((x) => x && x.title && !past(x)).forEach(add);
+  D.feed.items.filter((it) => isGo(it) && visible(it)).forEach((it) => add(feedIdea(it)));
+  D.things.ideas = base;
 }
 // Claude's instant picks for a trip live on the phone until the daily task has them in the feed,
 // and only while the stay lasts.
@@ -35,6 +61,7 @@ export function mergePicks() {
   D.feed.items = items.concat(live.filter((p) => !titles.has(String(p.title).toLowerCase())));
   D.byId = {};
   D.feed.items.forEach((it) => { D.byId[it.id] = it; });
+  mergeIdeas();
 }
 
 // Returns "live", "cache", "locked" (no key on this phone) or null (nothing to show yet).
@@ -84,3 +111,6 @@ export function visible(it) {
   return true;
 }
 export const isWork = (it) => it.kind === "work" || it.kind === "freelance";
+// Things to go to: concerts, exhibitions, food, and any instant city pick with a place on the map
+// (quick research sometimes files a beach or a mural trail under "story").
+export const isGo = (it) => !!GO_KINDS[it.kind] || (!!it.picked && it.lat != null && !isWork(it) && it.kind !== "bucket");
