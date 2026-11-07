@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-11-07b";</script>
+<script>var APP_VERSION="2026-11-07c";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -220,6 +220,7 @@
 </div>
 
 <div class="say" id="say" role="status" aria-live="polite"></div>
+<div class="fb" id="undoBar" role="status" aria-live="polite"><span id="undoText"></span><button type="button" id="undoBtn">Undo</button></div>
 <div class="fb" id="fbBar" role="status" aria-live="polite"><span id="fbText"></span><button type="button" id="fbUndo">Undo</button><button type="button" class="x" id="fbClose" aria-label="Close">&times;</button></div>
 
 <div class="dlg" id="sheet" role="dialog" aria-modal="true" aria-label="Details">

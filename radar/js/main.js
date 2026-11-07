@@ -1,7 +1,7 @@
 // Radar start-up: wires the modules, loads data and wind, keeps things fresh.
 import { $, ago, hm, stamp } from "./util.js";
 import { D, loadData, on, mergePicks } from "./data.js";
-import { initTabs, initSheet, initPullToRefresh, initWelcome, currentTab } from "./ui.js";
+import { initTabs, initSheet, initPullToRefresh, initWelcome, currentTab, initUndo } from "./ui.js";
 import { initWind, loadWind, skeleton, net } from "./wind.js";
 import { state, drawFeed, drawForYou, drawWork, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
 import { openItem, refreshItem } from "./detail.js";
@@ -131,6 +131,7 @@ initWind();
 setOpener(openItem);
 setTodayOpener(openItem);
 initSettings();
+initUndo();
 initNotes();
 initSaved();
 initAround();

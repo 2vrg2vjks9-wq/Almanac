@@ -8,6 +8,7 @@
 import { $, html, put, d, today, ago, safeUrl } from "./util.js";
 import { get, set, KEYS } from "./store.js";
 import { D } from "./data.js";
+import { swipeRow, undoable } from "./ui.js";
 import { ask } from "./saved.js";
 
 const SITES = { marktplaats: ["Marktplaats", "NL"], "2dehands": ["2dehands", "BE"], kleinanzeigen: ["Kleinanzeigen", "DE"] };
@@ -55,7 +56,7 @@ function rowHTML(a, maybeLabel, pool) {
   // marketplaces have a fixed label; dismantlers (sloperijen) and parts networks bring their own name
   const s = a.seller ? [a.seller, (a.country || "").toUpperCase()] : SITES[a.site] || [a.site || "", (a.country || "").toUpperCase()];
   return html`<article class="ad" data-id="${a.id}">
-    <a class="ad-main" href="${safeUrl(a.url)}" target="_blank" rel="noopener">
+    <a class="ad-main" href="${safeUrl(a.url)}" target="_blank" rel="noopener" data-swipeok>
       <span class="ad-top"><span class="ad-site">${s[1]} · ${s[0]}</span>${a.match === "hit" ? html`<span class="state now">Match</span>` : html`<span class="state">${maybeLabel}</span>`}${isNew(a) ? html`<span class="state new">New</span>` : ""}${dl && dl.good ? html`<span class="state deal">Good deal</span>` : ""}</span>
       <b>${a.title}</b>
       <small>${[a.size, a.location, a.shipping ? "ships" : "", a.warranty ? a.warranty + " warranty" : "", online(a) || age(a)].filter(Boolean).join(" · ")}</small>
@@ -66,9 +67,16 @@ function rowHTML(a, maybeLabel, pool) {
     <button class="ib hide" type="button" data-hide="${a.id}" aria-label="Hide this ad"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </article>`;
 }
+function hideAd(id) {
+  hidden[id] = Date.now(); set(KEYS.gearHidden, hidden); drawGear();
+  undoable("Ad hidden.", () => { delete hidden[id]; set(KEYS.gearHidden, hidden); drawGear(); });
+}
 function wireHide(box) {
-  box.querySelectorAll("[data-hide]").forEach((b) => {
-    b.onclick = () => { hidden[b.dataset.hide] = Date.now(); set(KEYS.gearHidden, hidden); drawGear(); };
+  box.querySelectorAll("[data-hide]").forEach((b) => { b.onclick = () => hideAd(b.dataset.hide); });
+  // swipe left hides, right opens the ad
+  box.querySelectorAll(".ad").forEach((el) => {
+    const a = el.querySelector(".ad-main");
+    swipeRow(el, () => window.open(a.href, "_blank", "noopener"), () => hideAd(el.dataset.id), ["Open", "Hide"]);
   });
 }
 

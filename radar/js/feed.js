@@ -144,6 +144,7 @@ export function trackButtons(it, big) {
 }
 export function setTrack(it, st) {
   holdOrder();
+  emit("work-before", JSON.parse(JSON.stringify(S.work)));
   const cur = tracked(it);
   if (cur === st) delete S.work[it.id];
   else {

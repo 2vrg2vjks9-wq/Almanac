@@ -189,7 +189,10 @@ in commit messages, issue comments or Actions logs.
   built from the items' regions plus Near me), Go (things to go to), Read & listen (release, story, news, meditation),
   Nearby (Look around), one search box with a clear button over the first three; Wind = forecast + weekend planner;
   You = saved, bucket list, Following, Finds (all second-hand searches, wingfoil first: ad age, price vs similar ads,
-  Good deal at 20% under), learned. List rows swipe (right yes/more/Interested, left no/hide/Not for me) and keep
+  Good deal at 20% under), learned. Everything that lists swipes: rows (right yes/more/Interested, left no/hide/Not for me), ads (right opens,
+  left hides), wishes (right edits, left removes), artists (right alerts, left unfollows), Act now (right opens, left
+  takes it off). What swipes away gets an Undo notice (`undoable()` in ui.js; wishes and artists only change when it
+  runs out). Rows keep
   their order after a reaction until the next load. Mobile-first (390 px), safe-area insets (a paper strip covers the
   status bar), 44 px tap targets. Work holds `work` and `freelance`, kept out of Discover. Work tracker: Interested /
   Applied / Not for me (`radar-work`, sent as a sealed `radar-track` note; Interested gets ntfy reminders 3 days and

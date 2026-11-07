@@ -314,6 +314,15 @@ def tab(page, name):
     page.click('.tab[data-v="%s"]' % name); page.wait_for_timeout(150)
 
 
+def swipe(page, selector, dx):
+    """Swipe a row sideways with touch pointer events (the app ignores mouse drags)."""
+    page.evaluate("""([sel, dx]) => {
+      const el = document.querySelector(sel), r = el.getBoundingClientRect(), y = r.top + r.height / 2, x = r.left + r.width / 2;
+      const ev = (t, x) => el.dispatchEvent(new PointerEvent(t, { pointerType: "touch", clientX: x, clientY: y, bubbles: true }));
+      ev("pointerdown", x); for (let i = 1; i <= 6; i++) ev("pointermove", x + dx * i / 6); ev("pointerup", x + dx);
+    }""", [selector, dx])
+
+
 def near(page):
     tab(page, "discover"); page.click('#panes [data-p="near"]'); page.wait_for_timeout(100); page.click("#nearBtn")
 
@@ -435,6 +444,10 @@ def tabs_suite(browser, site, scheme):
     check("Test Artist" in fol and "Quiet Band" in fol, "%s: Following lists the artists" % scheme)
     bells = (page.locator('#follow li:has-text("Quiet Band") .bell').get_attribute("aria-pressed"), page.locator('#follow li:has-text("Test Artist") .bell').get_attribute("aria-pressed"))
     check(bells == ("true", "false"), "%s: bells show which artists have concert alerts %s" % (scheme, bells))
+    page.locator('#follow li:has-text("Test Artist") [data-unf]').click(); page.wait_for_timeout(200)
+    check(not page.is_visible('#follow li:has-text("Test Artist")') and "show" in (page.get_attribute("#undoBar", "class") or ""), "%s: unfollowing hides the artist and offers Undo" % scheme)
+    page.click("#undoBtn"); page.wait_for_timeout(200)
+    check(page.is_visible('#follow li:has-text("Test Artist")'), "%s: Undo keeps following" % scheme)
     check(page.locator("#gear .ad").count() == 5, "%s: wingfoil ads listed under Finds (bad links left out)" % scheme)
     check(page.locator("#gear b b").count() == 0, "%s: ad titles stay text" % scheme)
     check("Good deal" in page.inner_text("#gear") and "below similar ads" in page.inner_text("#gear"), "%s: a cheap ad is flagged as a good deal" % scheme)
@@ -443,6 +456,10 @@ def tabs_suite(browser, site, scheme):
     check(page.locator("#gear .ad").count() == 1 and "Check size" in page.inner_text("#gear"), "%s: gear type filter; unclear sizes say so" % scheme)
     page.click('#gearTypes .pill:has-text("All")'); page.locator("#gear [data-hide]").first.click(); page.wait_for_timeout(150)
     check(page.locator("#gear .ad").count() == 4, "%s: hiding an ad removes it" % scheme)
+    check("show" in (page.get_attribute("#undoBar", "class") or ""), "%s: hiding an ad offers Undo" % scheme)
+    page.click("#undoBtn"); page.wait_for_timeout(200)
+    check(page.locator("#gear .ad").count() == 5, "%s: Undo brings the ad back" % scheme)
+    page.locator("#gear [data-hide]").first.click(); page.wait_for_timeout(150)
     page.locator("#wingBox").scroll_into_view_if_needed(); shot(page, "gear-%s.png" % scheme, False)
     check(page.locator("#wanted .want").count() == 1 and page.locator("#wanted .ad").count() == 3, "%s: Finds lists the car-seat search with its ads" % scheme)
     check("Check fit" in page.inner_text("#wanted") and "Match" in page.inner_text("#wanted"), "%s: Finds marks matches and unsure fits" % scheme)
@@ -817,6 +834,8 @@ def do_suite(browser, site, scheme):
     page.locator('#doAll .idea:has-text("Dance premiere") .vote.n').click(); page.wait_for_timeout(300)
     page.click("#fbUndo"); page.wait_for_timeout(6800)
     check(len(m.notes) == n0 and "Dance premiere" in page.inner_text("#doAll"), "%s: Undo cancels the answer and nothing is sent" % scheme)
+    swipe(page, '#doAll .idea[data-id="do-dance"]', 160); page.wait_for_timeout(400)
+    check("Dance premiere" in page.inner_text("#doPlan"), "%s: swiping a row right says yes" % scheme)
     page.set_viewport_size({"width": 320, "height": 640}); tab(page, "discover"); page.click('#panes [data-p="go"]')
     w = page.evaluate("Math.max(document.documentElement.scrollWidth, document.body.scrollWidth)")
     check(w <= 320, "%s: no horizontal scroll on Do at 320 px (%d)" % (scheme, w))

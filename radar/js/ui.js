@@ -44,9 +44,13 @@ export function swipeRow(el, right, left, labels) {
   el.appendChild(tag);
   let x0 = null, y0 = 0, dx = 0, lock = null;
   el.addEventListener("pointerdown", (e) => {
-    if (e.pointerType === "mouse" || e.target.closest("a,button,input")) return;
+    const hit = e.target.closest("a,button,input");
+    // small buttons inside a row keep their tap; the row itself (or its main link) can be swiped
+    if (e.pointerType === "mouse" || (hit && hit !== el && !hit.hasAttribute("data-swipeok"))) return;
     x0 = e.clientX; y0 = e.clientY; dx = 0; lock = null;
   });
+  // a swipe must not also count as a tap on the row's link or button
+  el.addEventListener("click", (e) => { if (el.dataset.swiped) { e.preventDefault(); e.stopPropagation(); delete el.dataset.swiped; } }, true);
   el.addEventListener("pointermove", (e) => {
     if (x0 == null) return;
     dx = e.clientX - x0;
@@ -61,6 +65,7 @@ export function swipeRow(el, right, left, labels) {
   const end = () => {
     if (x0 == null) return;
     x0 = null; el.style.transition = ""; el.style.transform = ""; tag.style.opacity = 0;
+    if (lock === "x") { el.dataset.swiped = "1"; setTimeout(() => { delete el.dataset.swiped; }, 400); }
     if (lock === "x" && Math.abs(dx) > 90) (dx > 0 ? right : left)();
   };
   el.addEventListener("pointerup", end);
@@ -189,4 +194,24 @@ export function initWelcome() {
   w.classList.add("show");
   document.body.classList.add("locked");
   w.focus({ preventScroll: true });
+}
+
+// --- Undo notice ---------------------------------------------------------------------------------
+// For things swiped away. With `later`, the change only happens when the notice runs out (so Undo costs
+// nothing to send); otherwise `undo` puts it back.
+let undoTimer = null, undoFns = null;
+export function undoable(text, undo, later) {
+  if (undoFns && undoFns.later) undoFns.later(); // a new one lets the previous change go ahead
+  undoFns = { undo, later };
+  $("undoText").textContent = text;
+  $("undoBar").classList.add("show");
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(() => { const f = undoFns; undoFns = null; $("undoBar").classList.remove("show"); if (f && f.later) f.later(); }, 6000);
+}
+export function initUndo() {
+  $("undoBtn").onclick = () => {
+    const f = undoFns; undoFns = null; clearTimeout(undoTimer);
+    $("undoBar").classList.remove("show");
+    if (f && f.undo) f.undo();
+  };
 }

@@ -541,3 +541,5 @@ button.rday:active { background: var(--sunk); }
 .qclear { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ink-3); }
 .qclear svg { width: 18px; height: 18px; }
 .qclear[hidden] { display: none; }
+#undoBar { z-index: 8; bottom: calc(env(safe-area-inset-bottom) + 96px); }
+.mini.swipe { touch-action: pan-y; }

@@ -2,10 +2,10 @@
 // new interests), show hidden, plus the short reaction notice and the Saved tab dot.
 import { $, html, put, isoDay } from "./util.js";
 import { S, save } from "./store.js";
-import { D, emit } from "./data.js";
+import { D, emit, on } from "./data.js";
 import { note, track, SERVER, authFailed, signedOut } from "./notes.js";
 import { signed } from "./vault.js";
-import { openSheet, closeSheet, showTab, currentTab, showPane, say } from "./ui.js";
+import { openSheet, closeSheet, showTab, currentTab, showPane, say, swipeRow, undoable } from "./ui.js";
 import { drawSavedItems, mountBucketHits, state, drawFeed, drawWork } from "./feed.js";
 import { past } from "./data.js";
 import { doPending, doLines, markDoSent } from "./do.js";
@@ -37,7 +37,7 @@ function saveWish(b, ch) {
   save("bucketEdits");
   track({ bucket: { [b.id]: ch } });
   drawBucket();
-  say(ch.remove ? "Removed. Radar stops watching it." : "Saved. The next morning check uses it.");
+  if (!ch.remove) say("Saved. The next morning check uses it.");
 }
 function drawBucket() {
   const wishes = (D.config.bucketlist || []).map(withEdits).filter((b) => !b.remove), known = {};
@@ -52,11 +52,20 @@ function drawBucket() {
   const hitsFor = (id) => D.feed.items.filter((it) => it.kind === "bucket" && it.bucket === id && !past(it) && !S.hidden[it.id]);
   put(box, html`${wishes.map((b) => {
     const n = hitsFor(b.id).length;
-    return html`<div class="bk"><div class="bk-h"><h3>${b.title}</h3><button class="linkbtn bk-edit" type="button" data-e="${b.id}">Edit</button></div>${b.good_time ? html`<p class="bw">Good moment: ${b.good_time}</p>` : ""}${b.where ? html`<p class="bw">Where: ${b.where}</p>` : ""}${b.edited ? html`<p class="bs">Changed. Radar uses it from the next morning check.</p>` : ""}
+    return html`<div class="bk" data-w="${b.id}"><div class="bk-h"><h3>${b.title}</h3><button class="linkbtn bk-edit" type="button" data-e="${b.id}">Edit</button></div>${b.good_time ? html`<p class="bw">Good moment: ${b.good_time}</p>` : ""}${b.where ? html`<p class="bw">Where: ${b.where}</p>` : ""}${b.edited ? html`<p class="bs">Changed. Radar uses it from the next morning check.</p>` : ""}
       ${n ? html`<p class="bs hot">${n === 1 ? "1 good chance right now" : n + " good chances right now"}</p><div class="bkhits" data-b="${b.id}"></div>` : html`<p class="bs">Watching. Radar flags it when the timing is right.</p>`}</div>`;
   })}${S.bucketSent.map((b) => html`<div class="bk"><h3>${b.title}</h3>${b.good_time ? html`<p class="bw">Good moment: ${b.good_time}</p>` : ""}<p class="bs">Sent. Radar starts watching after the next morning update.</p></div>`)}`);
   box.querySelectorAll(".bkhits").forEach((el) => mountBucketHits(el, el.dataset.b));
   box.querySelectorAll("[data-e]").forEach((x) => { x.onclick = () => editWish(wishes.find((w) => String(w.id) === x.dataset.e)); });
+  // swipe a wish: right edits it, left removes it (after the Undo notice runs out)
+  box.querySelectorAll(".bk[data-w]").forEach((el) => {
+    const w = wishes.find((x) => String(x.id) === el.dataset.w);
+    if (!w) return;
+    swipeRow(el, () => editWish(w), () => {
+      el.hidden = true;
+      undoable("Removed “" + w.title + "”.", () => { el.hidden = false; }, () => saveWish(w, { remove: true }));
+    }, ["Edit", "Remove"]);
+  });
 }
 
 // --- Reactions waiting to teach Radar ------------------------------------------------------------
@@ -65,7 +74,9 @@ const pending = () => pendingReactions().concat(doPending());
 // New thumbs and yes/no answers go to Radar by themselves a few seconds after the last one. The notice says so
 // and offers Undo, which takes back everything in that batch (reactions, answers, hides) before it leaves.
 const SEND_AFTER = 6000;
-let toastFor = -1, sendTimer = null, batchHidden = null;
+let lastWork = JSON.parse(JSON.stringify(S.work)); // the tracker as it was before the latest change
+on("work-before", (w) => { if (!sendTimer) lastWork = w; });
+let toastFor = -1, sendTimer = null, batchHidden = null, batchWork = null;
 function hideToast() { $("fbBar").classList.remove("show"); }
 function armSend() {
   clearTimeout(sendTimer);
@@ -76,7 +87,8 @@ function undoBatch() {
   pendingReactions().forEach((k) => { delete S.reactions[k]; });
   doPending().forEach((k) => { delete S.do[k]; });
   if (batchHidden) Object.keys(S.hidden).forEach((k) => { if (!batchHidden.has(k)) delete S.hidden[k]; });
-  batchHidden = null;
+  if (batchWork && JSON.stringify(batchWork) !== JSON.stringify(S.work)) { S.work = batchWork; save("work"); track({ work: S.work }); }
+  batchHidden = null; batchWork = null;
   save("reactions"); save("do"); save("hidden");
   hideToast();
   emit("change");
@@ -94,6 +106,7 @@ export function paintTeach() {
   if (!n) { clearTimeout(sendTimer); sendTimer = null; batchHidden = null; hideToast(); }
   else if (n > toastFor) {
     if (!batchHidden) batchHidden = new Set(Object.keys(S.hidden));
+    if (!batchWork) batchWork = JSON.parse(JSON.stringify(lastWork));
     $("fbText").textContent = (n === 1 ? "1 answer" : n + " answers") + " going to Radar";
     $("fbBar").classList.add("show");
     armSend();
@@ -209,13 +222,21 @@ function drawFollow() {
     S.follow.alerts[n] = on; save("follow");
     followChange({ alerts: { [n]: on } }, on ? "Concert alerts on for " + n + "." : "Concert alerts off for " + n + ".");
   }; });
-  box.querySelectorAll("[data-unf]").forEach((b) => { b.onclick = () => {
-    const n = b.dataset.unf;
-    S.follow.add = S.follow.add.filter((x) => x !== n);
-    if (!S.follow.remove.includes(n)) S.follow.remove.push(n);
-    save("follow");
-    followChange({ remove: [n] }, "Stopped following " + n + ".");
-  }; });
+  const unfollow = (n, li) => {
+    li.hidden = true;
+    undoable("Stopped following " + n + ".", () => { li.hidden = false; }, () => {
+      S.follow.add = S.follow.add.filter((x) => x !== n);
+      if (!S.follow.remove.includes(n)) S.follow.remove.push(n);
+      save("follow");
+      followChange({ remove: [n] });
+    });
+  };
+  box.querySelectorAll("[data-unf]").forEach((b) => { b.onclick = () => unfollow(b.dataset.unf, b.closest("li")); });
+  // swipe an artist: right switches the concert alert, left stops following
+  box.querySelectorAll(".follow li").forEach((li) => {
+    const bellBtn = li.querySelector("[data-bell]");
+    swipeRow(li, () => bellBtn.click(), () => unfollow(bellBtn.dataset.bell, li), ["Alerts", "Unfollow"]);
+  });
 }
 function followArtist() {
   compose({

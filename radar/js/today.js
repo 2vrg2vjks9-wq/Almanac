@@ -7,7 +7,8 @@ import { $, html, put, d, today, shortDate } from "./util.js";
 import { S } from "./store.js";
 import { D, visible, isWork } from "./data.js";
 import { net } from "./wind.js";
-import { showTab, showPane } from "./ui.js";
+import { showTab, showPane, swipeRow, undoable } from "./ui.js";
+import { S as Store, save } from "./store.js";
 import { ideas, answer, eligible, ideaPast, placeText, prepText, sortByDate, openIdea } from "./do.js";
 import { deadline, tracked, WORK_LABEL, workSub } from "./feed.js";
 import { gearNews } from "./gear.js";
@@ -38,13 +39,21 @@ function actItems() {
   D.feed.items.filter((it) => it.kind === "bucket" && visible(it) && !S.hidden[it.id]).forEach((it) => {
     out.push({ at: d(it.end) || d(it.start) || t, rank: 1, label: "Good time", title: it.title, sub: "Bucket list" + (it.place ? " · " + it.place : ""), open: () => openItem(it), hot: true });
   });
-  return out.sort((a, b) => a.at - b.at || a.rank - b.rank).slice(0, 6);
+  // things swiped out of Act now are kept in radar-hidden as "act:<title>" (they stay everywhere else)
+  return out.filter((x) => !Store.hidden["act:" + x.title]).sort((a, b) => a.at - b.at || a.rank - b.rank).slice(0, 6);
 }
 function drawAct() {
   const list = actItems(), box = $("act");
   put(box, list.length ? html`${list.map((x, i) => html`<button class="mini" type="button" data-i="${i}"><span class="when${x.hot ? " close" : ""}">${x.label}</span><span class="what"><b>${x.title}</b><small>${x.sub}</small></span></button>`)}`
     : html`<p class="empty">Nothing needs doing right now. Discover has ideas, Work has leads.</p>`);
-  box.querySelectorAll(".mini").forEach((b) => { b.onclick = () => list[+b.dataset.i].open(); });
+  box.querySelectorAll(".mini").forEach((b) => {
+    const x = list[+b.dataset.i];
+    b.onclick = () => x.open();
+    swipeRow(b, () => x.open(), () => {
+      Store.hidden["act:" + x.title] = Date.now(); save("hidden"); drawAct();
+      undoable("Taken off Act now.", () => { delete Store.hidden["act:" + x.title]; save("hidden"); drawAct(); });
+    }, ["Open", "Done"]);
+  });
 }
 
 // --- Morning brief -----------------------------------------------------------------------------------------
