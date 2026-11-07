@@ -375,11 +375,11 @@ function profile() {
     yes: Object.values(S.do).filter((a) => a.v > 0).slice(-15).map((a) => a.title),
     no: Object.values(S.do).filter((a) => a.v < 0).slice(-15).map((a) => a.title) };
 }
-async function instantIdeas(askText) {
+async function instantIdeas(askText, where) {
   if (!SERVER || !navigator.onLine) return { why: "offline" };
   try {
     const have = ideas().filter((it) => !ideaPast(it)).map((it) => it.title).slice(0, 80);
-    const body = JSON.stringify({ ask: askText, profile: profile(), have });
+    const body = JSON.stringify({ ask: askText, where: where || "", profile: profile(), have });
     const r = await fetch("/api/ideas", { method: "POST", credentials: "same-origin", redirect: "manual",
       headers: Object.assign({ "Content-Type": "application/json" }, await signed("/api/ideas", body)), body });
     if (authFailed(r)) { signedOut(true); return { why: "signin" }; }
@@ -390,20 +390,20 @@ async function instantIdeas(askText) {
   } catch (e) { return { why: "fail" }; }
 }
 let finding = false;
-async function findMore(askText) {
+const MORE_BTNS = ["doMoreBtn", "findMoreFor"];
+async function findMore(askText, where) {
   if (finding) return;
   finding = true;
-  const btn = $("doMoreBtn");
-  btn.disabled = true; btn.textContent = "Finding ideas…";
-  say("Claude is looking for ideas. This takes about a minute.");
-  const res = await instantIdeas(askText);
+  MORE_BTNS.forEach((id) => { const b = $(id); if (b) { b.disabled = true; b.textContent = "Finding more…"; } });
+  say("Claude is looking" + (where ? " around " + where : "") + (askText ? " for " + askText : "") + ". This takes about a minute.");
+  const res = await instantIdeas(askText, where);
   finding = false;
-  btn.disabled = false; btn.textContent = "Find more ideas now";
+  MORE_BTNS.forEach((id) => { const b = $(id); if (b) { b.disabled = false; b.textContent = "Find more"; } });
   const stamp = new Date().toISOString().slice(0, 10);
   let found = [];
   if (res.ideas) {
     const slug = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
-    found = res.ideas.map((x) => Object.assign({}, x, { id: "m-" + slug(x.title), found: stamp, picked: true }));
+    found = res.ideas.map((x) => Object.assign({}, x, { id: "m-" + slug(x.title), found: stamp, picked: true }, where ? { trip: true } : {}));
     const M = get(KEYS.more, null), keep = (M && M.items) || [], ids = new Set(keep.map((x) => x.id));
     set(KEYS.more, { t: Date.now(), items: keep.filter((x) => (Date.now() - (M.t || 0)) < 30 * 864e5).concat(found.filter((x) => !ids.has(x.id))) });
     mergePicks();
@@ -417,20 +417,33 @@ async function findMore(askText) {
     const before = ideas().length, sent = Date.now();
     refreshUntil(() => ideas().length > before || (D.things && Date.parse(D.things.updated) > sent), () => emit("change"));
   }
-  note("Do: more ideas" + (askText ? " like " + askText : ""),
-    "Please look for more Do ideas (things to do, Den Haag first)" + (askText ? ": " + askText : ".") +
+  note("Do: more ideas" + (askText ? " like " + askText : "") + (where ? " around " + where : ""),
+    "Please look for more Do ideas (things to do, " + (where ? "in or near " + where : "Den Haag first") + ")" + (askText ? ": " + askText : ".") +
     (found.length ? "\n\nPicked ideas (instant research, check before keeping):\n" + JSON.stringify(found) : ""),
     "radar-interest", "");
 }
 
-export function initDo(ask) {
+// One tap: Find more follows what the pane is set to (place, Near me, when, what, the search text).
+const label = (list, k) => (list.find((x) => x[0] === k) || [])[1] || "";
+function hereText() { return S.here ? "where I am now (" + (+S.here.lat).toFixed(3) + ", " + (+S.here.lon).toFixed(3) + ")" : ""; }
+export function findHere(pane, region, regionLabel) {
+  const parts = [];
+  let where = "";
+  if (pane === "go") {
+    if (view.city !== "all" && view.city !== "haag") where = label(cities(), view.city);
+    if (view.cat !== "all") parts.push(label(CAT_FILTERS, view.cat).toLowerCase());
+    if (view.when !== "all") parts.push(label(WHEN, view.when).toLowerCase());
+  } else if (region === "here") where = hereText();
+  else if (region && region !== "all" && region !== "nl") where = regionLabel;
+  if (Q.q) parts.push(Q.q);
+  findMore(parts.join(", "), where);
+}
+
+export function initDo(ask, regionNow) {
   segs("doWhen", WHEN, "when");
   segs("doCat", CAT_FILTERS, "cat");
   $("doNoBtn").onclick = () => { showNo = !showNo; drawAll(); };
-  $("doMoreBtn").onclick = () => ask({
-    title: "Find more ideas now", intro: "Claude looks right away, Den Haag first and further afield when it's worth the trip. Leave it empty for a fresh mix.",
-    fields: [{ name: "t", label: "More of (optional)", placeholder: "Small jazz gigs, sunrise walks, design markets, contemporary dance…", long: true }],
-    submit: "Find ideas",
-    send: (v) => findMore(v.t),
-  });
+  $("doMoreBtn").onclick = () => findHere("go");
+  const f = $("findMoreFor");
+  if (f) f.onclick = () => { const r = regionNow(); findHere("foryou", r[0], r[1]); };
 }

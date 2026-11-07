@@ -56,7 +56,7 @@ in commit messages, issue comments or Actions logs.
   - `js/notes.js` notes to Claude (/api/note, GitHub token fallback, outbox)
   - `js/saved.js` You tab: saved items, bucket list (edit, remove, Brainstorm wishes), Following (artists and concert-alert
     bells), learned, teach (reactions and answers send by themselves 6 s after the last one, with Undo), forms
-  - `js/today.js` Today's morning brief and Act now; the weekend planner on Wind
+  - `js/today.js` Today's morning brief, Act now, and the weekend card (Thursday to Sunday)
   - `js/settings.js` Settings (You › gear): status from `status.json`, notification and task switches, monthly budget
   - `js/around.js` Look around (Discover › Nearby) and the Ask Claude offer with instant research
   - `js/vault.js` unlock (passphrase → key), open data files, seal notes, lock
@@ -101,7 +101,8 @@ in commit messages, issue comments or Actions logs.
   radar-outbox, radar-gh-key, radar-welcomed, radar-bucket-sent, radar-here, radar-wind, radar-water, radar-cache,
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
-  radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow.
+  radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
+  radar-wind-place.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -188,7 +189,11 @@ in commit messages, issue comments or Actions logs.
   `v-settings`). Each thing lives in one place: Today = morning brief + Act now (deadlines, tickets to book, last
   chances, yes-list soon, bucket moments); Discover = For you (one ranked feed with "Because", location filters
   built from the items' regions plus Near me), Go (things to go to), Read & listen (release, story, news, meditation),
-  Nearby (Look around), one search box with a clear button over the first three; Wind = forecast + weekend planner;
+  Nearby (Look around), one search box with a clear button over the first three, and a one-tap Find more in For you,
+  Go and Read & listen that follows the pane's filters (place, Near me, when, what, search text; `/api/ideas` with
+  `where`, or the inbox task); Wind = forecast with a place switch (Home spots, Where I am, Search a place:
+  `radar-wind-place`, nearby kite/wingfoil spots from Overpass, directions not checked; the morning alert stays on
+  the home spots);
   You = saved, bucket list, Following, Finds (all second-hand searches, wingfoil first: ad age, price vs similar ads,
   Good deal at 20% under), learned. Everything that lists swipes: rows (right yes/more/Interested, left no/hide/Not for me), ads (right opens,
   left hides), wishes (right edits, left removes), artists (right alerts, left unfollows), Act now (right opens, left

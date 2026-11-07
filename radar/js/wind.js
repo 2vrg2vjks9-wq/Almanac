@@ -1,9 +1,9 @@
 // Live wind for the spots in interests.json (Open-Meteo, no key), the wind ribbons,
 // the hourly chart, water temperature with a wetsuit hint, and the Today lead sentence.
-import { $, html, put, pad, stamp } from "./util.js";
+import { $, html, put, pad, stamp, getJSON, km, kmText } from "./util.js";
 import { get, set, KEYS } from "./store.js";
 import { D, emit } from "./data.js";
-import { showTab } from "./ui.js";
+import { showTab, openSheet, closeSheet } from "./ui.js";
 
 export const net = { wind: null, windAt: null, sessions: [] }; // sessions: rideable windows, soonest first
 let WATER = get(KEYS.water, {});
@@ -72,12 +72,12 @@ const isSea = (s) => (s.water != null ? !!s.water : !/\blake\b/i.test((s.sub || 
 const waterText = (spot) => { const c = WATER[spot.id]; return c == null ? "" : "Water " + Math.round(c) + "°C, " + suit(c); };
 function paintWater() {
   document.querySelectorAll("#windAll .spot").forEach((el) => {
-    const sp = D.config.wind.spots.find((x) => x.id === el.dataset.spot), w = el.querySelector(".water");
+    const sp = spots().find((x) => x.id === el.dataset.spot), w = el.querySelector(".water");
     if (sp && w) w.textContent = waterText(sp);
   });
 }
 async function loadWater() {
-  const sp = D.config.wind.spots.filter(isSea);
+  const sp = spots().filter(isSea);
   if (!sp.length) return;
   const u = "https://marine-api.open-meteo.com/v1/marine?latitude=" + sp.map((s) => s.lat).join(",") + "&longitude=" + sp.map((s) => s.lon).join(",") +
     "&daily=sea_surface_temperature_max&timezone=Europe%2FAmsterdam&forecast_days=3";
@@ -163,7 +163,7 @@ function wireDetail(root, spot, days, W) {
 
 function drawWind(res, stale) {
   const W = D.config.wind, sessions = [];
-  const all = W.spots.map((spot, si) => {
+  const all = spots().map((spot, si) => {
     const days = analyse(spot, (res[si] && res[si].hourly) || { time: [], wind_speed_10m: [], wind_gusts_10m: [], wind_direction_10m: [] }, W);
     days.forEach((Dy) => ["wing", "surf"].forEach((k) => { if (Dy[k]) sessions.push({ spot, Dy, k, r: runInfo(Dy[k]) }); }));
     return { spot, days };
@@ -201,12 +201,13 @@ export function skeleton() {
     const cols = [...Array(7)].map(() => html`<span class="rday"><span class="bars">${[...Array(W.daylight[1] - W.daylight[0])].map(() => html`<i class="bar" style="height:10%"></i>`)}</span><span class="rlab">&nbsp;</span></span>`);
     return html`<div class="spot skel"><div class="spot-top"><span class="spot-name">${sp.name}</span><span class="spot-verdict quiet">Checking…</span></div>${sub ? html`<div class="spot-sub"><span>${sp.sub || ""}</span><span class="water${isSea(sp) ? " sea" : ""}"></span></div>` : ""}<div class="ribbon" aria-hidden="true">${cols}</div></div>`;
   };
-  put($("todayWind"), html`${W.spots.map((sp) => row(sp, false))}`);
-  put($("windAll"), html`${W.spots.map((sp) => row(sp, true))}`);
+  put($("todayWind"), html`${spots().map((sp) => row(sp, false))}`);
+  put($("windAll"), html`${spots().map((sp) => row(sp, true))}`);
 }
 
 export async function loadWind() {
-  const sp = D.config.wind.spots;
+  const sp = spots();
+  paintPlace();
   const u = "https://api.open-meteo.com/v1/forecast?latitude=" + sp.map((s) => s.lat).join(",") + "&longitude=" + sp.map((s) => s.lon).join(",") +
     "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn&timezone=Europe%2FAmsterdam&forecast_days=7";
   loadWater();
@@ -216,16 +217,102 @@ export async function loadWind() {
     let res = await r.json();
     if (!Array.isArray(res)) res = [res];
     net.wind = "live"; net.windAt = Date.now();
-    set(KEYS.wind, { t: net.windAt, res });
+    if (place().mode === "home") set(KEYS.wind, { t: net.windAt, res }); // the offline copy is for the home spots
     drawWind(res, false);
   } catch (e) {
-    const c = get(KEYS.wind, null);
+    const c = place().mode === "home" ? get(KEYS.wind, null) : null;
     if (c) { net.wind = "cache"; net.windAt = c.t; drawWind(c.res, true); }
     else { net.wind = null; $("lead").textContent = "The forecast needs a connection."; $("leadSub").textContent = "Radar tries again when you're back online."; }
   }
 }
 
+// --- Where the wind is for: home spots, where I am, or a searched place ------------------------------
+// Away from home Radar has no spot list, so it finds kite, windsurf and wingfoil spots that OpenStreetMap knows within
+// 25 km (Overpass), or uses the place itself. Their good directions aren't known, so every direction counts as
+// rideable there (the hourly chart still shows the direction). Kept on this phone (radar-wind-place); the morning
+// alert stays on the home spots. What leaves the phone: the position or the search text, to OpenStreetMap.
+const place = () => get(KEYS.windPlace, null) || { mode: "home" };
+export function spots() {
+  const P = place();
+  return P.mode !== "home" && Array.isArray(P.spots) && P.spots.length ? P.spots : D.config.wind.spots;
+}
+const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];
+async function nearbySpots(lat, lon, name) {
+  const q = '[out:json][timeout:15];nwr["sport"~"kitesurfing|windsurfing|wingfoiling|kiteboarding"](around:25000,' + lat.toFixed(4) + "," + lon.toFixed(4) + ");out center 12;";
+  let els = [];
+  for (const u of OVERPASS) {
+    try { const j = await getJSON(u + "?data=" + encodeURIComponent(q), 20000); els = j.elements || []; break; } catch (e) { /* next mirror */ }
+  }
+  const seen = new Set(), out = [];
+  els.forEach((e) => {
+    const la = e.lat != null ? e.lat : e.center && e.center.lat, lo = e.lon != null ? e.lon : e.center && e.center.lon;
+    const nm = (e.tags && (e.tags.name || e.tags["name:en"])) || "";
+    if (la == null || !nm || seen.has(nm.toLowerCase())) return;
+    seen.add(nm.toLowerCase());
+    out.push({ id: "p" + e.id, name: nm, sub: kmText(km(lat, lon, la, lo)) + " away · direction not checked", lat: la, lon: lo, good: [[0, 360]] });
+  });
+  out.sort((a, b) => km(lat, lon, a.lat, a.lon) - km(lat, lon, b.lat, b.lon));
+  return out.slice(0, 3).concat(out.length ? [] : [{ id: "place", name: name, sub: "Forecast for the place · direction not checked", lat, lon, good: [[0, 360]] }]);
+}
+async function setPlace(mode, lat, lon, name) {
+  if (mode === "home") { set(KEYS.windPlace, { mode: "home" }); return reload(); }
+  $("windSub").textContent = "Finding wind spots near " + name + "…";
+  const sp = await nearbySpots(lat, lon, name);
+  set(KEYS.windPlace, { mode, name, lat, lon, spots: sp, t: Date.now() });
+  reload();
+}
+function reload() { document.querySelectorAll("#todayWind .spot, #windAll .spot").forEach((x) => x.remove()); skeleton(); loadWind(); }
+function paintPlace() {
+  const P = place(), box = $("windPlace");
+  if (!box) return;
+  box.querySelectorAll("[data-wp]").forEach((b) => {
+    const on = b.dataset.wp === P.mode || (b.dataset.wp === "search" && P.mode === "search");
+    b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on));
+    if (b.dataset.wp === "search") b.textContent = P.mode === "search" ? P.name : "Search a place";
+  });
+  const t = $("windTitle");
+  if (t) t.previousElementSibling.textContent = P.mode === "home" ? "Your spots" : P.name;
+}
+async function whereIAm() {
+  if (!navigator.geolocation) { $("windSub").textContent = "This phone can't share its location."; return; }
+  $("windSub").textContent = "Finding where you are…";
+  navigator.geolocation.getCurrentPosition(async (p) => {
+    const lat = p.coords.latitude, lon = p.coords.longitude;
+    let name = "Where you are";
+    try {
+      const g = await getJSON("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat=" + lat.toFixed(4) + "&lon=" + lon.toFixed(4), 12000);
+      const a = g.address || {}; name = a.city || a.town || a.village || a.municipality || name;
+    } catch (e) { /* keep the generic name */ }
+    setPlace("here", lat, lon, name);
+  }, () => { $("windSub").textContent = "Location is off for Safari: Settings, Privacy & Security, Location Services, Safari Websites."; }, { timeout: 15000, maximumAge: 300000 });
+}
+function searchPlace() {
+  openSheet(() => html`<h2 class="sheet-title" id="sheetTitle">Wind somewhere else</h2>
+    <form class="compose" id="wpForm" novalidate><label><span>Town or beach</span><input name="q" type="search" autocomplete="off" placeholder="Tarifa, Sotavento, Dakhla…"></label>
+    <div class="sheet-acts"><button class="btn" type="submit">Search</button><button class="btn ghost" type="button" data-close>Cancel</button></div></form>
+    <ul class="wp-res" id="wpRes"></ul>`, (el) => {
+    const f = el.querySelector("#wpForm"), res = el.querySelector("#wpRes");
+    setTimeout(() => f.elements.q.focus({ preventScroll: true }), 350);
+    f.onsubmit = async (e) => {
+      e.preventDefault();
+      const q = f.elements.q.value.trim();
+      if (!q) return;
+      put(res, html`<li class="muted">Searching…</li>`);
+      try {
+        const r = await getJSON("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=en&q=" + encodeURIComponent(q), 12000);
+        put(res, r.length ? html`${r.map((x, i) => html`<li><button class="mini" type="button" data-i="${i}"><span class="what"><b>${String(x.display_name).split(",")[0]}</b><small>${String(x.display_name).split(",").slice(1, 4).join(",")}</small></span></button></li>`)}`
+          : html`<li class="muted">Nothing found. Try a town name.</li>`);
+        res.querySelectorAll("[data-i]").forEach((b) => { b.onclick = () => { const x = r[+b.dataset.i]; closeSheet(); setPlace("search", +x.lat, +x.lon, String(x.display_name).split(",")[0]); }; });
+      } catch (err) { put(res, html`<li class="muted">The search didn't answer. Try again.</li>`); }
+    };
+  }, "Wind somewhere else");
+}
+
 export function initWind() {
+  const wp = $("windPlace");
+  if (wp) wp.querySelectorAll("[data-wp]").forEach((b) => {
+    b.onclick = () => (b.dataset.wp === "home" ? setPlace("home") : b.dataset.wp === "here" ? whereIAm() : searchPlace());
+  });
   const go = () => showTab("wind");
   $("todayWind").onclick = go;
   $("todayWind").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };

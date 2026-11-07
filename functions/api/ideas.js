@@ -23,6 +23,7 @@ export async function onRequestPost({ request, env }) {
   let q;
   try { q = JSON.parse(raw); } catch (e) { return json({ error: "bad request" }, 400); }
   const ask = clip(q.ask, 400);
+  const where = clip(q.where, 120); // a place other than Den Haag (a filter, or where the owner is now)
   const profile = clip(JSON.stringify(q.profile || {}), 5000);
   const have = (Array.isArray(q.have) ? q.have : []).slice(0, 80).map((t) => clip(t, 80)).filter(Boolean);
   const today = new Date().toISOString().slice(0, 10);
@@ -32,7 +33,8 @@ export async function onRequestPost({ request, env }) {
   const prompt = "Today is " + today + ". The owner asked for more ideas" + (ask ? " like: " + ask : "") + ".\n\n" +
     "Their profile (JSON):\n" + profile + "\n\n" +
     "Already on their list (don't repeat): " + JSON.stringify(have) + "\n\n" +
-    "Find 5 to 8 things to do in the next three weeks, or undated things worth doing any time. Den Haag first and fullest; Rotterdam and Leiden when they fit well; Amsterdam, Utrecht or further only when they're exceptional. You have at most 3 web searches: open agenda pages of venues and organisers to find several ideas per search.\n\n" +
+    (where ? "Find 5 to 8 things to do in or near " + where + " in the next three weeks, or undated things worth doing any time there." :
+    "Find 5 to 8 things to do in the next three weeks, or undated things worth doing any time. Den Haag first and fullest; Rotterdam and Leiden when they fit well; Amsterdam, Utrecht or further only when they're exceptional.") + " You have at most 3 web searches: open agenda pages of venues and organisers to find several ideas per search.\n\n" +
     "Answer with only a JSON object: {\"ideas\": [{\"cat\": one of " + JSON.stringify(CATS) + ", \"title\", \"venue\", \"city\", \"start\": \"YYYY-MM-DD\" or null, \"end\": \"YYYY-MM-DD\" or null, \"when\": short free text for times or opening hours, \"summary\": one or two sentences in your own words, \"why\": which part of the profile or request it matches, \"url\", \"price\": short text or null, \"fit\": 1 to 5, \"lat\": number or null, \"lon\": number or null}]}";
 
   const body = {

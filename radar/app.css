@@ -544,3 +544,8 @@ button.rday:active { background: var(--sunk); }
 #undoBar { z-index: 8; bottom: calc(env(safe-area-inset-bottom) + 96px); }
 .mini.swipe { touch-action: pan-y; }
 .sugg-h { font: 600 13px/1.2 var(--ui); color: var(--ink-3); margin: 14px 0 0; }
+.wplace { margin: 12px calc(-1 * var(--gutter)) 0; }
+.wp-res { list-style: none; margin: 8px 0 0; padding: 0; }
+.wp-res li + li { border-top: 1px solid var(--rule); }
+.wp-res .muted { color: var(--ink-3); padding: 12px 0; font-size: 14px; }
+.wk .mini { text-align: left; width: 100%; }

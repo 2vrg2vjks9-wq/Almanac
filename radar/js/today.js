@@ -2,7 +2,7 @@
 // - Brief: a few plain sentences pulling the day together: the best idea, new work leads, finds, bucket moments.
 // - Act now: one list of things with a date to act by, nearest first: deadlines (tracked leads first), tickets to
 //   book, last chances, things on your yes list in the next three days and bucket-list "good time" moments.
-// - Weekend: rideable wind on Saturday and Sunday next to the things on your yes list that weekend.
+// - Weekend (Thursday to Sunday, on Today): rideable wind on Saturday and Sunday next to your yes list that weekend.
 import { $, html, put, d, today, shortDate } from "./util.js";
 import { S } from "./store.js";
 import { D, visible, isWork } from "./data.js";
@@ -90,7 +90,7 @@ function drawBrief() {
   box.querySelectorAll("[data-b]").forEach((x) => { x.onclick = go[x.dataset.b]; });
 }
 
-// --- Weekend planner (Wind tab) ------------------------------------------------------------------------------
+// --- Weekend planner (Today, Thursday to Sunday) ------------------------------------------------------------------------------
 function weekend() {
   const t = today(), wd = t.getDay(); // 0 Sun … 6 Sat
   const sat = new Date(t); sat.setDate(t.getDate() + (wd === 0 ? -1 : 6 - wd));
@@ -101,18 +101,20 @@ const iso = (x) => x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, 
 export function drawWeekend() {
   const box = $("weekend");
   if (!box) return;
+  box.hidden = ![4, 5, 6, 0].includes(today().getDay()); // Today shows it from Thursday to Sunday
+  if (box.hidden) return;
   const [sat, sun] = weekend(), keys = [iso(sat), iso(sun)];
   const wind = (net.sessions || []).filter((x) => keys.includes(x.Dy.day));
   const overlaps = (it) => { const s = d(it.start), e = d(it.end) || s; return s && s <= sun && e >= sat; };
   const yes = ideas().filter((it) => answer(it) && answer(it).v > 0 && !ideaPast(it) && overlaps(it)).sort(sortByDate);
   const maybe = yes.length ? [] : ideas().filter((it) => eligible(it) && !answer(it) && overlaps(it) && homeIdea(it)).sort((a, b) => (b.fit || 3) - (a.fit || 3)).slice(0, 2);
   const day = (k) => (k === keys[0] ? "Sat" : "Sun");
-  put(box, html`<h2>This weekend</h2><div class="sheet wk">
+  put(box, html`<h2>This weekend</h2><div class="sheet brief wk">
     ${wind.length ? wind.slice(0, 4).map((x) => html`<p class="wk-w"><b>${day(x.Dy.day)}</b> ${x.k === "wing" ? "Wingfoil" : "Windsurf"} at ${x.spot.name}, ${x.r.from}–${x.r.to}, ~${x.r.kn} kn ${x.r.dir}</p>`)
       : html`<p class="wk-w muted">${net.windAt ? "No rideable wind forecast for the weekend yet." : "Checking the forecast…"}</p>`}
     ${yes.concat(maybe).map((it) => html`<button class="mini" type="button" data-id="${it.id}"><span class="when">${(() => { const s = d(it.start); return s && s >= sat ? day(iso(s)) : "Sat–Sun"; })()}</span><span class="what"><b>${it.title}</b><small>${yes.includes(it) ? "On your list · " : "Idea · "}${placeText(it)}</small></span></button>`)}
     ${!yes.length && !maybe.length ? html`<p class="wk-w muted">Nothing on your yes list this weekend yet.</p>` : ""}
-  </div><p class="fine">On Thursdays Radar sends this as one notification (switch it off in Settings).</p>`);
+  </div>`);
   box.querySelectorAll(".mini").forEach((b) => {
     const it = ideas().find((x) => x.id === b.dataset.id);
     b.onclick = () => openIdea(it);

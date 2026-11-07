@@ -126,7 +126,10 @@ EXTRA["inbox"] += ("- A radar-ask note holds JSON {\"ask\": \"bucket-brainstorm\
                    "  surprising; none already in `have` or bucketlist), each {title, good_time, where, why}, and write them to\n"
                    "  interests.suggestions.bucket = {at: now (ISO), around, items: [...]}. No web search needed for this.\n"
                    "- A \"Do: more ideas\" interest note: find 5 to 8 things to do now (Den Haag first, the note says what\n"
-                   "  of) and add them to things.json `ideas` with new unique ids, found = today, fresh = true.\n")
+                   "  of, and where: a place or coordinates means there, not Den Haag; then set trip = true) and add them to\n"
+                   "  things.json `ideas` with new unique ids, found = today, fresh = true.\n"
+                   "- A \"Read & listen: more\" note: add 5 new feed items of the kinds it names (release, story, news,\n"
+                   "  meditation) that fit the owner's taste, each with a url you opened and found = today.\n")
 EXTRA["inbox"] += ("- A new bucket-list wish: add it to interests.bucketlist with a new id and do a first check right away\n"
                    "  (good moments now, a few good pages in `sources`, `checked` = today).\n")
 EXTRA["daily"] = EXTRA["inbox"]

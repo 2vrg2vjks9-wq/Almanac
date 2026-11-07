@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-11-07f";</script>
+<script>var APP_VERSION="2026-11-07g";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -45,6 +45,8 @@
 
     <div class="brief-card" id="brief" aria-live="polite"></div>
 
+    <div id="weekend" hidden></div>
+
     <h2>Act now</h2>
     <div class="sheet brief" id="act"></div>
     <p class="fine">Deadlines, tickets to book, last chances and bucket-list moments, nearest first. Everything else is in Discover and Work.</p>
@@ -65,6 +67,8 @@
       <p class="sub" id="forSub">Everything Radar found for you, best first: ranked by your interests, your thumbs and what's on soon. Swipe right for more like it, left to hide.</p>
       <div class="filters"><div class="seg" id="forRegions" role="group" aria-label="Filter by place"></div></div>
       <div class="sheet" id="forYou"></div>
+      <div class="sheet"><div class="duo"><button class="btn" id="findMoreFor" type="button">Find more</button></div>
+        <p class="hint">Claude looks right away for what the filters and search are set to: Near me finds more around you.</p></div>
     </div>
 
     <div class="pane" id="pane-go" hidden>
@@ -79,7 +83,7 @@
         <div class="seg" id="doCat" role="group" aria-label="What"></div>
       </div>
       <div id="doAll"></div>
-      <div class="sheet"><div class="duo"><button class="btn" id="doMoreBtn" type="button">Find more ideas now</button><button class="btn ghost" id="doNoBtn" type="button">Show what I said no to</button></div></div>
+      <div class="sheet"><div class="duo"><button class="btn" id="doMoreBtn" type="button">Find more</button><button class="btn ghost" id="doNoBtn" type="button">Show what I said no to</button></div></div>
       <p class="fine">Claude researches these every morning, and right away when you ask for more. Your yes and no answers teach it what to look for; they reach Claude sealed. Check times and tickets before you go.</p>
     </div>
 
@@ -90,6 +94,7 @@
         <div class="seg" id="regions" role="group" aria-label="Filter by region"></div>
       </div>
       <div class="sheet" id="feed"></div>
+      <div class="sheet"><div class="duo"><button class="btn" id="findMoreRead" type="button">Find more</button></div></div>
     </div>
 
     <div class="pane" id="pane-near" hidden>
@@ -104,8 +109,12 @@
 
   <section class="view" id="v-wind" aria-labelledby="windTitle">
     <header class="head"><div><p class="date">Your spots</p><h1 class="title" id="windTitle">Wind</h1></div></header>
+    <div class="seg wplace" id="windPlace" role="group" aria-label="Where">
+      <button class="pill on" type="button" data-wp="home" aria-pressed="true">Home spots</button>
+      <button class="pill" type="button" data-wp="here" aria-pressed="false">Where I am</button>
+      <button class="pill" type="button" data-wp="search" aria-pressed="false">Search a place</button>
+    </div>
     <p class="sub" id="windSub">Next 7 days, daylight hours</p>
-    <div id="weekend"></div>
     <div class="sheet" id="windAll"></div>
     <div class="key" aria-label="Colour key">
       <span><i class="k-wing"></i>Wingfoil 10–20 kn</span>
@@ -113,7 +122,7 @@
       <span><i class="k-over"></i>Over 30</span>
       <span><i class="k-off"></i>Wrong direction</span>
     </div>
-    <p class="fine">Each bar is one hour between 08:00 and 20:00; the faint lines mark 10 and 20 knots. Tap a day for the hourly chart. Forecast from Open-Meteo, checked live. Wingfoil gear for sale is under You, Finds.</p>
+    <p class="fine">Each bar is one hour between 08:00 and 20:00; the faint lines mark 10 and 20 knots. Tap a day for the hourly chart. Forecast from Open-Meteo, checked live. Away from home, Radar uses the kite and wingfoil spots OpenStreetMap knows nearby (directions not checked); Where I am and Search send your position or the search text to OpenStreetMap. The morning alert stays on your home spots.</p>
   </section>
 
   <section class="view" id="v-work" aria-labelledby="workTitle">

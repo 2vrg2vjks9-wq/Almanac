@@ -3,7 +3,7 @@ import { $, ago, hm, stamp } from "./util.js";
 import { D, loadData, on, mergePicks } from "./data.js";
 import { initTabs, initSheet, initPullToRefresh, initWelcome, currentTab, initUndo } from "./ui.js";
 import { initWind, loadWind, skeleton, net } from "./wind.js";
-import { state, drawFeed, drawForYou, drawWork, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
+import { state, drawFeed, drawForYou, drawWork, initFindRead, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
 import { openItem, refreshItem } from "./detail.js";
 import { initNotes } from "./notes.js";
 import { initSaved, drawSaved, paintTeach, ask } from "./saved.js";
@@ -75,7 +75,8 @@ function start() {
     segs("workKinds", WORK_KINDS, "work", drawWork);
     segs("workPlaces", WORK_PLACES, "wplace", drawWork);
     initSearch(drawList);
-    initDo(ask);
+    initFindRead();
+    initDo(ask, () => { const r = regions().find((x) => x[0] === state.region) || ["all", ""]; return r; });
     initGear();
     started = true;
   }

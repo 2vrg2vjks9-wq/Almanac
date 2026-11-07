@@ -1,9 +1,9 @@
 // The feed: ranking (taste.json + reactions), item rows, and the lists on Today, Explore, Work and Saved.
 import { $, html, put, d, today, shortDate, safeUrl, km, kmText, ago, isoDay } from "./util.js";
 import { S, save } from "./store.js";
-import { D, emit, visible, past, isWork, isGo, focusRegion, REGION_NAME, Q } from "./data.js";
-import { swipeRow } from "./ui.js";
-import { track } from "./notes.js";
+import { D, emit, visible, past, isWork, isGo, focusRegion, REGION_NAME, Q, refreshUntil } from "./data.js";
+import { swipeRow, say } from "./ui.js";
+import { track, note } from "./notes.js";
 
 // Read & listen: what you read, watch or listen to. Things to go to (concerts, exhibitions, food) are in Go.
 export const KINDS = [["all", "Everything"], ["concert", "Music"], ["story", "Books & film"], ["meditation", "Meditation"]];
@@ -315,6 +315,18 @@ export function drawSavedItems() {
 export { mount, endsSoon, status as itemStatus, WORK_LABEL };
 export function mountBucketHits(el, wishId) {
   mount(el, D.feed.items.filter((it) => it.kind === "bucket" && it.bucket === wishId && !past(it) && !S.hidden[it.id]), false, "");
+}
+// Read & listen › Find more: a sealed note that the inbox task answers within minutes (it adds feed items).
+export function initFindRead() {
+  const b = $("findMoreRead");
+  if (!b) return;
+  b.onclick = () => {
+    const what = [state.kind !== "all" ? (KINDS.find((x) => x[0] === state.kind) || [])[1] : "", Q.q].filter(Boolean).join(", ");
+    note("Read & listen: more" + (what ? " " + what : ""), "Please find 5 more things to read, watch or listen to" + (what ? ": " + what : "") + ".", "radar-interest", "");
+    say("Claude is looking. New things appear here in a few minutes.");
+    const before = D.feed.items.length, sent = Date.now();
+    refreshUntil(() => D.feed.items.length > before || Date.parse(D.feed.updated) > sent, () => emit("change"));
+  };
 }
 export function initSearch(redrawGo) {
   const q = $("q");
