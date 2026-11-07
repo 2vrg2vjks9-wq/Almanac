@@ -13,7 +13,7 @@ import { S, save, get, set, KEYS } from "./store.js";
 import { D, focusRegion } from "./data.js";
 import { note, SERVER, authFailed, signedOut } from "./notes.js";
 import { signed } from "./vault.js";
-import { openSheet } from "./ui.js";
+import { openSheet, swipeRow, undoable } from "./ui.js";
 import { openItem } from "./detail.js";
 import { emit } from "./data.js";
 
@@ -443,7 +443,15 @@ function paint() {
     ${busy && !A.items.length ? html`<div class="pskel" aria-hidden="true"><i></i><i></i><i></i></div>` : ""}
     ${groupsHTML()}
     ${sourcesLine() ? html`<p class="fine tight">${sourcesLine()}</p>` : ""}`);
-  box.querySelectorAll(".place").forEach((b) => { b.onclick = () => openPlace(A.items[+b.dataset.p]); });
+  box.querySelectorAll(".place[data-p]").forEach((b) => {
+    const it = A.items[+b.dataset.p];
+    b.onclick = () => openPlace(it);
+    // swipe: right opens, left takes the place off this list (Undo puts it back)
+    swipeRow(b.parentElement, () => openPlace(it), () => {
+      b.parentElement.hidden = true;
+      undoable("Taken off the list.", () => { b.parentElement.hidden = false; });
+    }, ["Open", "Remove"]);
+  });
   box.querySelectorAll("[data-g]").forEach((b) => { b.onclick = () => { A.expanded[b.dataset.g] = !A.expanded[b.dataset.g]; paint(); }; });
   const u = $("useLast");
   if (u) u.onclick = () => { const m = A.mode; A = { ...A, restored: false }; start(m, A.fallback, ++run); };

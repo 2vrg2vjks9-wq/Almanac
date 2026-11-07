@@ -37,8 +37,9 @@ in commit messages, issue comments or Actions logs.
 
 - **Hosting.** Cloudflare Pages serves `main` at https://almanac-dgf.pages.dev/radar/ (public static files: the code is
   public anyway and the data is encrypted; the functions check signatures, see the vault). Cloudflare secrets:
-  `RADAR_AUTH`, `GITHUB_TOKEN` (notes), `ANTHROPIC_API_KEY` (instant research). Every other branch gets a preview at `https://<branch>.almanac-dgf.pages.dev/radar/`: work on a branch,
-  let the owner test the preview, merge after approval. The GitHub Pages copy still works (github.io mode below).
+  `RADAR_AUTH`, `GITHUB_TOKEN` (notes), `ANTHROPIC_API_KEY` (instant research). **The owner's rule: ship every change straight to `main` (the
+  live app); no preview branches or test updates.** Ask design decisions as multiple-choice questions (dropdowns),
+  not in prose. The GitHub Pages copy still works (github.io mode below).
   The repo is **public**: never commit secrets, tokens or personal data (names, diet specifics, employer, email).
 - **Static site, no build step, no framework.** Native ES modules, iOS Safari 16+:
   - `index.html` — markup shell. Holds `var APP_VERSION="…"` in a tiny inline script: bump it on every change.

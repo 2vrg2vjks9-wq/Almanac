@@ -9,7 +9,7 @@ import { D, visible, isWork } from "./data.js";
 import { net } from "./wind.js";
 import { showTab, showPane, swipeRow, undoable } from "./ui.js";
 import { S as Store, save } from "./store.js";
-import { ideas, answer, eligible, ideaPast, placeText, prepText, sortByDate, openIdea } from "./do.js";
+import { ideas, answer, eligible, ideaPast, placeText, prepText, sortByDate, openIdea, decide } from "./do.js";
 import { deadline, tracked, WORK_LABEL, workSub } from "./feed.js";
 import { gearNews } from "./gear.js";
 
@@ -113,7 +113,11 @@ export function drawWeekend() {
     ${yes.concat(maybe).map((it) => html`<button class="mini" type="button" data-id="${it.id}"><span class="when">${(() => { const s = d(it.start); return s && s >= sat ? day(iso(s)) : "Sat–Sun"; })()}</span><span class="what"><b>${it.title}</b><small>${yes.includes(it) ? "On your list · " : "Idea · "}${placeText(it)}</small></span></button>`)}
     ${!yes.length && !maybe.length ? html`<p class="wk-w muted">Nothing on your yes list this weekend yet.</p>` : ""}
   </div><p class="fine">On Thursdays Radar sends this as one notification (switch it off in Settings).</p>`);
-  box.querySelectorAll(".mini").forEach((b) => { b.onclick = () => openIdea(ideas().find((x) => x.id === b.dataset.id)); });
+  box.querySelectorAll(".mini").forEach((b) => {
+    const it = ideas().find((x) => x.id === b.dataset.id);
+    b.onclick = () => openIdea(it);
+    swipeRow(b, () => decide(it, 1), () => decide(it, -1), ["Yes", "No"]);
+  });
 }
 
 export function drawToday() { if (!D.feed) return; drawBrief(); drawAct(); drawWeekend(); }

@@ -301,7 +301,11 @@ export function drawWork() {
     const x = deadline(it), n = Math.floor((x - today()) / 864e5);
     return html`<button class="mini" type="button" data-id="${it.id}"><span class="when${n <= 14 ? " close" : ""}">${x.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span><span class="what"><b>${it.title}</b><small>${tracked(it) === "interested" ? "Interested · " : ""}${WORK_LABEL[workSub(it)]}${n === 0 ? " · today" : n === 1 ? " · tomorrow" : " · " + n + " days"}</small></span></button>`;
   })}</div>`);
-  box.querySelectorAll(".mini").forEach((b) => { b.onclick = () => openItem(D.byId[b.dataset.id]); });
+  box.querySelectorAll(".mini").forEach((b) => {
+    const it = D.byId[b.dataset.id];
+    b.onclick = () => openItem(it);
+    swipeRow(b, () => setTrack(it, "interested"), () => setTrack(it, "skip"), ["Interested", "Not for me"]);
+  });
 }
 export function drawSavedItems() {
   mount($("savedList"), D.feed.items.filter((it) => S.saved[it.id] && !past(it)), false, "Nothing saved yet. Tap the star on anything you want to keep; your yes list is in Discover.");
