@@ -3,7 +3,7 @@
 // without a token on the phone. The token lives in Cloudflare as the secret GITHUB_TOKEN.
 // No login page: the phone proves it holds Radar's vault key by signing the request (see authorised()).
 const REPO = "2vrg2vjks9-wq/Almanac";
-const LABELS = ["radar-feedback", "radar-interest", "radar-location", "radar-bucket"];
+const LABELS = ["radar-feedback", "radar-interest", "radar-location", "radar-bucket", "radar-track", "radar-settings"];
 
 export async function onRequestPost({ request, env }) {
   if (!env.RADAR_AUTH || !env.GITHUB_TOKEN) return json({ error: "not set up" }, 503);

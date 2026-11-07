@@ -6,7 +6,9 @@ name: Radar tasks
 #   concerts  Sundays 18:47: new shows by the alert artists
 #   work      Tuesdays and Fridays 08:40: freelance and work leads (instructions in task.py, sources kept in interests)
 # GitHub sometimes skips scheduled runs: the hourly run then catches up a daily, finds or work run that
-# didn't happen (radar/last-run.json holds the date each task last ran).
+# didn't happen (radar/status.json holds when each task last ran, for the app's status card too).
+# A note from the phone (an issue the owner opens) starts its task right away: city, interest and bucket notes
+# run inbox; settings and Work tracker notes are applied by a script without Claude.
 # Cost: on the API key every run uses Haiku with a search allowance, a cap per run and a monthly budget
 # (radar/tools/task.py, RADAR_BUDGET_USD, spend in radar/spend.json). With CLAUDE_CODE_OAUTH_TOKEN (the
 # owner's subscription) nothing is billed per use and the task's own model runs.
@@ -18,6 +20,8 @@ name: Radar tasks
 #   The final message goes to the phone via ntfy (topic from the NTFY_TOPIC secret or interests.alerts.ntfy).
 # Secrets: PK (or RADAR_KEY) = the passphrase; ANTHROPIC_API_KEY (or PK2, or CLAUDE_CODE_OAUTH_TOKEN) for Claude.
 on:
+  issues:
+    types: [opened]           # a note from the phone starts its task right away (the hourly run is the backup)
   schedule:
     - cron: "52 5 * * *"        # daily
     - cron: "38 * * * *"        # inbox
@@ -29,7 +33,7 @@ on:
       task:
         description: Task to run
         type: choice
-        options: [daily, inbox, finds, concerts, work]
+        options: [daily, inbox, finds, concerts, work, apply]
         default: inbox
 permissions:
   contents: write
@@ -39,6 +43,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   task:
+    # Notes come from the owner's token (Cloudflare or the phone); issues anyone else opens start nothing.
+    if: github.event_name != 'issues' || github.event.issue.user.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -53,7 +59,14 @@ jobs:
         env:
           SCHEDULE: ${{ github.event.schedule }}
           INPUT: ${{ inputs.task }}
+          LABELS: ${{ join(github.event.issue.labels.*.name, ' ') }}
         run: |
+          if [ -n "$LABELS" ]; then
+            case " $LABELS " in
+              *" radar-location "*|*" radar-interest "*|*" radar-bucket "*) INPUT=inbox ;;
+              *) INPUT=apply ;;   # settings, tracker or reactions: apply now; reactions wait for the daily run
+            esac
+          fi
           case "$SCHEDULE" in
             "52 5 * * *") t=daily ;;
             "10 7 * * *") t=finds ;;
@@ -62,19 +75,25 @@ jobs:
             "38 * * * *") t=inbox ;;
             *) t="$INPUT" ;;
           esac
-          if [ "$t" = inbox ]; then
+          if [ "$t" = inbox ] && [ -z "$LABELS" ]; then
             # catch up a scheduled run GitHub skipped today (daily from 06 UTC, finds from 08, work Tue/Fri from 09)
-            last() { python3 -c "import json,sys;print(json.load(open('radar/last-run.json')).get(sys.argv[1],''))" "$1" 2>/dev/null; }
+            last() { python3 -c "import json,sys;print((json.load(open('radar/status.json')).get('tasks',{}).get(sys.argv[1]) or {}).get('at','')[:10])" "$1" 2>/dev/null; }
             today=$(date -u +%F); h=$((10#$(date -u +%H))); dow=$(date -u +%u)
             if [ "$h" -ge 6 ] && [ "$(last daily)" != "$today" ]; then t=daily
             elif [ "$h" -ge 8 ] && [ "$(last finds)" != "$today" ]; then t=finds
             elif [ "$h" -ge 9 ] && { [ "$dow" = 2 ] || [ "$dow" = 5 ]; } && [ "$(last work)" != "$today" ]; then t=work
             fi
           fi
-          case "$t" in daily|inbox|finds|concerts|work) ;; *) echo "unknown task"; exit 1 ;; esac
+          case "$t" in daily|inbox|finds|concerts|work|apply) ;; *) echo "unknown task"; exit 1 ;; esac
           echo "task=$t" >> "$GITHUB_OUTPUT"
           echo "radar-task: $t"
+      - name: Apply settings and tracker notes
+        env:
+          PK: ${{ secrets.PK || secrets.RADAR_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 radar/tools/task.py apply
       - name: Unlock and gather notes
+        if: steps.pick.outputs.task != 'apply'
         id: prep
         env:
           PK: ${{ secrets.PK || secrets.RADAR_KEY }}

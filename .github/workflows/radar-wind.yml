@@ -19,3 +19,9 @@ jobs:
         env:
           RADAR_KEY: ${{ secrets.RADAR_KEY || secrets.PK }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      # Deadline reminders for Work leads marked "interested", and the Thursday weekend planner (no Claude).
+      - run: python3 radar/tools/remind.py
+        if: always()
+        env:
+          RADAR_KEY: ${{ secrets.RADAR_KEY || secrets.PK }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}

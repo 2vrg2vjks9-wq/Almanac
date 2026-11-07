@@ -11,6 +11,8 @@ out = subprocess.run(["node", os.path.join(HERE, "vault.mjs"), "show", "interest
 if out.returncode:
     sys.exit(out.stderr.strip() or "Couldn't open the encrypted interests file.")
 cfg = json.loads(out.stdout)
+if ((cfg.get("settings") or {}).get("notify") or {}).get("wind") is False:
+    print("Wind alert switched off in Settings."); raise SystemExit
 TOPIC = os.environ.get("NTFY_TOPIC") or (cfg.get("alerts") or {}).get("ntfy")
 if not TOPIC:
     sys.exit("No ntfy topic: set interests alerts.ntfy or the NTFY_TOPIC secret.")
