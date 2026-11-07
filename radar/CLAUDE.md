@@ -81,7 +81,7 @@ in commit messages, issue comments or Actions logs.
     `prep` (true or a short "what to do now" text) marks things that need planning ahead: tickets that sell out,
     registration, booking. Ideas starting more than 21 days out only show when they have `prep`; the rest appear
     once they're within three weeks. Don't set prep for things with nothing to do yet (free events, sales not open).
-    cats: art, music, stage, film, talk, festival, market, outdoors, calm, food, design, odd. `when` is free text
+    cats: art, music, stage, film, talk, festival, market, outdoors, calm, food, design, odd, sport. `when` is free text
     for times or recurring things ("Daily 10–16, book a slot"); undated ideas show as "Any time". Ids are stored
     in the owner's answers: keep them stable, never reuse one.
   - `gear` — second-hand finds (`js/gear.js`): `{updated, note, ads:[{id, search (an `interests.wanted` id; missing =
@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place.
+  radar-wind-place, radar-watch.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -210,6 +210,22 @@ in commit messages, issue comments or Actions logs.
   must be. The app enforces it with `fit`: ≤15 km from Den Haag any fit, ≤40 km 3+, ≤80 km (Amsterdam, Utrecht) 4+, beyond 5.
 - **Reactions:** thumbs and yes/no answers send themselves 6 s after the last one; the notice says so and offers Undo
   (takes back the whole batch: reactions, answers and hides). You › Teach it more sends at once.
+
+## Trip mode, surf, calendar, padel, price watch
+
+- **Trip mode** (`tripPoint()` in data.js): a Wind place other than home, or a Look around more than 30 km from Den Haag
+  in the last two days. Distances, the "Den Haag" filter and band, For you ranking (+40 near the trip), Act now and
+  Find more all follow that place; Discover shows a banner with Padel nearby and Back home (`settings.tripOff`).
+- **Surf layer:** Wind fetches daily max wave height, period and direction (Open-Meteo Marine) for sea spots: a row
+  under each ribbon (bold at 0.8 m+ and 7 s+) and a sentence in the day details.
+- **Calendar:** "Add my plans to the calendar" (Go and Work) downloads one .ics with yes-list things that have a date
+  and the deadlines of leads marked Interested or Applied (`icsAll` in detail.js).
+- **Padel when away:** Padel nearby asks for courts and open matches (Playtomic, clubs) as ideas with cat `sport`;
+  city notes ask for padel too.
+- **Price watch:** the eye button on an ad (`radar-watch`, sent in `radar-track` as `watch`, applied to
+  `interests.watch`); finds re-opens watched ads each run, sets `was` on a drop (the app shows the old price and
+  "Price dropped") or `gone`, and names drops in its push. Bucket wishes keep a `price` {amount, currency, what, at,
+  url}; a clearly lower price becomes a "Price drop:" bucket item.
 
 ## Settings, tracker, bucket edits and artists (no Claude)
 

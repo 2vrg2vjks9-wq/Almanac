@@ -70,28 +70,50 @@ function runInfo(r) {
 const suit = (c) => (c >= 22 ? "boardshorts or a shorty" : c >= 18 ? "3/2 wetsuit" : c >= 15 ? "4/3 wetsuit" : c >= 12 ? "5/4 wetsuit and boots" : c >= 9 ? "5/4 or 6/5 with boots and gloves" : "6/5 hooded, boots and gloves");
 const isSea = (s) => (s.water != null ? !!s.water : !/\blake\b/i.test((s.sub || "") + " " + s.name));
 const waterText = (spot) => { const c = WATER[spot.id]; return c == null ? "" : "Water " + Math.round(c) + "°C, " + suit(c); };
+// Surf layer: daily max wave height, period and main direction per sea spot (Open-Meteo Marine), shown as a row of
+// numbers under the ribbon on Wind (bold when it looks surfable: 0.8 m+ and 7 s+) and in the day details.
+let WAVES = {}; // {spotId: {YYYY-MM-DD: {h, p, d}}}
+const surfable = (w) => !!(w && w.h >= 0.8 && w.p >= 7);
+function waveText(spotId, day) {
+  const w = (WAVES[spotId] || {})[day];
+  return w ? "Waves up to " + w.h.toFixed(1) + " m, " + Math.round(w.p) + " s, from the " + dirName(w.d) + (surfable(w) ? ": worth a surf check." : ".") : "";
+}
 function paintWater() {
   document.querySelectorAll("#windAll .spot").forEach((el) => {
     const sp = spots().find((x) => x.id === el.dataset.spot), w = el.querySelector(".water");
     if (sp && w) w.textContent = waterText(sp);
+    const row = el.querySelector(".waves"), W = sp && WAVES[sp.id];
+    if (!row || !W) return;
+    const cells = [...el.querySelectorAll(".rday")].map((b) => {
+      const x = W[b.dataset.day];
+      return html`<span class="wv${surfable(x) ? " on" : ""}">${x ? x.h.toFixed(1) + " m" : "–"}</span>`;
+    });
+    row.setAttribute("aria-label", "Highest waves per day; bold when it looks surfable");
+    put(row, html`${cells}`);
+    row.hidden = false;
   });
 }
 async function loadWater() {
   const sp = spots().filter(isSea);
   if (!sp.length) return;
   const u = "https://marine-api.open-meteo.com/v1/marine?latitude=" + sp.map((s) => s.lat).join(",") + "&longitude=" + sp.map((s) => s.lon).join(",") +
-    "&daily=sea_surface_temperature_max&timezone=Europe%2FAmsterdam&forecast_days=3";
+    "&daily=sea_surface_temperature_max,wave_height_max,wave_period_max,wave_direction_dominant&timezone=Europe%2FAmsterdam&forecast_days=7";
   try {
     const r = await fetch(u);
     if (!r.ok) throw new Error(r.status);
     let res = await r.json();
     if (!Array.isArray(res)) res = [res];
-    const out = {};
+    const out = {}, waves = {};
     sp.forEach((s, i) => {
-      const v = ((res[i] && res[i].daily && res[i].daily.sea_surface_temperature_max) || []).find((x) => x != null);
+      const D2 = (res[i] && res[i].daily) || {};
+      const v = (D2.sea_surface_temperature_max || []).find((x) => x != null);
       if (typeof v === "number") out[s.id] = v;
+      (D2.time || []).forEach((day, j) => {
+        const h = (D2.wave_height_max || [])[j], p = (D2.wave_period_max || [])[j], d = (D2.wave_direction_dominant || [])[j];
+        if (typeof h === "number") (waves[s.id] = waves[s.id] || {})[day] = { h, p: p || 0, d: d || 0 };
+      });
     });
-    WATER = out; set(KEYS.water, out);
+    WATER = out; set(KEYS.water, out); WAVES = waves;
   } catch (e) { /* keep the last reading */ }
   paintWater();
 }
@@ -110,7 +132,7 @@ function ribbon(spot, days, W, interactive) {
       : "nothing rideable, strongest " + Math.round(Dy.peak.kn) + " knots");
     const inner = html`<span class="bars" aria-hidden="true">${bars}</span><span class="rlab" aria-hidden="true">${dayName(Dy.day)}</span>`;
     return interactive
-      ? html`<button class="rday${good ? " good" : ""}" data-i="${i}" type="button" aria-expanded="false" aria-label="${label}">${inner}</button>`
+      ? html`<button class="rday${good ? " good" : ""}" data-i="${i}" data-day="${Dy.day}" type="button" aria-expanded="false" aria-label="${label}">${inner}</button>`
       : html`<span class="rday${good ? " good" : ""}">${inner}</span>`;
   });
   return html`<div class="ribbon grow" style="--wing:${wingLine}%;--surf:${surfLine}%">${cols}</div>`;
@@ -127,6 +149,7 @@ function spotHTML(spot, days, W, interactive) {
     <div class="spot-top"><span class="spot-name">${spot.name}</span><span class="spot-verdict">${verdict(days)}</span></div>
     ${interactive ? html`<div class="spot-sub"><span>${spot.sub || ""}</span><span class="water${isSea(spot) ? " sea" : ""}">${waterText(spot)}</span></div>` : ""}
     ${ribbon(spot, days, W, interactive)}
+    ${interactive && isSea(spot) ? html`<div class="waves" hidden></div>` : ""}
     ${interactive ? html`<div class="detail" hidden></div>` : ""}
   </div>`;
 }
@@ -155,7 +178,7 @@ function wireDetail(root, spot, days, W) {
       if (Dy.wing) { const r = runInfo(Dy.wing); t.push("Wingfoil " + r.from + "–" + r.to + ", around " + r.kn + " kn from the " + r.dir + "."); }
       if (Dy.surf) { const s = runInfo(Dy.surf); t.push("Windsurf " + s.from + "–" + s.to + ", around " + s.kn + " kn from the " + s.dir + "."); }
       if (!t.length) t.push("No " + W.minHours + "-hour window in range from a good direction. Strongest: " + Math.round(Dy.peak.kn) + " kn from the " + dirName(Dy.peak.d) + " at " + pad(Dy.peak.h) + ":00.");
-      put(det, html`${chart(Dy, spot, W)}<div class="chart-key" aria-hidden="true"><span><i class="ln"></i>Wind</span><span><i class="ln dash"></i>Gusts</span><span><i class="arr"></i>Blowing toward</span></div><p><strong>${dayName(Dy.day, true)}.</strong> ${t.join(" ")} ${spot.note || ""}</p>`);
+      put(det, html`${chart(Dy, spot, W)}<div class="chart-key" aria-hidden="true"><span><i class="ln"></i>Wind</span><span><i class="ln dash"></i>Gusts</span><span><i class="arr"></i>Blowing toward</span></div><p><strong>${dayName(Dy.day, true)}.</strong> ${t.join(" ")} ${waveText(spot.id, Dy.day)} ${spot.note || ""}</p>`);
       det.hidden = false;
     };
   });
@@ -176,6 +199,7 @@ function drawWind(res, stale) {
   const box = $("windAll");
   put(box, html`${all.map((a) => spotHTML(a.spot, a.days, W, true))}`);
   box.querySelectorAll(".spot").forEach((el, i) => wireDetail(el, all[i].spot, all[i].days, W));
+  paintWater();
 
   sessions.sort((a, b) => (a.Dy.day < b.Dy.day ? -1 : a.Dy.day > b.Dy.day ? 1 : b.r.len - a.r.len));
   net.sessions = sessions;
@@ -261,7 +285,8 @@ async function setPlace(mode, lat, lon, name) {
   set(KEYS.windPlace, { mode, name, lat, lon, spots: sp, t: Date.now() });
   reload();
 }
-function reload() { document.querySelectorAll("#todayWind .spot, #windAll .spot").forEach((x) => x.remove()); skeleton(); loadWind(); }
+export function reloadWind() { document.querySelectorAll("#todayWind .spot, #windAll .spot").forEach((x) => x.remove()); skeleton(); loadWind(); }
+function reload() { reloadWind(); emit("change"); }
 function paintPlace() {
   const P = place(), box = $("windPlace");
   if (!box) return;

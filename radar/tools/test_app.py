@@ -85,7 +85,7 @@ def fixtures():
         {"id": "2dh-1", "site": "2dehands", "country": "be", "type": "board", "title": "Hard wingboard 110 L", "price": 300, "size": "110 L", "location": "Gent", "posted": DAY(-2), "found": DAY(-2), "url": "https://www.2dehands.be/v/test-2", "match": "hit"},
         {"id": "ka-1", "site": "kleinanzeigen", "country": "de", "type": "foil", "title": "Foil komplett <b>bold</b>", "price": 200, "location": "Kleve", "posted": DAY(-1), "found": DAY(-1), "url": "https://www.kleinanzeigen.de/s-anzeige/test-3", "match": "maybe", "note": "Front wing size not stated", "shipping": True},
         {"id": "mp-2", "site": "marktplaats", "country": "nl", "type": "wing", "title": "Cheap 5 m wing", "price": 150, "size": "5.0 m²", "location": "Leiden", "posted": DAY(-30), "found": DAY(0), "url": "https://www.marktplaats.nl/v/test-4", "match": "maybe"},
-        {"id": "mp-3", "site": "marktplaats", "country": "nl", "type": "wing", "title": "Pricey 5 m wing", "price": 280, "size": "5.0 m²", "location": "Leiden", "posted": DAY(-3), "found": DAY(-3), "url": "https://www.marktplaats.nl/v/test-5", "match": "maybe"},
+        {"id": "mp-3", "site": "marktplaats", "country": "nl", "type": "wing", "title": "Pricey 5 m wing", "price": 280, "was": 320, "size": "5.0 m²", "location": "Leiden", "posted": DAY(-3), "found": DAY(-3), "url": "https://www.marktplaats.nl/v/test-5", "match": "maybe"},
         {"id": "bad-1", "site": "marktplaats", "type": "wing", "title": "No link ad", "price": 100, "url": "javascript:alert(1)", "match": "hit"},
         {"id": "mp-seat-1", "search": "car-seats", "site": "marktplaats", "country": "nl", "type": "interior", "title": "Full leather interior, test car", "price": 350, "location": "Delft", "found": DAY(0), "url": "https://www.marktplaats.nl/v/test-seat-1", "match": "hit"},
         {"id": "sl-seat-3", "search": "car-seats", "site": "sloperij", "seller": "Test sloperij", "country": "nl", "type": "seat", "title": "Front seats L+R, leather", "price": 290, "location": "Rotterdam", "found": DAY(0), "url": "https://example.org/sloperij/seat", "match": "hit", "warranty": "3 months"},
@@ -166,8 +166,10 @@ def forecast():
 
 
 def marine():
-    days = [str(datetime.date.today() + datetime.timedelta(days=i)) for i in range(3)]
-    return [{"daily": {"time": days, "sea_surface_temperature_max": [None, 15.4, 15.2] if i == 0 else [14.1] * 3}} for i, _ in enumerate(SPOTS)]
+    days = [str(datetime.date.today() + datetime.timedelta(days=i)) for i in range(7)]
+    return [{"daily": {"time": days, "sea_surface_temperature_max": ([None, 15.4, 15.2] if i == 0 else [14.1] * 3) + [14.0] * 4,
+                       "wave_height_max": [0.6, 1.4, 0.9, 0.5, 0.4, 1.1, 2.0], "wave_period_max": [5, 9, 6, 5, 4, 8, 11],
+                       "wave_direction_dominant": [280] * 7}} for i, _ in enumerate(SPOTS)]
 
 
 def osm(kind, name, lat, lon, **tags):
@@ -358,16 +360,20 @@ def tabs_suite(browser, site, scheme):
     tab(page, "wind")
     check("°C" in page.inner_text("#windAll"), "%s: water temperature shown" % scheme)
     check("wetsuit" in page.inner_text("#windAll"), "%s: wetsuit hint shown" % scheme)
+    check(page.locator("#windAll .spot").first.locator(".waves .wv").count() == 7 and page.locator("#windAll .spot").first.locator(".waves .wv.on").count() >= 2, "%s: wave heights per day, surfable days bold" % scheme)
+    check(page.locator('#windAll .spot[data-spot="inland"] .waves').count() == 0, "%s: lakes have no wave row" % scheme)
     check(page.locator("#v-wind #weekend").count() == 0, "%s: weekend planner moved off Wind" % scheme)
     check(page.locator("#windPlace .pill").count() == 3, "%s: Wind has a place switch" % scheme)
     page.locator("#windAll .spot").first.locator(".rday").nth(1).click(); page.wait_for_timeout(300)
     check(page.is_visible("#windAll .detail svg"), "%s: hourly chart opens" % scheme)
+    check("Waves up to 1.4 m, 9 s" in page.inner_text("#windAll .detail"), "%s: day details give the waves" % scheme)
     check(page.locator("#v-wind #gear").count() == 0, "%s: gear moved out of Wind" % scheme)
     shot(page, "wind-%s.png" % scheme, False)
     shot(page, "wind-%s-full.png" % scheme)
 
     tab(page, "discover")
     check(page.is_visible("#pane-foryou") and page.locator("#forYou .item").count() >= 5, "%s: Discover opens on the For you feed" % scheme)
+    check(not page.is_visible("#tripBar"), "%s: no trip banner at home" % scheme)
     check("Because:" in page.inner_text("#forYou"), "%s: For you says why each item is there" % scheme)
     check(page.locator("#forYou .item h3").first.inner_text() in ("Aurora window", "Stone garden show", "Light and space"), "%s: For you ranks the best first" % scheme)
     shot(page, "foryou-%s.png" % scheme, False)
@@ -464,6 +470,9 @@ def tabs_suite(browser, site, scheme):
     check(page.locator("#gear b b").count() == 0, "%s: ad titles stay text" % scheme)
     check("Good deal" in page.inner_text("#gear") and "below similar ads" in page.inner_text("#gear"), "%s: a cheap ad is flagged as a good deal" % scheme)
     check("online 4 weeks" in page.inner_text("#gear"), "%s: ads say how long they've been online" % scheme)
+    check("Price dropped" in page.inner_text("#gear") and page.locator("#gear .ad-price s").count() == 1, "%s: a price drop shows the old price" % scheme)
+    page.locator('#gear [data-watch="mp-2"]').click(); page.wait_for_timeout(200)
+    check("mp-2" in json.loads(page.evaluate("localStorage.getItem('radar-watch')")) and "Watching" in page.inner_text("#gear"), "%s: watching an ad keeps it on the phone and marks it" % scheme)
     page.click('#gearTypes .pill:has-text("Foils")'); page.wait_for_timeout(150)
     check(page.locator("#gear .ad").count() == 1 and "Check size" in page.inner_text("#gear"), "%s: gear type filter; unclear sizes say so" % scheme)
     page.click('#gearTypes .pill:has-text("All")'); page.locator("#gear [data-hide]").first.click(); page.wait_for_timeout(150)
@@ -596,6 +605,12 @@ def scout_suite(browser, site, scheme):
     page.wait_for_selector("#around .pgroup", timeout=8000); page.wait_for_timeout(300)
     check(page.locator("#around .place").count() >= 6, "%s: Whole city lists places right away" % scheme)
     check(len(m.notes) == 0, "%s: switching to Whole city sends nothing" % scheme)
+    page.evaluate("window.dispatchEvent(new Event('online'))"); page.click('#panes [data-p="go"]'); page.wait_for_timeout(300)
+    page.evaluate("document.dispatchEvent(new Event('visibilitychange'))"); page.wait_for_timeout(200)
+    tab(page, "today"); tab(page, "discover"); page.wait_for_timeout(200)
+    check(page.is_visible("#tripBar") and "Kyoto" in page.inner_text("#tripBar"), "%s: away from home, trip mode follows Kyoto" % scheme)
+    check("Kyoto" in page.inner_text("#doCity"), "%s: in trip mode the first place filter is the trip city" % scheme)
+    page.click('#panes [data-p="near"]'); page.wait_for_timeout(150)
     page.evaluate("document.querySelector('.sheet.around').scrollIntoView({block:'start'})"); page.wait_for_timeout(150)
     shot(page, "scout-%s-screen.png" % scheme, False)
     page.click("#scoutGo")
@@ -835,6 +850,10 @@ def do_suite(browser, site, scheme):
     check("On my list" in page.inner_text("#sheetBody .react"), "%s: yes from the sheet updates it" % scheme)
     page.keyboard.press("Escape"); page.wait_for_timeout(350)
     check(page.locator("#doPlan .idea").count() == 2, "%s: yes list holds both" % scheme)
+    with page.expect_download() as dl:
+        page.click("#calAll")
+    cal = open(dl.value.path()).read()
+    check(cal.count("BEGIN:VEVENT") >= 1 and "Infinity rooms retrospective" in cal, "%s: Add my plans puts the yes list in one calendar file" % scheme)
     # answers teach Claude, sealed
     check("show" in (page.get_attribute("#fbBar", "class") or "") and "going to Radar" in page.inner_text("#fbText"), "%s: answers say they're going to Radar, with Undo" % scheme)
     page.wait_for_timeout(6800)

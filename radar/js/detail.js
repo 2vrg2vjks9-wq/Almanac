@@ -49,9 +49,11 @@ export function openItem(it) {
 // Called after a reaction so the open sheet shows the new state.
 export function refreshItem() { if (sheetOpen() && current && document.querySelector("#sheetBody .react")) paintSheet(); }
 
-export function ics(it) {
+// One calendar event (lines of a VEVENT) for an item, idea or tracked deadline.
+function vevent(it) {
   const dead = isWork(it) && deadline(it) && !(workSub(it) === "event" && it.start) ? deadline(it) : null;
   const s = dead || d(it.start);
+  if (!s) return null;
   let e = dead ? s : d(it.end) || s;
   if (e < s) e = s;
   const end = new Date(e); end.setDate(end.getDate() + 1);
@@ -59,20 +61,30 @@ export function ics(it) {
   const t = (v) => String(v || "").replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\r?\n/g, "\\n");
   const one = (v) => String(v || "").replace(/[\r\n]+/g, " ");
   const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Radar//EN", "CALSCALE:GREGORIAN", "BEGIN:VEVENT",
-    "UID:" + String(it.id).replace(/[^\w.-]/g, "") + "@radar", "DTSTAMP:" + now,
+  const lines = ["BEGIN:VEVENT", "UID:" + String(it.id).replace(/[^\w.-]/g, "") + "@radar", "DTSTAMP:" + now,
     "DTSTART;VALUE=DATE:" + f(s), "DTEND;VALUE=DATE:" + f(end), "SUMMARY:" + t((dead ? "Deadline: " : "") + it.title)];
-  const loc = [it.place, it.city].filter(Boolean).join(", ");
+  const loc = [it.place || it.venue, it.city].filter(Boolean).join(", ");
   if (loc) lines.push("LOCATION:" + t(loc));
   const url = safeUrl(it.url);
   lines.push("DESCRIPTION:" + t((it.summary || "") + (url ? "\n\n" + url : "")));
   if (url) lines.push("URL:" + one(url));
   if (it.lat != null && isFinite(it.lat) && isFinite(it.lon)) lines.push("GEO:" + (+it.lat) + ";" + (+it.lon));
-  lines.push("END:VEVENT", "END:VCALENDAR");
+  lines.push("END:VEVENT");
+  return lines;
+}
+function download(events, name) {
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Radar//EN", "CALSCALE:GREGORIAN"].concat(...events, ["END:VCALENDAR"]);
   const blob = new Blob([lines.join("\r\n") + "\r\n"], { type: "text/calendar" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = (String(it.id || "radar").replace(/[^\w.-]/g, "") || "radar") + ".ics";
+  a.download = (String(name || "radar").replace(/[^\w.-]/g, "") || "radar") + ".ics";
   document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+export function ics(it) { const v = vevent(it); if (v) download([v], it.id); }
+// Everything with a date you've said yes to, plus the deadlines of leads you track, in one file.
+export function icsAll(list) {
+  const ev = list.map(vevent).filter(Boolean);
+  if (ev.length) download(ev, "radar-plans");
+  return ev.length;
 }

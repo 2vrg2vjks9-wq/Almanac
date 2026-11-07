@@ -24,6 +24,7 @@ export const KEYS = {
   settings: "radar-settings",    // {notify: {key: bool}, budget, tasks: {key: bool}, sent} Settings, sent sealed to Radar
   more: "radar-more",            // {t, items} ideas found right away by "Find more ideas now", until the tasks keep them
   pane: "radar-pane",            // last Discover pane: foryou | go | read | near
+  watch: "radar-watch",          // {adId: {url, title, price, search, t}} ads watched for a price drop
   windPlace: "radar-wind-place", // {mode: home | here | search, name, lat, lon, spots} where Wind shows the forecast for
   follow: "radar-follow",        // {add: [names], remove: [names], alerts: {name: bool}} artist changes not yet in interests
   bucketEdits: "radar-bucket-edits", // {wishId: {title, good_time, where, remove, t}} edits sent but not yet in interests
@@ -50,5 +51,6 @@ export const S = {
   settings: get(KEYS.settings, {}),
   bucketEdits: get(KEYS.bucketEdits, {}),
   follow: get(KEYS.follow, { add: [], remove: [], alerts: {} }),
+  watch: get(KEYS.watch, {}),
 };
 export function save(name) { set(KEYS[name], S[name]); }

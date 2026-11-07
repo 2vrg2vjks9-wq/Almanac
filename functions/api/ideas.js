@@ -12,7 +12,7 @@ import { authorised } from "./note.js";
 const API = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-5-5";
 const PRICE = { input: 0.10 / 1e6, output: 0.50 / 1e6, search: 0.01 }; // USD; prompts stay under 100k tokens
-const CATS = ["art", "music", "stage", "film", "talk", "festival", "market", "outdoors", "calm", "food", "design", "odd"];
+const CATS = ["art", "music", "stage", "film", "talk", "festival", "market", "outdoors", "calm", "food", "design", "odd", "sport"];
 
 export async function onRequestPost({ request, env }) {
   if (!env.ANTHROPIC_API_KEY || !env.RADAR_AUTH) return json({ error: "not set up" }, 404);

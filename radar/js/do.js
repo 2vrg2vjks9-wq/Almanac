@@ -6,7 +6,7 @@
 // - Answers are kept on this phone (radar-do) and sent to Claude, sealed, with the other reactions.
 import { $, html, put, d, today, shortDate, longDate, safeUrl, mapUrl, km, reduceMotion } from "./util.js";
 import { S, save, get, set, KEYS } from "./store.js";
-import { D, emit, Q, mergePicks, refreshUntil } from "./data.js";
+import { D, emit, Q, mergePicks, refreshUntil, tripPoint } from "./data.js";
 import { openSheet, sheetOpen, paintSheet, swipeRow, say } from "./ui.js";
 import { ics } from "./detail.js";
 import { signed } from "./vault.js";
@@ -15,8 +15,9 @@ import { note, SERVER, authFailed, signedOut, track } from "./notes.js";
 export const CATS = {
   art: "Art", music: "Music", stage: "Theatre & dance", film: "Film", talk: "Talks & ideas", festival: "Festival",
   market: "Markets", outdoors: "Outdoors", calm: "Calm", food: "Food", design: "Design & architecture", odd: "Something different",
+  sport: "Sport & padel",
 };
-const CAT_FILTERS = [["all", "Everything"], ["art", "Art"], ["music", "Music"], ["stage", "Stage"], ["film", "Film & talks"], ["festival", "Festivals & markets"], ["outdoors", "Outdoors & calm"], ["odd", "Different"]];
+const CAT_FILTERS = [["all", "Everything"], ["art", "Art"], ["music", "Music"], ["stage", "Stage"], ["film", "Film & talks"], ["festival", "Festivals & markets"], ["outdoors", "Outdoors & calm"], ["sport", "Sport"], ["odd", "Different"]];
 const CAT_GROUP = { film: ["film", "talk"], festival: ["festival", "market", "food"], outdoors: ["outdoors", "calm"], odd: ["odd", "design"] };
 const WHEN = [["all", "Anytime"], ["weekend", "This weekend"], ["week", "Next 7 days"], ["month", "Next 30 days"], ["open", "Always on"]];
 
@@ -27,7 +28,13 @@ const view = Object.assign({ when: "all", city: "all", cat: "all" }, get(KEYS.do
 let showNo = false, busy = false;
 
 // --- Place, distance, eligibility --------------------------------------------------------------
+// Distances count from Den Haag, or from the trip point in trip mode (tripPoint() in data.js).
 function distance(it) {
+  const T = tripPoint();
+  if (T) {
+    if (it.lat != null && isFinite(it.lat) && isFinite(it.lon)) return km(T.lat, T.lon, +it.lat, +it.lon);
+    return String(it.city || "").toLowerCase() && String(T.name).toLowerCase().includes(String(it.city).toLowerCase()) ? 5 : 90;
+  }
   if (it.lat != null && isFinite(it.lat) && isFinite(it.lon)) return km(HOME.lat, HOME.lon, +it.lat, +it.lon);
   const c = String(it.city || "");
   if (NEAR.test(c)) return 5;
@@ -38,9 +45,10 @@ function distance(it) {
 const tier = (k) => (k <= 15 ? 0 : k <= 40 ? 1 : k <= 80 ? 2 : 3);
 const MIN_FIT = [1, 3, 4, 5];
 // Den Haag and around count as one place; every other city gets its own filter.
+export const homeName = () => { const T = tripPoint(); return T ? T.name : "Den Haag"; };
 function cityKey(it) {
   const c = String(it.city || "").trim();
-  if (tier(distance(it)) === 0 || NEAR.test(c)) return "haag";
+  if (tier(distance(it)) === 0 || (!tripPoint() && NEAR.test(c))) return "haag";
   return c.toLowerCase() || "elsewhere";
 }
 // City filters from the ideas that can show: Den Haag first, then the rest nearest first.
@@ -51,7 +59,7 @@ function cities() {
     if (k === "haag") return;
     if (!seen[k]) seen[k] = { label: String(it.city || "Elsewhere").trim(), km: distance(it) };
   });
-  return [["all", "All"], ["haag", "Den Haag"]].concat(Object.keys(seen).sort((a, b) => seen[a].km - seen[b].km).map((k) => [k, seen[k].label]));
+  return [["all", "All"], ["haag", homeName()]].concat(Object.keys(seen).sort((a, b) => seen[a].km - seen[b].km).map((k) => [k, seen[k].label]));
 }
 const fit = (it) => (it.fit == null ? 3 : +it.fit);
 export const ideaPast = (it) => { const e = d(it.end) || (it.start && !it.end ? d(it.start) : null); return !!(e && e < today()); };
@@ -173,7 +181,7 @@ function cardHTML(it, left) {
   const far = tier(distance(it)) > 0, url = safeUrl(it.url), w = whenText(it);
   return html`<div class="dcount"><span><b>${left}</b> ${left === 1 ? "idea" : "ideas"} to decide</span><span>Swipe or tap</span></div>
   <article class="dcard" data-id="${it.id}" aria-label="${it.title}">
-    <div class="dband${far ? " far" : ""}"><span>${far ? "Worth the trip: " + (it.city || "") : "Den Haag" + (it.area ? ", " + it.area : "")}</span><span class="tr">${far ? travelText(it) : ""}</span></div>
+    <div class="dband${far ? " far" : ""}"><span>${far ? "Worth the trip: " + (it.city || "") : homeName() + (it.area ? ", " + it.area : "")}</span><span class="tr">${far ? travelText(it) : ""}</span></div>
     <span class="dstamp y" aria-hidden="true">Yes</span><span class="dstamp n" aria-hidden="true">No</span>
     <div class="dbody">
       <div class="meta">${meta(it)}</div>
@@ -289,7 +297,7 @@ function drawAll() {
   const near = list.filter((it) => cityKey(it) === "haag"), far = list.filter((it) => cityKey(it) !== "haag");
   const group = (title, sub, arr, isFar) => (arr.length ? html`<div class="cityline"><span class="flagmark${isFar ? " far" : ""}" aria-hidden="true"></span><h3>${title}</h3><small>${sub}</small></div><div class="sheet">${arr.map(rowHTML)}</div>` : "");
   put($("doAll"), list.length
-    ? html`${group("Den Haag & around", near.length + (near.length === 1 ? " idea" : " ideas"), near, false)}${group("Worth the trip", "only the strongest matches", far, true)}`
+    ? html`${group(homeName() + " & around", near.length + (near.length === 1 ? " idea" : " ideas"), near, false)}${group("Worth the trip", "only the strongest matches", far, true)}`
     : html`<div class="sheet"><p class="empty">${Q.q ? "Nothing matches “" + Q.q + "”." : "Nothing for this filter. Try another time or place."}</p></div>`);
   wireRows($("doAll"));
   $("doNoBtn").textContent = showNo ? "Hide what I said no to" : "Show what I said no to";
@@ -436,7 +444,15 @@ export function findHere(pane, region, regionLabel) {
   } else if (region === "here") where = hereText();
   else if (region && region !== "all" && region !== "nl") where = regionLabel;
   if (Q.q) parts.push(Q.q);
+  const T = tripPoint();
+  if (!where && T) where = T.name + " (" + T.lat.toFixed(3) + ", " + T.lon.toFixed(3) + ")";
   findMore(parts.join(", "), where);
+}
+
+// Trip mode: padel courts and open matches near where you are.
+export function findPadel() {
+  const T = tripPoint();
+  findMore("padel: courts to book and open matches to join (Playtomic and club pages), with cat sport", T ? T.name + " (" + T.lat.toFixed(3) + ", " + T.lon.toFixed(3) + ")" : "");
 }
 
 export function initDo(ask, regionNow) {

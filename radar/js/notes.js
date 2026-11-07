@@ -145,6 +145,7 @@ function sendTracked() {
   if (p.work) t.work = p.work;
   if (p.bucket) t.bucket = p.bucket;
   if (p.artists) t.artists = p.artists;
+  if (p.watch) t.watch = p.watch;
   if (p.spend) t.spend = p.spend;
   if (Object.keys(t).length) note("Radar tracker", JSON.stringify(t), "radar-track", "");
 }

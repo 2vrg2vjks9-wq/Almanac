@@ -549,3 +549,17 @@ button.rday:active { background: var(--sunk); }
 .wp-res li + li { border-top: 1px solid var(--rule); }
 .wp-res .muted { color: var(--ink-3); padding: 12px 0; font-size: 14px; }
 .wk .mini { text-align: left; width: 100%; }
+.tripbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 0; padding: 4px 6px 4px 14px; border-radius: 14px; background: var(--sunk); font-size: 14px; color: var(--ink-2); }
+.tripbar[hidden] { display: none; }
+.tripbar .linkbtn { flex: none; padding: 0 6px; }
+.tripbar span { flex: 1; min-width: 0; }
+/* Surf layer: wave heights under the ribbon, one per day */
+.waves { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; margin-top: 4px; font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.waves[hidden] { display: none; }
+.waves .wv { text-align: center; }
+.waves .wv.on { color: var(--marine); font-weight: 700; }
+.waves .wv-k { font-size: 11px; }
+.calrow { display: flex; justify-content: flex-end; margin-top: 2px; }
+.dot.c-sport { background: var(--reef); }
+.ib.watch.on { color: var(--marine); background: var(--sunk); }
+.ad-price s { color: var(--ink-3); font-weight: 400; }

@@ -66,7 +66,10 @@ conditions, place); follow it closely.
    bucket = the wish id, title, place, city, region, start/end when it applies, a summary with the concrete facts
    (price, dates, where), why = which part of good_time it meets, the url you opened, found = today, a unique id.
    Remove bucket items for these wishes that have passed or no longer hold. Don't invent: only what you opened.
-4. Set `checked` = today (YYYY-MM-DD) on each wish you looked at, even when nothing was good.
+4. Set `checked` = today (YYYY-MM-DD) on each wish you looked at, even when nothing was good. When a wish has a
+   concrete price to watch (a flight, a ticket, a listing), keep the best one found as `price` = {amount, currency,
+   what, at, url} on the wish. When a later check finds it clearly lower, that's a good moment: write a bucket item
+   whose title starts with "Price drop:" and name the old and new price.
 5. Your final message goes to the owner's phone: one or two plain sentences naming the good moments found, or exactly
    "No new bucket-list moments." when there were none.""",
         "quiet": ["No new bucket-list moments."],
@@ -116,7 +119,11 @@ EXTRA = {  # added to the cost rules, per task (generic: nothing about the owner
              "  plus any `sources` pages a search lists. Their /lrp/api/ endpoints are off-limits (robots.txt).\n"
              "- Keep ads that still fit, drop ones no longer listed, add new ones. For every ad record `posted`\n"
              "  (YYYY-MM-DD; turn 'Vandaag'/'Heute'/'Gisteren'/'Gestern' into dates) and the price as a number, so the\n"
-             "  app can show how long it has been for sale and compare prices.\n",
+             "  app can show how long it has been for sale and compare prices.\n"
+             "- interests.watch lists ads the owner watches for a price drop ({adId: {url, title, price, search}}).\n"
+             "  Open each url every run; keep that ad in gear.json (same id) even if it no longer fits the filters. When\n"
+             "  the price is lower than before, set `was` to the previous price; when the ad is gone, set `gone: true`.\n"
+             "  Name every price drop in your final message (it goes to the phone).\n",
     "inbox": "- A note may carry \"Picked ideas\" (JSON that Radar's instant research already found). Open each url;\n"
              "  add the ones that hold up to radar/.plain/things.json `ideas` with a new unique id (\"m-\" + a short slug),\n"
              "  found = today, and drop the rest. Picked city items go to feed.json in the same way.\n",
@@ -132,6 +139,8 @@ EXTRA["inbox"] += ("- A radar-ask note holds JSON {\"ask\": \"bucket-brainstorm\
                    "  meditation) that fit the owner's taste, each with a url you opened and found = today.\n")
 EXTRA["inbox"] += ("- A new bucket-list wish: add it to interests.bucketlist with a new id and do a first check right away\n"
                    "  (good moments now, a few good pages in `sources`, `checked` = today).\n")
+EXTRA["inbox"] += ("- A city note (radar-location) or a Do request for a place away from home: also look for padel there (courts\n"
+                   "  to book, open matches to join, on Playtomic or club pages) and add them as things ideas with cat \"sport\".\n")
 EXTRA["daily"] = EXTRA["inbox"]
 # Which Settings switch silences a task's push (the owner turns them on and off on the phone).
 PUSH = {"daily": "daily", "inbox": "daily", "finds": "finds", "concerts": "concerts", "work": "work", "bucket": "daily"}
@@ -584,6 +593,12 @@ def apply():
                                     if isinstance(ch.get(k), str) and ch[k].strip():
                                         w[k] = ch[k].strip()[:400]
                     it["bucketlist"] = [w for w in it["bucketlist"] if not (isinstance(w, dict) and w.get("_remove"))]
+                if isinstance(j.get("watch"), dict):
+                    keep = {}
+                    for k, v in list(j["watch"].items())[:50]:
+                        if isinstance(v, dict) and str(v.get("url", "")).startswith("http"):
+                            keep[str(k)[:80]] = {x: v.get(x) for x in ("url", "title", "price", "search", "t")}
+                    it["watch"] = keep
                 if isinstance(j.get("artists"), dict):
                     apply_artists(it, j["artists"])
                 try:

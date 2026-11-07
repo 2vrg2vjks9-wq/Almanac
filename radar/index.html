@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-11-07g";</script>
+<script>var APP_VERSION="2026-11-07h";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -54,6 +54,7 @@
 
   <section class="view" id="v-discover" aria-labelledby="discTitle">
     <header class="head"><div><p class="date" id="doDate">Den Haag first</p><h1 class="title" id="discTitle">Discover</h1></div></header>
+    <div class="tripbar" id="tripBar" hidden><span id="tripText"></span><button class="linkbtn" id="tripPadel" type="button">Padel nearby</button><button class="linkbtn" id="tripHome" type="button">Back home</button></div>
     <div class="seg panes" id="panes" role="tablist" aria-label="Discover">
       <button class="pill on" type="button" role="tab" data-p="foryou" aria-selected="true">For you</button>
       <button class="pill" type="button" role="tab" data-p="go" aria-selected="false">Go</button>
@@ -76,6 +77,7 @@
       <div class="decide" id="decide" aria-live="polite"></div>
       <h2 id="planHead">Your yes list</h2>
       <div class="sheet plan" id="doPlan"></div>
+      <div class="calrow"><button class="linkbtn" id="calAll" type="button">Add my plans to the calendar</button></div>
       <h2>Everything</h2>
       <div class="filters">
         <div class="seg" id="doWhen" role="group" aria-label="When"></div>
@@ -129,6 +131,7 @@
     <header class="head"><div><p class="date">Climate adaptation finance</p><h1 class="title" id="workTitle">Work</h1></div></header>
     <p class="sub" id="workSub"></p>
     <div id="workDue" hidden></div>
+    <div class="calrow"><button class="linkbtn" id="calWork" type="button">Add my plans to the calendar</button></div>
     <h2>All leads</h2>
     <div class="filters"><div class="seg" id="workKinds" role="group" aria-label="Filter work"></div>
       <div class="seg" id="workPlaces" role="group" aria-label="Filter work by place"></div></div>

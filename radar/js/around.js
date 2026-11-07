@@ -269,7 +269,7 @@ async function start(mode, here, my) {
   if (!alive()) return;
   A.phase = "done";
   paint();
-  set(KEYS.around, { mode: A.mode, label: A.label, at: A.at, from: A.from, items: A.items, osm: A.osm, wiki: A.wiki, mirror: A.mirror, phase: "done" });
+  set(KEYS.around, { place: A.place || null, mode: A.mode, label: A.label, at: A.at, from: A.from, items: A.items, osm: A.osm, wiki: A.wiki, mirror: A.mirror, phase: "done" });
 }
 function combine() {
   const city = A.mode === "city";

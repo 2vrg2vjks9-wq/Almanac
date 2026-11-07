@@ -1,7 +1,7 @@
 // The feed: ranking (taste.json + reactions), item rows, and the lists on Today, Explore, Work and Saved.
 import { $, html, put, d, today, shortDate, safeUrl, km, kmText, ago, isoDay } from "./util.js";
 import { S, save } from "./store.js";
-import { D, emit, visible, past, isWork, isGo, focusRegion, REGION_NAME, Q, refreshUntil } from "./data.js";
+import { D, emit, visible, past, isWork, isGo, focusRegion, REGION_NAME, Q, refreshUntil, nearTrip } from "./data.js";
 import { swipeRow, say } from "./ui.js";
 import { track, note } from "./notes.js";
 
@@ -81,6 +81,7 @@ export function score(it) {
   const s = d(it.start), t = today();
   if (s && s >= t) sc += Math.max(0, 20 - (s - t) / 864e5 / 3);
   if (S.here && it.lat != null) { const k = km(S.here.lat, S.here.lon, it.lat, it.lon); sc += k < 5 ? 25 : k < 30 ? 15 : k < 100 ? 5 : 0; }
+  if (nearTrip(it)) sc += 40; // trip mode: things around where you are come first
   const txt = (it.title + " " + (it.why || "") + " " + (it.summary || "")).toLowerCase();
   (D.taste.more || []).forEach((m) => { if (txt.includes(String(m).toLowerCase())) sc += 15; });
   (D.taste.less || []).forEach((m) => { if (txt.includes(String(m).toLowerCase())) sc -= 15; });

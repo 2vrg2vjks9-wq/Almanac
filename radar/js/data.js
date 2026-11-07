@@ -1,7 +1,7 @@
 // Data files written by the daily and hourly Claude tasks: interests, feed, taste and things (the Do
 // tab). They are committed encrypted as data/<name>.enc.json (see vault.js); this opens them, falls
 // back to the last good copy on this phone when offline, and holds the travel-focus rules.
-import { d, today } from "./util.js";
+import { d, today, km } from "./util.js";
 import { get, set, KEYS } from "./store.js";
 import { open, unlocked } from "./vault.js";
 
@@ -128,3 +128,20 @@ export function refreshUntil(done, onData) {
     if (done() || n >= 16) { clearInterval(polling); polling = null; }
   }, 30000);
 }
+
+// --- Trip mode -----------------------------------------------------------------------------------------------
+// Away from home the app follows where you are: a place picked on Wind (Where I am / Search a place), or the last
+// Look around more than 30 km from Den Haag in the past two days. "Back home" (Discover) switches it off until the
+// next time you pick a place or look around somewhere new.
+export const HOME = { lat: 52.0799, lon: 4.3113, name: "Den Haag" };
+export function tripPoint() {
+  const W = get(KEYS.windPlace, null), off = get(KEYS.settings, {}).tripOff || 0;
+  if (W && W.mode !== "home" && W.lat != null && (W.t || 0) > off && km(HOME.lat, HOME.lon, W.lat, W.lon) > 30) return { lat: W.lat, lon: W.lon, name: W.name };
+  const H = get(KEYS.here, null);
+  if (H && H.lat != null && (H.t || 0) > off && Date.now() - (H.t || 0) < 2 * 864e5 && km(HOME.lat, HOME.lon, H.lat, H.lon) > 30) {
+    const A = get(KEYS.around, null);
+    return { lat: H.lat, lon: H.lon, name: (A && A.place && A.place.city) || "where you are" };
+  }
+  return null;
+}
+export const nearTrip = (it, k = 50) => { const T = tripPoint(); return !!(T && it.lat != null && isFinite(it.lat) && km(T.lat, T.lon, +it.lat, +it.lon) <= k); };

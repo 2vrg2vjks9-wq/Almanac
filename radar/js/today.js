@@ -5,11 +5,11 @@
 // - Weekend (Thursday to Sunday, on Today): rideable wind on Saturday and Sunday next to your yes list that weekend.
 import { $, html, put, d, today, shortDate } from "./util.js";
 import { S } from "./store.js";
-import { D, visible, isWork } from "./data.js";
+import { D, visible, isWork, tripPoint, nearTrip, emit } from "./data.js";
 import { net } from "./wind.js";
-import { showTab, showPane, swipeRow, undoable } from "./ui.js";
+import { showTab, showPane, swipeRow, undoable, say } from "./ui.js";
 import { S as Store, save } from "./store.js";
-import { ideas, answer, eligible, ideaPast, placeText, prepText, sortByDate, openIdea, decide } from "./do.js";
+import { ideas, answer, eligible, ideaPast, placeText, prepText, sortByDate, openIdea, decide, findPadel } from "./do.js";
 import { deadline, tracked, WORK_LABEL, workSub } from "./feed.js";
 import { gearNews } from "./gear.js";
 
@@ -18,7 +18,7 @@ export function setTodayOpener(fn) { openItem = fn; }
 
 const days = (x) => Math.round((x - today()) / 864e5);
 const dayLabel = (x) => { const n = days(x); return n <= 0 ? "Today" : n === 1 ? "Tomorrow" : n < 7 ? x.toLocaleDateString("en-GB", { weekday: "short" }) : shortDate(x); };
-const homeIdea = (it) => /den haag|the hague|scheveningen|kijkduin/i.test(String(it.city || "")) || !it.city;
+const homeIdea = (it) => (tripPoint() ? nearTrip(it, 40) : /den haag|the hague|scheveningen|kijkduin/i.test(String(it.city || "")) || !it.city);
 
 // --- Act now ---------------------------------------------------------------------------------------------
 function actItems() {
@@ -122,4 +122,34 @@ export function drawWeekend() {
   });
 }
 
-export function drawToday() { if (!D.feed) return; drawBrief(); drawAct(); drawWeekend(); }
+export function drawToday() { if (!D.feed) return; drawBrief(); drawAct(); drawWeekend(); paintTrip(); }
+
+// --- Trip mode banner (Discover) ------------------------------------------------------------------------------
+export function paintTrip() {
+  const T = tripPoint(), bar = $("tripBar");
+  if (!bar) return;
+  bar.hidden = !T;
+  if (T) $("tripText").textContent = "Trip mode: " + T.name;
+}
+export function initTrip(reloadWind) {
+  $("tripPadel").onclick = findPadel;
+  $("tripHome").onclick = () => {
+    Store.settings = Object.assign({}, Store.settings, { tripOff: Date.now() }); save("settings");
+    try { localStorage.setItem("radar-wind-place", JSON.stringify({ mode: "home" })); } catch (e) { /* ignore */ }
+    reloadWind();
+    emit("change");
+  };
+}
+
+// --- Calendar export: yes-list things with a date plus deadlines of leads marked Interested or Applied --------------
+export function plans() {
+  const t = today();
+  const yes = ideas().filter((it) => answer(it) && answer(it).v > 0 && !ideaPast(it) && (it.start || it.end))
+    .map((it) => Object.assign({}, it, { place: it.venue }));
+  const leads = D.feed.items.filter((it) => isWork(it) && ["interested", "applied"].includes(tracked(it)) && deadline(it) && deadline(it) >= t);
+  return yes.concat(leads);
+}
+export function initCal(icsAll) {
+  const go = () => { const n = icsAll(plans()); say(n ? n + (n === 1 ? " date" : " dates") + " ready for your calendar." : "Nothing with a date yet: say yes to something or mark a lead Interested."); };
+  ["calAll", "calWork"].forEach((id) => { const b = $(id); if (b) b.onclick = go; });
+}

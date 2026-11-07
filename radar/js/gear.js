@@ -6,7 +6,8 @@
 //   type, brand?, title, price (number, EUR), size?, location?, posted? (YYYY-MM-DD), found, url,
 //   match (hit|maybe), note?, shipping?}]}
 import { $, html, put, d, today, ago, safeUrl } from "./util.js";
-import { get, set, KEYS } from "./store.js";
+import { get, set, KEYS, S, save } from "./store.js";
+import { track } from "./notes.js";
 import { D } from "./data.js";
 import { swipeRow, undoable } from "./ui.js";
 import { ask } from "./saved.js";
@@ -47,23 +48,36 @@ function deal(a, pool) {
   return null;
 }
 const euro = (n) => (typeof n === "number" && isFinite(n) ? "€" + Math.round(n) : "");
-const sortAds = (list) => list.slice().sort((x, y) => (x.match === "hit" ? 0 : 1) - (y.match === "hit" ? 0 : 1) ||
+const sortAds = (list) => list.slice().sort((x, y) => (dropped(y) ? 1 : 0) - (dropped(x) ? 1 : 0) || (S.watch[y.id] ? 1 : 0) - (S.watch[x.id] ? 1 : 0) ||
+  (x.match === "hit" ? 0 : 1) - (y.match === "hit" ? 0 : 1) ||
   ((deal(y, list) || {}).good ? 1 : 0) - ((deal(x, list) || {}).good ? 1 : 0) ||
   String(y.found || "").localeCompare(String(x.found || "")) || (x.price || 0) - (y.price || 0));
 
+// Price-drop watch: the eye button keeps an ad on Radar's list (radar-watch, sent sealed); the finds task re-opens
+// watched ads every morning, keeps the old price in `was` when it drops, and pushes a notification.
+const dropped = (a) => typeof a.was === "number" && typeof a.price === "number" && a.price < a.was;
+function toggleWatch(a) {
+  if (S.watch[a.id]) delete S.watch[a.id];
+  else S.watch[a.id] = { url: a.url, title: a.title, price: a.price, search: a.search || WING, t: Date.now() };
+  save("watch");
+  track({ watch: S.watch });
+  drawGear();
+}
+const EYE = html`<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>`;
 function rowHTML(a, maybeLabel, pool) {
-  const dl = deal(a, pool || []);
+  const dl = deal(a, pool || []), w = !!S.watch[a.id];
   // marketplaces have a fixed label; dismantlers (sloperijen) and parts networks bring their own name
   const s = a.seller ? [a.seller, (a.country || "").toUpperCase()] : SITES[a.site] || [a.site || "", (a.country || "").toUpperCase()];
   return html`<article class="ad" data-id="${a.id}">
     <a class="ad-main" href="${safeUrl(a.url)}" target="_blank" rel="noopener" data-swipeok>
-      <span class="ad-top"><span class="ad-site">${s[1]} · ${s[0]}</span>${a.match === "hit" ? html`<span class="state now">Match</span>` : html`<span class="state">${maybeLabel}</span>`}${isNew(a) ? html`<span class="state new">New</span>` : ""}${dl && dl.good ? html`<span class="state deal">Good deal</span>` : ""}</span>
+      <span class="ad-top"><span class="ad-site">${s[1]} · ${s[0]}</span>${a.match === "hit" ? html`<span class="state now">Match</span>` : html`<span class="state">${maybeLabel}</span>`}${isNew(a) ? html`<span class="state new">New</span>` : ""}${dl && dl.good ? html`<span class="state deal">Good deal</span>` : ""}${dropped(a) ? html`<span class="state deal">Price dropped</span>` : w ? html`<span class="state">Watching</span>` : ""}${a.gone ? html`<span class="state soon">Gone</span>` : ""}</span>
       <b>${a.title}</b>
       <small>${[a.size, a.location, a.shipping ? "ships" : "", a.warranty ? a.warranty + " warranty" : "", online(a) || age(a)].filter(Boolean).join(" · ")}</small>
       ${dl ? html`<small class="ad-deal${dl.good ? " good" : ""}">${dl.text}</small>` : ""}
       ${a.note ? html`<small class="ad-note">${a.note}</small>` : ""}
     </a>
-    <span class="ad-price">${euro(a.price)}</span>
+    <span class="ad-price">${dropped(a) ? html`<s>${euro(a.was)}</s> ` : ""}${euro(a.price)}</span>
+    <button class="ib watch${w ? " on" : ""}" type="button" data-watch="${a.id}" aria-pressed="${String(w)}" aria-label="${w ? "Stop watching the price" : "Watch the price"}">${EYE}</button>
     <button class="ib hide" type="button" data-hide="${a.id}" aria-label="Hide this ad"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </article>`;
 }
@@ -73,6 +87,7 @@ function hideAd(id) {
 }
 function wireHide(box) {
   box.querySelectorAll("[data-hide]").forEach((b) => { b.onclick = () => hideAd(b.dataset.hide); });
+  box.querySelectorAll("[data-watch]").forEach((b) => { b.onclick = () => { const a = ((D.gear && D.gear.ads) || []).find((x) => x.id === b.dataset.watch); if (a) toggleWatch(a); }; });
   // swipe left hides, right opens the ad
   box.querySelectorAll(".ad").forEach((el) => {
     const a = el.querySelector(".ad-main");
