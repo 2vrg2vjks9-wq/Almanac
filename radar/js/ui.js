@@ -46,7 +46,8 @@ export function swipeRow(el, right, left, labels) {
   el.addEventListener("pointerdown", (e) => {
     const hit = e.target.closest("a,button,input");
     // small buttons inside a row keep their tap; the row itself (or its main link) can be swiped
-    if (e.pointerType === "mouse" || (hit && hit !== el && !hit.hasAttribute("data-swipeok"))) return;
+    // the row's title button stretches over the whole row (.open), so a touch there is a swipe on the row too
+    if (e.pointerType === "mouse" || (hit && hit !== el && !hit.matches(".open,[data-swipeok]"))) return;
     x0 = e.clientX; y0 = e.clientY; dx = 0; lock = null;
   });
   // a swipe must not also count as a tap on the row's link or button

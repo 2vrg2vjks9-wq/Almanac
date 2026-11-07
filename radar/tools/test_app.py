@@ -317,7 +317,9 @@ def tab(page, name):
 def swipe(page, selector, dx):
     """Swipe a row sideways with touch pointer events (the app ignores mouse drags)."""
     page.evaluate("""([sel, dx]) => {
-      const el = document.querySelector(sel), r = el.getBoundingClientRect(), y = r.top + r.height / 2, x = r.left + r.width / 2;
+      const row = document.querySelector(sel); row.scrollIntoView({ block: "center" });
+      const r = row.getBoundingClientRect(), y = r.top + r.height / 2, x = r.left + r.width / 2;
+      const el = document.elementFromPoint(x, y); // where a finger lands (often the row's stretched title button)
       const ev = (t, x) => el.dispatchEvent(new PointerEvent(t, { pointerType: "touch", clientX: x, clientY: y, bubbles: true }));
       ev("pointerdown", x); for (let i = 1; i <= 6; i++) ev("pointermove", x + dx * i / 6); ev("pointerup", x + dx);
     }""", [selector, dx])
@@ -411,6 +413,15 @@ def tabs_suite(browser, site, scheme):
     tr = [n for n in m.notes if n.get("label") == "radar-track"]
     check(tr and '"interested"' in unseal(tr[-1]["body"]) and '"skip"' in unseal(tr[-1]["body"]), "%s: tracker sent as one sealed note" % scheme)
 
+    tab(page, "work"); page.wait_for_timeout(150)
+    swipe(page, '#workFeed .item[data-id="test-freelance-soon"]', 160); page.wait_for_timeout(300)
+    check(json.loads(page.evaluate("localStorage.getItem('radar-work')")).get("test-freelance-soon", {}).get("state") == "interested", "%s: swiping a work lead right marks it Interested" % scheme)
+    tab(page, "discover"); page.click('#panes [data-p="foryou"]'); page.wait_for_timeout(150)
+    first = page.locator("#forYou .item").first.get_attribute("data-id")
+    swipe(page, '#forYou .item[data-id="%s"]' % first, -160); page.wait_for_timeout(300)
+    check(page.locator('#forYou .item[data-id="%s"]' % first).count() == 0, "%s: swiping a For you item left hides it" % scheme)
+    page.click("#fbUndo"); page.wait_for_timeout(300)
+    check(page.locator('#forYou .item[data-id="%s"]' % first).count() == 1, "%s: Undo brings it back" % scheme)
     tab(page, "discover"); page.click('#panes [data-p="read"]'); page.wait_for_timeout(150)
     page.locator("#feed [data-a=up]").first.click(); page.wait_for_timeout(350)
     check("show" in (page.get_attribute("#fbBar", "class") or ""), "%s: reaction pops the notice" % scheme)

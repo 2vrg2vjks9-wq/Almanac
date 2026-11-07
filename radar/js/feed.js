@@ -150,7 +150,7 @@ export function setTrack(it, st) {
   else {
     const dl = deadline(it);
     S.work[it.id] = { state: st, t: Date.now(), title: it.title, deadline: dl ? isoDay(dl) : "", url: it.url || "", org: it.org || "" };
-    if (st === "skip") { S.hidden[it.id] = 1; save("hidden"); react(it, -1, true); }
+    if (st === "skip") { S.hidden[it.id] = 1; justHidden.add(it.id); save("hidden"); react(it, -1, true); }
     else if (S.hidden[it.id]) { delete S.hidden[it.id]; save("hidden"); }
   }
   save("work");
@@ -203,10 +203,12 @@ export function react(it, v, soft) {
   save("reactions");
   holdOrder();
 }
+// Items hidden since the last send, so Undo in the notice can bring exactly those back.
+export const justHidden = new Set();
 export function act(it, a) {
   holdOrder();
   if (a === "save") { if (S.saved[it.id]) delete S.saved[it.id]; else S.saved[it.id] = 1; save("saved"); }
-  else if (a === "hide") { if (S.hidden[it.id]) delete S.hidden[it.id]; else { S.hidden[it.id] = 1; react(it, -1, true); } save("hidden"); }
+  else if (a === "hide") { if (S.hidden[it.id]) delete S.hidden[it.id]; else { S.hidden[it.id] = 1; justHidden.add(it.id); react(it, -1, true); } save("hidden"); }
   else react(it, a === "up" ? 1 : -1);
   emit("change");
 }

@@ -6,7 +6,7 @@ import { D, emit, on } from "./data.js";
 import { note, track, SERVER, authFailed, signedOut } from "./notes.js";
 import { signed } from "./vault.js";
 import { openSheet, closeSheet, showTab, currentTab, showPane, say, swipeRow, undoable } from "./ui.js";
-import { drawSavedItems, mountBucketHits, state, drawFeed, drawWork } from "./feed.js";
+import { drawSavedItems, mountBucketHits, state, drawFeed, drawWork, justHidden } from "./feed.js";
 import { past } from "./data.js";
 import { doPending, doLines, markDoSent } from "./do.js";
 
@@ -80,13 +80,13 @@ let toastFor = -1, sendTimer = null, batchHidden = null, batchWork = null;
 function hideToast() { $("fbBar").classList.remove("show"); }
 function armSend() {
   clearTimeout(sendTimer);
-  sendTimer = setTimeout(() => { sendTimer = null; batchHidden = null; sendReactions(true); }, SEND_AFTER);
+  sendTimer = setTimeout(() => { sendTimer = null; batchHidden = null; justHidden.clear(); sendReactions(true); }, SEND_AFTER);
 }
 function undoBatch() {
   clearTimeout(sendTimer); sendTimer = null;
   pendingReactions().forEach((k) => { delete S.reactions[k]; });
   doPending().forEach((k) => { delete S.do[k]; });
-  if (batchHidden) Object.keys(S.hidden).forEach((k) => { if (!batchHidden.has(k)) delete S.hidden[k]; });
+  justHidden.forEach((k) => { delete S.hidden[k]; }); justHidden.clear();
   if (batchWork && JSON.stringify(batchWork) !== JSON.stringify(S.work)) { S.work = batchWork; save("work"); track({ work: S.work }); }
   batchHidden = null; batchWork = null;
   save("reactions"); save("do"); save("hidden");
