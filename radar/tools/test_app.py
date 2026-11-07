@@ -235,6 +235,8 @@ class Mocks:
     def note(self, route):
         if route.request.method != "POST":
             return route.fulfill(status=405, body="")
+        if getattr(self, "note_status", None):  # simulate a server that isn't set up (503) or a bad note (400)
+            return route.fulfill(status=self.note_status, headers=JSONH, body='{"error":"x"}')
         if not signed_ok(route.request, "/api/note"):  # like the real function: unsigned notes are refused
             return route.fulfill(status=401, headers=JSONH, body='{"error":"not allowed"}')
         self.notes.append(json.loads(route.request.post_data or "{}"))
@@ -619,6 +621,25 @@ def notes_suite(browser, site, local):
     ctx.set_offline(False); page.evaluate("window.dispatchEvent(new Event('online'))"); page.wait_for_timeout(800)
     box = page.evaluate("JSON.parse(localStorage.getItem('radar-outbox')||'[]')")
     check(not box and len(m.notes) == 4 and "Add interest: Sauna in Den Haag" in unseal(m.notes[3]["body"]), "outbox: sent when back online")
+    # online but the server isn't set up: the notice says why (not "back online"), and You says it too
+    m.note_status = 503
+    page.click("#addBtn"); page.wait_for_selector("#sheet.show textarea"); page.wait_for_timeout(400)
+    page.fill("#sheetBody textarea", "Tea houses"); page.click('#sheetBody button[type=submit]'); page.wait_for_timeout(500)
+    said = page.inner_text("#say")
+    check("RADAR_AUTH" in said and "back online" not in said, "notes: online failure names the real reason (%s)" % said)
+    page.click("#addBtn"); page.wait_for_selector("#sheet.show textarea"); page.wait_for_timeout(400)
+    page.fill("#sheetBody textarea", "Old maps"); page.click('#sheetBody button[type=submit]'); page.wait_for_timeout(500)
+    said = page.inner_text("#say")
+    check("RADAR_AUTH" in said and "back online" not in said, "notes: with notes already waiting, the reason is still given")
+    check("RADAR_AUTH" in page.inner_text("#outboxLine"), "notes: You says why notes are waiting")
+    # a note the server rejects as malformed is dropped, so it can't block the rest
+    m.note_status = 400
+    page.evaluate("window.dispatchEvent(new Event('online'))"); page.wait_for_timeout(600)
+    m.note_status = None
+    page.click("#addBtn"); page.wait_for_selector("#sheet.show textarea"); page.wait_for_timeout(400)
+    page.fill("#sheetBody textarea", "Kites"); page.click('#sheetBody button[type=submit]'); page.wait_for_timeout(600)
+    box = page.evaluate("JSON.parse(localStorage.getItem('radar-outbox')||'[]')")
+    check(not box and "Add interest: Kites" in unseal(m.notes[-1]["body"]), "notes: a rejected note doesn't block the queue")
     check(not real_errors(errors), "notes: no JS errors %s" % real_errors(errors))
     ctx.close()
 
