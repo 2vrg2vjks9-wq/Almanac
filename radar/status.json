@@ -2,14 +2,15 @@
  "budget": 5.0,
  "mode": "api",
  "month": "2026-11",
- "spent": 0.2786,
+ "spent": 0.322,
  "tasks": {
   "daily": {
    "at": "2026-11-07T08:00:00Z",
    "result": "ok"
   },
   "finds": {
-   "at": "2026-11-07T08:00:00Z",
+   "at": "2026-11-07T20:16:43Z",
+   "cost": 0.044,
    "result": "ok"
   },
   "inbox": {
@@ -21,5 +22,5 @@
    "result": "ok"
   }
  },
- "updated": "2026-11-07T08:40:00Z"
+ "updated": "2026-11-07T20:16:43Z"
 }
