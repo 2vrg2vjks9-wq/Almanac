@@ -76,6 +76,31 @@ def prepare(name):
     say("%d note(s); %s" % (len(notes), "running Claude" if run else "nothing to do"))
 
 
+def run_facts():
+    """Log only non-personal facts about Claude's run (outcome, turns, cost, error kind) so failures and
+    spend can be seen in the public log without exposing anything Claude read or wrote."""
+    try:
+        out = json.load(open(os.path.join(TMP, "out.json")))
+    except Exception:
+        out = {}
+    try:
+        err = open(os.path.join(TMP, "claude.err")).read().lower()
+    except Exception:
+        err = ""
+    text = (err + " " + str(out.get("result") or "")[:500]).lower()
+    kind = "none"
+    for k, words in (("credit", ("credit balance", "billing")), ("rate limit", ("rate_limit", "rate limit", "429")),
+                     ("overloaded", ("overloaded", "529")), ("auth", ("authentication", "invalid x-api-key", "401")),
+                     ("usage limit", ("usage limit",)), ("context", ("prompt is too long",))):
+        if out.get("subtype") != "success" and any(w in text for w in words):
+            kind = k
+            break
+    cost = out.get("total_cost_usd")
+    say("run: outcome=%s turns=%s cost=%s error=%s" % (
+        out.get("subtype", "no output"), out.get("num_turns", "?"),
+        ("$%.2f" % cost) if isinstance(cost, (int, float)) else "?", kind))
+
+
 def result():
     try:
         out = json.load(open(os.path.join(TMP, "out.json")))
@@ -115,6 +140,8 @@ def finish(name):
         res = result()
         t = tasks().get(name, {}) if os.path.exists(os.path.join(PLAIN, "tasks.json")) else {}
         ran = os.path.exists(os.path.join(TMP, "out.json"))
+        if ran:
+            run_facts()
         if not ran:
             say("Claude didn't run"); return
         if res is None:
