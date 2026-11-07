@@ -543,3 +543,4 @@ button.rday:active { background: var(--sunk); }
 .qclear[hidden] { display: none; }
 #undoBar { z-index: 8; bottom: calc(env(safe-area-inset-bottom) + 96px); }
 .mini.swipe { touch-action: pan-y; }
+.sugg-h { font: 600 13px/1.2 var(--ui); color: var(--ink-3); margin: 14px 0 0; }

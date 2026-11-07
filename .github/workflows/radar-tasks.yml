@@ -5,6 +5,7 @@ name: Radar tasks
 #   finds     08:10: second-hand ads for the wanted list (opens marketplace pages, no web searches)
 #   concerts  Sundays 18:47: new shows by the alert artists
 #   work      Tuesdays and Fridays 08:40: freelance and work leads (instructions in task.py, sources kept in interests)
+#   bucket    Sun, Mon, Wed, Fri 10:25: the 3 wishes checked longest ago (instructions in task.py)
 # GitHub sometimes skips scheduled runs: the hourly run then catches up a daily, finds or work run that
 # didn't happen (radar/status.json holds when each task last ran, for the app's status card too).
 # A note from the phone (an issue the owner opens) starts its task right away: city, interest and bucket notes
@@ -28,12 +29,13 @@ on:
     - cron: "10 7 * * *"        # finds
     - cron: "47 17 * * 0"       # concerts
     - cron: "40 7 * * 2,5"      # work
+    - cron: "25 9 * * 0,1,3,5"  # bucket
   workflow_dispatch:
     inputs:
       task:
         description: Task to run
         type: choice
-        options: [daily, inbox, finds, concerts, work, apply]
+        options: [daily, inbox, finds, concerts, work, bucket, apply]
         default: inbox
 permissions:
   contents: write
@@ -63,7 +65,7 @@ jobs:
         run: |
           if [ -n "$LABELS" ]; then
             case " $LABELS " in
-              *" radar-location "*|*" radar-interest "*|*" radar-bucket "*) INPUT=inbox ;;
+              *" radar-location "*|*" radar-interest "*|*" radar-bucket "*|*" radar-ask "*) INPUT=inbox ;;
               *) INPUT=apply ;;   # settings, tracker or reactions: apply now; reactions wait for the daily run
             esac
           fi
@@ -72,6 +74,7 @@ jobs:
             "10 7 * * *") t=finds ;;
             "47 17 * * 0") t=concerts ;;
             "40 7 * * 2,5") t=work ;;
+            "25 9 * * 0,1,3,5") t=bucket ;;
             "38 * * * *") t=inbox ;;
             *) t="$INPUT" ;;
           esac
@@ -84,7 +87,7 @@ jobs:
             elif [ "$h" -ge 9 ] && { [ "$dow" = 2 ] || [ "$dow" = 5 ]; } && [ "$(last work)" != "$today" ]; then t=work
             fi
           fi
-          case "$t" in daily|inbox|finds|concerts|work|apply) ;; *) echo "unknown task"; exit 1 ;; esac
+          case "$t" in daily|inbox|finds|concerts|work|bucket|apply) ;; *) echo "unknown task"; exit 1 ;; esac
           echo "task=$t" >> "$GITHUB_OUTPUT"
           echo "radar-task: $t"
       - name: Apply settings and tracker notes

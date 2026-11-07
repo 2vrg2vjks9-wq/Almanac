@@ -38,17 +38,39 @@ LOW = {  # task: (cap per run in USD, web searches allowed; 0 = WebSearch switch
     "finds": (0.06, 0),
     "concerts": (0.06, 4),
     "work": (0.10, 5),
+    "bucket": (0.08, 4),
 }
 STATUS = os.path.join(ROOT, "radar", "status.json")  # public run status for the app (dates, outcomes, spend; nothing personal)
 # When the month's money runs low, these give way first, so the daily refresh and the work search keep running:
 # a low-priority run only goes ahead while it leaves RESERVE of the paced budget for the others.
 LOW_PRIORITY = {"finds", "concerts", "inbox"}
 RESERVE = 0.25
-SWITCHABLE = {"finds", "concerts", "work"}  # tasks the owner can switch off in Settings (daily and inbox stay on)
+SWITCHABLE = {"finds", "concerts", "work", "bucket"}  # tasks the owner can switch off in Settings (daily and inbox stay on)
 
 # Tasks whose instructions live here instead of in the vault. Keep them free of personal details: they point
 # at the encrypted interests for everything about the owner.
 BUILTIN = {
+    "bucket": {
+        "prompt": """Radar's bucket-list check: look for genuinely good moments for the owner's bucket-list wishes.
+
+Read radar/.plain/interests.json: `about` says who this is for; `bucketlist` holds the wishes as
+{id, title, good_time, where, added, checked?}. `good_time` says what would make it a good moment (season, price,
+conditions, place); follow it closely.
+
+1. Pick the 3 wishes whose `checked` date is oldest (missing = never checked; those first).
+2. For each, find what's true right now: prices, seasons, dates, listings, openings, deals. Prefer opening pages
+   directly with WebFetch (booking and flight-search pages, property listing searches, official season or event pages,
+   organisers) and keep a short list of good pages per wish in `sources` ([{name, url}]) on the wish, so later runs
+   can open them without searching. Use your web searches only to find those pages.
+3. When something is a genuinely good moment, add a feed item to radar/.plain/feed.json: kind "bucket",
+   bucket = the wish id, title, place, city, region, start/end when it applies, a summary with the concrete facts
+   (price, dates, where), why = which part of good_time it meets, the url you opened, found = today, a unique id.
+   Remove bucket items for these wishes that have passed or no longer hold. Don't invent: only what you opened.
+4. Set `checked` = today (YYYY-MM-DD) on each wish you looked at, even when nothing was good.
+5. Your final message goes to the owner's phone: one or two plain sentences naming the good moments found, or exactly
+   "No new bucket-list moments." when there were none.""",
+        "quiet": ["No new bucket-list moments."],
+    },
     "work": {
         "prompt": """Radar's work search: find freelance and work opportunities for the owner of this Radar.
 
@@ -99,9 +121,17 @@ EXTRA = {  # added to the cost rules, per task (generic: nothing about the owner
              "  add the ones that hold up to radar/.plain/things.json `ideas` with a new unique id (\"m-\" + a short slug),\n"
              "  found = today, and drop the rest. Picked city items go to feed.json in the same way.\n",
 }
+EXTRA["inbox"] += ("- A radar-ask note holds JSON {\"ask\": \"bucket-brainstorm\", \"around\", \"have\"}: suggest 8 bucket-list wishes that\n"
+                   "  fit the owner (interests `about`, sports, art, places, taste; a mix of big and small, near and far, some\n"
+                   "  surprising; none already in `have` or bucketlist), each {title, good_time, where, why}, and write them to\n"
+                   "  interests.suggestions.bucket = {at: now (ISO), around, items: [...]}. No web search needed for this.\n"
+                   "- A \"Do: more ideas\" interest note: find 5 to 8 things to do now (Den Haag first, the note says what\n"
+                   "  of) and add them to things.json `ideas` with new unique ids, found = today, fresh = true.\n")
+EXTRA["inbox"] += ("- A new bucket-list wish: add it to interests.bucketlist with a new id and do a first check right away\n"
+                   "  (good moments now, a few good pages in `sources`, `checked` = today).\n")
 EXTRA["daily"] = EXTRA["inbox"]
 # Which Settings switch silences a task's push (the owner turns them on and off on the phone).
-PUSH = {"daily": "daily", "inbox": "daily", "finds": "finds", "concerts": "concerts", "work": "work"}
+PUSH = {"daily": "daily", "inbox": "daily", "finds": "finds", "concerts": "concerts", "work": "work", "bucket": "daily"}
 
 
 def say(msg):
@@ -140,6 +170,8 @@ def prepare(name):
     t = tasks().get(name) or BUILTIN.get(name)
     if not isinstance(t, dict):
         say("unknown task"); sys.exit(1)
+    if name == "inbox":  # requests from the app that need Claude now (brainstorm), when Cloudflare has no Claude key
+        t = dict(t, labels=list(t.get("labels", [])) + ["radar-ask"])
     notes = []
     for label in t.get("labels", []):
         for i in gh("GET", "/issues?state=open&per_page=100&labels=" + label):

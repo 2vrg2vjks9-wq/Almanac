@@ -114,3 +114,17 @@ export const isWork = (it) => it.kind === "work" || it.kind === "freelance";
 // Things to go to: concerts, exhibitions, food, and any instant city pick with a place on the map
 // (quick research sometimes files a beach or a mural trail under "story").
 export const isGo = (it) => !!GO_KINDS[it.kind] || (!!it.picked && it.lat != null && !isWork(it) && it.kind !== "bucket");
+
+// After a request that a GitHub task answers (brainstorm, more ideas, a city), reload the data every 30 s for up
+// to 8 minutes, until done() says the answer is in.
+let polling = null;
+export function refreshUntil(done, onData) {
+  clearInterval(polling);
+  let n = 0;
+  polling = setInterval(async () => {
+    n++;
+    const src = await loadData().catch(() => null);
+    if (src === "live") { mergePicks(); onData(); }
+    if (done() || n >= 16) { clearInterval(polling); polling = null; }
+  }, 30000);
+}

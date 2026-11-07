@@ -232,12 +232,15 @@ Everything personal (sports, diet rules, taste, work, travel focus) lives in the
 
 ## Bucket list
 
-`interests` has a `bucketlist` array: `{id, title, good_time, where, added}`. The Saved tab shows each
-wish, its matching feed items, and an "Add to bucket list" form that sends a note labelled
-`radar-bucket` (and keeps the wish locally as "sent" until it appears in `interests`). The daily task
-adds the wish, then checks every wish each morning for a genuinely good moment (price drop, season, rare
-availability) and writes feed items with `kind: "bucket"` and `bucket: "<wish id>"`; the app ranks them
-high and labels them "Good time". A new bucket item is always worth a push notification.
+`interests` has a `bucketlist` array: `{id, title, good_time, where, added, checked?, sources?}`. You › Bucket list
+shows each wish, when it was last checked, its matching feed items, and an "Add to bucket list" form that sends a note
+labelled `radar-bucket` (kept locally as "sent" until it appears in `interests`); inbox adds it and does a first check
+right away. The `bucket` task (BUILTIN in task.py; Sun, Mon, Wed, Fri 10:25) checks the 3 wishes checked longest ago,
+keeps good pages per wish in `sources`, sets `checked`, and writes feed items with `kind: "bucket"` and
+`bucket: "<wish id>"`; the app ranks them high and labels them "Good time". Brainstorm wishes uses `/api/ideas` when
+Cloudflare has a Claude key, otherwise a sealed `radar-ask` note that inbox answers in
+`interests.suggestions.bucket` ({at, around, items}), shown as "Ideas from Claude" under the bucket list (the app
+reloads every 30 s until it arrives). "Find more ideas now" falls back the same way (inbox adds ideas to things).
 
 ## Freelance
 

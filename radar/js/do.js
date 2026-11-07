@@ -6,7 +6,7 @@
 // - Answers are kept on this phone (radar-do) and sent to Claude, sealed, with the other reactions.
 import { $, html, put, d, today, shortDate, longDate, safeUrl, mapUrl, km, reduceMotion } from "./util.js";
 import { S, save, get, set, KEYS } from "./store.js";
-import { D, emit, Q, mergePicks } from "./data.js";
+import { D, emit, Q, mergePicks, refreshUntil } from "./data.js";
 import { openSheet, sheetOpen, paintSheet, swipeRow, say } from "./ui.js";
 import { ics } from "./detail.js";
 import { signed } from "./vault.js";
@@ -413,7 +413,9 @@ async function findMore(askText) {
   } else {
     const why = { setup: "Instant ideas aren't switched on yet (the ANTHROPIC_API_KEY secret in Cloudflare).", signin: "Sign in again to get ideas right away.",
       offline: "You're offline.", none: "Claude found nothing it could stand behind right now." }[res.why] || "Claude couldn't be reached.";
-    say(why + " Your request went to Radar; ideas arrive within the hour.");
+    say(res.why === "setup" ? "Claude is finding ideas through Radar's tasks. They appear here in about 3 minutes." : why + " Your request went to Radar; ideas arrive within a few minutes.");
+    const before = ideas().length, sent = Date.now();
+    refreshUntil(() => ideas().length > before || (D.things && Date.parse(D.things.updated) > sent), () => emit("change"));
   }
   note("Do: more ideas" + (askText ? " like " + askText : ""),
     "Please look for more Do ideas (things to do, Den Haag first)" + (askText ? ": " + askText : ".") +

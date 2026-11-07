@@ -21,9 +21,10 @@ const TASKS = [
   ["work", "Work search", "Tuesdays and Fridays, about $0.10 a run."],
   ["finds", "Second-hand finds", "Every morning, about $0.05 a run."],
   ["concerts", "Concert check", "Sundays, about $0.06 a run."],
+  ["bucket", "Bucket-list check", "4 times a week, 3 wishes a run, about $0.08 a run."],
 ];
 const BUDGETS = [3, 5, 8, 10];
-const TASK_NAMES = { daily: "Daily update", inbox: "Notes from the phone", finds: "Second-hand finds", concerts: "Concert check", work: "Work search" };
+const TASK_NAMES = { daily: "Daily update", inbox: "Notes from the phone", finds: "Second-hand finds", concerts: "Concert check", work: "Work search", bucket: "Bucket-list check" };
 const cur = () => S.settings || {};
 const isOn = (group, k) => ((cur()[group] || {})[k]) !== false;
 

@@ -1,8 +1,8 @@
 // Saved tab: starred items, bucket list, what Radar has learned, teaching it (reactions,
 // new interests), show hidden, plus the short reaction notice and the Saved tab dot.
-import { $, html, put, isoDay } from "./util.js";
+import { $, html, put, isoDay, ago } from "./util.js";
 import { S, save } from "./store.js";
-import { D, emit, on } from "./data.js";
+import { D, emit, on, refreshUntil } from "./data.js";
 import { note, track, SERVER, authFailed, signedOut } from "./notes.js";
 import { signed } from "./vault.js";
 import { openSheet, closeSheet, showTab, currentTab, showPane, say, swipeRow, undoable } from "./ui.js";
@@ -53,7 +53,7 @@ function drawBucket() {
   put(box, html`${wishes.map((b) => {
     const n = hitsFor(b.id).length;
     return html`<div class="bk" data-w="${b.id}"><div class="bk-h"><h3>${b.title}</h3><button class="linkbtn bk-edit" type="button" data-e="${b.id}">Edit</button></div>${b.good_time ? html`<p class="bw">Good moment: ${b.good_time}</p>` : ""}${b.where ? html`<p class="bw">Where: ${b.where}</p>` : ""}${b.edited ? html`<p class="bs">Changed. Radar uses it from the next morning check.</p>` : ""}
-      ${n ? html`<p class="bs hot">${n === 1 ? "1 good chance right now" : n + " good chances right now"}</p><div class="bkhits" data-b="${b.id}"></div>` : html`<p class="bs">Watching. Radar flags it when the timing is right.</p>`}</div>`;
+      ${n ? html`<p class="bs hot">${n === 1 ? "1 good chance right now" : n + " good chances right now"}</p><div class="bkhits" data-b="${b.id}"></div>` : html`<p class="bs">${b.checked ? "Checked " + ago(b.checked) + ". Nothing yet; Radar flags it when the timing is right." : "Not checked yet. The bucket-list check gets to it within a few days."}</p>`}</div>`;
   })}${S.bucketSent.map((b) => html`<div class="bk"><h3>${b.title}</h3>${b.good_time ? html`<p class="bw">Good moment: ${b.good_time}</p>` : ""}<p class="bs">Sent. Radar starts watching after the next morning update.</p></div>`)}`);
   box.querySelectorAll(".bkhits").forEach((el) => mountBucketHits(el, el.dataset.b));
   box.querySelectorAll("[data-e]").forEach((x) => { x.onclick = () => editWish(wishes.find((w) => String(w.id) === x.dataset.e)); });
@@ -296,19 +296,51 @@ function brainSheet(state) {
     if (again) again.onclick = () => runBrainstorm(state.about);
   }, "Brainstorm wishes");
 }
+// Without a Claude key in Cloudflare, the brainstorm goes to Radar's GitHub tasks as a sealed radar-ask note; the
+// answer lands in interests.suggestions.bucket and shows under Bucket list ("Ideas from Claude").
+const suggestions = () => { const x = D.config && D.config.suggestions && D.config.suggestions.bucket; return x && Array.isArray(x.items) ? x : null; };
 async function runBrainstorm(about) {
   const state = { loading: true, about, added: {} };
   brainSheet(state);
   const res = await brainstorm(about);
   state.loading = false;
-  if (res.wishes) state.wishes = res.wishes;
-  else state.msg = { setup: "Brainstorming needs Radar's server with the ANTHROPIC_API_KEY secret in Cloudflare.", offline: "You're offline.",
-    signin: "Sign in again, then try once more.", none: "No ideas this time. Try again." }[res.why] || "Claude couldn't be reached. Try again in a moment.";
+  if (res.wishes) { state.wishes = res.wishes; brainSheet(state); return; }
+  if (res.why === "offline") { state.msg = "You're offline. Try again when you're connected."; brainSheet(state); return; }
+  const have = (D.config.bucketlist || []).map((b) => b.title).concat(S.bucketSent.map((b) => b.title));
+  const sent = Date.now();
+  note("Bucket-list brainstorm", JSON.stringify({ ask: "bucket-brainstorm", around: about || "", have }), "radar-ask", "");
+  state.msg = "Claude is brainstorming through Radar's tasks. That takes about 3 minutes: close this if you like, the ideas appear under Bucket list.";
   brainSheet(state);
+  const fresh = () => { const x = suggestions(); return !!(x && Date.parse(x.at) > sent - 60000); };
+  refreshUntil(fresh, () => { emit("change"); if (fresh() && state.msg) { state.msg = null; state.wishes = suggestions().items; brainSheet(state); } });
+}
+// Claude's suggestions (from the GitHub task) wait under the bucket list until added or dismissed on this phone.
+function drawSuggestions() {
+  const box = $("bucketIdeas");
+  if (!box) return;
+  const x = suggestions(), have = new Set((D.config.bucketlist || []).map((b) => String(b.title).toLowerCase()).concat(S.bucketSent.map((b) => String(b.title).toLowerCase())));
+  const gone = S.settings.dismissedWishes || {};
+  const list = x ? x.items.filter((w) => w && w.title && !have.has(String(w.title).toLowerCase()) && !gone[w.title]) : [];
+  box.hidden = !list.length;
+  if (!list.length) return;
+  put(box, html`<h3 class="sugg-h">Ideas from Claude</h3>${list.map((w, i) => html`<div class="bk" data-s="${i}"><div class="bk-h"><h3>${w.title}</h3>
+    <button class="btn wadd" type="button" data-add="${i}">Add</button></div>${w.good_time ? html`<p class="bw">Good moment: ${w.good_time}</p>` : ""}${w.why ? html`<p class="bs">${w.where ? w.where + " · " : ""}${w.why}</p>` : ""}</div>`)}`);
+  const add = (w) => {
+    S.bucketSent.push({ title: w.title, good_time: w.good_time, added: isoDay(new Date()) }); save("bucketSent");
+    note("Bucket list: " + w.title, "Add to my Radar bucket list: " + w.title + "\n\nA good moment would be: " + (w.good_time || "(work it out)") + (w.where ? "\nWhere: " + w.where : ""), "radar-bucket", "");
+    drawBucket(); drawSuggestions();
+  };
+  const dismiss = (w, el) => {
+    el.hidden = true;
+    undoable("Idea dismissed.", () => { el.hidden = false; }, () => { S.settings = Object.assign({}, S.settings, { dismissedWishes: Object.assign({}, gone, { [w.title]: 1 }) }); save("settings"); drawSuggestions(); });
+  };
+  box.querySelectorAll("[data-add]").forEach((b) => { b.onclick = () => add(list[+b.dataset.add]); });
+  box.querySelectorAll(".bk[data-s]").forEach((el) => { const w = list[+el.dataset.s]; swipeRow(el, () => add(w), () => dismiss(w, el), ["Add", "Dismiss"]); });
 }
 
 export function drawSaved() {
   drawFollow();
+  drawSuggestions();
   drawSavedItems();
   drawBucket();
   const learned = D.taste.learned || [];
