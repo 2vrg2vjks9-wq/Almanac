@@ -10,6 +10,7 @@ case "$file" in
   */enso/app.html|enso/app.html)           app=enso;      label="Ensō";              extra="enso/poems.json" ;;
   */proxima/app.html|proxima/app.html)     app=proxima;   label="Proxima";           extra="" ;;
   */loam/app.html|loam/app.html)           app=loam;      label="Loam";              extra="" ;;
+  */commons/app.html|commons/app.html)     app=commons;   label="The New Commons";   extra="commons/manifest.webmanifest commons/sw.js commons/icon-180.png commons/icon-512.png" ;;
   *) exit 0 ;;
 esac
 

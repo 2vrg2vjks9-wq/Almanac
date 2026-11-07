@@ -1,0 +1,1099 @@
+<title>The New Commons</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one phone-width column, a drawn landscape up top, a share wheel as the signature mark, tabs at the bottom. */
+  :root{
+    --paper:#e9eee9;
+    --paper-2:#dde5df;
+    --card:#f7f9f6;
+    --ink:#15211c;
+    --soft:#4a5a52;
+    --muted:#77867e;
+    --line:rgba(21,33,28,.13);
+    --accent:#2b47b5;
+    --accent-ink:#f7f9f6;
+    --share:#e3a41f;
+    --share-ink:#2a1d00;
+    --good:#2f7d4f;
+    --warn:#b8541d;
+    --sky1:#cfe0ea; --sky2:#f3e7cf; --sun:#f3c35a;
+    --land1:#9db7a4; --land2:#6d8f78; --land3:#3f5f4c;
+    --sea1:#7fa9c2; --sea2:#4d7c99; --snow:#ffffff; --hull:#1f2d3a; --glow:#ffd36b;
+    --display:'Gloock','Iowan Old Style',Georgia,serif;
+    --body:'Figtree','Avenir Next','Segoe UI',system-ui,sans-serif;
+    --mono:'Spline Sans Mono','SF Mono',Menlo,Consolas,monospace;
+    --r:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0f1513; --paper-2:#151d1a; --card:#18211e; --ink:#e5ece6; --soft:#a5b3ab; --muted:#6f7f77;
+      --line:rgba(229,236,230,.12); --accent:#93a8ff; --accent-ink:#0f1513; --share:#f0b93a; --share-ink:#241800;
+      --good:#6fcf92; --warn:#f08a54;
+      --sky1:#1b2740; --sky2:#3b3150; --sun:#f6d78a;
+      --land1:#2c3d38; --land2:#20302b; --land3:#15211d;
+      --sea1:#24405a; --sea2:#172e44; --snow:#cfd8e6; --hull:#0b1118; --glow:#ffc94d;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0f1513; --paper-2:#151d1a; --card:#18211e; --ink:#e5ece6; --soft:#a5b3ab; --muted:#6f7f77;
+    --line:rgba(229,236,230,.12); --accent:#93a8ff; --accent-ink:#0f1513; --share:#f0b93a; --share-ink:#241800;
+    --good:#6fcf92; --warn:#f08a54;
+    --sky1:#1b2740; --sky2:#3b3150; --sun:#f6d78a;
+    --land1:#2c3d38; --land2:#20302b; --land3:#15211d;
+    --sea1:#24405a; --sea2:#172e44; --snow:#cfd8e6; --hull:#0b1118; --glow:#ffc94d;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;margin:0}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+  .wrap{max-width:600px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px calc(96px + env(safe-area-inset-bottom,0px))}
+  h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.1;text-wrap:balance;margin:0}
+  h1{font-size:2.1rem}
+  h2{font-size:1.55rem}
+  h3{font-size:1.15rem}
+  p{margin:0}
+  .eyebrow{font:600 .72rem/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .soft{color:var(--soft)}
+  .stack{display:flex;flex-direction:column;gap:14px}
+  .stack-l{display:flex;flex-direction:column;gap:28px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  button,input,select,textarea{font:inherit;color:inherit}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* top bar */
+  .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:8px}
+  .mark{display:flex;align-items:center;gap:10px;min-width:0}
+  .mark b{font:400 1.25rem/1 var(--display);white-space:nowrap}
+  .plan-pick{min-width:0;max-width:52%;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 12px;font-size:.88rem}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:10px 16px;font-weight:600;cursor:pointer;text-decoration:none}
+  .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+  .btn.share{background:var(--share);color:var(--share-ink);border-color:transparent}
+  .btn.small{padding:6px 12px;font-size:.85rem}
+  .btn.ghost{background:transparent}
+  .btn:active{transform:translateY(1px)}
+
+  /* hero */
+  .hero{position:relative;border-radius:20px;overflow:hidden;background:var(--sky1);aspect-ratio:4/3;max-width:100%}
+  .hero canvas{display:block;width:100%;height:100%}
+  .hero .wheel{position:absolute;right:12px;top:12px;width:74px;height:74px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.18))}
+  .hero-text{display:flex;flex-direction:column;gap:6px}
+  .title-edit{font:400 2rem/1.1 var(--display);border:0;background:transparent;padding:0;width:100%;border-bottom:1px dashed transparent}
+  .title-edit:focus{border-bottom-color:var(--line);outline:none}
+  .place-edit{border:0;background:transparent;padding:0;color:var(--soft);width:100%}
+  .place-edit:focus{outline:none;border-bottom:1px dashed var(--line)}
+
+  /* the three headline figures */
+  .figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .fig{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 10px}
+  .fig b{display:block;font:500 1.3rem/1.1 var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .fig span{font-size:.78rem;color:var(--soft);line-height:1.3;display:block;margin-top:4px}
+  .fig.key{background:var(--share);border-color:transparent;color:var(--share-ink)}
+  .fig.key span{color:var(--share-ink);opacity:.8}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .note{font-size:.88rem;color:var(--soft)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 12px;font-size:.88rem;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  /* barrier list */
+  .barriers{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+  .barrier{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding-block:12px;border-bottom:1px solid var(--line);align-items:center}
+  .barrier b{font-weight:600}
+  .barrier p{grid-column:1/2;font-size:.9rem;color:var(--soft)}
+  .barrier button{grid-row:1/3;grid-column:2}
+
+  .templates{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .tpl{border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:0;overflow:hidden;cursor:pointer;text-align:left;display:flex;flex-direction:column}
+  .tpl canvas{width:100%;aspect-ratio:16/10;display:block}
+  .tpl div{padding:10px 12px 12px}
+  .tpl b{display:block;font-weight:600}
+  .tpl span{font-size:.8rem;color:var(--soft)}
+
+  .shows{display:flex;flex-direction:column;gap:10px}
+  .show{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start}
+  .show .dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:500 .8rem var(--mono);background:var(--paper-2);color:var(--soft)}
+  .show b{font-weight:600}
+  .show p{font-size:.9rem;color:var(--soft)}
+
+  /* numbers */
+  .sum{position:sticky;top:calc(env(safe-area-inset-top,0px) + 52px);z-index:4;background:var(--paper);padding-block:6px 10px}
+  .group{display:flex;flex-direction:column;gap:12px}
+  .group h3{font-size:1.05rem}
+  .field{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:4px 12px;align-items:center}
+  .field label{font-size:.92rem}
+  .field .hint{grid-column:1/3;font-size:.78rem;color:var(--muted);margin-top:-2px}
+  .field input[type=number]{width:110px;text-align:right;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 10px;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .field input[type=range]{grid-column:1/3;width:100%;accent-color:var(--accent);margin:0}
+  .outcome{display:flex;flex-direction:column;gap:10px}
+  .line{display:flex;justify-content:space-between;gap:12px;font-size:.95rem;padding-block:6px;border-bottom:1px dashed var(--line)}
+  .line span:last-child{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .line.total{border-bottom:0;font-weight:700}
+  .chart{width:100%;height:auto;display:block}
+  .legend{display:flex;gap:16px;font-size:.82rem;color:var(--soft);flex-wrap:wrap}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  /* pitch */
+  .msg{white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;font-size:.98rem;line-height:1.55;overflow-wrap:anywhere}
+  .txt{width:100%;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px 12px}
+  textarea.txt{min-height:72px;resize:vertical}
+  .angle{display:flex;flex-direction:column;gap:2px;border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:10px 12px;cursor:pointer;text-align:left}
+  .angle[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .angle b{font-weight:600}
+  .angle span{font-size:.82rem;color:var(--soft)}
+  .angles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+
+  /* crew */
+  .crew-head{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:center}
+  .crew-head svg{width:120px;height:120px}
+  .member{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding-block:12px;border-bottom:1px solid var(--line)}
+  .member b{font-weight:600;overflow-wrap:anywhere}
+  .member .meta{grid-column:1/2;font-size:.85rem;color:var(--soft)}
+  .member .tools{grid-row:1/3;grid-column:2;display:flex;gap:6px;align-items:center}
+  .pill{display:inline-block;font:600 .7rem/1 var(--body);letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:4px 8px;margin-left:6px;vertical-align:2px}
+  .pill.in{background:var(--share);color:var(--share-ink)}
+  .pill.maybe{background:transparent;border:1px solid var(--share);color:var(--soft)}
+  .pill.no{background:var(--paper-2);color:var(--muted)}
+  .ok{color:var(--good)} .low{color:var(--warn)}
+  .form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .form label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--soft);min-width:0}
+  .form label.full{grid-column:1/3}
+  .form input,.form select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 10px;color:var(--ink);width:100%;min-width:0}
+
+  /* path */
+  .steps{display:flex;flex-direction:column;border-left:2px solid var(--line);margin-left:15px}
+  .step{position:relative;padding:0 0 22px 26px}
+  .step .tick{position:absolute;left:-17px;top:0;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--paper);display:grid;place-items:center;font:600 .85rem var(--mono);cursor:pointer;color:var(--soft)}
+  .step.done .tick{background:var(--good);border-color:var(--good);color:var(--paper)}
+  .step summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:2px;padding-top:3px}
+  .step summary::-webkit-details-marker{display:none}
+  .step summary b{font-weight:600;font-size:1.02rem}
+  .step summary span{font-size:.86rem;color:var(--soft)}
+  .step .body{display:flex;flex-direction:column;gap:10px;padding-top:10px;font-size:.93rem}
+  .step ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+  .rules{display:flex;flex-direction:column;gap:10px}
+  .rules label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--soft)}
+  .rules select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 10px;color:var(--ink);width:100%}
+  .draft-order{counter-reset:o;display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
+  .draft-order li{display:flex;gap:10px;font-size:.92rem}
+  .draft-order li b{font-family:var(--mono);color:var(--muted);min-width:5.5em}
+
+  /* tabs */
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+  .tabs div{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+  .tabs button{border:0;background:transparent;padding:9px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.72rem;font-weight:600;color:var(--muted);cursor:pointer}
+  .tabs button svg{width:22px;height:22px}
+  .tabs button[aria-current="page"]{color:var(--accent)}
+
+  .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:.9rem;font-weight:600;transition:.25s;z-index:20;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .join-banner{background:var(--accent);color:var(--accent-ink);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+  .join-banner .eyebrow{color:var(--accent-ink);opacity:.8}
+  .confirm{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.9rem}
+  .foot{font-size:.8rem;color:var(--muted);text-align:center}
+
+  @media (max-width:380px){
+    .figs{grid-template-columns:1fr 1fr}
+    .figs .fig.key{grid-column:1/3}
+    .crew-head{grid-template-columns:96px minmax(0,1fr)}
+    .crew-head svg{width:96px;height:96px}
+    .form{grid-template-columns:1fr}
+    .form label.full{grid-column:auto}
+  }
+  @media (prefers-reduced-motion: reduce){ .toast{transition:none} }
+</style>
+
+<header class="top wrap" style="padding-bottom:8px" id="top"></header>
+<main class="wrap" id="view" style="padding-top:0"></main>
+<nav class="tabs" aria-label="Sections"><div id="tabs"></div></nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- where invites point ---------- */
+// Invite and reply links always open the public home-screen app, so friends can use them without Claude.
+const PUBLIC_URL = 'https://2vrg2vjks9-wq.github.io/almanac/commons/';
+function baseUrl(){
+  try{ if(/github\.io$/.test(location.hostname)) return location.origin + location.pathname; }catch(e){}
+  return PUBLIC_URL;
+}
+
+/* ---------- tiny DOM helpers (text always goes in as text, never as HTML) ---------- */
+function h(tag, props){
+  const el = document.createElement(tag);
+  if(props) for(const k in props){
+    const v = props[k];
+    if(v==null || v===false) continue;
+    if(k==='class') el.className = v;
+    else if(k==='text') el.textContent = v;
+    else if(k==='style') el.style.cssText = v;
+    else if(k.slice(0,2)==='on' && typeof v==='function') el.addEventListener(k.slice(2), v);
+    else if(k==='value') el.value = v;
+    else if(k==='checked') el.checked = !!v;
+    else el.setAttribute(k, v===true ? '' : v);
+  }
+  for(let i=2;i<arguments.length;i++) add(el, arguments[i]);
+  return el;
+}
+function add(el, c){
+  if(c==null || c===false) return;
+  if(Array.isArray(c)){ c.forEach(x=>add(el,x)); return; }
+  el.append(c.nodeType ? c : document.createTextNode(String(c)));
+}
+const SVGNS='http://www.w3.org/2000/svg';
+function s(tag, attrs){
+  const el=document.createElementNS(SVGNS, tag);
+  if(attrs) for(const k in attrs) el.setAttribute(k, attrs[k]);
+  for(let i=2;i<arguments.length;i++){ const c=arguments[i]; if(c) el.append(c.nodeType?c:document.createTextNode(String(c))); }
+  return el;
+}
+function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888'; }
+
+/* ---------- money & numbers ---------- */
+function eur(x){
+  if(!isFinite(x)) return '–';
+  const r=Math.round(x);
+  return (r<0?'−€':'€') + Math.abs(r).toLocaleString('nl-NL');
+}
+function int(x){ return isFinite(x) ? Math.round(x).toLocaleString('nl-NL') : '–'; }
+function clamp(x,a,b){ x=Number(x); if(!isFinite(x)) x=a; return Math.min(b, Math.max(a, x)); }
+
+/* ---------- the kinds of commons (example figures, the owner changes them) ---------- */
+const KINDS = {
+  cabin:{ label:'Forest cabin', blurb:'Weekends among the trees', title:'Forest cabin', place:'Somewhere on the Veluwe',
+    d:{price:240000,cost:8,season:365,own:40,rate:4.5,years:20,run:8000,rentNights:60,rentRate:150,cut:30,people:8,growth:2,market:150},
+    unit:'night' },
+  beach:{ label:'Surf house', blurb:'Wind, waves and warm winters', title:'Surf house by the sea', place:'A windy coast in the south',
+    d:{price:380000,cost:10,season:365,own:50,rate:4.8,years:20,run:11000,rentNights:120,rentRate:190,cut:35,people:8,growth:3,market:200},
+    unit:'night' },
+  boat:{ label:'Sailing boat', blurb:'A boat at the jetty, season after season', title:'Sailing boat', place:'In a harbour on the IJsselmeer',
+    d:{price:110000,cost:2,season:180,own:100,rate:0,years:0,run:9500,rentNights:0,rentRate:0,cut:0,people:6,growth:-4,market:350},
+    unit:'day' },
+  chalet:{ label:'Mountain chalet', blurb:'Ski in winter, hike in summer', title:'Mountain chalet', place:'A valley in the Alps',
+    d:{price:420000,cost:9,season:365,own:45,rate:4.6,years:20,run:14000,rentNights:90,rentRate:260,cut:35,people:10,growth:2,market:280},
+    unit:'night' },
+  van:{ label:'Camper van', blurb:'Leave on Friday, wake up somewhere new', title:'Camper van', place:'Parked in a shared spot near home',
+    d:{price:75000,cost:1,season:300,own:100,rate:0,years:0,run:4500,rentNights:50,rentRate:110,cut:25,people:5,growth:-8,market:130},
+    unit:'night' }
+};
+
+/* ---------- storage (per viewer; the page works without it) ---------- */
+const KEY='new-commons-v1';
+let S = load();
+function blank(){ return {plans:[], cur:null, me:'', tab:'dream'}; }
+function load(){
+  try{ const raw=localStorage.getItem(KEY); if(raw){ const o=JSON.parse(raw); if(o && Array.isArray(o.plans)) return Object.assign(blank(), o); } }catch(e){}
+  return blank();
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function uid(){ return Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4); }
+
+function newPlan(kind, example){
+  const k=KINDS[kind]||KINDS.cabin;
+  const p = Object.assign({id:uid(), kind:kind, title:k.title, place:k.place, crew:[], steps:{}, rules:{}, angle:'easy', lang:'nl', to:'', note:'', example:!!example}, k.d);
+  return p;
+}
+function plan(){
+  let p=S.plans.find(x=>x.id===S.cur);
+  if(!p){
+    if(!S.plans.length){
+      p=newPlan('cabin', true);
+      p.crew=[
+        {id:uid(), n:'Example: Sanne', st:'in', max:150, nights:30, up:15000, test:true, note:''},
+        {id:uid(), n:'Example: Joris', st:'maybe', max:100, nights:20, up:8000, test:true, note:'Wants to try a weekend first'},
+        {id:uid(), n:'Example: Fleur', st:'in', max:200, nights:40, up:20000, test:false, note:''}
+      ];
+      S.plans.push(p);
+    } else p=S.plans[0];
+    S.cur=p.id; save();
+  }
+  return p;
+}
+
+/* ---------- the maths ---------- */
+function calc(p){
+  const people=Math.max(1, Math.round(p.people));
+  const own = p.price*p.own/100;
+  const buying = p.price*p.cost/100;
+  const loan = Math.max(0, p.price-own);
+  const r = p.rate/100/12, n = Math.round(p.years*12);
+  const pay = loan>0 && n>0 ? (r>0 ? loan*r/(1-Math.pow(1+r,-n)) : loan/n) : 0;
+  const runM = p.run/12;
+  const rentNet = p.rentNights*p.rentRate*(1-p.cut/100);
+  const rentM = rentNet/12;
+  const netM = pay + runM - rentM;
+  const per = netM/people;
+  const up = (own+buying)/people;
+  const usable = Math.max(0, p.season - p.rentNights);
+  const nights = usable/people;
+  const perNight = nights>0 ? (Math.max(0,per)*12)/nights : NaN;
+
+  // ten years, month by month
+  let bal=loan, paid=up, pts=[{y:0, paid:paid, worth:(p.price-loan)/people}];
+  const g = Math.pow(1+p.growth/100, 1/12);
+  let value=p.price;
+  for(let m=1;m<=120;m++){
+    if(bal>0 && m<=n){ const i=bal*r; bal=Math.max(0, bal-(pay-i)); }
+    value*=g;
+    paid += netM/people;
+    if(m%12===0) pts.push({y:m/12, paid:paid, worth:(value-bal)/people});
+  }
+  const end=pts[pts.length-1];
+  const trueM = (end.paid-end.worth)/120;
+  const trueNight = nights>0 ? (end.paid-end.worth)/10/nights : NaN;
+  return {people, own, buying, loan, pay, runM, rentM, netM, per, up, nights, perNight, pts, end, trueM, trueNight};
+}
+
+/* ---------- link payloads (base64url JSON in the hash; nothing goes to a server) ---------- */
+function enc(o){
+  const b=btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  return b.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function dec(str){
+  try{
+    let b=String(str).replace(/-/g,'+').replace(/_/g,'/');
+    while(b.length%4) b+='=';
+    const o=JSON.parse(decodeURIComponent(escape(atob(b))));
+    return (o && typeof o==='object') ? o : null;
+  }catch(e){ return null; }
+}
+function txt(x, max){ return String(x==null?'':x).replace(/[\u0000-\u001f]/g,' ').slice(0, max||80); }
+const NUMKEYS={price:[0,1e8],cost:[0,30],season:[1,366],own:[0,100],rate:[0,20],years:[0,40],run:[0,1e7],rentNights:[0,365],rentRate:[0,1e5],cut:[0,90],people:[1,50],growth:[-30,30],market:[0,1e5]};
+function inviteLink(p){
+  const o={v:1, id:p.id, k:p.kind, t:txt(p.title), pl:txt(p.place), o:txt(S.me,40), note:txt(p.note,280)};
+  for(const k in NUMKEYS) o[k]=p[k];
+  return baseUrl() + '#join-' + enc(o);
+}
+function readInvite(o){
+  if(!o || o.v!==1) return null;
+  const kind = KINDS[o.k] ? o.k : 'cabin';
+  const p = newPlan(kind);
+  p.id = txt(o.id,20) || uid();
+  p.title = txt(o.t) || KINDS[kind].title;
+  p.place = txt(o.pl);
+  p.org = txt(o.o,40);
+  p.note = txt(o.note,280);
+  for(const k in NUMKEYS){ const [a,b]=NUMKEYS[k]; p[k]=clamp(o[k]==null?p[k]:o[k],a,b); }
+  return p;
+}
+function readReply(o){
+  if(!o || o.v!==1 || !o.pid) return null;
+  const st = ['in','maybe','no'].indexOf(o.st)>=0 ? o.st : 'maybe';
+  return {pid:txt(o.pid,20), n:txt(o.n,40)||'A friend', st:st, max:clamp(o.max,0,1e5), nights:clamp(o.nights,0,366), up:clamp(o.up,0,1e7), test:!!o.test, note:txt(o.note,280)};
+}
+
+/* ---------- toast & copy/share ---------- */
+let toastT;
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'), 2400); }
+function copy(text, el){
+  const done=()=>toast('Copied');
+  try{
+    navigator.clipboard.writeText(text).then(done, ()=>fallback());
+  }catch(e){ fallback(); }
+  function fallback(){
+    if(el){ const r=document.createRange(); r.selectNodeContents(el); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Selected. Copy it from here'); }
+    else toast('Copy did not work here');
+  }
+}
+function shareText(text, el){
+  if(navigator.share){
+    navigator.share({text:text}).catch(err=>{ if(!err || err.name!=='AbortError') copy(text, el); });
+  } else copy(text, el);
+}
+
+/* ---------- landscape scenes ---------- */
+function rng(seed){ let x=0; for(const c of String(seed)) x=(x*31+c.charCodeAt(0))>>>0; return ()=>{ x=(x*1664525+1013904223)>>>0; return x/4294967296; }; }
+function drawScene(cv, kind, seed){
+  const dpr=Math.min(2, window.devicePixelRatio||1);
+  const w=cv.clientWidth||320, hh=cv.clientHeight||240;
+  cv.width=Math.round(w*dpr); cv.height=Math.round(hh*dpr);
+  const c=cv.getContext('2d'); if(!c) return;
+  c.setTransform(dpr,0,0,dpr,0,0);
+  const R=rng(seed+kind);
+  const C={sky1:css('--sky1'),sky2:css('--sky2'),sun:css('--sun'),l1:css('--land1'),l2:css('--land2'),l3:css('--land3'),s1:css('--sea1'),s2:css('--sea2'),snow:css('--snow'),hull:css('--hull'),glow:css('--glow'),share:css('--share')};
+  const sky=c.createLinearGradient(0,0,0,hh); sky.addColorStop(0,C.sky1); sky.addColorStop(1,C.sky2);
+  c.fillStyle=sky; c.fillRect(0,0,w,hh);
+  // sun
+  c.fillStyle=C.sun; c.beginPath(); c.arc(w*0.22, hh*0.3, Math.min(w,hh)*0.09, 0, Math.PI*2); c.fill();
+  function hill(y, amp, col, freq, ph){
+    c.fillStyle=col; c.beginPath(); c.moveTo(0,hh);
+    for(let x=0;x<=w;x+=6){ c.lineTo(x, y + Math.sin(x/w*Math.PI*freq + ph)*amp); }
+    c.lineTo(w,hh); c.closePath(); c.fill();
+  }
+  function pine(x, base, ht, col){
+    c.fillStyle=col; c.beginPath(); c.moveTo(x, base-ht); c.lineTo(x-ht*0.28, base); c.lineTo(x+ht*0.28, base); c.closePath(); c.fill();
+  }
+  function house(x, base, wd, col, roof){
+    c.fillStyle=col; c.fillRect(x, base-wd*0.6, wd, wd*0.6);
+    c.fillStyle=roof; c.beginPath(); c.moveTo(x-wd*0.1, base-wd*0.6); c.lineTo(x+wd/2, base-wd*1.05); c.lineTo(x+wd*1.1, base-wd*0.6); c.closePath(); c.fill();
+    c.fillStyle=C.glow; c.fillRect(x+wd*0.22, base-wd*0.42, wd*0.2, wd*0.18); c.fillRect(x+wd*0.58, base-wd*0.42, wd*0.2, wd*0.18);
+  }
+  function sea(y){
+    const g=c.createLinearGradient(0,y,0,hh); g.addColorStop(0,C.s1); g.addColorStop(1,C.s2);
+    c.fillStyle=g; c.fillRect(0,y,w,hh-y);
+    c.strokeStyle=C.sky2; c.globalAlpha=.35; c.lineWidth=1.2;
+    for(let i=0;i<9;i++){ const yy=y+8+i*(hh-y)/9, xx=R()*w; c.beginPath(); c.moveTo(xx,yy); c.lineTo(xx+20+R()*40,yy); c.stroke(); }
+    c.globalAlpha=1;
+  }
+  if(kind==='cabin'){
+    hill(hh*0.55, 10, C.l1, 2, 1);
+    for(let i=0;i<26;i++) pine(R()*w, hh*0.6+R()*8, 28+R()*26, C.l2);
+    hill(hh*0.74, 6, C.l2, 3, 2);
+    house(w*0.56, hh*0.8, Math.min(w*0.17, 90), C.hull, C.l3);
+    for(let i=0;i<14;i++){ const x=R()*w; if(Math.abs(x-w*0.62)<w*0.13) continue; pine(x, hh*0.84+R()*14, 46+R()*40, C.l3); }
+  } else if(kind==='beach'){
+    sea(hh*0.55);
+    // kite
+    c.fillStyle=C.share; c.beginPath(); c.moveTo(w*0.7,hh*0.18); c.lineTo(w*0.82,hh*0.12); c.lineTo(w*0.8,hh*0.22); c.closePath(); c.fill();
+    c.strokeStyle=C.hull; c.lineWidth=.8; c.beginPath(); c.moveTo(w*0.76,hh*0.2); c.lineTo(w*0.5,hh*0.64); c.stroke();
+    hill(hh*0.8, 12, C.sky2, 1.4, 0.5);
+    c.fillStyle=C.l1; c.globalAlpha=.6; for(let i=0;i<40;i++){ const x=R()*w; c.fillRect(x, hh*0.8-4-R()*10, 1.5, 8+R()*6); } c.globalAlpha=1;
+    house(w*0.14, hh*0.84, Math.min(w*0.16,84), C.snow, C.hull);
+  } else if(kind==='boat'){
+    hill(hh*0.52, 3, C.l2, 2, 0);
+    sea(hh*0.56);
+    const bx=w*0.5, by=hh*0.76, bw=Math.min(w*0.34,170);
+    c.fillStyle=C.hull; c.beginPath(); c.moveTo(bx-bw/2,by); c.lineTo(bx+bw/2,by); c.lineTo(bx+bw*0.38,by+bw*0.13); c.lineTo(bx-bw*0.4,by+bw*0.13); c.closePath(); c.fill();
+    c.fillStyle=C.snow; c.beginPath(); c.moveTo(bx,by-4); c.lineTo(bx,by-bw*0.95); c.lineTo(bx+bw*0.45,by-4); c.closePath(); c.fill();
+    c.fillStyle=C.share; c.beginPath(); c.moveTo(bx-3,by-bw*0.8); c.lineTo(bx-3,by-4); c.lineTo(bx-bw*0.34,by-4); c.closePath(); c.fill();
+  } else if(kind==='chalet'){
+    c.fillStyle=C.l2; c.beginPath(); c.moveTo(0,hh*0.7);
+    const peaks=[[0.1,0.42],[0.3,0.2],[0.48,0.38],[0.66,0.14],[0.86,0.36],[1,0.3]];
+    peaks.forEach(([x,y])=>c.lineTo(x*w,y*hh)); c.lineTo(w,hh*0.7); c.closePath(); c.fill();
+    c.fillStyle=C.snow;
+    [[0.3,0.2],[0.66,0.14]].forEach(([x,y])=>{ c.beginPath(); c.moveTo(x*w,y*hh); c.lineTo(x*w-w*0.06,y*hh+hh*0.1); c.lineTo(x*w+w*0.05,y*hh+hh*0.1); c.closePath(); c.fill(); });
+    hill(hh*0.72, 8, C.l1, 2, 1.5);
+    for(let i=0;i<18;i++) pine(R()*w, hh*0.8+R()*10, 22+R()*20, C.l3);
+    hill(hh*0.88, 4, C.snow, 2, 0.2);
+    house(w*0.6, hh*0.9, Math.min(w*0.17,90), C.hull, C.l3);
+  } else {
+    hill(hh*0.58, 14, C.l1, 1.6, 0.3);
+    hill(hh*0.7, 8, C.l2, 2.4, 1.2);
+    c.fillStyle=C.l3; c.fillRect(0,hh*0.86,w,hh*0.14);
+    c.strokeStyle=C.share; c.lineWidth=2; c.setLineDash([10,10]); c.beginPath(); c.moveTo(0,hh*0.93); c.lineTo(w,hh*0.93); c.stroke(); c.setLineDash([]);
+    const vx=w*0.36, vy=hh*0.86, vw=Math.min(w*0.32,150), vh=vw*0.46;
+    c.fillStyle=C.snow; c.beginPath(); c.moveTo(vx,vy-8); c.lineTo(vx,vy-vh); c.lineTo(vx+vw*0.78,vy-vh); c.lineTo(vx+vw,vy-vh*0.5); c.lineTo(vx+vw,vy-8); c.closePath(); c.fill();
+    c.fillStyle=C.share; c.fillRect(vx, vy-vh*0.42, vw, vh*0.12);
+    c.fillStyle=C.s1; c.fillRect(vx+vw*0.8, vy-vh*0.9, vw*0.13, vh*0.32);
+    c.fillStyle=C.hull; [0.2,0.78].forEach(f=>{ c.beginPath(); c.arc(vx+vw*f, vy-6, vh*0.15, 0, Math.PI*2); c.fill(); });
+  }
+}
+
+let SCENES=[];
+function scene(cv,kind,seed){ SCENES.push([cv,kind,seed]); requestAnimationFrame(()=>drawScene(cv,kind,seed)); }
+
+/* ---------- share wheel ---------- */
+function wheel(p, size){
+  const n=Math.max(1, Math.round(p.people));
+  const crew=crewWithMe(p);
+  const inC=crew.filter(m=>m.st==='in').length, mayC=crew.filter(m=>m.st==='maybe').length;
+  const R=size/2, r=R-3;
+  const svg=s('svg',{viewBox:`0 0 ${size} ${size}`, role:'img', 'aria-label':`${Math.min(inC,n)} of ${n} shares taken, ${mayC} maybe`});
+  svg.append(s('circle',{cx:R,cy:R,r:r,fill:css('--card'),stroke:css('--line'),'stroke-width':1}));
+  for(let i=0;i<n;i++){
+    const a0=-Math.PI/2+i/n*Math.PI*2, a1=-Math.PI/2+(i+1)/n*Math.PI*2;
+    const pa=`M${R},${R} L${R+r*Math.cos(a0)},${R+r*Math.sin(a0)} A${r},${r} 0 ${a1-a0>Math.PI?1:0} 1 ${R+r*Math.cos(a1)},${R+r*Math.sin(a1)} Z`;
+    let fill=css('--card'), op=1;
+    if(i<inC) fill=css('--share');
+    else if(i<inC+mayC){ fill=css('--share'); op=.35; }
+    svg.append(s('path',{d:pa, fill:fill, 'fill-opacity':op, stroke:css('--paper'), 'stroke-width':Math.max(1.5,size/60)}));
+  }
+  svg.append(s('circle',{cx:R,cy:R,r:r*0.38,fill:css('--paper')}));
+  svg.append(s('text',{x:R,y:R+size*0.06,'text-anchor':'middle','font-family':'Spline Sans Mono, monospace','font-size':size*0.16,'font-weight':600,fill:css('--ink')}, `${Math.min(inC,n)}/${n}`));
+  return svg;
+}
+function crewWithMe(p){
+  const me={id:'me', n:S.me ? S.me+' (you)' : 'You', st:'in', max:Infinity, nights:0, up:0, me:true};
+  return [me].concat(p.crew||[]);
+}
+
+/* ---------- views ---------- */
+const TABS=[
+  ['dream','Dream','M3 20h18M5 20l5-9 3 5 2-3 4 7M15 6a2 2 0 1 0 0-.01'],
+  ['numbers','Numbers','M4 20V10M10 20V4M16 20v-7M22 20H2'],
+  ['pitch','Pitch','M4 5h16v11H8l-4 4z'],
+  ['crew','Crew','M12 12a4 4 0 1 0 0-.01M12 12v9M12 12l7.8 4.5M12 12L4.2 16.5'],
+  ['path','Path','M6 4v16M6 6h10l-2 3 2 3H6']
+];
+function renderTabs(){
+  const box=document.getElementById('tabs'); box.textContent='';
+  TABS.forEach(([id,label,d])=>{
+    const svg=s('svg',{viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':1.7,'stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}, s('path',{d:d}));
+    box.append(h('button',{'aria-current':S.tab===id?'page':null, onclick:()=>go(id)}, svg, label));
+  });
+}
+function renderTop(){
+  const top=document.getElementById('top'); top.textContent='';
+  const p=plan();
+  const pick=h('select',{class:'plan-pick',id:'plan-pick','aria-label':'Your plans', onchange:e=>{ if(e.target.value==='__new'){ go('dream'); setTimeout(()=>{ const t=document.getElementById('start-new'); if(t) t.scrollIntoView({behavior:'smooth'}); },50); e.target.value=p.id; return; } S.cur=e.target.value; save(); render(); }});
+  S.plans.forEach(x=>pick.append(h('option',{value:x.id, selected:x.id===p.id?true:null, text:x.title})));
+  pick.append(h('option',{value:'__new',text:'+ Start a new plan'}));
+  const logo=s('svg',{viewBox:'0 0 32 32',width:28,height:28,'aria-hidden':'true'});
+  for(let i=0;i<8;i++){ const a0=-Math.PI/2+i/8*Math.PI*2, a1=a0+Math.PI/4; logo.append(s('path',{d:`M16,16 L${16+14*Math.cos(a0)},${16+14*Math.sin(a0)} A14,14 0 0 1 ${16+14*Math.cos(a1)},${16+14*Math.sin(a1)} Z`, fill:i<5?css('--share'):css('--paper-2'), stroke:css('--paper'),'stroke-width':1.4})); }
+  logo.append(s('circle',{cx:16,cy:16,r:5,fill:css('--paper')}));
+  top.append(h('div',{class:'mark'}, logo, h('b',{text:'The New Commons'})), pick);
+}
+function go(tab){ S.tab=tab; save(); render(); window.scrollTo(0,0); }
+function render(){
+  SCENES=[];
+  renderTop(); renderTabs();
+  const v=document.getElementById('view'); v.textContent='';
+  const p=plan();
+  ({dream:viewDream, numbers:viewNumbers, pitch:viewPitch, crew:viewCrew, path:viewPath}[S.tab]||viewDream)(v,p);
+}
+
+/* ---- Dream ---- */
+function viewDream(v,p){
+  const c=calc(p);
+  const K=KINDS[p.kind]||KINDS.cabin;
+  const cv=h('canvas',{'aria-hidden':'true'});
+  const hero=h('div',{class:'hero'}, cv);
+  const wh=wheel(p,74); wh.setAttribute('class','wheel'); hero.append(wh);
+  const exampleNote = p.example ? h('p',{class:'note'},'These are example figures and example friends. Change the name, place and numbers to make it yours.') : null;
+
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'},
+      hero,
+      h('div',{class:'hero-text'},
+        h('input',{class:'title-edit',id:'title',value:p.title,'aria-label':'Name of your commons', oninput:e=>{p.title=txt(e.target.value)||K.title; p.example=false; save();}, onchange:()=>renderTop()}),
+        h('input',{class:'place-edit',id:'place',value:p.place,placeholder:'Where is it?','aria-label':'Where', oninput:e=>{p.place=txt(e.target.value); save();}})
+      ),
+      h('div',{class:'figs'},
+        h('div',{class:'fig key'}, h('b',{text:eur(c.per)}), h('span',{text:`a month each, with ${c.people} people`})),
+        h('div',{class:'fig'}, h('b',{text:int(c.nights)}), h('span',{text:`${K.unit}s a year each`})),
+        h('div',{class:'fig'}, h('b',{text:eur(c.perNight)}), h('span',{text:`a ${K.unit}, against ${eur(p.market)} to rent`}))
+      ),
+      h('p',{class:'soft'}, `Plus ${eur(c.up)} each to get in. After ten years each share is worth about ${eur(c.end.worth)}, so the real cost is ${eur(c.trueM)} a month.`),
+      exampleNote,
+      h('div',{class:'row'},
+        h('button',{class:'btn primary',onclick:()=>go('pitch')},'Invite friends'),
+        h('button',{class:'btn',onclick:()=>go('numbers')},'Change the numbers'))
+    ),
+
+    h('section',{class:'stack'},
+      h('p',{class:'eyebrow',text:'Why ideas like this stall'}),
+      h('h2',{text:'Everyone says “let’s do it”, then someone sends a listing and it dies.'}),
+      h('div',{class:'barriers'},
+        barrier('It looks expensive', `A ${eur(p.price)} price tag scares people. Split it and it is ${eur(c.per)} a month.`, 'numbers','See the split'),
+        barrier('You need more people', `You have ${crewWithMe(p).filter(m=>m.st==='in').length} of ${c.people}. Send one link, collect soft yeses.`, 'crew','Your crew'),
+        barrier('Everyone wants something else', 'One friend wants a return, another a garden for the kids. Pitch each the part they care about.', 'pitch','Pitch angles'),
+        barrier('Nobody knows if they’d use it', 'Rent a similar place together for a weekend first. Buy only if it works.', 'path','The path'),
+        barrier('Fear of fights and being stuck', 'Agree on the calendar, the costs and how to step out before anyone pays.', 'path','House rules')
+      )
+    ),
+
+    h('section',{class:'stack',id:'start-new'},
+      h('p',{class:'eyebrow',text:'Start a new plan'}),
+      h('h2',{text:'What would you share?'}),
+      (()=>{
+        const g=h('div',{class:'templates'});
+        Object.keys(KINDS).forEach(k=>{
+          const cvs=h('canvas',{'aria-hidden':'true'});
+          const b=h('button',{class:'tpl',onclick:()=>{ const np=newPlan(k); S.plans.push(np); S.cur=np.id; save(); render(); window.scrollTo({top:0,behavior:'smooth'}); toast('New plan: '+KINDS[k].label); }},
+            cvs, h('div',null,h('b',{text:KINDS[k].label}),h('span',{text:KINDS[k].blurb})));
+          g.append(b);
+          scene(cvs,k,'tpl');
+        });
+        return g;
+      })()
+    ),
+
+    h('section',{class:'stack'},
+      h('p',{class:'eyebrow',text:'It already works'}),
+      h('h2',{text:'Owning together is old. Doing it with friends just needs better tools.'}),
+      h('div',{class:'shows'},
+        show('1/8','Second homes in eighths','In the US and parts of Europe, companies such as Pacaso sell shares of holiday homes to up to eight co-owners, who book their stays through a shared calendar.'),
+        show('⛵','Boat syndicates','Several sailors owning one yacht with a fixed rota is a long-standing habit in British sailing. Costs and the maintenance work are split.'),
+        show('DE','Mietshäuser Syndikat','A German network that helps groups of residents buy their own building together, set up so it can’t be sold off later.'),
+        show('DK','Andelsboliger','In Danish housing co-ops, members own a share of the whole building and a right to live in it, instead of owning a flat.'),
+        show('NL','Volkstuinen','Dutch allotment associations have run shared land for over a century: members, a board, clear rules and a waiting list.')
+      )
+    ),
+
+    S.plans.length>1 ? h('section',{class:'stack'},
+      h('p',{class:'eyebrow',text:'This plan'}),
+      deleteRow(p)
+    ) : null,
+    h('p',{class:'foot',text:'Your plans are saved in this browser only. Links you send carry the plan inside them; nothing is stored on a server.'})
+  ));
+  scene(cv,p.kind,p.id);
+}
+function barrier(title, text, tab, cta){
+  return h('div',{class:'barrier'}, h('b',{text:title}), h('p',{text:text}), h('button',{class:'btn small',onclick:()=>go(tab)}, cta));
+}
+function show(dot, t, d){ return h('div',{class:'show'}, h('div',{class:'dot','aria-hidden':'true',text:dot}), h('div',null, h('b',{text:t}), h('p',{text:d}))); }
+function deleteRow(p){
+  const box=h('div',{class:'confirm'});
+  const ask=h('button',{class:'btn small ghost',onclick:()=>{
+    box.textContent='';
+    box.append(h('span',{text:`Delete “${p.title}” and its crew?`}),
+      h('button',{class:'btn small',onclick:()=>{ S.plans=S.plans.filter(x=>x.id!==p.id); S.cur=S.plans[0]?S.plans[0].id:null; save(); render(); toast('Plan deleted'); }},'Delete'),
+      h('button',{class:'btn small ghost',onclick:()=>{ box.textContent=''; box.append(ask); }},'Keep it'));
+  }},'Delete this plan');
+  box.append(ask); return box;
+}
+
+/* ---- Numbers ---- */
+function viewNumbers(v,p){
+  const K=KINDS[p.kind]||KINDS.cabin;
+  const sum=h('div',{class:'sum'});
+  const out=h('div',{class:'outcome'});
+  function refresh(){
+    const c=calc(p);
+    sum.textContent='';
+    sum.append(h('div',{class:'figs'},
+      h('div',{class:'fig key'}, h('b',{text:eur(c.per)}), h('span',{text:'a month each'})),
+      h('div',{class:'fig'}, h('b',{text:eur(c.up)}), h('span',{text:'once, to get in'})),
+      h('div',{class:'fig'}, h('b',{text:eur(c.perNight)}), h('span',{text:`a ${K.unit}, ${int(c.nights)} ${K.unit}s each`}))
+    ));
+    out.textContent='';
+    out.append(
+      h('h3',{text:'Every month, for the whole group'}),
+      line('Loan payment', eur(c.pay)),
+      line('Running costs', eur(c.runM)),
+      line('Rent from guests', p.rentNights ? '−'+eur(c.rentM) : '€0'),
+      line(`Net, split by ${c.people}`, eur(c.per)+' each', true),
+      h('h3',{text:'Ten years on', style:'margin-top:12px'}),
+      chart(c),
+      h('div',{class:'legend'}, h('span',null,h('i',{style:'background:var(--warn)'}),'What you put in'), h('span',null,h('i',{style:'background:var(--accent)'}),'What your share is worth')),
+      line('You put in, in total', eur(c.end.paid)),
+      line('Your share is then worth', eur(c.end.worth)),
+      line('Real cost per month', eur(c.trueM)),
+      line(`Real cost per ${K.unit}`, eur(c.trueNight)+` (renting: ${eur(p.market)})`, true),
+      h('p',{class:'note',text:'Estimates only. Value change, rent income and interest are guesses you set above. Lenders often ask for more of your own money on a second home, and in the Netherlands a second home usually counts as wealth for tax (box 3). Check with an advisor before anyone signs.'})
+    );
+  }
+  function field(label, key, min, max, step, hint){
+    const id='f-'+key;
+    const num=h('input',{type:'number',id:id,min:min,max:max,step:step,value:p[key],inputmode:'decimal'});
+    const rng=h('input',{type:'range',min:min,max:max,step:step,value:p[key],'aria-label':label});
+    function set(val, from){
+      const x=clamp(val,min,max); p[key]=x; p.example=false;
+      if(from!=='num') num.value=x;
+      if(from!=='rng') rng.value=x;
+      save(); refresh();
+    }
+    num.addEventListener('input',()=>{ if(num.value!=='') set(num.value,'num'); });
+    num.addEventListener('change',()=>set(num.value,'blur'));
+    rng.addEventListener('input',()=>set(rng.value,'rng'));
+    return h('div',{class:'field'}, h('label',{for:id,text:label}), num, rng, hint?h('div',{class:'hint',text:hint}):null);
+  }
+  const isUnit=K.unit;
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Numbers'}), h('h1',{text:p.title})),
+    sum,
+    h('section',{class:'group'}, h('h3',{text:'The group'}),
+      field('People sharing','people',2,20,1,'More people means a lower monthly cost and fewer '+isUnit+'s each.')),
+    h('section',{class:'group'}, h('h3',{text:'The place'}),
+      field('Price (€)','price',5000,2000000,5000),
+      field('Buying costs (%)','cost',0,20,0.5,'Transfer tax, notary, survey. Differs by country.'),
+      field(`Usable ${isUnit}s a year`,'season',30,365,5)),
+    h('section',{class:'group'}, h('h3',{text:'The money'}),
+      field('Own money (%)','own',0,100,5),
+      field('Interest (%)','rate',0,12,0.1),
+      field('Loan years','years',0,30,1)),
+    h('section',{class:'group'}, h('h3',{text:'Running it'}),
+      field('Yearly costs (€)','run',0,100000,250,'Upkeep, insurance, local taxes, energy, park or mooring fees.')),
+    h('section',{class:'group'}, h('h3',{text:'Renting it out when nobody is there'}),
+      field(`${isUnit[0].toUpperCase()+isUnit.slice(1)}s rented out`,'rentNights',0,250,5),
+      field(`Rate per ${isUnit} (€)`,'rentRate',0,1500,5),
+      field('Lost to platform, cleaning (%)','cut',0,70,1)),
+    h('section',{class:'group'}, h('h3',{text:'Outlook'}),
+      field('Value change per year (%)','growth',-15,10,0.5,'Houses tend to rise, boats and vans lose value.'),
+      field(`Renting something similar, per ${isUnit} (€)`,'market',0,2000,5)),
+    out
+  ));
+  refresh();
+}
+function line(a,b,total){ return h('div',{class:'line'+(total?' total':'')}, h('span',{text:a}), h('span',{text:b})); }
+function chart(c){
+  const W=320,H=170,L=46,Rr=10,T=10,B=24;
+  const pts=c.pts;
+  const maxV=Math.max(1, ...pts.map(x=>Math.max(x.paid,x.worth)));
+  const minV=Math.min(0, ...pts.map(x=>Math.min(x.paid,x.worth)));
+  const nice=v=>{ const p=Math.pow(10,Math.floor(Math.log10(Math.max(1,Math.abs(v))))); return Math.ceil(v/p)*p; };
+  const top=nice(maxV), bot=minV<0?-nice(-minV):0;
+  const X=y=>L+(W-L-Rr)*y/10, Y=v=>T+(H-T-B)*(1-(v-bot)/(top-bot));
+  const svg=s('svg',{class:'chart',viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':`After 10 years you put in ${eur(c.end.paid)} and your share is worth ${eur(c.end.worth)}`});
+  const ticks=[bot, bot+(top-bot)/2, top];
+  ticks.forEach(t=>{
+    svg.append(s('line',{x1:L,x2:W-Rr,y1:Y(t),y2:Y(t),stroke:css('--line'),'stroke-width':1}));
+    svg.append(s('text',{x:L-6,y:Y(t)+4,'text-anchor':'end','font-size':10,'font-family':'Spline Sans Mono, monospace',fill:css('--muted')}, t>=1000||t<=-1000 ? (t<0?'−':'')+'€'+Math.round(Math.abs(t)/1000)+'k' : eur(t)));
+  });
+  [0,5,10].forEach(y=>svg.append(s('text',{x:X(y),y:H-6,'text-anchor':'middle','font-size':10,'font-family':'Spline Sans Mono, monospace',fill:css('--muted')}, y===0?'now':'yr '+y)));
+  function path(key,col){
+    const d=pts.map((p,i)=>(i?'L':'M')+X(p.y).toFixed(1)+','+Y(p[key]).toFixed(1)).join(' ');
+    svg.append(s('path',{d:d,fill:'none',stroke:col,'stroke-width':2.4,'stroke-linejoin':'round','stroke-linecap':'round'}));
+    const e=pts[pts.length-1]; svg.append(s('circle',{cx:X(e.y),cy:Y(e[key]),r:4,fill:col}));
+  }
+  // area between, to show the real cost
+  const area='M'+pts.map(p=>X(p.y)+','+Y(p.paid)).join(' L')+' L'+pts.slice().reverse().map(p=>X(p.y)+','+Y(p.worth)).join(' L')+' Z';
+  svg.append(s('path',{d:area,fill:css('--warn'),'fill-opacity':.1}));
+  path('paid',css('--warn')); path('worth',css('--accent'));
+  return svg;
+}
+
+/* ---- Pitch ---- */
+const ANGLES={
+  easy:{t:'Cheap and easy', d:'For the friend who just wants it simple'},
+  money:{t:'Smart money', d:'For the one who likes a good investment'},
+  family:{t:'The family', d:'Kids, a garden, holidays without booking'},
+  escape:{t:'The escape', d:'Spontaneous weekends away'},
+  careful:{t:'Try it first', d:'For the doubter: no commitment yet'}
+};
+function pitchText(p, angle, lang, to){
+  const c=calc(p), K=KINDS[p.kind]||KINDS.cabin;
+  const nl=lang==='nl';
+  const unitNL={night:'nachten',day:'dagen'}[K.unit], unit1NL={night:'nacht',day:'dag'}[K.unit];
+  const name=to? to : (nl?'hé':'hey');
+  const hi=to? (nl?`Hoi ${to}!`:`Hi ${to}!`) : (nl?'Hoi!':'Hi!');
+  const where=p.place? ` (${p.place})` : '';
+  const link=inviteLink(p);
+  const wk=eur(p.market*2/Math.max(2,c.people));
+  const f={per:eur(c.per), up:eur(c.up), nights:int(c.nights), night:eur(c.perNight), people:c.people, worth:eur(c.end.worth), paid:eur(c.end.paid), market:eur(p.market), t:p.title};
+  let m;
+  if(nl){
+    m={
+      easy:`${hi} Ik ben iets leuks aan het uitzoeken: met een groep vrienden samen een ${f.t.toLowerCase()} kopen${where}. Met ${f.people} mensen kost het ongeveer ${f.per} per maand per persoon, plus eenmalig ${f.up} om in te stappen. Daarvoor heb je zo'n ${f.nights} ${unitNL} per jaar, dat is ${f.night} per ${unit1NL}. Het gedoe regelen we samen. Niets is nog definitief, kijk maar:`,
+      money:`${hi} Een idee met echte cijfers: ${f.people} vrienden kopen samen een ${f.t.toLowerCase()}${where}. Iedereen legt eenmalig ${f.up} in en betaalt ongeveer ${f.per} per maand; verhuur dekt een deel van de kosten. Na tien jaar is je aandeel naar schatting ${f.worth} waard, tegen ${f.paid} ingelegd. Geen garantie, maar een stuk slimmer dan elk jaar vakantiehuizen huren. Wil je de cijfers zien?`,
+      family:`${hi} Stel je voor: een ${f.t.toLowerCase()}${where} waar de kinderen buiten kunnen spelen, zonder boekingsstress. Met ${f.people} gezinnen/vrienden heb je ieder zo'n ${f.nights} ${unitNL} per jaar, voor ${f.per} per maand. Vakanties en lange weekenden wanneer het ons uitkomt. Doe je mee?`,
+      escape:`${hi} Vrijdagmiddag laptop dicht en gewoon gaan: naar onze eigen ${f.t.toLowerCase()}${where}. Met ${f.people} mensen is het ${f.per} per maand per persoon, ${f.nights} ${unitNL} per jaar. Geen gezoek, geen boeken. Zin in?`,
+      careful:`${hi} Je hoeft nog nergens ja tegen te zeggen. Ik denk erover om met vrienden samen een ${f.t.toLowerCase()} te delen (ongeveer ${f.per} p.p. per maand). Eerste stap: we huren een weekend iets vergelijkbaars, zo'n ${wk} per persoon, en kijken of het klikt. Pas daarna beslissen we, met duidelijke afspraken over kosten, agenda en hoe je weer uitstapt.`
+    };
+  } else {
+    m={
+      easy:`${hi} I'm looking into something fun: buying a ${f.t.toLowerCase()}${where} together with a group of friends. With ${f.people} of us it comes to about ${f.per} a month each, plus ${f.up} once to get in. For that you get around ${f.nights} ${K.unit}s a year, which is ${f.night} a ${K.unit}. We'd sort out the hassle together. Nothing is fixed yet, have a look:`,
+      money:`${hi} An idea with real numbers: ${f.people} friends co-own a ${f.t.toLowerCase()}${where}. Each puts in ${f.up} once and about ${f.per} a month; renting it out covers part of the costs. After ten years each share would be worth about ${f.worth}, against ${f.paid} put in. No guarantees, but a lot smarter than renting holiday homes every year. Want to see the numbers?`,
+      family:`${hi} Picture a ${f.t.toLowerCase()}${where} where the kids can play outside, with no booking stress. With ${f.people} families and friends we'd each get about ${f.nights} ${K.unit}s a year, for ${f.per} a month. Holidays and long weekends whenever it suits us. Are you in?`,
+      escape:`${hi} Close the laptop on Friday afternoon and just go: to our own ${f.t.toLowerCase()}${where}. With ${f.people} of us it's ${f.per} a month each, ${f.nights} ${K.unit}s a year. No searching, no booking. Fancy it?`,
+      careful:`${hi} You don't have to say yes to anything yet. I'm thinking of sharing a ${f.t.toLowerCase()} with friends (about ${f.per} a month each). First step: we rent something similar for a weekend, around ${wk} each, and see if it works. Only then we decide, with clear rules on costs, the calendar and how to step out.`
+    };
+  }
+  let out=m[angle]||m.easy;
+  if(p.note) out += (nl?'\n\nPS: ':'\n\nPS: ') + p.note;
+  out += '\n\n' + (nl?'Laat hier weten wat voor jou zou werken: ':'Tell me what would work for you here: ') + link;
+  return out;
+}
+function viewPitch(v,p){
+  const msg=h('div',{class:'msg',id:'msg'});
+  function upd(){ msg.textContent=pitchText(p,p.angle,p.lang,p.to); }
+  const angles=h('div',{class:'angles'});
+  Object.keys(ANGLES).forEach(k=>{
+    const b=h('button',{class:'angle','aria-pressed':p.angle===k?'true':'false', onclick:()=>{ p.angle=k; save(); [...angles.children].forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); upd(); }},
+      h('b',{text:ANGLES[k].t}), h('span',{text:ANGLES[k].d}));
+    angles.append(b);
+  });
+  const langs=h('div',{class:'chips',role:'group','aria-label':'Language'});
+  [['nl','Nederlands'],['en','English']].forEach(([k,l])=>{
+    const b=h('button',{class:'chip','aria-pressed':p.lang===k?'true':'false',onclick:()=>{ p.lang=k; save(); [...langs.children].forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); upd(); }}, l);
+    langs.append(b);
+  });
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Pitch'}), h('h1',{text:'Invite someone in'}),
+      h('p',{class:'soft',text:'Every friend cares about something else. Pick what this one cares about; the numbers fill themselves in. The link lets them answer with what they could put in.'})),
+    h('section',{class:'stack'},
+      h('div',{class:'form'},
+        h('label',null,'Your name', h('input',{id:'me-name',value:S.me,placeholder:'So they know who asks',oninput:e=>{ S.me=txt(e.target.value,40); save(); upd(); }})),
+        h('label',null,'Their name', h('input',{id:'to-name',value:p.to,placeholder:'Optional',oninput:e=>{ p.to=txt(e.target.value,40); save(); upd(); }})),
+        h('label',{class:'full'},'A personal line (optional)', h('input',{id:'pnote',value:p.note,placeholder:'e.g. Remember that cabin weekend in May?',oninput:e=>{ p.note=txt(e.target.value,280); save(); upd(); }}))
+      )),
+    h('section',{class:'stack'}, h('h3',{text:'What do they care about?'}), angles, langs),
+    h('section',{class:'stack'},
+      msg,
+      h('div',{class:'row'},
+        h('button',{class:'btn share',onclick:()=>shareText(msg.textContent,msg)},'Send'),
+        h('button',{class:'btn',onclick:()=>copy(msg.textContent,msg)},'Copy text'),
+        h('button',{class:'btn ghost',onclick:()=>copy(inviteLink(p))},'Copy link only')),
+      h('p',{class:'note',text:'The link carries this plan’s figures and your personal line. Anyone with the link can read them, so leave out anything private.'}))
+  ));
+  upd();
+}
+
+/* ---- Crew ---- */
+function viewCrew(v,p){
+  const c=calc(p);
+  const crew=crewWithMe(p);
+  const inC=crew.filter(m=>m.st==='in').length, mayC=crew.filter(m=>m.st==='maybe').length;
+  const short=(p.crew||[]).filter(m=>m.st!=='no' && m.max < c.per);
+  const open=Math.max(0, c.people-inC);
+  const head=h('div',{class:'crew-head'}, wheel(p,120),
+    h('div',{class:'stack',style:'gap:6px'},
+      h('h2',{text: open ? `${open} share${open===1?'':'s'} to go` : 'Every share is spoken for'}),
+      h('p',{class:'soft'}, `${inC} in, ${mayC} maybe, out of ${c.people}. At ${eur(c.per)} a month each.`)));
+
+  // what would make it fit
+  const tips=[];
+  if(short.length){
+    const lowest=Math.min(...short.map(m=>m.max));
+    let need=null;
+    for(let n=c.people+1;n<=20;n++){ const cc=calc(Object.assign({},p,{people:n})); if(cc.per<=lowest){ need=[n,cc.per]; break; } }
+    tips.push(`${short.length===1?short[0].n+'’s limit is':short.length+' people have a limit'} below ${eur(c.per)}.` + (need?` With ${need[0]} people it drops to ${eur(need[1])}.`:' More own money or more rental nights would help.'));
+  }
+  const ups=(p.crew||[]).filter(m=>m.st!=='no');
+  if(ups.length){
+    const avail=ups.reduce((a,m)=>a+m.up,0), needUp=c.up*ups.length;
+    tips.push(`Together the others can put in ${eur(avail)} up front; their shares need ${eur(needUp)}.`);
+  }
+  const testers=(p.crew||[]).filter(m=>m.test && m.st!=='no').length;
+  if(testers) tips.push(`${testers} want to try it first. A weekend in something similar costs about ${eur(p.market*2)}, so ${eur(p.market*2/Math.max(2,testers+1))} each.`);
+
+  const list=h('div',null);
+  crew.forEach(m=>list.append(memberRow(p,m,c)));
+
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Crew'}), head),
+    tips.length ? h('section',{class:'card stack'}, h('h3',{text:'What the answers say'}), h('ul',{style:'margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px'}, tips.map(t=>h('li',{text:t})))) : null,
+    h('section',null, list),
+    h('section',{class:'stack'}, h('h3',{text:'Add someone yourself'}), memberForm(p,null)),
+    h('section',{class:'stack'},
+      h('h3',{text:'Got a reply link?'}),
+      h('p',{class:'note',text:'When a friend answers your invite, they send you a link. Open it on this phone and they are added here. Or paste it below.'}),
+      pasteBox(p))
+  ));
+}
+function memberRow(p,m,c){
+  const fits = m.me ? null : (m.max>=c.per);
+  const meta = m.me ? 'Organiser' :
+    [m.max?`up to ${eur(m.max)}/month`:'no limit given', m.up?`${eur(m.up)} up front`:null, m.nights?`wants ${m.nights} ${(KINDS[p.kind]||KINDS.cabin).unit}s`:null, m.test?'wants to try first':null].filter(Boolean).join(' · ');
+  const st={in:['in','In'],maybe:['maybe','Maybe'],no:['no','Not now']}[m.st]||['maybe','Maybe'];
+  const row=h('div',{class:'member'},
+    h('div',null, h('b',{text:m.n}), h('span',{class:'pill '+st[0],text:st[1]})),
+    h('div',{class:'meta'}, meta, (!m.me && m.st!=='no') ? h('span',{class:fits?'ok':'low',text:fits?'  ✓ fits':'  ✕ below the cost'}) : null, m.note? h('div',{text:'“'+m.note+'”'}) : null),
+    m.me ? h('div',{class:'tools'}) : h('div',{class:'tools'},
+      h('button',{class:'btn small ghost',onclick:()=>{ row.replaceWith(h('div',{class:'card',style:'margin-block:8px'}, memberForm(p,m))); }},'Edit'))
+  );
+  return row;
+}
+function memberForm(p,m){
+  const e=m||{n:'',st:'maybe',max:Math.round(calc(p).per/10)*10,nights:0,up:0,test:false,note:''};
+  const k=m?m.id:'new';
+  const name=h('input',{id:'mn-'+k,value:e.n,placeholder:'Name',required:true});
+  const st=h('select',{id:'ms-'+k}, h('option',{value:'in',text:'In',selected:e.st==='in'?true:null}), h('option',{value:'maybe',text:'Maybe',selected:e.st==='maybe'?true:null}), h('option',{value:'no',text:'Not now',selected:e.st==='no'?true:null}));
+  const max=h('input',{id:'mm-'+k,type:'number',inputmode:'decimal',value:e.max,min:0});
+  const up=h('input',{id:'mu-'+k,type:'number',inputmode:'decimal',value:e.up,min:0});
+  const ni=h('input',{id:'mi-'+k,type:'number',inputmode:'decimal',value:e.nights,min:0});
+  const test=h('input',{id:'mt-'+k,type:'checkbox',checked:e.test,style:'width:auto'});
+  const note=h('input',{id:'mo-'+k,value:e.note,placeholder:'Optional'});
+  const box=h('form',{class:'form',onsubmit:ev=>{
+    ev.preventDefault();
+    const n=txt(name.value,40).trim(); if(!n){ name.focus(); toast('Add a name'); return; }
+    const rec={id:m?m.id:uid(), n:n, st:st.value, max:clamp(max.value,0,1e5), up:clamp(up.value,0,1e7), nights:clamp(ni.value,0,366), test:test.checked, note:txt(note.value,280)};
+    if(m){ Object.assign(m,rec); } else p.crew.push(rec);
+    p.example=false; save(); render(); toast(m?'Saved':'Added '+n);
+  }},
+    h('label',null,'Name',name), h('label',null,'Answer',st),
+    h('label',null,'Max per month (€)',max), h('label',null,'Can put in (€)',up),
+    h('label',null,'Nights wanted',ni), h('label',{style:'flex-direction:row;align-items:center;gap:8px;padding-top:18px'},test,'Wants to try first'),
+    h('label',{class:'full'},'Note',note),
+    h('div',{class:'row full',style:'grid-column:1/-1'},
+      h('button',{class:'btn primary',type:'submit'}, m?'Save':'Add to crew'),
+      m? h('button',{class:'btn ghost',type:'button',onclick:()=>{ p.crew=p.crew.filter(x=>x.id!==m.id); save(); render(); toast('Removed '+m.n); }},'Remove') : null,
+      m? h('button',{class:'btn ghost',type:'button',onclick:()=>render()},'Cancel') : null)
+  );
+  return box;
+}
+function pasteBox(p){
+  const inp=h('input',{class:'txt',id:'paste-reply',placeholder:'Paste a reply link'});
+  return h('div',{class:'row'}, inp, h('button',{class:'btn',onclick:()=>{
+    const m=String(inp.value).match(/#reply-([A-Za-z0-9_-]+)/);
+    if(!m){ toast('That is not a reply link'); return; }
+    handleReply(dec(m[1])); inp.value='';
+  }},'Add'));
+}
+function handleReply(o){
+  const r=readReply(o);
+  if(!r){ render(); toast('That reply link is damaged'); return false; }
+  const p=S.plans.find(x=>x.id===r.pid);
+  if(!p){ render(); toast('That reply is for a plan that isn’t on this phone'); return false; }
+  const ex=p.crew.find(m=>m.n.toLowerCase()===r.n.toLowerCase());
+  const rec={n:r.n, st:r.st, max:r.max, nights:r.nights, up:r.up, test:r.test, note:r.note};
+  if(ex) Object.assign(ex,rec); else p.crew.push(Object.assign({id:uid()},rec));
+  p.example=false;
+  S.cur=p.id; S.tab='crew'; save(); render();
+  toast((ex?'Updated ':'Added ')+r.n);
+  return true;
+}
+
+/* ---- Path ---- */
+const RULES={
+  form:{l:'How you own it',o:['Each on the deed, with a co-ownership agreement at the notary','A small company (BV) that owns it, everyone holds shares','An association or cooperative','Decide with the notary']},
+  cal:{l:'Who gets which weeks',o:['Draft for prime weeks (order flips each round), first come for the rest','Fixed rotating weeks, shifting one week each year','First come, first served, with a cap per person']},
+  cost:{l:'How costs are split',o:['Equal shares, whoever uses it','A fixed part each, plus a small fee per night used','By the size of each share']},
+  fund:{l:'Reserve for repairs',o:['10% on top of running costs, into a shared pot','5% on top of running costs','Pay repairs when they come']},
+  exit:{l:'Stepping out',o:['Offer your share to the group first at an independent valuation; after 6 months you may sell to an outsider the group accepts','The group must buy you out at valuation within 12 months','Find your own replacement, the group has a veto']},
+  lock:{l:'Minimum stay',o:['3 years before anyone can step out','5 years','No minimum']},
+  vote:{l:'Decisions',o:['Majority for everyday things; everyone must agree on selling, big repairs and new members','Two-thirds for everything','One person runs it; big things by majority']},
+  guests:{l:'Friends, pets, renting out',o:['Guests welcome when you are there; renting out only via the shared account','Guests and pets fine; no renting out','Decide house by house']}
+};
+function rulesText(p){
+  const r=p.rules||{};
+  const c=calc(p);
+  let t=`House rules for ${p.title}${p.place?' ('+p.place+')':''} — draft\n\n`;
+  t+=`Group: ${c.people} shares. Each puts in about ${eur(c.up)} and pays about ${eur(c.per)} a month.\n\n`;
+  Object.keys(RULES).forEach(k=>{ t+=`${RULES[k].l}: ${RULES[k].o[r[k]||0]}\n`; });
+  t+='\nA draft to talk through together. Have a notary or lawyer turn it into the real agreement.';
+  return t;
+}
+function draftOrder(p){
+  const names=crewWithMe(p).filter(m=>m.st==='in').map(m=>m.me?(S.me||'You'):m.n);
+  if(names.length<2) return null;
+  const ord=names.slice(); const R=rng(p.id+'draft');
+  for(let i=ord.length-1;i>0;i--){ const j=Math.floor(R()*(i+1)); [ord[i],ord[j]]=[ord[j],ord[i]]; }
+  const rounds=[ord, ord.slice().reverse()];
+  return rounds;
+}
+function viewPath(v,p){
+  p.steps=p.steps||{}; p.rules=p.rules||{};
+  const c=calc(p);
+  const weekend=p.market*2;
+  const steps=[
+    {t:'Name the dream', d:'One concrete place beats a vague idea.', b:[
+      'Pick a real listing or a real area, with a price. People join something they can picture.',
+      'Write the one line you would put on the fridge: who, what, why.' ]},
+    {t:'Find three who light up', d:'Not the whole group yet. Just the first few.', b:[
+      'Send the invite with the angle that fits each of them.',
+      'Three “yes, if the numbers hold” is enough to make it real for the next five.' ], go:['pitch','Write an invite']},
+    {t:'Rent it first', d:`A weekend in something similar: about ${eur(weekend)}, ${eur(weekend/Math.max(2,c.people))} each.`, b:[
+      'Book a place like the one you want to buy, with the people who said yes or maybe.',
+      'Notice how often people would really go, who cooks, who cleans, and who leaves things behind.',
+      'Do two or three of these over a season. The group that keeps showing up is your group.' ]},
+    {t:'Collect soft yeses', d:'Each friend says what they could put in, without signing anything.', b:[
+      'The reply link asks for a monthly limit, an amount up front and how many nights they want.',
+      'The Crew tab shows whether the numbers fit, and how many people would make them fit.' ], go:['crew','See the crew']},
+    {t:'Agree the rules', d:'Before money moves. This is what prevents the fights.', rules:true},
+    {t:'Buy it', d:'Money, paperwork, keys.', b:[
+      'Open a shared account for the monthly costs and the repair pot.',
+      'Get a mortgage advisor who knows second homes or co-ownership, and a notary for the agreement.',
+      'Check local rules: some holiday parks and towns forbid renting out or living there.' ]},
+    {t:'Live it', d:'Calendar, costs and a yearly look back.', draft:true, b:[
+      'Once a year: costs against plan, who used it how much, whether the rules still feel fair.',
+      'Keep a waiting list of friends who would like a share, so stepping out is easy.' ]}
+  ];
+  const doneCount=steps.filter((_,i)=>p.steps[i]).length;
+  const list=h('div',{class:'steps'});
+  steps.forEach((st,i)=>{
+    const done=!!p.steps[i];
+    const tick=h('button',{class:'tick','aria-label':(done?'Mark not done: ':'Mark done: ')+st.t, onclick:ev=>{ ev.preventDefault(); p.steps[i]=!p.steps[i]; save(); render(); }}, done?'✓':String(i+1));
+    const body=h('div',{class:'body'});
+    if(st.b) body.append(h('ul',null, st.b.map(x=>h('li',{text:x}))));
+    if(st.go) body.append(h('div',null,h('button',{class:'btn small',onclick:()=>go(st.go[0])},st.go[1])));
+    if(st.rules){
+      const out=h('div',{class:'msg',style:'font-size:.88rem'});
+      const box=h('div',{class:'rules'});
+      Object.keys(RULES).forEach(k=>{
+        const sel=h('select',{id:'rule-'+k,onchange:e=>{ p.rules[k]=Number(e.target.value); save(); out.textContent=rulesText(p); }});
+        RULES[k].o.forEach((o,j)=>sel.append(h('option',{value:j,text:o,selected:(p.rules[k]||0)===j?true:null})));
+        box.append(h('label',null,RULES[k].l,sel));
+      });
+      out.textContent=rulesText(p);
+      body.append(h('p',{class:'soft',text:'Pick what fits your group. The draft below updates; send it round and take it to the notary.'}), box, out,
+        h('div',{class:'row'}, h('button',{class:'btn share',onclick:()=>shareText(out.textContent,out)},'Send to the group'), h('button',{class:'btn',onclick:()=>copy(out.textContent,out)},'Copy')));
+    }
+    if(st.draft){
+      const rounds=draftOrder(p);
+      if(rounds){
+        const ol=h('ol',{class:'draft-order'});
+        rounds.forEach((r,ri)=>ol.append(h('li',null,h('b',{text:'Round '+(ri+1)}),h('span',{text:r.join(' → ')}))));
+        body.append(h('p',{class:'soft',text:'Prime-week draft for the people who are in. Pick one week each per round; next year, start where this year ended.'}), ol);
+      } else body.append(h('p',{class:'note',text:'Once two or more people are in, a prime-week draft order shows up here.'}));
+    }
+    list.append(h('div',{class:'step'+(done?' done':'')}, tick,
+      h('details',{open:(!done && i===doneCount)?true:null}, h('summary',null,h('b',{text:st.t}),h('span',{text:st.d})), body)));
+  });
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Path'}), h('h1',{text:'From “we should” to the keys'}),
+      h('p',{class:'soft'}, `${doneCount} of ${steps.length} steps done. Renting together first keeps the risk small: the group finds out how it works before anyone buys.`)),
+    list
+  ));
+}
+
+/* ---------- join view (a friend opening an invite) ---------- */
+function viewJoin(p){
+  SCENES=[];
+  document.getElementById('top').textContent='';
+  document.getElementById('tabs').parentElement.hidden=true;
+  const v=document.getElementById('view'); v.textContent='';
+  const c=calc(p), K=KINDS[p.kind]||KINDS.cabin;
+  const cv=h('canvas',{'aria-hidden':'true'});
+  const who=p.org||'A friend';
+  const name=h('input',{id:'j-name',placeholder:'Your name'});
+  const st=h('select',{id:'j-st'}, h('option',{value:'in',text:'I’m in, if the numbers hold'}), h('option',{value:'maybe',text:'Interested, I’d like to try it first',selected:true}), h('option',{value:'no',text:'Not for me right now'}));
+  const max=h('input',{id:'j-max',type:'number',inputmode:'decimal',value:Math.round(c.per/10)*10,min:0});
+  const up=h('input',{id:'j-up',type:'number',inputmode:'decimal',value:Math.round(c.up/1000)*1000,min:0});
+  const ni=h('input',{id:'j-ni',type:'number',inputmode:'decimal',value:Math.round(c.nights),min:0});
+  const test=h('input',{id:'j-test',type:'checkbox',checked:true,style:'width:auto'});
+  const note=h('input',{id:'j-note',placeholder:'Anything else? (optional)'});
+  const result=h('div',{class:'stack'});
+  const form=h('form',{class:'form',onsubmit:ev=>{
+    ev.preventDefault();
+    const n=txt(name.value,40).trim(); if(!n){ name.focus(); toast('Add your name'); return; }
+    const o={v:1,pid:p.id,n:n,st:st.value,max:clamp(max.value,0,1e5),up:clamp(up.value,0,1e7),nights:clamp(ni.value,0,366),test:test.checked,note:txt(note.value,280)};
+    const link=baseUrl()+'#reply-'+enc(o);
+    const word={in:'I’m in, if the numbers hold.',maybe:'I’m interested and would like to try it first.',no:'Not for me right now, but thanks for asking.'}[o.st];
+    const text=`${word} Up to ${eur(o.max)} a month, ${eur(o.up)} up front.\nMy answer for “${p.title}”: ${link}`;
+    const msg=h('div',{class:'msg',text:text});
+    result.textContent='';
+    result.append(h('h3',{text:'Send this back to '+who}), msg,
+      h('div',{class:'row'}, h('button',{class:'btn share',onclick:()=>shareText(text,msg)},'Send'), h('button',{class:'btn',onclick:()=>copy(text,msg)},'Copy')),
+      h('p',{class:'note',text:'Nothing is signed or stored anywhere. Your answer only travels in this message.'}));
+    result.scrollIntoView({behavior:'smooth',block:'start'});
+  }},
+    h('label',{class:'full'},'Your name',name),
+    h('label',{class:'full'},'Your answer',st),
+    h('label',null,'Max per month (€)',max), h('label',null,'Could put in once (€)',up),
+    h('label',null,K.unit==='day'?'Days a year you’d want':'Nights a year you’d want',ni),
+    h('label',{style:'flex-direction:row;align-items:center;gap:8px;padding-top:18px'},test,'Try a weekend first'),
+    h('label',{class:'full'},'Note',note),
+    h('div',{class:'row',style:'grid-column:1/-1'}, h('button',{class:'btn primary',type:'submit'},'Make my answer'))
+  );
+  v.append(h('div',{class:'stack-l',style:'padding-top:12px'},
+    h('div',{class:'join-banner'}, h('span',{class:'eyebrow',text:'The New Commons'}), h('b',{text:`${who} invites you to share a ${p.title.toLowerCase()}`})),
+    h('div',{class:'stack'},
+      h('div',{class:'hero'}, cv),
+      h('h1',{text:p.title}), p.place? h('p',{class:'soft',text:p.place}) : null,
+      p.note? h('p',{class:'msg',text:'“'+p.note+'” — '+who}) : null,
+      h('div',{class:'figs'},
+        h('div',{class:'fig key'}, h('b',{text:eur(c.per)}), h('span',{text:`a month each, with ${c.people} people`})),
+        h('div',{class:'fig'}, h('b',{text:eur(c.up)}), h('span',{text:'once, to get in'})),
+        h('div',{class:'fig'}, h('b',{text:int(c.nights)}), h('span',{text:`${K.unit}s a year each`}))),
+      h('p',{class:'soft'}, `That is ${eur(c.perNight)} a ${K.unit}, against about ${eur(p.market)} to rent something similar. After ten years a share would be worth about ${eur(c.end.worth)}. These are estimates.`)),
+    h('section',{class:'card stack'}, h('h3',{text:'Nothing to sign yet'}),
+      h('p',{class:'soft',text:'The plan is to rent a similar place together for a weekend first, then decide. Everyone agrees the rules on costs, the calendar and how to step out before any money moves.'})),
+    h('section',{class:'stack'}, h('h2',{text:'What would work for you?'}), form, result),
+    h('div',{class:'row'},
+      h('button',{class:'btn ghost',onclick:()=>{ p.crew=[]; p.example=false; if(!S.plans.find(x=>x.id===p.id)) S.plans.push(p); S.cur=p.id; S.tab='numbers'; save(); history.replaceState(null,'',location.pathname); document.getElementById('tabs').parentElement.hidden=false; render(); toast('Saved to your plans'); }},'Play with these numbers myself')),
+    h('p',{class:'foot',text:'The New Commons helps groups of friends own a place together.'})
+  ));
+  scene(cv,p.kind,p.id);
+}
+
+/* ---------- start ---------- */
+function route(){
+  const hs=location.hash||'';
+  let m=hs.match(/^#join-([A-Za-z0-9_-]+)$/);
+  if(m){ const p=readInvite(dec(m[1])); if(p){ viewJoin(p); return; } toast('That invite link is damaged'); }
+  m=hs.match(/^#reply-([A-Za-z0-9_-]+)$/);
+  if(m){ try{ history.replaceState(null,'',location.pathname); }catch(e){} handleReply(dec(m[1])); return; }
+  document.getElementById('tabs').parentElement.hidden=false;
+  render();
+}
+window.addEventListener('hashchange', route);
+// On resize (also when the phone keyboard opens) only redraw the pictures, so typing is never interrupted.
+let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ SCENES.forEach(x=>{ if(x[0].isConnected) drawScene(x[0],x[1],x[2]); }); },200); });
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>route()); }catch(e){}
+new MutationObserver(()=>route()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+route();
+})();
+</script>

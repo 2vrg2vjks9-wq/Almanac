@@ -1,6 +1,6 @@
 # Almanac
 
-GitHub Pages site (served from `main`) with the owner's home-screen apps: `radar/`, `polder/`, `fuerteventura/`, `nakasendo/`, `curiosity/`, `enso/`, `proxima/`, `loam/`.
+GitHub Pages site (served from `main`) with the owner's home-screen apps: `radar/`, `polder/`, `fuerteventura/`, `nakasendo/`, `curiosity/`, `enso/`, `proxima/`, `loam/`, `commons/`.
 
 ## Safety check — required for every app, every change
 
@@ -27,6 +27,7 @@ The owner asked for this on all current and future apps. The repo is public and 
 | Ensō | `enso/app.html` + `enso/poems.json` | https://claude.ai/artifact/9sKwQdx8Kb1V4krY24QSer (publish poems.json via `files`) |
 | Proxima | `proxima/app.html` | https://claude.ai/artifact/3VdbgkQe44VAjUWEogZTau |
 | Loam | `loam/app.html` | https://claude.ai/artifact/7rFuYhUQpBfZAoGohbEsKN |
+| The New Commons | `commons/app.html` + `commons/` icons, manifest, sw.js | https://claude.ai/artifact/B6bq6hV2bhp8g9MS5VDKWb |
 
 - `<app>/index.html` is generated from `<app>/app.html` by `python3 tools/build_app.py <app>`, which keeps the home-screen wrapper (icons, manifest, service worker) at the top of index.html. Don't edit index.html by hand.
 - The PostToolUse hook in `.claude/settings.json` runs `tools/after_publish.sh` after every Artifact publish of an `app.html`: it rebuilds index.html, commits (plus `enso/poems.json`) and pushes to `main`.
@@ -36,3 +37,4 @@ The owner asked for this on all current and future apps. The repo is public and 
 - Loam project ids are array positions stored in readers' kept, seen (Discover) and tried lists: append new projects at the end of `ALL`, never insert or reorder. Only include projects that are running now, and keep figures rounded and sourced from the project or the press. Mark new-science, new-technology and new-law projects with `fx: true` (the ⚡ Frontier filter). Always republish Loam with `capabilities: {sample: {}}` (its Ask Claude box, which only sends that project's text and the reader's question).
 - Proxima's lab (artifact only, owner only): once the owner has seen nearly everything, Claude invents 3 more per tap, after a confirm, at most 3 batches a day (`LAB_DAILY`, counted in db `labmeta/usage`), at most 9 waiting. Drafts wait in db `lab/<id>`; approved ones move to `catalogue/<id>` and show in the artifact as id `g-<id>`. db rules make everything owner-write-only and `lab`/`labmeta` owner-read-only. Always republish with `capabilities: {sample: {}, user: {}, db: {rules: [{path: "", read: "view", write: "owner"}, {path: "lab", read: "owner", write: "owner"}, {path: "labmeta", read: "owner", write: "owner"}]}}`.
 - To bring approved lab inventions to the home-screen app ("sync Proxima"): read `catalogue` with ArtifactData, fact-check each entry, append it to the end of `ALL` with `gid: "<doc id>"` plus its `plain`/`wow`/`ideas` in `POP`, publish, then set `synced: true` on those docs. The page skips db entries whose gid is already in `ALL` and moves readers' kept/seen marks over.
+- The New Commons (`commons/`) helps a group of friends co-own a cabin, boat, chalet, surf house or van: Dream, Numbers (monthly cost per person, ten-year outlook), Pitch (messages per angle in Dutch or English), Crew (soft yeses) and Path (rent first, house rules, prime-week draft). No backend: plans live in the phone's storage; invites (`#join-…`) and answers (`#reply-…`) are base64url JSON in the link hash and always point at the GitHub Pages copy (`PUBLIC_URL`). Storage key `new-commons-v1`; keep old saved plans readable when fields change. The default figures are examples, labelled as such. Bump `CACHE` in `commons/sw.js` if the offline file list changes.
