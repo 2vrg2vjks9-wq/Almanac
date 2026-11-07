@@ -2,8 +2,13 @@
  "budget": 5.0,
  "mode": "api",
  "month": "2026-11",
- "spent": 0.322,
+ "spent": 0.335,
  "tasks": {
+  "bucket": {
+   "at": "2026-11-07T21:35:28Z",
+   "cost": 0.012,
+   "result": "ok"
+  },
   "daily": {
    "at": "2026-11-07T08:00:00Z",
    "result": "ok"
@@ -22,5 +27,5 @@
    "result": "ok"
   }
  },
- "updated": "2026-11-07T20:16:43Z"
+ "updated": "2026-11-07T21:35:28Z"
 }
