@@ -157,10 +157,15 @@ def run_facts():
     kind = "none"
     for k, words in (("credit", ("credit balance", "billing")), ("rate limit", ("rate_limit", "rate limit", "429")),
                      ("overloaded", ("overloaded", "529")), ("auth", ("authentication", "invalid x-api-key", "401")),
-                     ("usage limit", ("usage limit",)), ("context", ("prompt is too long",))):
-        if out.get("subtype") != "success" and any(w in text for w in words):
+                     ("usage limit", ("usage limit",)), ("context", ("prompt is too long",)),
+                     ("model", ("not_found_error", "model:", "invalid model", "issue with the selected model"))):
+        failed = out.get("is_error") or out.get("subtype") != "success"
+        if failed and any(w in text for w in words):
             kind = k
             break
+    if kind == "none" and out.get("is_error") and out.get("num_turns", 9) <= 1 and not out.get("total_cost_usd"):
+        # failed before Claude did any work: the message is an API or CLI error, never data, so it's safe to show
+        kind = "api: " + " ".join(str(out.get("result") or err or "?").split())[:160]
     cost = out.get("total_cost_usd")
     say("run: outcome=%s turns=%s cost=%s error=%s" % (
         out.get("subtype", "no output"), out.get("num_turns", "?"),
