@@ -42,7 +42,10 @@ async function postServer(n) {
     body,
   }).then((r) => {
     if (authFailed(r)) { signedOut(true); throw new Error("signin"); }
-    if (r.status === 401 || r.status === 503) throw new Error("setup");
+    if (r.status === 503) throw new Error("setup");
+    if (r.status === 401) throw new Error("refused");
+    if (r.status === 400 || r.status === 413) throw new Error("bad");
+    if (r.status === 502) throw new Error("github");
     if (!r.ok) throw new Error("net");
     return true;
   });
@@ -56,6 +59,7 @@ async function postGitHub(n) {
   }).then((r) => {
     if (r.status === 401) throw new Error("key");
     if (r.status === 403 || r.status === 404) throw new Error("perm");
+    if (r.status === 422) throw new Error("bad");
     if (!r.ok) throw new Error("net");
     return true;
   });
@@ -64,57 +68,62 @@ const post = (n) => (SERVER ? postServer(n) : postGitHub(n));
 const canSend = () => unlocked() && (SERVER || !!S.ghKey);
 
 function dropKey(msg) { S.ghKey = ""; save("ghKey"); say(msg); paintConn(); }
+
+// Why the last try failed, in plain words (kept for the "waiting" line in You). "" = nothing failed.
+let lastWhy = "";
+function why(m) {
+  if (!navigator.onLine) return "It goes out when you're back online.";
+  return ({
+    signin: "Sign in again (the bar at the top) and it sends.",
+    setup: "Radar's server isn't set up to send notes yet: the RADAR_AUTH and GITHUB_TOKEN secrets in Cloudflare.",
+    refused: "Radar's server didn't accept this phone's signature: RADAR_AUTH in Cloudflare doesn't match the passphrase.",
+    github: "Radar's server couldn't file it on GitHub: check the GITHUB_TOKEN secret in Cloudflare.",
+    locked: "Unlock Radar and it sends.",
+  })[m] || "Radar couldn't reach its server. It tries again when you open Radar.";
+}
 function handle(err) {
   const m = err && err.message;
   if (m === "key") dropKey("GitHub no longer accepts Radar's token (expired or revoked). Your note is kept; reconnect in Saved.");
   else if (m === "perm") dropKey("GitHub refused the note: the token needs access to Almanac with Issues set to read and write. Your note is kept.");
+  return m;
 }
 
-// Send what's waiting, oldest first. Stops at the first failure and keeps the rest.
+// Send what's waiting, oldest first. A note the server rejects as malformed is dropped so it can't block
+// the rest; any other failure stops and keeps the rest. Resolves to the failure reason ("" when all went).
 let flushing = null;
 export function flush() {
   if (flushing) return flushing;
-  if (!canSend() || !S.outbox.length || !navigator.onLine) return Promise.resolve();
+  if (!S.outbox.length) { lastWhy = ""; return Promise.resolve(""); }
+  if (!canSend() || !navigator.onLine) return Promise.resolve(navigator.onLine ? "locked" : "offline");
   flushing = (async () => {
+    let fail = "";
     try {
       while (S.outbox.length) {
-        await post(S.outbox[0]);
+        try { await post(S.outbox[0]); }
+        catch (e) { if (e && e.message === "bad") { S.outbox.shift(); save("outbox"); continue; } throw e; }
         S.outbox.shift(); save("outbox");
       }
-    } catch (e) { handle(e); }
-    finally { flushing = null; paintConn(); }
+    } catch (e) { fail = handle(e) || "net"; }
+    finally { flushing = null; lastWhy = fail; paintConn(); }
+    return fail;
   })();
   return flushing;
 }
 
-// Returns "sent", "queued" (kept, retries when online) or "waiting" (needs Connect on github.io).
+// Returns "sent", "queued" (kept, retries later) or "waiting" (needs Connect on github.io).
 export async function note(title, body, label, doneText) {
   const n = { title: String(title).slice(0, 200), body, labels: [label] };
+  S.outbox.push(n); save("outbox");
   if (!canSend()) {
-    S.outbox.push(n); save("outbox"); paintConn();
-    say("Saved on this phone. It sends once Radar is connected (Saved tab).");
+    paintConn();
+    say(SERVER ? "Saved on this phone. " + why("locked") : "Saved on this phone. It sends once Radar is connected (Saved tab).");
     return "waiting";
   }
-  if (!navigator.onLine || S.outbox.length) {
-    S.outbox.push(n); save("outbox");
-    if (navigator.onLine) await flush();
-    if (!S.outbox.includes(n)) { if (doneText) say(doneText); return "sent"; }
-    paintConn();
-    say("Saved on this phone. It goes out when you're back online.");
-    return "queued";
-  }
-  try {
-    await post(n);
-    if (doneText) say(doneText);
-    return "sent";
-  } catch (e) {
-    S.outbox.push(n); save("outbox"); handle(e); paintConn();
-    const m = e && e.message;
-    if (m !== "key" && m !== "perm") say(m === "signin" ? "Saved on this phone. Sign in again (the bar at the top) and it sends."
-      : m === "setup" ? "Saved on this phone. Radar's server doesn't accept notes from this phone yet (the RADAR_AUTH secret in Cloudflare)."
-      : "Saved on this phone. It goes out when Radar can reach the server.");
-    return "queued";
-  }
+  const fail = await flush();
+  if (!S.outbox.includes(n)) { if (doneText) say(doneText); return "sent"; }
+  paintConn();
+  if (fail !== "key" && fail !== "perm") say("Saved on this phone. " + why(fail === "offline" ? "" : fail));
+  return "queued";
 }
 
 // --- "Send in the background" section in Saved (github.io only) -------------------------
@@ -123,7 +132,11 @@ export function paintConn() {
   if (!box) return;
   const waiting = S.outbox.length;
   const w = $("outboxLine");
-  if (w) { w.hidden = !waiting; w.textContent = waiting === 1 ? "1 note is waiting to send." : waiting + " notes are waiting to send."; }
+  if (w) {
+    w.hidden = !waiting;
+    w.textContent = (waiting === 1 ? "1 note is waiting to send." : waiting + " notes are waiting to send.") +
+      (lastWhy && lastWhy !== "key" && lastWhy !== "perm" ? " " + why(lastWhy) : "");
+  }
   if (SERVER) { box.hidden = true; return; }
   box.hidden = false;
   $("connState").textContent = S.ghKey
