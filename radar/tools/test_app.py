@@ -64,7 +64,7 @@ def fixtures():
         it(id="bk-1", kind="bucket", bucket="aurora", title="Aurora window", region="eu", why="Bucket list: See the northern lights"),
         it(id="wk-1", kind="work", title="Adaptation finance forum", region="eu", start=DAY(30)),
         it(id="test-freelance-later", kind="freelance", region="eu", title="Test lead, later deadline", end=DAY(40)),
-        it(id="test-freelance-soon", kind="freelance", title="Test lead, deadline soon", end=DAY(9)),
+        it(id="test-freelance-soon", kind="freelance", title="Test lead, deadline soon", end=DAY(9), found=DAY(0)),
     ]}
     taste = {"updated": DAY(-1), "learned": ["Likes quiet art."], "more": ["garden"], "less": ["crowds"]}
     idea = lambda **k: dict({"summary": "A test idea.", "why": "test", "url": "https://example.org/", "found": DAY(-5), "fit": 3}, **k)
@@ -412,7 +412,11 @@ def tabs_suite(browser, site, scheme):
     check(page.input_value("#q") == "" and page.locator("#doAll .idea").count() > 1 and not page.is_visible("#qClear"), "%s: clear empties the search" % scheme)
     shot(page, "discover-%s.png" % scheme, False)
 
+    check(page.locator('.tab[data-v="work"] .count').count() == 1, "%s: Work tab counts new leads" % scheme)
     tab(page, "work")
+    check(page.is_visible("#workNew") and page.locator("#workNewList .item").count() >= 1, "%s: New leads section at the top of Work" % scheme)
+    tab(page, "today"); page.wait_for_timeout(200); tab(page, "work"); page.wait_for_timeout(200)
+    check(not page.is_visible("#workNew") and page.locator('.tab[data-v="work"] .count').count() == 0, "%s: leaving Work marks new leads as seen" % scheme)
     check(page.locator("#workFeed .item").count() >= 1, "%s: Work tab lists opportunities" % scheme)
     page.click('#workKinds .pill:has-text("Freelance")'); page.wait_for_timeout(150)
     titles = page.locator("#workFeed .item h3").all_inner_texts()

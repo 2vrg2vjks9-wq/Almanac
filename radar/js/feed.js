@@ -280,7 +280,52 @@ function workMatch(it) {
   const s = workSub(it);
   return s === state.work || (state.work === "call" && s === "grant");
 }
+// --- New work leads -------------------------------------------------------------------------------------------
+// A lead found in the last 7 days that you haven't seen in Work yet is new: it gets its own section at the top of
+// Work and a count on the Work tab. Leaving Work marks them as seen (radar-work-seen). The first time, leads found in
+// the last 3 days count as new and older ones as seen.
+const leadsNow = () => D.feed.items.filter((it) => isWork(it) && visible(it) && !S.hidden[it.id] && tracked(it) !== "skip");
+export function newLeads() {
+  const t = today();
+  if (!S.workSeen) { // first time: leads from the last 3 days count as new, older ones as seen
+    S.workSeen = {};
+    leadsNow().forEach((it) => { if (!(d(it.found) && (t - d(it.found)) / 864e5 <= 3)) S.workSeen[it.id] = 1; });
+    save("workSeen");
+  }
+  return leadsNow().filter((it) => !S.workSeen[it.id] && d(it.found) && (t - d(it.found)) / 864e5 <= 7)
+    .sort((a, b) => (d(b.found) - d(a.found)) || ((actBy(a) || 9e15) - (actBy(b) || 9e15)));
+}
+export function markLeadsSeen() {
+  const n = newLeads();
+  if (!n.length) return;
+  n.forEach((it) => { S.workSeen[it.id] = 1; });
+  // forget leads that are gone, so the list stays small
+  const live = new Set(leadsNow().map((it) => it.id));
+  Object.keys(S.workSeen).forEach((k) => { if (!live.has(k)) delete S.workSeen[k]; });
+  save("workSeen");
+  paintWorkCount(); drawNewLeads();
+}
+export function paintWorkCount() {
+  const tab = document.querySelector('.tab[data-v="work"]');
+  if (!tab || !D.feed) return;
+  const n = newLeads().length;
+  let c = tab.querySelector(".count");
+  if (n && !c) { c = document.createElement("span"); c.className = "count"; c.setAttribute("aria-hidden", "true"); tab.appendChild(c); }
+  if (c) { if (n) c.textContent = n > 99 ? "99+" : n; else c.remove(); }
+  tab.setAttribute("aria-label", n ? "Work, " + n + " new " + (n === 1 ? "lead" : "leads") : "Work");
+}
+function drawNewLeads() {
+  const box = $("workNew"), list = newLeads();
+  if (!box) return;
+  box.hidden = !list.length;
+  if (!list.length) return;
+  put(box, html`<h2 id="hNewLeads">New leads <span class="h-count">${list.length}</span></h2><div class="sheet" id="workNewList"></div>
+    <p class="fine tight">New since you last looked. They move into All leads below when you leave Work.</p>`);
+  mount($("workNewList"), list, false, "");
+}
+
 export function drawWork() {
+  drawNewLeads(); paintWorkCount();
   const all = D.feed.items.filter((it) => isWork(it) && visible(it) && (state.showHidden || (!S.hidden[it.id] && tracked(it) !== "skip")));
   const rank = (it) => ({ interested: 0, applied: 1 }[tracked(it)] ?? 2);
   const items = all.filter(workMatch).sort((a, b) => {

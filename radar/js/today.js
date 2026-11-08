@@ -10,7 +10,7 @@ import { net } from "./wind.js";
 import { showTab, showPane, swipeRow, undoable, say } from "./ui.js";
 import { S as Store, save, get, set, KEYS } from "./store.js";
 import { ideas, answer, eligible, ideaPast, placeText, prepText, sortByDate, openIdea, decide, findPadel } from "./do.js";
-import { deadline, tracked, WORK_LABEL, workSub } from "./feed.js";
+import { deadline, tracked, WORK_LABEL, workSub, newLeads } from "./feed.js";
 import { gearNews } from "./gear.js";
 
 let openItem = () => {};
@@ -73,7 +73,7 @@ function drawBrief() {
     const when = !lab ? "on now" : /^(Today|Tomorrow)$/.test(lab) ? lab.toLowerCase() : "on " + lab;
     parts.push(html`<p><span class="bk-k">Go</span><button class="linkish" type="button" data-b="idea">${it.title}</button>, ${when}${it.venue ? ", " + it.venue : ""} (${b[1]}).</p>`);
   }
-  const fresh = D.feed.items.filter((it) => isWork(it) && visible(it) && !S.hidden[it.id] && tracked(it) !== "skip" && d(it.found) && days(d(it.found)) >= -2);
+  const fresh = newLeads();
   const due = D.feed.items.filter((it) => isWork(it) && tracked(it) === "interested" && deadline(it) && deadline(it) >= today() && days(deadline(it)) <= 7);
   if (fresh.length || due.length) {
     const t = [fresh.length ? (fresh.length === 1 ? "1 new lead" : fresh.length + " new leads") : "", due.length ? due.length + " tracked " + (due.length === 1 ? "deadline" : "deadlines") + " this week" : ""].filter(Boolean).join(", ");
@@ -85,7 +85,7 @@ function drawBrief() {
   if (n) parts.push(html`<p><span class="bk-k">Decide</span><button class="linkish" type="button" data-b="decide">${n === 1 ? "1 idea" : n + " ideas"} waiting for a yes or no</button>.</p>`);
   box.hidden = !parts.length;
   put(box, html`${parts}`);
-  const go = { idea: () => b && openIdea(b[0]), work: () => showTab("work"), finds: () => { showTab("saved"); const w = $("wingBox"); if (w) w.scrollIntoView(); },
+  const go = { idea: () => b && openIdea(b[0]), work: () => { showTab("work"); const h = $("hNewLeads") || $("workDue"); if (h) setTimeout(() => h.scrollIntoView({ block: "start" }), 60); }, finds: () => { showTab("saved"); const w = $("wingBox"); if (w) w.scrollIntoView(); },
     decide: () => { showTab("discover"); showPane("go"); } };
   box.querySelectorAll("[data-b]").forEach((x) => { x.onclick = go[x.dataset.b]; });
 }

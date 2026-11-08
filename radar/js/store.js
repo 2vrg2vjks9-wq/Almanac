@@ -25,6 +25,7 @@ export const KEYS = {
   more: "radar-more",            // {t, items} ideas found right away by "Find more ideas now", until the tasks keep them
   pane: "radar-pane",            // last Discover pane: foryou | go | read | near
   watch: "radar-watch",          // {adId: {url, title, price, search, t}} ads watched for a price drop
+  workSeen: "radar-work-seen",   // {leadId: 1} work leads already seen in Work (the rest found this week are "new")
   places: "radar-places",        // [{id, name, lat, lon, spots, t}] places kept as chips on Wind
   wantedEdits: "radar-wanted-edits", // {searchId: {title, look_for, fit, budget, where, remove, t}} edits not yet in interests
   windPlace: "radar-wind-place", // {mode: home | here | search, name, lat, lon, spots} where Wind shows the forecast for
@@ -55,5 +56,6 @@ export const S = {
   follow: get(KEYS.follow, { add: [], remove: [], alerts: {} }),
   watch: get(KEYS.watch, {}),
   wantedEdits: get(KEYS.wantedEdits, {}),
+  workSeen: get(KEYS.workSeen, null),
 };
 export function save(name) { set(KEYS[name], S[name]); }

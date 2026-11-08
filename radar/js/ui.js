@@ -4,6 +4,8 @@ import { get, set, KEYS } from "./store.js";
 
 // --- Tabs -----------------------------------------------------------------------
 export function showTab(name) {
+  const from = currentTab();
+  setTimeout(() => window.dispatchEvent(new CustomEvent("radar-tab", { detail: { from, to: name } })), 0);
   const lit = name === "settings" ? "saved" : name; // Settings lives under You
   document.querySelectorAll(".tab").forEach((t) => {
     const on = t.dataset.v === lit;

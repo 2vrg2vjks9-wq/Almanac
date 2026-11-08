@@ -3,7 +3,7 @@ import { $, ago, hm, stamp } from "./util.js";
 import { D, loadData, on, mergePicks } from "./data.js";
 import { initTabs, initSheet, initPullToRefresh, initWelcome, currentTab, initUndo } from "./ui.js";
 import { initWind, loadWind, skeleton, net, reloadWind } from "./wind.js";
-import { state, drawFeed, drawForYou, drawWork, initFindRead, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
+import { state, drawFeed, drawForYou, drawWork, initFindRead, markLeadsSeen, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
 import { openItem, refreshItem, icsAll } from "./detail.js";
 import { initNotes } from "./notes.js";
 import { initSaved, drawSaved, paintTeach, ask } from "./saved.js";
@@ -143,6 +143,8 @@ initPullToRefresh(loadAll);
 on("change", () => { drawAll(); refreshItem(); paintTeach(); });
 on("picks", () => { if (D.feed) { mergePicks(); drawAll(); } });
 on("wind", () => { if (D.feed) drawWeekend(); });
+// Leaving Work marks the new leads you saw there as seen.
+window.addEventListener("radar-tab", (e) => { if (D.feed && e.detail.from === "work" && e.detail.to !== "work") markLeadsSeen(); });
 // Opening Discover or Today redraws them, so trip mode follows a Look around or a new Wind place right away.
 document.querySelectorAll('.tab[data-v="discover"], .tab[data-v="today"]').forEach((t) => t.addEventListener("click", () => { if (D.feed) drawAll(); }));
 $("refresh").onclick = loadAll;

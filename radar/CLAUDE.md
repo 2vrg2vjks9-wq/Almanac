@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch, radar-places, radar-wanted-edits.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -279,3 +279,4 @@ filter by it, flags it as "Deadline soon" within 14 days and offers the deadline
 Don't add frameworks or a build step; keep all JSON schemas and localStorage keys backward compatible;
 don't touch the other apps' folders; keep copy plain, sentence case, active voice; run
 `tools/safety_check.py` (and the tests) before pushing, and add any new outside host to its allowlist with a reason.
+- **New work leads:** Work opens with a "New leads" section (`#workNew`) and the Work tab shows a count. A lead is new when it was found in the last 7 days and isn't in `radar-work-seen`; leaving the Work tab (the `radar-tab` event) marks them seen. On first run, only leads from the last 3 days count as new. The brief's "new leads" link jumps to `#hNewLeads`.
