@@ -211,6 +211,58 @@
     .form label.full{grid-column:auto}
   }
   @media (prefers-reduced-motion: reduce){ .toast{transition:none} }
+
+  /* shared-commons additions */
+  .mode{font:600 .68rem/1 var(--body);letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:5px 9px;border:1px solid var(--line);color:var(--soft);white-space:nowrap}
+  .mode.shared{background:var(--share);color:var(--share-ink);border-color:transparent}
+  .stage{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .bar{flex:1 1 160px;height:8px;border-radius:99px;background:var(--paper-2);overflow:hidden;min-width:120px}
+  .bar i{display:block;height:100%;background:var(--share);border-radius:99px}
+  .things{display:flex;flex-direction:column;gap:12px}
+  .thing{display:grid;grid-template-columns:112px minmax(0,1fr);gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .thing canvas{width:112px;height:100%;min-height:96px;display:block}
+  .thing > div{padding:10px 12px 10px 0;display:flex;flex-direction:column;gap:3px;min-width:0}
+  .thing b{font:400 1.15rem/1.15 var(--display)}
+  .thing span{font-size:.86rem;color:var(--soft)}
+  .status{display:inline-flex;align-items:center;gap:6px;font-size:.84rem;font-weight:600}
+  .status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--good)}
+  .status.busy::before{background:var(--share)}
+  .av{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font:600 .75rem var(--body);color:#fff;flex:none;overflow:hidden}
+  .av img{width:100%;height:100%;object-fit:cover}
+  .who{display:flex;align-items:center;gap:8px;min-width:0}
+  .who b{overflow-wrap:anywhere}
+  .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+  .cal .dow{font:600 .68rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center;padding-bottom:2px}
+  .day{position:relative;aspect-ratio:1/1.05;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px 4px;font:500 .8rem var(--mono);text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;color:var(--ink);min-width:0;overflow:hidden}
+  .day.past{opacity:.45}
+  .day.today{outline:2px solid var(--accent);outline-offset:-2px}
+  .day.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .day .tag{font:600 .62rem/1 var(--body);border-radius:4px;padding:2px 3px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .day.blank{visibility:hidden}
+  .calnav{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .calnav b{font:400 1.25rem var(--display)}
+  table.money{width:100%;border-collapse:collapse;font-size:.86rem;font-variant-numeric:tabular-nums}
+  table.money th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:right;padding:6px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+  table.money th:first-child,table.money td:first-child{text-align:left;padding-left:0}
+  table.money td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);white-space:nowrap}
+  table.money td:first-child{font-family:var(--body);white-space:normal}
+  .scroll{overflow-x:auto}
+  .pos{color:var(--warn)} .neg{color:var(--good)}
+  .log{display:flex;flex-direction:column}
+  .log > div{padding-block:10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+  .log small{color:var(--muted);font-size:.8rem}
+  .issue{color:var(--warn);font-weight:600}
+  .checks{display:flex;flex-direction:column;gap:8px}
+  .checks label{display:flex;gap:10px;align-items:center;font-size:.93rem;color:var(--ink)}
+  .checks input{width:20px;height:20px;accent-color:var(--good)}
+  .empty{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:20px;border:1px dashed var(--line);border-radius:var(--r)}
+  .seg{display:flex;flex-wrap:wrap;gap:6px}
+  .kv{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:6px 12px;font-size:.92rem}
+  .kv span:nth-child(even){font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+  details.more > summary{cursor:pointer;font-weight:600;color:var(--accent);list-style:none}
+  details.more > summary::-webkit-details-marker{display:none}
+  details.more[open] > summary{margin-bottom:12px}
+  .ro{font-size:.88rem;color:var(--soft);background:var(--paper-2);border-radius:10px;padding:10px 12px}
 </style>
 
 <header class="top wrap" style="padding-bottom:8px" id="top"></header>
@@ -222,199 +274,243 @@
 (function(){
 'use strict';
 
-/* ---------- where invites point ---------- */
-// Invite and reply links always open the public home-screen app, so friends can use them without Claude.
-const PUBLIC_URL = 'https://2vrg2vjks9-wq.github.io/almanac/commons/';
-function baseUrl(){
-  try{ if(/github\.io$/.test(location.hostname)) return location.origin + location.pathname; }catch(e){}
-  return PUBLIC_URL;
-}
+/* The New Commons: a group of friends shares a cabin, a boat or a van the way a DEEL
+   neighbourhood co-op shares cars. Book stays, log each stay, pay a monthly advance and
+   settle every half year on what you really used. In Claude the data is shared (db);
+   anywhere else it lives on this phone only. */
 
-/* ---------- tiny DOM helpers (text always goes in as text, never as HTML) ---------- */
+const SHARED_URL = 'https://claude.ai/artifact/B6bq6hV2bhp8g9MS5VDKWb';
+
+/* ---------- DOM helpers: text always goes in as text ---------- */
 function h(tag, props){
-  const el = document.createElement(tag);
+  const el=document.createElement(tag);
   if(props) for(const k in props){
-    const v = props[k];
+    const v=props[k];
     if(v==null || v===false) continue;
-    if(k==='class') el.className = v;
-    else if(k==='text') el.textContent = v;
-    else if(k==='style') el.style.cssText = v;
+    if(k==='class') el.className=v;
+    else if(k==='text') el.textContent=v;
+    else if(k==='style') el.style.cssText=v;
     else if(k.slice(0,2)==='on' && typeof v==='function') el.addEventListener(k.slice(2), v);
-    else if(k==='value') el.value = v;
-    else if(k==='checked') el.checked = !!v;
-    else el.setAttribute(k, v===true ? '' : v);
+    else if(k==='value') el.value=v;
+    else if(k==='checked') el.checked=!!v;
+    else el.setAttribute(k, v===true?'':v);
   }
   for(let i=2;i<arguments.length;i++) add(el, arguments[i]);
   return el;
 }
-function add(el, c){
-  if(c==null || c===false) return;
-  if(Array.isArray(c)){ c.forEach(x=>add(el,x)); return; }
-  el.append(c.nodeType ? c : document.createTextNode(String(c)));
-}
+function add(el,c){ if(c==null||c===false) return; if(Array.isArray(c)){ c.forEach(x=>add(el,x)); return; } el.append(c.nodeType?c:document.createTextNode(String(c))); }
 const SVGNS='http://www.w3.org/2000/svg';
-function s(tag, attrs){
-  const el=document.createElementNS(SVGNS, tag);
-  if(attrs) for(const k in attrs) el.setAttribute(k, attrs[k]);
-  for(let i=2;i<arguments.length;i++){ const c=arguments[i]; if(c) el.append(c.nodeType?c:document.createTextNode(String(c))); }
-  return el;
-}
+function s(tag, attrs){ const el=document.createElementNS(SVGNS,tag); if(attrs) for(const k in attrs) el.setAttribute(k,attrs[k]); for(let i=2;i<arguments.length;i++){ const c=arguments[i]; if(c) el.append(c.nodeType?c:document.createTextNode(String(c))); } return el; }
 function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888'; }
 
-/* ---------- money & numbers ---------- */
-function eur(x){
-  if(!isFinite(x)) return '–';
-  const r=Math.round(x);
-  return (r<0?'−€':'€') + Math.abs(r).toLocaleString('nl-NL');
-}
-function int(x){ return isFinite(x) ? Math.round(x).toLocaleString('nl-NL') : '–'; }
-function clamp(x,a,b){ x=Number(x); if(!isFinite(x)) x=a; return Math.min(b, Math.max(a, x)); }
+/* ---------- numbers & dates ---------- */
+function eur(x){ if(!isFinite(x)) return '–'; const r=Math.round(x); return (r<0?'−€':'€')+Math.abs(r).toLocaleString('nl-NL'); }
+function int(x){ return isFinite(x)? Math.round(x).toLocaleString('nl-NL') : '–'; }
+function clamp(x,a,b){ x=Number(x); if(!isFinite(x)) x=a; return Math.min(b,Math.max(a,x)); }
+function txt(x,max){ return String(x==null?'':x).replace(/[\u0000-\u001f]/g,' ').slice(0,max||80); }
+function uid(){ return 'x'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function iso(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function parse(str){ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(str||'')); return m? new Date(+m[1],+m[2]-1,+m[3]) : null; }
+function today(){ return iso(new Date()); }
+function addDays(str,n){ const d=parse(str)||new Date(); d.setDate(d.getDate()+n); return iso(d); }
+function nightsBetween(a,b){ const A=parse(a),B=parse(b); if(!A||!B) return 0; return Math.max(0, Math.round((B-A)/864e5)); }
+function monthsBetween(a,b){ return nightsBetween(a,b)/30.44; }
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function nice(str){ const d=parse(str); if(!d) return '–'; return d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3); }
+function niceDay(str){ const d=parse(str); if(!d) return '–'; return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+nice(str); }
 
-/* ---------- the kinds of commons (example figures, the owner changes them) ---------- */
-const KINDS = {
-  cabin:{ label:'Forest cabin', blurb:'Weekends among the trees', title:'Forest cabin', place:'Somewhere on the Veluwe',
-    d:{price:240000,cost:8,season:365,own:40,rate:4.5,years:20,run:8000,rentNights:60,rentRate:150,cut:30,people:8,growth:2,market:150},
-    unit:'night' },
-  beach:{ label:'Surf house', blurb:'Wind, waves and warm winters', title:'Surf house by the sea', place:'A windy coast in the south',
-    d:{price:380000,cost:10,season:365,own:50,rate:4.8,years:20,run:11000,rentNights:120,rentRate:190,cut:35,people:8,growth:3,market:200},
-    unit:'night' },
-  boat:{ label:'Sailing boat', blurb:'A boat at the jetty, season after season', title:'Sailing boat', place:'In a harbour on the IJsselmeer',
-    d:{price:110000,cost:2,season:180,own:100,rate:0,years:0,run:9500,rentNights:0,rentRate:0,cut:0,people:6,growth:-4,market:350},
-    unit:'day' },
-  chalet:{ label:'Mountain chalet', blurb:'Ski in winter, hike in summer', title:'Mountain chalet', place:'A valley in the Alps',
-    d:{price:420000,cost:9,season:365,own:45,rate:4.6,years:20,run:14000,rentNights:90,rentRate:260,cut:35,people:10,growth:2,market:280},
-    unit:'night' },
-  van:{ label:'Camper van', blurb:'Leave on Friday, wake up somewhere new', title:'Camper van', place:'Parked in a shared spot near home',
-    d:{price:75000,cost:1,season:300,own:100,rate:0,years:0,run:4500,rentNights:50,rentRate:110,cut:25,people:5,growth:-8,market:130},
-    unit:'night' }
+/* ---------- what can be shared (example figures; the group changes them) ---------- */
+const KINDS={
+  cabin:{label:'Forest cabin', blurb:'Weekends among the trees', unit:'night', fixed:1200,
+    d:{price:240000,cost:8,season:365,own:40,rate:4.5,years:20,run:8000,rentNights:60,rentRate:150,cut:30,growth:2,market:150}},
+  beach:{label:'Surf house', blurb:'Wind, waves and warm winters', unit:'night', fixed:1600,
+    d:{price:380000,cost:10,season:365,own:50,rate:4.8,years:20,run:11000,rentNights:120,rentRate:190,cut:35,growth:3,market:200}},
+  boat:{label:'Sailing boat', blurb:'A boat at the jetty all season', unit:'day', fixed:700,
+    d:{price:110000,cost:2,season:180,own:100,rate:0,years:0,run:9500,rentNights:0,rentRate:0,cut:0,growth:-4,market:350}},
+  chalet:{label:'Mountain chalet', blurb:'Ski in winter, hike in summer', unit:'night', fixed:2000,
+    d:{price:420000,cost:9,season:365,own:45,rate:4.6,years:20,run:14000,rentNights:90,rentRate:260,cut:35,growth:2,market:280}},
+  van:{label:'Camper van', blurb:'Leave on Friday, wake up somewhere new', unit:'night', fixed:650,
+    d:{price:75000,cost:1,season:300,own:100,rate:0,years:0,run:4500,rentNights:50,rentRate:110,cut:25,growth:-8,market:130}}
 };
+const HOLD={rent:'Rented long-term', lease:'Leased', own:'Owned together'};
 
-/* ---------- storage (per viewer; the page works without it) ---------- */
-const KEY='new-commons-v1';
-let S = load();
-function blank(){ return {plans:[], cur:null, me:'', tab:'dream'}; }
-function load(){
-  try{ const raw=localStorage.getItem(KEY); if(raw){ const o=JSON.parse(raw); if(o && Array.isArray(o.plans)) return Object.assign(blank(), o); } }catch(e){}
-  return blank();
-}
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
-function uid(){ return Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4); }
+/* ---------- the charter (rules everyone accepts) ---------- */
+const RULES={
+  split:{l:'How costs are split', o:['30% shared equally, 70% by nights used','Half equally, half by nights used','All by nights used','All equally'], v:[30,50,0,100]},
+  buffer:{l:'Reserve on top of the advance', o:['10% for repairs and surprises','5%','None'], v:[10,5,0]},
+  stay:{l:'Longest single stay', o:['14 nights','7 nights','21 nights','No limit'], v:[14,7,21,366]},
+  prime:{l:'Holidays and summer weeks', o:['One prime week per member per round; the order flips each year','First come, first served','Fixed rota of weeks']},
+  clean:{l:'Cleaning', o:['Leave it as you found it; a deep clean together each season','A paid cleaner after every stay, on the stay’s cost','Leave it as you found it']},
+  guests:{l:'Friends, family and pets', o:['Welcome when a member is there','Welcome, pets too','Members only']},
+  exit:{l:'Stepping out', o:['Two months’ notice; your balance is settled at the next settle-up','One month’s notice during the trial, three months after','Find someone to take your place']},
+  vote:{l:'Decisions', o:['Majority for everyday things; everyone agrees on new members, big costs and buying','Two-thirds for everything','The ambassador decides small things; majority for the rest']}
+};
+function rule(k){ const c=D.commons||{}; const r=(c.rules||{}); const i=clamp(r[k]||0,0,RULES[k].o.length-1); return {i:i, text:RULES[k].o[i], v:RULES[k].v? RULES[k].v[i] : null}; }
 
-function newPlan(kind, example){
-  const k=KINDS[kind]||KINDS.cabin;
-  const p = Object.assign({id:uid(), kind:kind, title:k.title, place:k.place, crew:[], steps:{}, rules:{}, angle:'easy', lang:'nl', to:'', note:'', example:!!example}, k.d);
-  return p;
+/* ---------- state ---------- */
+const COLLS=['things','members','bookings','trips','expenses','settlements'];
+const D={commons:null, things:{}, members:{}, bookings:{}, trips:{}, expenses:{}, settlements:{}};
+let MODE='loading';      // 'loading' | 'shared' | 'local'
+let DB=null, USER=null, MYID=null, CANWRITE=true, ISADMIN=true, NAMES={}, STALE=false;
+const UI={tab:'home', thing:null, month:null, from:null, to:null, checkout:null, editThing:null, me:null};
+const LKEY='new-commons-v2', UIKEY='new-commons-ui';
+try{ Object.assign(UI, JSON.parse(localStorage.getItem(UIKEY)||'{}')); }catch(e){}
+UI.checkout=null; UI.editThing=null; UI.from=null; UI.to=null;
+function saveUI(){ try{ localStorage.setItem(UIKEY, JSON.stringify({tab:UI.tab, thing:UI.thing, me:UI.me})); }catch(e){} }
+
+function list(c){ return Object.values(D[c]||{}); }
+function things(){ return list('things').sort((a,b)=>(a.created||'').localeCompare(b.created||'')); }
+function members(){ return list('members').sort((a,b)=>(a.joined||'').localeCompare(b.joined||'')); }
+function me(){
+  if(MODE==='shared') return members().find(m=>m.uid && m.uid===MYID) || null;
+  return D.members[UI.me] || members()[0] || null;
 }
-function plan(){
-  let p=S.plans.find(x=>x.id===S.cur);
-  if(!p){
-    if(!S.plans.length){
-      p=newPlan('cabin', true);
-      p.crew=[
-        {id:uid(), n:'Example: Sanne', st:'in', max:150, nights:30, up:15000, test:true, note:''},
-        {id:uid(), n:'Example: Joris', st:'maybe', max:100, nights:20, up:8000, test:true, note:'Wants to try a weekend first'},
-        {id:uid(), n:'Example: Fleur', st:'in', max:200, nights:40, up:20000, test:false, note:''}
-      ];
-      S.plans.push(p);
-    } else p=S.plans[0];
-    S.cur=p.id; save();
+function isMeM(m){ const x=me(); return !!(m && x && x.id===m.id); }
+function youTag(m){ return isMeM(m) && nameOf(m)!=='You' ? ' (you)' : ''; }
+function nameOf(m){ if(!m) return 'Someone'; if(m.uid && NAMES[m.uid] && NAMES[m.uid].name) return NAMES[m.uid].name; return m.name || 'Someone'; }
+const PALETTE=['#2b47b5','#c2582a','#2f7d4f','#8a4fb5','#b5852b','#2b8fa8','#b5345e','#5e6d2b'];
+function colorOf(m){ if(!m) return '#777'; if(m.uid && NAMES[m.uid] && NAMES[m.uid].color) return NAMES[m.uid].color; let x=0; for(const ch of String(m.id)) x=(x*31+ch.charCodeAt(0))>>>0; return PALETTE[x%PALETTE.length]; }
+function avatar(m, size){
+  const sz=size||28, el=h('span',{class:'av',style:`width:${sz}px;height:${sz}px;background:${colorOf(m)}`,'aria-hidden':'true'});
+  const p=m && m.uid && NAMES[m.uid];
+  if(p && p.avatarUrl && p.name){ el.append(h('img',{src:p.avatarUrl,alt:''})); }
+  else el.textContent=(nameOf(m).trim()[0]||'?').toUpperCase();
+  return el;
+}
+
+/* ---------- storage ---------- */
+function saveLocal(){ if(MODE!=='local') return; try{ localStorage.setItem(LKEY, JSON.stringify(D)); }catch(e){} }
+function loadLocal(){
+  let o=null;
+  try{ o=JSON.parse(localStorage.getItem(LKEY)||'null'); }catch(e){}
+  if(o && typeof o==='object'){ D.commons=o.commons||null; COLLS.forEach(c=>D[c]=o[c]||{}); return; }
+  // carry over plans from the first version of the app
+  let old=null; try{ old=JSON.parse(localStorage.getItem('new-commons-v1')||'null'); }catch(e){}
+  if(old && Array.isArray(old.plans) && old.plans.length && !old.plans.every(p=>p.example)){
+    const now=new Date().toISOString();
+    D.commons={name:'Our commons', place:'', max:150, stage:'start', rules:{}, created:now};
+    old.plans.filter(p=>!p.example).forEach((p,i)=>{
+      const k=KINDS[p.kind]?p.kind:'cabin', id=uid();
+      const t={id:id, kind:k, name:txt(p.title)||KINDS[k].label, place:txt(p.place), hold:'rent', fixed:KINDS[k].fixed, unit:KINDS[k].unit, created:now+i};
+      Object.keys(KINDS[k].d).forEach(f=>t[f]=isFinite(p[f])?p[f]:KINDS[k].d[f]);
+      D.things[id]=t;
+    });
+    const you=uid(); D.members[you]={id:you, name:txt(old.me,40)||'You', role:'ambassador', joined:now, est:{}};
+    UI.me=you;
+    (old.plans[0].crew||[]).filter(c=>c.st!=='no').forEach((c,i)=>{ const id=uid(); D.members[id]={id:id, name:txt(c.n,40), role:'member', joined:now+i, est:{}}; });
+    MODE='local'; saveLocal(); saveUI();
   }
-  return p;
 }
 
-/* ---------- the maths ---------- */
-function calc(p){
-  const people=Math.max(1, Math.round(p.people));
-  const own = p.price*p.own/100;
-  const buying = p.price*p.cost/100;
-  const loan = Math.max(0, p.price-own);
-  const r = p.rate/100/12, n = Math.round(p.years*12);
-  const pay = loan>0 && n>0 ? (r>0 ? loan*r/(1-Math.pow(1+r,-n)) : loan/n) : 0;
-  const runM = p.run/12;
-  const rentNet = p.rentNights*p.rentRate*(1-p.cut/100);
-  const rentM = rentNet/12;
-  const netM = pay + runM - rentM;
-  const per = netM/people;
-  const up = (own+buying)/people;
-  const usable = Math.max(0, p.season - p.rentNights);
-  const nights = usable/people;
-  const perNight = nights>0 ? (Math.max(0,per)*12)/nights : NaN;
+let renderQueued=false, renderHeld=false;
+function queueRender(){
+  if(renderQueued) return; renderQueued=true;
+  requestAnimationFrame(()=>{ renderQueued=false;
+    const a=document.activeElement;
+    if(a && a.closest && a.closest('#view') && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)){ renderHeld=true; return; }
+    render();
+  });
+}
+document.addEventListener('focusout',()=>{ if(renderHeld){ setTimeout(()=>{ const a=document.activeElement; if(!(a && a.closest && a.closest('#view') && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))){ renderHeld=false; render(); } },60); } });
 
-  // ten years, month by month
-  let bal=loan, paid=up, pts=[{y:0, paid:paid, worth:(p.price-loan)/people}];
-  const g = Math.pow(1+p.growth/100, 1/12);
-  let value=p.price;
-  for(let m=1;m<=120;m++){
-    if(bal>0 && m<=n){ const i=bal*r; bal=Math.max(0, bal-(pay-i)); }
-    value*=g;
-    paid += netM/people;
-    if(m%12===0) pts.push({y:m/12, paid:paid, worth:(value-bal)/people});
+async function put(coll, id, obj){
+  if(!CANWRITE){ toast('You can look, but not change things here'); return false; }
+  const body=JSON.parse(JSON.stringify(obj)); delete body.id;
+  if(MODE==='shared'){
+    try{
+      if(coll==='commons') await DB.doc('commons/main').set(body);
+      else await DB.collection(coll).doc(id).set(body);
+      return true;
+    }catch(e){ return failed(e); }
   }
-  const end=pts[pts.length-1];
-  const trueM = (end.paid-end.worth)/120;
-  const trueNight = nights>0 ? (end.paid-end.worth)/10/nights : NaN;
-  return {people, own, buying, loan, pay, runM, rentM, netM, per, up, nights, perNight, pts, end, trueM, trueNight};
+  if(coll==='commons') D.commons=body; else D[coll][id]=Object.assign({id:id},body);
+  saveLocal(); requestAnimationFrame(render); return true;
+}
+async function del(coll, id){
+  if(!CANWRITE){ toast('You can look, but not change things here'); return false; }
+  if(MODE==='shared'){ try{ await DB.collection(coll).doc(id).delete(); return true; }catch(e){ return failed(e); } }
+  delete D[coll][id]; saveLocal(); requestAnimationFrame(render); return true;
+}
+function failed(e){
+  const code=e && e.code;
+  if(code==='invalid_argument'){ CANWRITE=false; render(); toast('You have view access only. Ask for Contributor access to book.'); }
+  else if(code==='quota_exceeded') toast('The shared store is full. Remove old entries first.');
+  else toast('That didn’t save. Try again in a moment.');
+  return false;
 }
 
-/* ---------- link payloads (base64url JSON in the hash; nothing goes to a server) ---------- */
-function enc(o){
-  const b=btoa(unescape(encodeURIComponent(JSON.stringify(o))));
-  return b.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-}
-function dec(str){
-  try{
-    let b=String(str).replace(/-/g,'+').replace(/_/g,'/');
-    while(b.length%4) b+='=';
-    const o=JSON.parse(decodeURIComponent(escape(atob(b))));
-    return (o && typeof o==='object') ? o : null;
-  }catch(e){ return null; }
-}
-function txt(x, max){ return String(x==null?'':x).replace(/[\u0000-\u001f]/g,' ').slice(0, max||80); }
-const NUMKEYS={price:[0,1e8],cost:[0,30],season:[1,366],own:[0,100],rate:[0,20],years:[0,40],run:[0,1e7],rentNights:[0,365],rentRate:[0,1e5],cut:[0,90],people:[1,50],growth:[-30,30],market:[0,1e5]};
-function inviteLink(p){
-  const o={v:1, id:p.id, k:p.kind, t:txt(p.title), pl:txt(p.place), o:txt(S.me,40), note:txt(p.note,280)};
-  for(const k in NUMKEYS) o[k]=p[k];
-  return baseUrl() + '#join-' + enc(o);
-}
-function readInvite(o){
-  if(!o || o.v!==1) return null;
-  const kind = KINDS[o.k] ? o.k : 'cabin';
-  const p = newPlan(kind);
-  p.id = txt(o.id,20) || uid();
-  p.title = txt(o.t) || KINDS[kind].title;
-  p.place = txt(o.pl);
-  p.org = txt(o.o,40);
-  p.note = txt(o.note,280);
-  for(const k in NUMKEYS){ const [a,b]=NUMKEYS[k]; p[k]=clamp(o[k]==null?p[k]:o[k],a,b); }
-  return p;
-}
-function readReply(o){
-  if(!o || o.v!==1 || !o.pid) return null;
-  const st = ['in','maybe','no'].indexOf(o.st)>=0 ? o.st : 'maybe';
-  return {pid:txt(o.pid,20), n:txt(o.n,40)||'A friend', st:st, max:clamp(o.max,0,1e5), nights:clamp(o.nights,0,366), up:clamp(o.up,0,1e7), test:!!o.test, note:txt(o.note,280)};
-}
-
-/* ---------- toast & copy/share ---------- */
+/* ---------- toast & copy ---------- */
 let toastT;
-function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'), 2400); }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2600); }
 function copy(text, el){
-  const done=()=>toast('Copied');
-  try{
-    navigator.clipboard.writeText(text).then(done, ()=>fallback());
-  }catch(e){ fallback(); }
-  function fallback(){
-    if(el){ const r=document.createRange(); r.selectNodeContents(el); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Selected. Copy it from here'); }
-    else toast('Copy did not work here');
-  }
-}
-function shareText(text, el){
-  if(navigator.share){
-    navigator.share({text:text}).catch(err=>{ if(!err || err.name!=='AbortError') copy(text, el); });
-  } else copy(text, el);
+  const fallback=()=>{ if(el){ const r=document.createRange(); r.selectNodeContents(el); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Selected. Copy it from here'); } else toast('Copy did not work here'); };
+  try{ navigator.clipboard.writeText(text).then(()=>toast('Copied'), fallback); }catch(e){ fallback(); }
 }
 
-/* ---------- landscape scenes ---------- */
+/* ---------- money model (DEEL: advance on expected use, settle on real use) ---------- */
+function fixedShare(){ return (rule('split').v)/100; }
+function bufferPct(){ return rule('buffer').v/100; }
+function activeMembers(){ return members().filter(m=>!m.left); }
+function estOf(m,t){ return clamp((m.est||{})[t.id]||0,0,366); }
+function advances(){
+  const ms=activeMembers(), ts=things(), N=Math.max(1,ms.length), fp=fixedShare();
+  const out={}; ms.forEach(m=>out[m.id]=0);
+  ts.forEach(t=>{
+    const F=Number(t.fixed)||0, tot=ms.reduce((a,m)=>a+estOf(m,t),0);
+    ms.forEach(m=>{ out[m.id]+= F*fp/N + F*(1-fp)*(tot>0? estOf(m,t)/tot : 1/N); });
+  });
+  Object.keys(out).forEach(k=>out[k]*=(1+bufferPct()));
+  return out;
+}
+function periodStart(){ const c=D.commons||{}; return c.period || c.trialStart || (c.created||'').slice(0,10) || today(); }
+function usedNights(m, t, from, to){
+  let n=0;
+  list('bookings').forEach(b=>{
+    if(b.member!==m.id || b.thing!==t.id) return;
+    if(b.to>to || b.to<=from) return;              // only stays that ended in the period
+    const trip=list('trips').find(x=>x.booking===b.id);
+    n += trip? clamp(trip.nights,0,366) : nightsBetween(b.from,b.to);
+  });
+  return n;
+}
+function settlement(endDate){
+  const from=periodStart(), to=endDate||today();
+  const M=Math.max(0, monthsBetween(from,to));
+  const ms=activeMembers(), ts=things(), N=Math.max(1,ms.length), fp=fixedShare(), adv=advances();
+  const rows={}; ms.forEach(m=>rows[m.id]={id:m.id, nights:0, share:0, advance:adv[m.id]*M, spent:0});
+  let total=0;
+  ts.forEach(t=>{
+    const ex=list('expenses').filter(e=>e.thing===t.id && e.date>=from && e.date<=to).reduce((a,e)=>a+Number(e.amount||0),0);
+    const cost=(Number(t.fixed)||0)*M + ex; total+=cost;
+    const used={}; let tot=0; ms.forEach(m=>{ used[m.id]=usedNights(m,t,from,to); tot+=used[m.id]; rows[m.id].nights+=used[m.id]; });
+    ms.forEach(m=>{ rows[m.id].share += cost*fp/N + cost*(1-fp)*(tot>0? used[m.id]/tot : 1/N); });
+  });
+  list('expenses').filter(e=>e.date>=from && e.date<=to).forEach(e=>{ if(rows[e.paidBy]) rows[e.paidBy].spent+=Number(e.amount||0); });
+  Object.values(rows).forEach(r=>{ r.balance = r.share - r.advance - r.spent; });
+  return {from, to, months:M, total, rows};
+}
+
+/* ---------- buying numbers (kept from the first version) ---------- */
+function calcBuy(t, people){
+  const P=Math.max(1,Math.round(people));
+  const own=t.price*t.own/100, buying=t.price*t.cost/100, loan=Math.max(0,t.price-own);
+  const r=t.rate/100/12, n=Math.round(t.years*12);
+  const pay= loan>0&&n>0 ? (r>0? loan*r/(1-Math.pow(1+r,-n)) : loan/n) : 0;
+  const runM=t.run/12, rentM=t.rentNights*t.rentRate*(1-t.cut/100)/12;
+  const netM=pay+runM-rentM, per=netM/P, up=(own+buying)/P;
+  const nights=Math.max(0,t.season-t.rentNights)/P;
+  let bal=loan, paid=up, value=t.price; const pts=[{y:0,paid:paid,worth:(t.price-loan)/P}];
+  const g=Math.pow(1+t.growth/100,1/12);
+  for(let m=1;m<=120;m++){ if(bal>0&&m<=n){ const i=bal*r; bal=Math.max(0,bal-(pay-i)); } value*=g; paid+=netM/P; if(m%12===0) pts.push({y:m/12,paid:paid,worth:(value-bal)/P}); }
+  const end=pts[pts.length-1];
+  return {P, pay, runM, rentM, netM, per, up, nights, pts, end, trueM:(end.paid-end.worth)/120};
+}
+
+/* ---------- scenes ---------- */
 function rng(seed){ let x=0; for(const c of String(seed)) x=(x*31+c.charCodeAt(0))>>>0; return ()=>{ x=(x*1664525+1013904223)>>>0; return x/4294967296; }; }
+let SCENES=[];
+function scene(cv,kind,seed){ SCENES.push([cv,kind,seed]); requestAnimationFrame(()=>drawScene(cv,kind,seed)); }
 function drawScene(cv, kind, seed){
   const dpr=Math.min(2, window.devicePixelRatio||1);
   const w=cv.clientWidth||320, hh=cv.clientHeight||240;
@@ -425,675 +521,690 @@ function drawScene(cv, kind, seed){
   const C={sky1:css('--sky1'),sky2:css('--sky2'),sun:css('--sun'),l1:css('--land1'),l2:css('--land2'),l3:css('--land3'),s1:css('--sea1'),s2:css('--sea2'),snow:css('--snow'),hull:css('--hull'),glow:css('--glow'),share:css('--share')};
   const sky=c.createLinearGradient(0,0,0,hh); sky.addColorStop(0,C.sky1); sky.addColorStop(1,C.sky2);
   c.fillStyle=sky; c.fillRect(0,0,w,hh);
-  // sun
-  c.fillStyle=C.sun; c.beginPath(); c.arc(w*0.22, hh*0.3, Math.min(w,hh)*0.09, 0, Math.PI*2); c.fill();
-  function hill(y, amp, col, freq, ph){
-    c.fillStyle=col; c.beginPath(); c.moveTo(0,hh);
-    for(let x=0;x<=w;x+=6){ c.lineTo(x, y + Math.sin(x/w*Math.PI*freq + ph)*amp); }
-    c.lineTo(w,hh); c.closePath(); c.fill();
-  }
-  function pine(x, base, ht, col){
-    c.fillStyle=col; c.beginPath(); c.moveTo(x, base-ht); c.lineTo(x-ht*0.28, base); c.lineTo(x+ht*0.28, base); c.closePath(); c.fill();
-  }
-  function house(x, base, wd, col, roof){
-    c.fillStyle=col; c.fillRect(x, base-wd*0.6, wd, wd*0.6);
-    c.fillStyle=roof; c.beginPath(); c.moveTo(x-wd*0.1, base-wd*0.6); c.lineTo(x+wd/2, base-wd*1.05); c.lineTo(x+wd*1.1, base-wd*0.6); c.closePath(); c.fill();
-    c.fillStyle=C.glow; c.fillRect(x+wd*0.22, base-wd*0.42, wd*0.2, wd*0.18); c.fillRect(x+wd*0.58, base-wd*0.42, wd*0.2, wd*0.18);
-  }
-  function sea(y){
-    const g=c.createLinearGradient(0,y,0,hh); g.addColorStop(0,C.s1); g.addColorStop(1,C.s2);
-    c.fillStyle=g; c.fillRect(0,y,w,hh-y);
-    c.strokeStyle=C.sky2; c.globalAlpha=.35; c.lineWidth=1.2;
-    for(let i=0;i<9;i++){ const yy=y+8+i*(hh-y)/9, xx=R()*w; c.beginPath(); c.moveTo(xx,yy); c.lineTo(xx+20+R()*40,yy); c.stroke(); }
-    c.globalAlpha=1;
-  }
+  c.fillStyle=C.sun; c.beginPath(); c.arc(w*0.22,hh*0.3,Math.min(w,hh)*0.09,0,Math.PI*2); c.fill();
+  function hill(y,amp,col,freq,ph){ c.fillStyle=col; c.beginPath(); c.moveTo(0,hh); for(let x=0;x<=w;x+=6) c.lineTo(x,y+Math.sin(x/w*Math.PI*freq+ph)*amp); c.lineTo(w,hh); c.closePath(); c.fill(); }
+  function pine(x,base,ht,col){ c.fillStyle=col; c.beginPath(); c.moveTo(x,base-ht); c.lineTo(x-ht*0.28,base); c.lineTo(x+ht*0.28,base); c.closePath(); c.fill(); }
+  function house(x,base,wd,col,roof){ c.fillStyle=col; c.fillRect(x,base-wd*0.6,wd,wd*0.6); c.fillStyle=roof; c.beginPath(); c.moveTo(x-wd*0.1,base-wd*0.6); c.lineTo(x+wd/2,base-wd*1.05); c.lineTo(x+wd*1.1,base-wd*0.6); c.closePath(); c.fill(); c.fillStyle=C.glow; c.fillRect(x+wd*0.22,base-wd*0.42,wd*0.2,wd*0.18); c.fillRect(x+wd*0.58,base-wd*0.42,wd*0.2,wd*0.18); }
+  function sea(y){ const g=c.createLinearGradient(0,y,0,hh); g.addColorStop(0,C.s1); g.addColorStop(1,C.s2); c.fillStyle=g; c.fillRect(0,y,w,hh-y); c.strokeStyle=C.sky2; c.globalAlpha=.35; c.lineWidth=1.2; for(let i=0;i<9;i++){ const yy=y+8+i*(hh-y)/9, xx=R()*w; c.beginPath(); c.moveTo(xx,yy); c.lineTo(xx+20+R()*40,yy); c.stroke(); } c.globalAlpha=1; }
   if(kind==='cabin'){
-    hill(hh*0.55, 10, C.l1, 2, 1);
-    for(let i=0;i<26;i++) pine(R()*w, hh*0.6+R()*8, 28+R()*26, C.l2);
-    hill(hh*0.74, 6, C.l2, 3, 2);
-    house(w*0.56, hh*0.8, Math.min(w*0.17, 90), C.hull, C.l3);
-    for(let i=0;i<14;i++){ const x=R()*w; if(Math.abs(x-w*0.62)<w*0.13) continue; pine(x, hh*0.84+R()*14, 46+R()*40, C.l3); }
+    hill(hh*0.55,10,C.l1,2,1); for(let i=0;i<26;i++) pine(R()*w,hh*0.6+R()*8,28+R()*26,C.l2);
+    hill(hh*0.74,6,C.l2,3,2); house(w*0.56,hh*0.8,Math.min(w*0.17,90),C.hull,C.l3);
+    for(let i=0;i<14;i++){ const x=R()*w; if(Math.abs(x-w*0.62)<w*0.13) continue; pine(x,hh*0.84+R()*14,46+R()*40,C.l3); }
   } else if(kind==='beach'){
     sea(hh*0.55);
-    // kite
     c.fillStyle=C.share; c.beginPath(); c.moveTo(w*0.7,hh*0.18); c.lineTo(w*0.82,hh*0.12); c.lineTo(w*0.8,hh*0.22); c.closePath(); c.fill();
     c.strokeStyle=C.hull; c.lineWidth=.8; c.beginPath(); c.moveTo(w*0.76,hh*0.2); c.lineTo(w*0.5,hh*0.64); c.stroke();
-    hill(hh*0.8, 12, C.sky2, 1.4, 0.5);
-    c.fillStyle=C.l1; c.globalAlpha=.6; for(let i=0;i<40;i++){ const x=R()*w; c.fillRect(x, hh*0.8-4-R()*10, 1.5, 8+R()*6); } c.globalAlpha=1;
-    house(w*0.14, hh*0.84, Math.min(w*0.16,84), C.snow, C.hull);
+    hill(hh*0.8,12,C.sky2,1.4,0.5);
+    c.fillStyle=C.l1; c.globalAlpha=.6; for(let i=0;i<40;i++){ const x=R()*w; c.fillRect(x,hh*0.8-4-R()*10,1.5,8+R()*6); } c.globalAlpha=1;
+    house(w*0.14,hh*0.84,Math.min(w*0.16,84),C.snow,C.hull);
   } else if(kind==='boat'){
-    hill(hh*0.52, 3, C.l2, 2, 0);
-    sea(hh*0.56);
+    hill(hh*0.52,3,C.l2,2,0); sea(hh*0.56);
     const bx=w*0.5, by=hh*0.76, bw=Math.min(w*0.34,170);
     c.fillStyle=C.hull; c.beginPath(); c.moveTo(bx-bw/2,by); c.lineTo(bx+bw/2,by); c.lineTo(bx+bw*0.38,by+bw*0.13); c.lineTo(bx-bw*0.4,by+bw*0.13); c.closePath(); c.fill();
     c.fillStyle=C.snow; c.beginPath(); c.moveTo(bx,by-4); c.lineTo(bx,by-bw*0.95); c.lineTo(bx+bw*0.45,by-4); c.closePath(); c.fill();
     c.fillStyle=C.share; c.beginPath(); c.moveTo(bx-3,by-bw*0.8); c.lineTo(bx-3,by-4); c.lineTo(bx-bw*0.34,by-4); c.closePath(); c.fill();
   } else if(kind==='chalet'){
     c.fillStyle=C.l2; c.beginPath(); c.moveTo(0,hh*0.7);
-    const peaks=[[0.1,0.42],[0.3,0.2],[0.48,0.38],[0.66,0.14],[0.86,0.36],[1,0.3]];
-    peaks.forEach(([x,y])=>c.lineTo(x*w,y*hh)); c.lineTo(w,hh*0.7); c.closePath(); c.fill();
-    c.fillStyle=C.snow;
-    [[0.3,0.2],[0.66,0.14]].forEach(([x,y])=>{ c.beginPath(); c.moveTo(x*w,y*hh); c.lineTo(x*w-w*0.06,y*hh+hh*0.1); c.lineTo(x*w+w*0.05,y*hh+hh*0.1); c.closePath(); c.fill(); });
-    hill(hh*0.72, 8, C.l1, 2, 1.5);
-    for(let i=0;i<18;i++) pine(R()*w, hh*0.8+R()*10, 22+R()*20, C.l3);
-    hill(hh*0.88, 4, C.snow, 2, 0.2);
-    house(w*0.6, hh*0.9, Math.min(w*0.17,90), C.hull, C.l3);
+    [[0.1,0.42],[0.3,0.2],[0.48,0.38],[0.66,0.14],[0.86,0.36],[1,0.3]].forEach(([x,y])=>c.lineTo(x*w,y*hh)); c.lineTo(w,hh*0.7); c.closePath(); c.fill();
+    c.fillStyle=C.snow; [[0.3,0.2],[0.66,0.14]].forEach(([x,y])=>{ c.beginPath(); c.moveTo(x*w,y*hh); c.lineTo(x*w-w*0.06,y*hh+hh*0.1); c.lineTo(x*w+w*0.05,y*hh+hh*0.1); c.closePath(); c.fill(); });
+    hill(hh*0.72,8,C.l1,2,1.5); for(let i=0;i<18;i++) pine(R()*w,hh*0.8+R()*10,22+R()*20,C.l3);
+    hill(hh*0.88,4,C.snow,2,0.2); house(w*0.6,hh*0.9,Math.min(w*0.17,90),C.hull,C.l3);
   } else {
-    hill(hh*0.58, 14, C.l1, 1.6, 0.3);
-    hill(hh*0.7, 8, C.l2, 2.4, 1.2);
+    hill(hh*0.58,14,C.l1,1.6,0.3); hill(hh*0.7,8,C.l2,2.4,1.2);
     c.fillStyle=C.l3; c.fillRect(0,hh*0.86,w,hh*0.14);
     c.strokeStyle=C.share; c.lineWidth=2; c.setLineDash([10,10]); c.beginPath(); c.moveTo(0,hh*0.93); c.lineTo(w,hh*0.93); c.stroke(); c.setLineDash([]);
     const vx=w*0.36, vy=hh*0.86, vw=Math.min(w*0.32,150), vh=vw*0.46;
     c.fillStyle=C.snow; c.beginPath(); c.moveTo(vx,vy-8); c.lineTo(vx,vy-vh); c.lineTo(vx+vw*0.78,vy-vh); c.lineTo(vx+vw,vy-vh*0.5); c.lineTo(vx+vw,vy-8); c.closePath(); c.fill();
-    c.fillStyle=C.share; c.fillRect(vx, vy-vh*0.42, vw, vh*0.12);
-    c.fillStyle=C.s1; c.fillRect(vx+vw*0.8, vy-vh*0.9, vw*0.13, vh*0.32);
-    c.fillStyle=C.hull; [0.2,0.78].forEach(f=>{ c.beginPath(); c.arc(vx+vw*f, vy-6, vh*0.15, 0, Math.PI*2); c.fill(); });
+    c.fillStyle=C.share; c.fillRect(vx,vy-vh*0.42,vw,vh*0.12);
+    c.fillStyle=C.s1; c.fillRect(vx+vw*0.8,vy-vh*0.9,vw*0.13,vh*0.32);
+    c.fillStyle=C.hull; [0.2,0.78].forEach(f=>{ c.beginPath(); c.arc(vx+vw*f,vy-6,vh*0.15,0,Math.PI*2); c.fill(); });
   }
 }
 
-let SCENES=[];
-function scene(cv,kind,seed){ SCENES.push([cv,kind,seed]); requestAnimationFrame(()=>drawScene(cv,kind,seed)); }
-
-/* ---------- share wheel ---------- */
-function wheel(p, size){
-  const n=Math.max(1, Math.round(p.people));
-  const crew=crewWithMe(p);
-  const inC=crew.filter(m=>m.st==='in').length, mayC=crew.filter(m=>m.st==='maybe').length;
-  const R=size/2, r=R-3;
-  const svg=s('svg',{viewBox:`0 0 ${size} ${size}`, role:'img', 'aria-label':`${Math.min(inC,n)} of ${n} shares taken, ${mayC} maybe`});
-  svg.append(s('circle',{cx:R,cy:R,r:r,fill:css('--card'),stroke:css('--line'),'stroke-width':1}));
-  for(let i=0;i<n;i++){
-    const a0=-Math.PI/2+i/n*Math.PI*2, a1=-Math.PI/2+(i+1)/n*Math.PI*2;
-    const pa=`M${R},${R} L${R+r*Math.cos(a0)},${R+r*Math.sin(a0)} A${r},${r} 0 ${a1-a0>Math.PI?1:0} 1 ${R+r*Math.cos(a1)},${R+r*Math.sin(a1)} Z`;
-    let fill=css('--card'), op=1;
-    if(i<inC) fill=css('--share');
-    else if(i<inC+mayC){ fill=css('--share'); op=.35; }
-    svg.append(s('path',{d:pa, fill:fill, 'fill-opacity':op, stroke:css('--paper'), 'stroke-width':Math.max(1.5,size/60)}));
-  }
-  svg.append(s('circle',{cx:R,cy:R,r:r*0.38,fill:css('--paper')}));
-  svg.append(s('text',{x:R,y:R+size*0.06,'text-anchor':'middle','font-family':'Spline Sans Mono, monospace','font-size':size*0.16,'font-weight':600,fill:css('--ink')}, `${Math.min(inC,n)}/${n}`));
-  return svg;
-}
-function crewWithMe(p){
-  const me={id:'me', n:S.me ? S.me+' (you)' : 'You', st:'in', max:Infinity, nights:0, up:0, me:true};
-  return [me].concat(p.crew||[]);
-}
-
-/* ---------- views ---------- */
+/* ---------- frame ---------- */
 const TABS=[
-  ['dream','Dream','M3 20h18M5 20l5-9 3 5 2-3 4 7M15 6a2 2 0 1 0 0-.01'],
-  ['numbers','Numbers','M4 20V10M10 20V4M16 20v-7M22 20H2'],
-  ['pitch','Pitch','M4 5h16v11H8l-4 4z'],
-  ['crew','Crew','M12 12a4 4 0 1 0 0-.01M12 12v9M12 12l7.8 4.5M12 12L4.2 16.5'],
-  ['path','Path','M6 4v16M6 6h10l-2 3 2 3H6']
+  ['home','Home','M3 11l9-7 9 7v9H3zM9 20v-6h6v6'],
+  ['book','Book','M4 6h16v14H4zM4 10h16M9 3v5M15 3v5'],
+  ['money','Money','M3 7h18v10H3zM12 12a2 2 0 1 0 0-.01M6 10v4M18 10v4'],
+  ['crew','Crew','M12 12a4 4 0 1 0 0-.01M4 21c1-4 4-6 8-6s7 2 8 6'],
+  ['start','Start','M6 4v16M6 6h10l-2 3 2 3H6']
 ];
+function go(tab){ UI.tab=tab; saveUI(); render(); window.scrollTo(0,0); }
 function renderTabs(){
   const box=document.getElementById('tabs'); box.textContent='';
   TABS.forEach(([id,label,d])=>{
     const svg=s('svg',{viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':1.7,'stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}, s('path',{d:d}));
-    box.append(h('button',{'aria-current':S.tab===id?'page':null, onclick:()=>go(id)}, svg, label));
+    box.append(h('button',{'aria-current':UI.tab===id?'page':null,onclick:()=>go(id)}, svg, label));
   });
+}
+function logo(){
+  const g=s('svg',{viewBox:'0 0 32 32',width:28,height:28,'aria-hidden':'true'});
+  for(let i=0;i<8;i++){ const a0=-Math.PI/2+i/8*Math.PI*2, a1=a0+Math.PI/4; g.append(s('path',{d:`M16,16 L${16+14*Math.cos(a0)},${16+14*Math.sin(a0)} A14,14 0 0 1 ${16+14*Math.cos(a1)},${16+14*Math.sin(a1)} Z`, fill:i<5?css('--share'):css('--paper-2'), stroke:css('--paper'),'stroke-width':1.4})); }
+  g.append(s('circle',{cx:16,cy:16,r:5,fill:css('--paper')}));
+  return g;
 }
 function renderTop(){
   const top=document.getElementById('top'); top.textContent='';
-  const p=plan();
-  const pick=h('select',{class:'plan-pick',id:'plan-pick','aria-label':'Your plans', onchange:e=>{ if(e.target.value==='__new'){ go('dream'); setTimeout(()=>{ const t=document.getElementById('start-new'); if(t) t.scrollIntoView({behavior:'smooth'}); },50); e.target.value=p.id; return; } S.cur=e.target.value; save(); render(); }});
-  S.plans.forEach(x=>pick.append(h('option',{value:x.id, selected:x.id===p.id?true:null, text:x.title})));
-  pick.append(h('option',{value:'__new',text:'+ Start a new plan'}));
-  const logo=s('svg',{viewBox:'0 0 32 32',width:28,height:28,'aria-hidden':'true'});
-  for(let i=0;i<8;i++){ const a0=-Math.PI/2+i/8*Math.PI*2, a1=a0+Math.PI/4; logo.append(s('path',{d:`M16,16 L${16+14*Math.cos(a0)},${16+14*Math.sin(a0)} A14,14 0 0 1 ${16+14*Math.cos(a1)},${16+14*Math.sin(a1)} Z`, fill:i<5?css('--share'):css('--paper-2'), stroke:css('--paper'),'stroke-width':1.4})); }
-  logo.append(s('circle',{cx:16,cy:16,r:5,fill:css('--paper')}));
-  top.append(h('div',{class:'mark'}, logo, h('b',{text:'The New Commons'})), pick);
+  const c=D.commons;
+  top.append(h('div',{class:'mark'}, logo(), h('b',{text: c&&c.name ? c.name : 'The New Commons'})),
+    MODE==='loading' ? h('span',{class:'mode',text:'Loading'}) :
+    h('span',{class:'mode'+(MODE==='shared'?' shared':''), text: MODE==='shared'?'Shared':'This phone'}));
 }
-function go(tab){ S.tab=tab; save(); render(); window.scrollTo(0,0); }
 function render(){
   SCENES=[];
   renderTop(); renderTabs();
   const v=document.getElementById('view'); v.textContent='';
-  const p=plan();
-  ({dream:viewDream, numbers:viewNumbers, pitch:viewPitch, crew:viewCrew, path:viewPath}[S.tab]||viewDream)(v,p);
+  if(MODE==='loading'){ v.append(h('div',{class:'empty',style:'margin-top:20px'}, h('h2',{text:'Opening your commons…'}), h('p',{class:'soft',text:'Fetching the calendar and the money from the shared store.'}))); return; }
+  const banners=[];
+  if(STALE) banners.push(h('p',{class:'ro',text:'The shared data can’t be reached yet. What you see may be out of date.'}));
+  if(!CANWRITE) banners.push(h('p',{class:'ro',text:'You can look around, but you have view access only. Ask the ambassador for Contributor access to book.'}));
+  if(banners.length) v.append(h('div',{class:'stack',style:'margin-bottom:16px'},banners));
+  ({home:viewHome, book:viewBook, money:viewMoney, crew:viewCrew, start:viewStart}[UI.tab]||viewHome)(v);
 }
 
-/* ---- Dream ---- */
-function viewDream(v,p){
-  const c=calc(p);
-  const K=KINDS[p.kind]||KINDS.cabin;
-  const cv=h('canvas',{'aria-hidden':'true'});
-  const hero=h('div',{class:'hero'}, cv);
-  const wh=wheel(p,74); wh.setAttribute('class','wheel'); hero.append(wh);
-  const exampleNote = p.example ? h('p',{class:'note'},'These are example figures and example friends. Change the name, place and numbers to make it yours.') : null;
-
-  v.append(h('div',{class:'stack-l'},
-    h('div',{class:'stack'},
-      hero,
-      h('div',{class:'hero-text'},
-        h('input',{class:'title-edit',id:'title',value:p.title,'aria-label':'Name of your commons', oninput:e=>{p.title=txt(e.target.value)||K.title; p.example=false; save();}, onchange:()=>renderTop()}),
-        h('input',{class:'place-edit',id:'place',value:p.place,placeholder:'Where is it?','aria-label':'Where', oninput:e=>{p.place=txt(e.target.value); save();}})
-      ),
-      h('div',{class:'figs'},
-        h('div',{class:'fig key'}, h('b',{text:eur(c.per)}), h('span',{text:`a month each, with ${c.people} people`})),
-        h('div',{class:'fig'}, h('b',{text:int(c.nights)}), h('span',{text:`${K.unit}s a year each`})),
-        h('div',{class:'fig'}, h('b',{text:eur(c.perNight)}), h('span',{text:`a ${K.unit}, against ${eur(p.market)} to rent`}))
-      ),
-      h('p',{class:'soft'}, `Plus ${eur(c.up)} each to get in. After ten years each share is worth about ${eur(c.end.worth)}, so the real cost is ${eur(c.trueM)} a month.`),
-      exampleNote,
-      h('div',{class:'row'},
-        h('button',{class:'btn primary',onclick:()=>go('pitch')},'Invite friends'),
-        h('button',{class:'btn',onclick:()=>go('numbers')},'Change the numbers'))
-    ),
-
-    h('section',{class:'stack'},
-      h('p',{class:'eyebrow',text:'Why ideas like this stall'}),
-      h('h2',{text:'Everyone says “let’s do it”, then someone sends a listing and it dies.'}),
-      h('div',{class:'barriers'},
-        barrier('It looks expensive', `A ${eur(p.price)} price tag scares people. Split it and it is ${eur(c.per)} a month.`, 'numbers','See the split'),
-        barrier('You need more people', `You have ${crewWithMe(p).filter(m=>m.st==='in').length} of ${c.people}. Send one link, collect soft yeses.`, 'crew','Your crew'),
-        barrier('Everyone wants something else', 'One friend wants a return, another a garden for the kids. Pitch each the part they care about.', 'pitch','Pitch angles'),
-        barrier('Nobody knows if they’d use it', 'Rent a similar place together for a weekend first. Buy only if it works.', 'path','The path'),
-        barrier('Fear of fights and being stuck', 'Agree on the calendar, the costs and how to step out before anyone pays.', 'path','House rules')
-      )
-    ),
-
-    h('section',{class:'stack',id:'start-new'},
-      h('p',{class:'eyebrow',text:'Start a new plan'}),
-      h('h2',{text:'What would you share?'}),
-      (()=>{
-        const g=h('div',{class:'templates'});
-        Object.keys(KINDS).forEach(k=>{
-          const cvs=h('canvas',{'aria-hidden':'true'});
-          const b=h('button',{class:'tpl',onclick:()=>{ const np=newPlan(k); S.plans.push(np); S.cur=np.id; save(); render(); window.scrollTo({top:0,behavior:'smooth'}); toast('New plan: '+KINDS[k].label); }},
-            cvs, h('div',null,h('b',{text:KINDS[k].label}),h('span',{text:KINDS[k].blurb})));
-          g.append(b);
-          scene(cvs,k,'tpl');
-        });
-        return g;
-      })()
-    ),
-
-    h('section',{class:'stack'},
-      h('p',{class:'eyebrow',text:'It already works'}),
-      h('h2',{text:'Owning together is old. Doing it with friends just needs better tools.'}),
-      h('div',{class:'shows'},
-        show('1/8','Second homes in eighths','In the US and parts of Europe, companies such as Pacaso sell shares of holiday homes to up to eight co-owners, who book their stays through a shared calendar.'),
-        show('⛵','Boat syndicates','Several sailors owning one yacht with a fixed rota is a long-standing habit in British sailing. Costs and the maintenance work are split.'),
-        show('DE','Mietshäuser Syndikat','A German network that helps groups of residents buy their own building together, set up so it can’t be sold off later.'),
-        show('DK','Andelsboliger','In Danish housing co-ops, members own a share of the whole building and a right to live in it, instead of owning a flat.'),
-        show('NL','Volkstuinen','Dutch allotment associations have run shared land for over a century: members, a board, clear rules and a waiting list.')
-      )
-    ),
-
-    S.plans.length>1 ? h('section',{class:'stack'},
-      h('p',{class:'eyebrow',text:'This plan'}),
-      deleteRow(p)
-    ) : null,
-    h('p',{class:'foot',text:'Your plans are saved in this browser only. Links you send carry the plan inside them; nothing is stored on a server.'})
-  ));
-  scene(cv,p.kind,p.id);
+/* ---------- Home ---------- */
+function bookingNow(t){ const d=today(); return list('bookings').find(b=>b.thing===t.id && b.from<=d && b.to>d); }
+function nextBooking(t){ const d=today(); return list('bookings').filter(b=>b.thing===t.id && b.from>d).sort((a,b)=>a.from.localeCompare(b.from))[0]; }
+function stageLine(){
+  const c=D.commons||{};
+  if(c.stage==='trial' && c.trialStart){
+    const m=Math.min(6, monthsBetween(c.trialStart,today()));
+    return h('div',{class:'stage'}, h('span',{class:'eyebrow',text:`Trial · month ${Math.min(6,Math.floor(m)+1)} of 6`}), h('div',{class:'bar'},h('i',{style:`width:${Math.round(m/6*100)}%`})));
+  }
+  if(c.stage==='coop') return h('span',{class:'eyebrow',text:'Co-op · running'});
+  return h('span',{class:'eyebrow',text:'Getting started'});
 }
-function barrier(title, text, tab, cta){
-  return h('div',{class:'barrier'}, h('b',{text:title}), h('p',{text:text}), h('button',{class:'btn small',onclick:()=>go(tab)}, cta));
-}
-function show(dot, t, d){ return h('div',{class:'show'}, h('div',{class:'dot','aria-hidden':'true',text:dot}), h('div',null, h('b',{text:t}), h('p',{text:d}))); }
-function deleteRow(p){
-  const box=h('div',{class:'confirm'});
-  const ask=h('button',{class:'btn small ghost',onclick:()=>{
-    box.textContent='';
-    box.append(h('span',{text:`Delete “${p.title}” and its crew?`}),
-      h('button',{class:'btn small',onclick:()=>{ S.plans=S.plans.filter(x=>x.id!==p.id); S.cur=S.plans[0]?S.plans[0].id:null; save(); render(); toast('Plan deleted'); }},'Delete'),
-      h('button',{class:'btn small ghost',onclick:()=>{ box.textContent=''; box.append(ask); }},'Keep it'));
-  }},'Delete this plan');
-  box.append(ask); return box;
-}
-
-/* ---- Numbers ---- */
-function viewNumbers(v,p){
-  const K=KINDS[p.kind]||KINDS.cabin;
-  const sum=h('div',{class:'sum'});
-  const out=h('div',{class:'outcome'});
-  function refresh(){
-    const c=calc(p);
-    sum.textContent='';
-    sum.append(h('div',{class:'figs'},
-      h('div',{class:'fig key'}, h('b',{text:eur(c.per)}), h('span',{text:'a month each'})),
-      h('div',{class:'fig'}, h('b',{text:eur(c.up)}), h('span',{text:'once, to get in'})),
-      h('div',{class:'fig'}, h('b',{text:eur(c.perNight)}), h('span',{text:`a ${K.unit}, ${int(c.nights)} ${K.unit}s each`}))
+function viewHome(v){
+  const ts=things(), mine=me();
+  if(!D.commons || !ts.length){
+    v.append(h('div',{class:'stack-l'},
+      h('div',{class:'stack'},
+        h('div',{class:'hero'}, (()=>{ const cv=h('canvas',{'aria-hidden':'true'}); scene(cv,'cabin','home'); return cv; })()),
+        h('p',{class:'eyebrow',text:'Share it, don’t buy it alone'}),
+        h('h1',{text:'A cabin, a boat or a van, shared by a small group of friends.'}),
+        h('p',{class:'soft',text:'Like a neighbourhood car co-op, for the places you love. Book your stays in a shared calendar, log each stay, pay a monthly advance based on how much you expect to use it, and settle up every six months on what you really used.'}),
+        h('div',{class:'row'}, h('button',{class:'btn primary',onclick:()=>go('start')},'Start your commons'))),
+      howItWorks(),
+      localNote()
     ));
-    out.textContent='';
-    out.append(
-      h('h3',{text:'Every month, for the whole group'}),
-      line('Loan payment', eur(c.pay)),
-      line('Running costs', eur(c.runM)),
-      line('Rent from guests', p.rentNights ? '−'+eur(c.rentM) : '€0'),
-      line(`Net, split by ${c.people}`, eur(c.per)+' each', true),
-      h('h3',{text:'Ten years on', style:'margin-top:12px'}),
+    return;
+  }
+  const adv=advances(), myAdv=mine? adv[mine.id] : null;
+  const pending=list('bookings').filter(b=>b.to<=today() && !list('trips').some(t=>t.booking===b.id) && (MODE==='local' || (mine && b.member===mine.id))).sort((a,b)=>b.to.localeCompare(a.to));
+  const myNext=mine? list('bookings').filter(b=>b.member===mine.id && b.to>today()).sort((a,b)=>a.from.localeCompare(b.from))[0] : null;
+  const box=h('div',{class:'things'});
+  ts.forEach(t=>{
+    const cv=h('canvas',{'aria-hidden':'true'}); scene(cv,t.kind,t.id);
+    const now=bookingNow(t), nx=nextBooking(t);
+    const st= now ? h('span',{class:'status busy'}, `${nameOf(D.members[now.member])} is there until ${niceDay(now.to)}`) : h('span',{class:'status'}, 'Free now');
+    box.append(h('button',{class:'thing',style:'text-align:left;cursor:pointer;padding:0',onclick:()=>{ UI.thing=t.id; go('book'); }}, cv,
+      h('div',null, h('b',{text:t.name}), t.place? h('span',{text:t.place}) : null, st,
+        nx? h('span',{text:`Next: ${nameOf(D.members[nx.member])}, ${nice(nx.from)}–${nice(nx.to)}`}) : null)));
+  });
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'}, stageLine(), box),
+    pending.length ? h('section',{class:'card stack'}, h('h3',{text:'Check out of your stay'}),
+      h('p',{class:'note',text:'Log how it went, so the next person finds it right and the costs follow real use.'}),
+      pending.slice(0,4).map(b=> UI.checkout===b.id ? checkoutForm(b) :
+        h('div',{class:'row',style:'justify-content:space-between'}, h('span',null, `${D.things[b.thing]?D.things[b.thing].name:'Stay'} · ${nice(b.from)}–${nice(b.to)}${MODE==='local'?' · '+nameOf(D.members[b.member]):''}`),
+          h('button',{class:'btn small',onclick:()=>{ UI.checkout=b.id; render(); }},'Check out')))) : null,
+    h('section',{class:'figs'},
+      h('div',{class:'fig key'}, h('b',{text: myAdv!=null? eur(myAdv):'–'}), h('span',{text:'your advance a month'})),
+      h('div',{class:'fig'}, h('b',{text: myNext? nice(myNext.from) : '–'}), h('span',{text: myNext? 'your next stay' : 'no stay booked'})),
+      h('div',{class:'fig'}, h('b',{text: String(activeMembers().length)}), h('span',{text:'members sharing'}))),
+    h('div',{class:'row'}, h('button',{class:'btn primary',onclick:()=>go('book')},'Book a stay'), mine? null : (MODE==='shared'? h('button',{class:'btn',onclick:()=>go('crew')},'Join this commons') : null)),
+    recentLog(),
+    localNote()
+  ));
+}
+function howItWorks(){
+  return h('section',{class:'stack'},
+    h('p',{class:'eyebrow',text:'How it works'}),
+    h('ol',{style:'margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px'},
+      h('li',null, h('b',{text:'Start with a trial. '}), 'Six months, renting or leasing the place, so nobody has to put money in up front.'),
+      h('li',null, h('b',{text:'Say how much you’ll use it. '}), 'Each member estimates their nights. That sets a fair monthly advance.'),
+      h('li',null, h('b',{text:'Book, stay, check out. '}), 'One calendar for everyone, and a short log after each stay.'),
+      h('li',null, h('b',{text:'Settle up twice a year. '}), 'Like an energy bill: used more than you said, you pay the difference; used less, you get money back.'),
+      h('li',null, h('b',{text:'Become a co-op. '}), 'If it works, sign the agreement. Keep renting, or buy it together.')));
+}
+function localNote(){
+  if(MODE!=='local') return null;
+  const linkEl=h('span',{class:'num',style:'overflow-wrap:anywhere',text:SHARED_URL});
+  return h('section',{class:'ro stack',style:'gap:6px'},
+    h('b',{text:'This copy keeps everything on this phone.'}),
+    h('span',{text:'To book together, use the shared version in Claude and add your friends there:'}),
+    linkEl, h('div',null,h('button',{class:'btn small',onclick:()=>copy(SHARED_URL,linkEl)},'Copy link')));
+}
+function recentLog(){
+  const trips=list('trips').sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,6);
+  if(!trips.length) return null;
+  return h('section',{class:'stack'}, h('h3',{text:'Logbook'}),
+    h('div',{class:'log'}, trips.map(tr=>{
+      const t=D.things[tr.thing], m=D.members[tr.member];
+      const missing=['clean','bins','locked'].filter(k=>!tr.checks||!tr.checks[k]);
+      return h('div',null,
+        h('div',{class:'who'}, avatar(m,22), h('b',{text:nameOf(m)}), h('small',{text:`${t?t.name:''} · ${tr.nights} ${t&&t.unit==='day'?'days':'nights'} · ${nice(tr.date)}`})),
+        tr.damage? h('span',{class:'issue',text:'Needs attention: '+tr.damage}) : null,
+        missing.length? h('small',{text:'Not ticked: '+missing.map(k=>({clean:'cleaned',bins:'bins out',locked:'locked up'})[k]).join(', ')}) : null,
+        tr.note? h('span',{class:'soft',text:tr.note}) : null);
+    })));
+}
+function checkoutForm(b){
+  const t=D.things[b.thing]||{}, full=nightsBetween(b.from,b.to);
+  const n=h('input',{type:'number',id:'co-n',value:full,min:0,max:full,inputmode:'numeric'});
+  const ch={clean:h('input',{type:'checkbox',id:'co-clean'}), bins:h('input',{type:'checkbox',id:'co-bins'}), locked:h('input',{type:'checkbox',id:'co-locked'}), supplies:h('input',{type:'checkbox',id:'co-sup'})};
+  const dmg=h('input',{id:'co-dmg',placeholder:'Anything broken or running low? (optional)'});
+  const note=h('input',{id:'co-note',placeholder:'A note for the next person (optional)'});
+  return h('form',{class:'stack',style:'border-top:1px solid var(--line);padding-top:12px',onsubmit:async ev=>{
+    ev.preventDefault();
+    const rec={booking:b.id, thing:b.thing, member:b.member, nights:clamp(n.value,0,full), checks:{clean:ch.clean.checked,bins:ch.bins.checked,locked:ch.locked.checked,supplies:ch.supplies.checked}, damage:txt(dmg.value,200), note:txt(note.value,280), date:b.to, by:(me()||{}).id||null};
+    if(await put('trips', b.id, rec)){ UI.checkout=null; toast('Checked out. Thanks!'); if(MODE==='shared') queueRender(); }
+  }},
+    h('b',{text:`${t.name||'Stay'}, ${nice(b.from)}–${nice(b.to)}`}),
+    h('div',{class:'field'}, h('label',{for:'co-n',text:`${t.unit==='day'?'Days':'Nights'} actually used`}), n),
+    h('div',{class:'checks'},
+      h('label',null,ch.clean,'Cleaned up'), h('label',null,ch.bins,'Bins out, fridge empty'), h('label',null,ch.locked,'Locked and keys back'), h('label',null,ch.supplies,'Supplies checked')),
+    dmg, note,
+    h('div',{class:'row'}, h('button',{class:'btn primary',type:'submit'},'Check out'), h('button',{class:'btn ghost',type:'button',onclick:()=>{ UI.checkout=null; render(); }},'Later')));
+}
+
+/* ---------- Book ---------- */
+function viewBook(v){
+  const ts=things();
+  if(!ts.length){ v.append(emptyStart('Add the first thing you share, then the calendar opens.')); return; }
+  if(!D.things[UI.thing]) UI.thing=ts[0].id;
+  const t=D.things[UI.thing];
+  const unitW=t.unit==='day'?'days':'nights';
+  if(!UI.month){ const d=new Date(); UI.month=d.getFullYear()+'-'+pad(d.getMonth()+1); }
+  const [yy,mm]=UI.month.split('-').map(Number);
+  const first=new Date(yy,mm-1,1), days=new Date(yy,mm,0).getDate();
+  const offset=(first.getDay()+6)%7;
+  const bookings=list('bookings').filter(b=>b.thing===t.id);
+  const grid=h('div',{class:'cal'});
+  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d=>grid.append(h('div',{class:'dow',text:d.slice(0,2)})));
+  for(let i=0;i<offset;i++) grid.append(h('div',{class:'day blank','aria-hidden':'true'}));
+  const td=today();
+  for(let d=1; d<=days; d++){
+    const ds=yy+'-'+pad(mm)+'-'+pad(d);
+    const b=bookings.find(x=>x.from<=ds && x.to>ds);
+    const m=b? D.members[b.member] : null;
+    const sel = UI.from && (ds===UI.from || (UI.to && ds>=UI.from && ds<UI.to));
+    const cell=h('button',{class:'day'+(ds<td?' past':'')+(ds===td?' today':'')+(sel?' sel':''),'aria-label':`${niceDay(ds)}${m?', booked by '+nameOf(m):', free'}`,onclick:()=>pickDay(ds)},
+      h('span',{text:String(d)}), m? h('span',{class:'tag',style:`background:${colorOf(m)}`,text:nameOf(m).split(' ')[0]}) : null);
+    grid.append(cell);
+  }
+  const chips=h('div',{class:'chips'});
+  ts.forEach(x=>chips.append(h('button',{class:'chip','aria-pressed':x.id===t.id?'true':'false',onclick:()=>{ UI.thing=x.id; UI.from=null; UI.to=null; saveUI(); render(); }}, x.name)));
+  const upcoming=bookings.filter(b=>b.to>td).sort((a,b)=>a.from.localeCompare(b.from));
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Book'}), ts.length>1? chips : h('h1',{text:t.name})),
+    h('section',{class:'stack'},
+      h('div',{class:'calnav'},
+        h('button',{class:'btn small ghost','aria-label':'Previous month',onclick:()=>shiftMonth(-1)},'‹'),
+        h('b',{text:MONTHS[mm-1]+' '+yy}),
+        h('button',{class:'btn small ghost','aria-label':'Next month',onclick:()=>shiftMonth(1)},'›')),
+      grid,
+      h('p',{class:'note',text:'Tap your first day, then the day you leave.'})),
+    bookForm(t, bookings),
+    h('section',{class:'stack'}, h('h3',{text:'Coming up'}),
+      upcoming.length? h('div',{class:'log'}, upcoming.map(b=>{
+        const m=D.members[b.member], mine=me(), canCancel=CANWRITE && (MODE==='local' || ISADMIN || (mine && b.member===mine.id));
+        return h('div',null, h('div',{class:'row',style:'justify-content:space-between'},
+          h('div',{class:'who'}, avatar(m,22), h('b',{text:nameOf(m)}), h('small',{text:`${niceDay(b.from)} → ${niceDay(b.to)} · ${nightsBetween(b.from,b.to)} ${unitW}`})),
+          canCancel? cancelBtn(b) : null), b.note? h('small',{text:b.note}) : null);
+      })) : h('p',{class:'soft',text:'Nothing booked yet. It’s all yours.'})),
+    h('p',{class:'note',text:`House rule: ${rule('stay').text.toLowerCase()} at a time. Holidays: ${rule('prime').text.toLowerCase()}.`})
+  ));
+}
+function shiftMonth(n){ const [y,m]=UI.month.split('-').map(Number); const d=new Date(y,m-1+n,1); UI.month=d.getFullYear()+'-'+pad(d.getMonth()+1); render(); }
+function pickDay(ds){
+  if(!UI.from || UI.to || ds<=UI.from){ UI.from=ds; UI.to=null; }
+  else UI.to=ds;
+  render();
+}
+function cancelBtn(b){
+  const wrap=h('span',{class:'confirm'});
+  const ask=h('button',{class:'btn small ghost',onclick:()=>{ wrap.textContent=''; wrap.append(h('button',{class:'btn small',onclick:async()=>{ if(await del('bookings',b.id)) toast('Booking cancelled'); }},'Cancel stay'), h('button',{class:'btn small ghost',onclick:()=>{ wrap.textContent=''; wrap.append(ask); }},'Keep')); }},'Cancel');
+  wrap.append(ask); return wrap;
+}
+function overlaps(t, from, to, skip){ return list('bookings').find(b=>b.thing===t.id && b.id!==skip && b.from<to && b.to>from); }
+function bookForm(t){
+  if(!CANWRITE) return null;
+  const ms=activeMembers(), mine=me();
+  if(!ms.length) return h('section',{class:'empty'}, h('b',{text:'Add members first'}), h('p',{class:'soft',text:'Bookings belong to a member.'}), h('button',{class:'btn small',onclick:()=>go('crew')},'Crew'));
+  if(MODE==='shared' && !mine) return h('section',{class:'empty'}, h('b',{text:'Join to book'}), h('button',{class:'btn small primary',onclick:()=>go('crew')},'Join this commons'));
+  const from=h('input',{type:'date',id:'b-from',value:UI.from||'',onchange:e=>{ UI.from=e.target.value||null; }});
+  const to=h('input',{type:'date',id:'b-to',value:UI.to||'',onchange:e=>{ UI.to=e.target.value||null; }});
+  const who=h('select',{id:'b-who'}); ms.forEach(m=>who.append(h('option',{value:m.id,text:nameOf(m)+youTag(m),selected:mine&&m.id===mine.id?true:null})));
+  const note=h('input',{id:'b-note',placeholder:'Note (optional)'});
+  const n=UI.from&&UI.to? nightsBetween(UI.from,UI.to) : 0;
+  const unitW=t.unit==='day'?'days':'nights';
+  return h('section',{class:'card stack'},
+    h('h3',{text: n? `Book ${n} ${unitW} at ${t.name}` : `Book ${t.name}`}),
+    h('form',{class:'form',onsubmit:async ev=>{
+      ev.preventDefault();
+      const f=from.value, tt=to.value;
+      if(!parse(f)||!parse(tt)||tt<=f){ toast('Pick a first day and a later leaving day'); return; }
+      const nn=nightsBetween(f,tt);
+      if(nn>rule('stay').v){ toast(`The house rule allows ${rule('stay').v} ${unitW} at a time`); return; }
+      const clash=overlaps(t,f,tt);
+      if(clash){ const cm=D.members[clash.member]; toast(`${isMeM(cm)?'You have':nameOf(cm)+' has'} it ${nice(clash.from)}–${nice(clash.to)}`); return; }
+      const rec={thing:t.id, member:who.value, from:f, to:tt, note:txt(note.value,140), made:new Date().toISOString(), by:(mine||{}).id||null};
+      if(await put('bookings', uid(), rec)){ UI.from=null; UI.to=null; toast(`Booked: ${nice(f)}–${nice(tt)}`); if(MODE==='shared') render(); }
+    }},
+      h('label',null,'Arrive',from), h('label',null,'Leave',to),
+      h('label',null,'For',who), h('label',null,'Note',note),
+      h('div',{class:'row',style:'grid-column:1/-1'}, h('button',{class:'btn primary',type:'submit'},'Book'))));
+}
+
+/* ---------- Money ---------- */
+function viewMoney(v){
+  const ts=things(), ms=activeMembers();
+  if(!ts.length || !ms.length){ v.append(emptyStart('Add what you share and who shares it, and the advances appear here.')); return; }
+  const adv=advances(), st=settlement(), mine=me();
+  const end=addDays(periodStart(),182);
+  const totalFixed=ts.reduce((a,t)=>a+(Number(t.fixed)||0),0);
+  const table=h('table',{class:'money'},
+    h('thead',null,h('tr',null, h('th',{text:'Member'}), h('th',{text:'Used'}), h('th',{text:'Advance'}), h('th',{text:'Share'}), h('th',{text:'Balance'}))),
+    h('tbody',null, ms.map(m=>{ const r=st.rows[m.id]; return h('tr',null,
+      h('td',null, h('div',{class:'who'}, avatar(m,20), h('span',{text:nameOf(m)+youTag(m)}))),
+      h('td',{text:int(r.nights)}), h('td',{text:eur(adv[m.id])}), h('td',{text:eur(r.share)}),
+      h('td',{class:r.balance>0.5?'pos':(r.balance<-0.5?'neg':''), text:(r.balance>0.5?'pays ':r.balance<-0.5?'gets ':'')+eur(Math.abs(r.balance))})); })));
+  const myRow=mine? st.rows[mine.id] : null;
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Money'}), h('h1',{text:'Pay a little each month, settle twice a year'}),
+      h('p',{class:'soft',text:'Like an energy bill. Your monthly advance is based on the nights you said you’d use. Every six months the real costs are split on the nights people really used, and the difference is paid or refunded.'})),
+    h('section',{class:'figs'},
+      h('div',{class:'fig key'}, h('b',{text: mine? eur(adv[mine.id]):'–'}), h('span',{text:'your advance a month'})),
+      h('div',{class:'fig'}, h('b',{text: myRow? (myRow.balance>0.5?'+':'')+eur(myRow.balance):'–'}), h('span',{text: myRow? (myRow.balance>0.5?'to pay if settled today':'back if settled today') : 'join to see yours'})),
+      h('div',{class:'fig'}, h('b',{text:nice(end)}), h('span',{text:'next settle-up'}))),
+    h('section',{class:'stack'},
+      h('h3',{text:`This period, since ${nice(st.from)}`}),
+      h('div',{class:'scroll'}, table),
+      h('div',{class:'kv'},
+        h('span',{text:'Monthly costs of what you share'}), h('span',{text:eur(totalFixed)}),
+        h('span',{text:'Costs so far, incl. expenses'}), h('span',{text:eur(st.total)}),
+        h('span',{text:'Split'}), h('span',{text:rule('split').text}),
+        h('span',{text:'Reserve on advances'}), h('span',{text:rule('buffer').v+'%'})),
+      h('p',{class:'note',text:'“Used” counts stays that have ended. Positive balance: pay that into the shared account. “Gets”: it comes back to you.'})),
+    expensesSection(),
+    settleSection(st),
+    pastSettlements()
+  ));
+}
+function expensesSection(){
+  const ex=list('expenses').filter(e=>e.date>=periodStart()).sort((a,b)=>b.date.localeCompare(a.date));
+  const ts=things(), ms=activeMembers(), mine=me();
+  const what=h('input',{id:'x-what',placeholder:'e.g. new mattress, firewood'});
+  const amt=h('input',{id:'x-amt',type:'number',inputmode:'decimal',min:0,placeholder:'€'});
+  const th=h('select',{id:'x-thing'}); ts.forEach(t=>th.append(h('option',{value:t.id,text:t.name})));
+  const by=h('select',{id:'x-by'}); ms.forEach(m=>by.append(h('option',{value:m.id,text:nameOf(m),selected:mine&&mine.id===m.id?true:null})));
+  const date=h('input',{id:'x-date',type:'date',value:today()});
+  return h('section',{class:'stack'},
+    h('h3',{text:'Expenses paid by members'}),
+    h('p',{class:'note',text:'Paid for something out of your own pocket? Log it here and it is credited back at the settle-up.'}),
+    ex.length? h('div',{class:'log'}, ex.map(e=>h('div',null,
+      h('div',{class:'row',style:'justify-content:space-between'}, h('b',{text:e.what||'Expense'}), h('span',{class:'num',text:eur(e.amount)})),
+      h('small',{text:`${nameOf(D.members[e.paidBy])} · ${D.things[e.thing]?D.things[e.thing].name:''} · ${nice(e.date)}`})))) : null,
+    CANWRITE && (MODE==='local'||mine) ? h('form',{class:'form',onsubmit:async ev=>{
+      ev.preventDefault();
+      const a=clamp(amt.value,0,1e6); if(!a){ toast('Add an amount'); return; }
+      if(!parse(date.value)){ toast('Add a date'); return; }
+      if(await put('expenses',uid(),{thing:th.value, paidBy:by.value, amount:a, what:txt(what.value,80)||'Expense', date:date.value})){ toast('Expense added'); }
+    }},
+      h('label',{class:'full'},'What',what), h('label',null,'Amount (€)',amt), h('label',null,'Date',date),
+      h('label',null,'For',th), h('label',null,'Paid by',by),
+      h('div',{class:'row',style:'grid-column:1/-1'}, h('button',{class:'btn',type:'submit'},'Add expense'))) : null);
+}
+function settleSection(st){
+  if(!CANWRITE || !(MODE==='local' || ISADMIN)) return h('p',{class:'note',text:'The ambassador closes each period. You’ll see the final numbers here.'});
+  const wrap=h('div',{class:'confirm'});
+  const ask=h('button',{class:'btn',onclick:()=>{ wrap.textContent=''; wrap.append(h('span',{text:`Close the period ${nice(st.from)}–${nice(st.to)} and start a new one?`}),
+    h('button',{class:'btn small primary',onclick:async()=>{
+      const rows={}; Object.values(st.rows).forEach(r=>rows[r.id]={nights:r.nights, share:Math.round(r.share), advance:Math.round(r.advance), spent:Math.round(r.spent), balance:Math.round(r.balance)});
+      if(await put('settlements',uid(),{from:st.from,to:st.to,total:Math.round(st.total),rows:rows,made:new Date().toISOString()})){
+        const c=Object.assign({},D.commons,{period:st.to}); await put('commons','main',c); toast('Settled. A new period has started.');
+      }
+    }},'Settle up'), h('button',{class:'btn small ghost',onclick:()=>{ wrap.textContent=''; wrap.append(ask); }},'Not yet')); }},'Settle up now');
+  wrap.append(ask);
+  return h('section',{class:'stack'}, h('h3',{text:'Settle up'}),
+    h('p',{class:'note',text:'Normally every six months. Settling freezes the balances above; pay or refund them via your shared account.'}), wrap);
+}
+function pastSettlements(){
+  const ss=list('settlements').sort((a,b)=>(b.to||'').localeCompare(a.to||''));
+  if(!ss.length) return null;
+  return h('section',{class:'stack'}, h('h3',{text:'Past settle-ups'}),
+    ss.map(x=>h('details',{class:'more card'}, h('summary',null, `${nice(x.from)} – ${nice(x.to)} · ${eur(x.total)}`),
+      h('div',{class:'kv'}, Object.keys(x.rows||{}).map(id=>{ const r=x.rows[id]; return [h('span',{text:nameOf(D.members[id])+` · ${r.nights} nights`}), h('span',{class:r.balance>0?'pos':'neg',text:(r.balance>0?'paid ':'got ')+eur(Math.abs(r.balance))})]; })))));
+}
+
+/* ---------- Crew ---------- */
+function viewCrew(v){
+  const ms=members(), ts=things(), adv=advances(), mine=me();
+  const accepted=ms.filter(m=>m.accepted).length;
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Crew'}), h('h1',{text:`${activeMembers().length} sharing`}),
+      h('p',{class:'soft',text:`${accepted} of ${ms.length} accepted the charter.`})),
+    joinBox(),
+    h('section',{class:'log'}, ms.map(m=>memberRow(m,ts,adv,mine))),
+    inviteBox(),
+    charterSection()
+  ));
+}
+function joinBox(){
+  if(MODE!=='shared' || me() || !CANWRITE) return null;
+  return h('section',{class:'card stack'}, h('h3',{text:'Join this commons'}),
+    h('p',{class:'soft',text:'You’ll be able to book stays, log them and see your advance.'}),
+    h('div',null, h('button',{class:'btn primary',onclick:async()=>{
+      const id=uid();
+      if(await put('members',id,{uid:MYID, role:members().length?'member':'ambassador', joined:new Date().toISOString(), est:{}})) toast('Welcome in!');
+    }},'Join')));
+}
+function memberRow(m,ts,adv,mine){
+  const isMe=mine && mine.id===m.id;
+  const canEdit=CANWRITE && (MODE==='local' || isMe || ISADMIN);
+  const est=ts.map(t=>`${estOf(m,t)} ${t.unit==='day'?'days':'nights'} ${t.name}`).join(' · ');
+  const row=h('div',null,
+    h('div',{class:'row',style:'justify-content:space-between'},
+      h('div',{class:'who'}, avatar(m,30), h('b',{text:nameOf(m)+youTag(m)}), m.role==='ambassador'? h('span',{class:'pill in',text:'Ambassador'}) : null, m.left? h('span',{class:'pill no',text:'Stepped out'}) : null),
+      canEdit? h('button',{class:'btn small ghost',onclick:()=>row.replaceWith(memberForm(m))},'Edit') : null),
+    h('small',{text:`Expects per half year: ${est||'–'}`}),
+    h('small',null, `Advance ${eur(adv[m.id]||0)} a month · `, m.accepted? h('span',{class:'ok',text:'charter accepted'}) : h('span',{class:'low',text:'charter not yet accepted'}), (MODE==='shared' && !m.uid)? ' · added by name' : null));
+  return row;
+}
+function memberForm(m){
+  const ts=things(), isNew=!m;
+  const e=m||{name:'', est:{}, role:'member'};
+  const name=h('input',{id:'m-name-'+(e.id||'new'),value:e.name||'',placeholder:'Name'});
+  const ests=ts.map(t=>h('input',{type:'number',inputmode:'numeric',min:0,max:366,id:'m-est-'+(e.id||'new')+'-'+t.id,value:(e.est||{})[t.id]||0}));
+  const showName=isNew || !e.uid;
+  const left=h('input',{type:'checkbox',id:'m-left-'+(e.id||'new'),checked:!!e.left,style:'width:auto'});
+  return h('form',{class:'form card',style:'margin-block:8px',onsubmit:async ev=>{
+    ev.preventDefault();
+    const rec=Object.assign({}, e);
+    if(showName){ rec.name=txt(name.value,40).trim(); if(!rec.name){ toast('Add a name'); return; } }
+    rec.est={}; ts.forEach((t,i)=>rec.est[t.id]=clamp(ests[i].value,0,366));
+    if(!isNew) rec.left=left.checked;
+    if(isNew){ rec.role=members().length?'member':'ambassador'; rec.joined=new Date().toISOString(); }
+    const id=e.id||uid();
+    if(await put('members',id,rec)){ toast(isNew?'Added '+rec.name:'Saved'); if(MODE==='shared') render(); }
+  }},
+    showName? h('label',{class:'full'},'Name',name) : h('b',{class:'full',style:'grid-column:1/-1',text:nameOf(e)}),
+    ts.map((t,i)=>h('label',null,`${t.unit==='day'?'Days':'Nights'} per half year · ${t.name}`,ests[i])),
+    isNew? null : h('label',{style:'flex-direction:row;align-items:center;gap:8px;grid-column:1/-1'},left,'Stepped out (keeps their history)'),
+    h('div',{class:'row',style:'grid-column:1/-1'}, h('button',{class:'btn primary',type:'submit'}, isNew?'Add member':'Save'),
+      isNew? null : h('button',{class:'btn ghost',type:'button',onclick:()=>render()},'Cancel')));
+}
+function inviteBox(){
+  if(!CANWRITE) return null;
+  return h('section',{class:'stack'},
+    h('h3',{text:'Bring people in'}),
+    MODE==='shared'
+      ? h('p',{class:'soft',text:'Open the Share menu at the top of this page and add your friends as Contributor, so they can join, book and log stays. Friends without a Claude account can be added by name below; someone else then books for them.'})
+      : h('p',{class:'soft',text:'On this phone you keep the list yourself. For a calendar everyone can use, open the shared version in Claude.'}),
+    h('details',{class:'more'}, h('summary',null,'Add someone by name'), memberForm(null)));
+}
+function charterSection(){
+  const mine=me();
+  const lines=Object.keys(RULES).map(k=>h('div',{style:'display:flex;flex-direction:column;gap:2px;padding-block:8px;border-bottom:1px solid var(--line)'}, h('small',{class:'eyebrow',text:RULES[k].l}), h('span',{text:rule(k).text})));
+  return h('section',{class:'stack'}, h('h3',{text:'The charter'}),
+    h('p',{class:'note',text:'The house rules everyone agrees to. The ambassador sets them in Start.'}),
+    h('div',null,lines),
+    mine && !mine.accepted && CANWRITE ? h('div',null,h('button',{class:'btn primary',onclick:async()=>{ if(await put('members',mine.id,Object.assign({},mine,{accepted:true,acceptedOn:today()}))) toast('Charter accepted'); }},'I accept the charter')) :
+    mine && mine.accepted ? h('p',{class:'ok',text:'You accepted on '+nice(mine.acceptedOn)}) : null);
+}
+
+/* ---------- Start (the path from idea to co-op) ---------- */
+function emptyStart(msg){ return h('div',{class:'empty',style:'margin-top:16px'}, h('h2',{text:'Not set up yet'}), h('p',{class:'soft',text:msg}), h('button',{class:'btn primary',onclick:()=>go('start')},'Go to Start')); }
+function viewStart(v){
+  const c=D.commons, ts=things(), ms=activeMembers();
+  const editable=CANWRITE && (MODE==='local' || ISADMIN || !c);
+  const totalFixed=ts.reduce((a,t)=>a+(Number(t.fixed)||0),0);
+  const max=c&&c.max? c.max : 150;
+  const needed=totalFixed>0? Math.ceil(totalFixed*(1+bufferPct())/max) : 0;
+  const allEst=ms.length && ms.every(m=>ts.every(t=>estOf(m,t)>0));
+  const allOk=ms.length && ms.every(m=>m.accepted);
+  const steps=[
+    {t:'Name your commons', d:'You are the ambassador: the one who gets it going.', done:!!(c&&c.name), body:()=>commonsForm()},
+    {t:'Choose what you share', d:'A cabin, a boat, a van. During the trial you rent or lease it; nobody buys anything yet.', done:ts.length>0, body:()=>thingsSection(editable)},
+    {t:'Gather enough members', d: totalFixed? `To stay under ${eur(max)} a month each, you need about ${needed} members. You have ${ms.length}.` : 'Set a monthly cost first.', done: ms.length>=Math.max(2,needed), body:()=>h('div',{class:'row'},h('button',{class:'btn small',onclick:()=>go('crew')},'Crew'))},
+    {t:'Estimate your use', d:'Each member says how many nights they expect per half year. That sets a fair advance.', done:!!allEst, body:()=>h('div',{class:'stack'}, h('p',{class:'note',text:'Members fill this in on the Crew tab (Edit next to their name).'}), h('div',{class:'row'},h('button',{class:'btn small',onclick:()=>go('crew')},'Fill in estimates')))},
+    {t:'Agree the charter', d:'Costs, booking, cleaning, guests and stepping out, before money moves.', done:!!allOk, body:()=>rulesForm(editable)},
+    {t:'Run a six-month trial', d:'Advances start, bookings start. If it doesn’t work, you stop after six months.', done:!!(c&&c.trialStart), body:()=>trialForm(editable)},
+    {t:'Become a co-op', d:'It works? Make it official, and decide whether to keep renting or buy.', done:!!(c&&c.stage==='coop'), body:()=>coopForm(editable)}
+  ];
+  const doneCount=steps.filter(x=>x.done).length;
+  const listEl=h('div',{class:'steps'});
+  const firstOpen=steps.findIndex(x=>!x.done);
+  steps.forEach((st,i)=>{
+    listEl.append(h('div',{class:'step'+(st.done?' done':'')},
+      h('span',{class:'tick','aria-hidden':'true',text:st.done?'✓':String(i+1)}),
+      h('details',{open:i===firstOpen||(UI.open===i)?true:null,ontoggle:e=>{ if(e.target.open) UI.open=i; }}, h('summary',null,h('b',{text:st.t}),h('span',{text:st.d})), h('div',{class:'body'}, st.body()))));
+  });
+  v.append(h('div',{class:'stack-l'},
+    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Start'}), h('h1',{text:'From idea to co-op'}),
+      h('p',{class:'soft',text:`${doneCount} of ${steps.length} steps done. Start small: a trial with rented or leased places, members who say how much they’ll use it, and clear rules. Buy only once it works.`})),
+    editable? null : h('p',{class:'ro',text:'The ambassador sets these up. You can see them here.'}),
+    listEl, localNote()));
+}
+function commonsForm(){
+  const c=D.commons||{};
+  const editable=CANWRITE && (MODE==='local' || ISADMIN || !D.commons);
+  const name=h('input',{id:'c-name',value:c.name||'',placeholder:'e.g. De Boshut Club'});
+  const place=h('input',{id:'c-place',value:c.place||'',placeholder:'Where, roughly'});
+  const max=h('input',{id:'c-max',type:'number',inputmode:'numeric',min:0,value:c.max||150});
+  if(!editable) return h('div',{class:'kv'}, h('span',{text:'Name'}), h('span',{text:c.name||'–'}), h('span',{text:'Most anyone should pay a month'}), h('span',{text:eur(c.max||0)}));
+  return h('form',{class:'form',onsubmit:async ev=>{
+    ev.preventDefault();
+    const nm=txt(name.value,60).trim(); if(!nm){ toast('Give it a name'); return; }
+    const rec=Object.assign({stage:'start', rules:{}, created:new Date().toISOString()}, D.commons||{}, {name:nm, place:txt(place.value,60), max:clamp(max.value,0,1e5)});
+    if(await put('commons','main',rec)){
+      if(!members().length){
+        const id=uid();
+        const mrec= MODE==='shared'? {uid:MYID, role:'ambassador', joined:new Date().toISOString(), est:{}} : {name:'You', role:'ambassador', joined:new Date().toISOString(), est:{}};
+        if(await put('members',id,mrec)){ if(MODE==='local'){ UI.me=id; saveUI(); } }
+      }
+      toast('Saved'); if(MODE==='shared') render();
+    }
+  }},
+    h('label',{class:'full'},'Name of your commons',name), h('label',null,'Where',place), h('label',null,'Most anyone should pay a month (€)',max),
+    h('div',{class:'row',style:'grid-column:1/-1'}, h('button',{class:'btn primary',type:'submit'},'Save')));
+}
+function thingsSection(editable){
+  const ts=things();
+  const box=h('div',{class:'stack'});
+  ts.forEach(t=>{
+    if(UI.editThing===t.id) box.append(thingForm(t));
+    else {
+      const cv=h('canvas',{'aria-hidden':'true'}); scene(cv,t.kind,t.id);
+      box.append(h('div',{class:'thing'}, cv, h('div',null, h('b',{text:t.name}),
+        h('span',{text:`${HOLD[t.hold]||''} · ${eur(t.fixed)} a month for the group`}),
+        editable? h('div',{class:'row',style:'margin-top:4px'}, h('button',{class:'btn small',onclick:()=>{ UI.editThing=t.id; render(); }},'Edit & numbers')) : null)));
+    }
+  });
+  if(editable && D.commons){
+    const g=h('div',{class:'templates'});
+    Object.keys(KINDS).forEach(k=>{
+      const cv=h('canvas',{'aria-hidden':'true'}); scene(cv,k,'tpl');
+      g.append(h('button',{class:'tpl',onclick:async()=>{
+        const id=uid(), rec=Object.assign({kind:k, name:KINDS[k].label, place:'', hold:'rent', fixed:KINDS[k].fixed, unit:KINDS[k].unit, created:new Date().toISOString(), example:true}, KINDS[k].d);
+        if(await put('things',id,rec)){ UI.editThing=id; UI.thing=id; saveUI(); toast('Added '+KINDS[k].label+'. Set its real cost.'); if(MODE==='shared') render(); }
+      }}, cv, h('div',null,h('b',{text:'+ '+KINDS[k].label}),h('span',{text:KINDS[k].blurb}))));
+    });
+    box.append(h('p',{class:'note',text:'Add one:'}), g);
+  } else if(!D.commons) box.append(h('p',{class:'note',text:'Name your commons first.'}));
+  return box;
+}
+function thingForm(t){
+  const K=KINDS[t.kind]||KINDS.cabin;
+  const f={
+    name:h('input',{id:'t-name',value:t.name}),
+    place:h('input',{id:'t-place',value:t.place||'',placeholder:'Where is it?'}),
+    hold:h('select',{id:'t-hold'}, Object.keys(HOLD).map(k=>h('option',{value:k,text:HOLD[k],selected:t.hold===k?true:null}))),
+    fixed:h('input',{id:'t-fixed',type:'number',inputmode:'numeric',min:0,value:t.fixed}),
+    unit:h('select',{id:'t-unit'}, h('option',{value:'night',text:'Per night',selected:t.unit!=='day'?true:null}), h('option',{value:'day',text:'Per day',selected:t.unit==='day'?true:null}))
+  };
+  const save=async ev=>{
+    ev.preventDefault();
+    const rec=Object.assign({},t,{name:txt(f.name.value,60)||K.label, place:txt(f.place.value,60), hold:f.hold.value, fixed:clamp(f.fixed.value,0,1e6), unit:f.unit.value, example:false});
+    if(await put('things',t.id,rec)){ UI.editThing=null; toast('Saved'); if(MODE==='shared') render(); }
+  };
+  const delWrap=h('span',{class:'confirm'});
+  const delAsk=h('button',{class:'btn small ghost',type:'button',onclick:()=>{ delWrap.textContent=''; delWrap.append(h('span',{text:'Remove it and its bookings?'}), h('button',{class:'btn small',type:'button',onclick:async()=>{
+    for(const b of list('bookings').filter(b=>b.thing===t.id)) await del('bookings',b.id);
+    if(await del('things',t.id)){ UI.editThing=null; toast('Removed'); if(MODE==='shared') render(); }
+  }},'Remove'), h('button',{class:'btn small ghost',type:'button',onclick:()=>{ delWrap.textContent=''; delWrap.append(delAsk); }},'Keep')); }},'Remove');
+  delWrap.append(delAsk);
+  return h('div',{class:'card stack'},
+    h('form',{class:'form',onsubmit:save},
+      h('label',{class:'full'},'Name',f.name), h('label',{class:'full'},'Where',f.place),
+      h('label',null,'How you hold it',f.hold), h('label',null,'Booked',f.unit),
+      h('label',{class:'full'},'Monthly cost for the whole group (€): rent or lease, or loan plus upkeep',f.fixed),
+      t.example? h('p',{class:'note full',style:'grid-column:1/-1',text:'The figures are examples. Put in the real rent, lease or costs.'}) : null,
+      h('div',{class:'row',style:'grid-column:1/-1'}, h('button',{class:'btn primary',type:'submit'},'Save'), h('button',{class:'btn ghost',type:'button',onclick:()=>{ UI.editThing=null; render(); }},'Close'), delWrap)),
+    h('details',{class:'more'}, h('summary',null,'Numbers: what would buying it cost?'), numbersPanel(t, f.fixed)));
+}
+
+/* the buy-or-keep-renting calculator, per thing */
+function numbersPanel(t, fixedInput){
+  const K=KINDS[t.kind]||KINDS.cabin, unit=t.unit||K.unit;
+  const draft=Object.assign({}, K.d, t);
+  const sum=h('div',{class:'outcome'});
+  function refresh(){
+    const P=Math.max(2, activeMembers().length);
+    const c=calcBuy(draft,P);
+    sum.textContent='';
+    sum.append(
+      h('div',{class:'figs'},
+        h('div',{class:'fig key'}, h('b',{text:eur(c.per)}), h('span',{text:`a month each, owning it, ${P} people`})),
+        h('div',{class:'fig'}, h('b',{text:eur(c.up)}), h('span',{text:'each, once, to buy in'})),
+        h('div',{class:'fig'}, h('b',{text:eur((Number(t.fixed)||0)/P)}), h('span',{text:'each a month, as it is now'}))),
+      line('Loan payment (group)', eur(c.pay)), line('Running costs (group)', eur(c.runM)), line('Rent from guests', '−'+eur(c.rentM)),
+      line('Owning, net a month for the group', eur(c.netM), true),
       chart(c),
       h('div',{class:'legend'}, h('span',null,h('i',{style:'background:var(--warn)'}),'What you put in'), h('span',null,h('i',{style:'background:var(--accent)'}),'What your share is worth')),
-      line('You put in, in total', eur(c.end.paid)),
-      line('Your share is then worth', eur(c.end.worth)),
-      line('Real cost per month', eur(c.trueM)),
-      line(`Real cost per ${K.unit}`, eur(c.trueNight)+` (renting: ${eur(p.market)})`, true),
-      h('p',{class:'note',text:'Estimates only. Value change, rent income and interest are guesses you set above. Lenders often ask for more of your own money on a second home, and in the Netherlands a second home usually counts as wealth for tax (box 3). Check with an advisor before anyone signs.'})
-    );
+      line('After ten years your share is worth', eur(c.end.worth)),
+      line('Real cost of owning, per month each', eur(c.trueM), true),
+      CANWRITE? h('div',{class:'row'},
+        h('button',{class:'btn small',type:'button',onclick:async()=>{ if(!D.things[t.id]) return; const rec=Object.assign({},D.things[t.id]); Object.keys(K.d).forEach(k=>rec[k]=draft[k]); if(await put('things',t.id,rec)) toast('Numbers saved'); }},'Save these numbers'),
+        h('button',{class:'btn small ghost',type:'button',onclick:()=>{ fixedInput.value=Math.round(Math.max(0,c.netM)); toast('Monthly cost filled in from these numbers. Press Save above to keep it.'); }},'Use “owning” as the monthly cost')) : null,
+      h('p',{class:'note',text:'Estimates only. Lenders often ask for more of your own money on a second home, and in the Netherlands a second home usually counts as wealth for tax (box 3). Check with an advisor.'}));
   }
-  function field(label, key, min, max, step, hint){
-    const id='f-'+key;
-    const num=h('input',{type:'number',id:id,min:min,max:max,step:step,value:p[key],inputmode:'decimal'});
-    const rng=h('input',{type:'range',min:min,max:max,step:step,value:p[key],'aria-label':label});
-    function set(val, from){
-      const x=clamp(val,min,max); p[key]=x; p.example=false;
-      if(from!=='num') num.value=x;
-      if(from!=='rng') rng.value=x;
-      save(); refresh();
-    }
+  function field(label,key,min,max,step){
+    const id='n-'+t.id+'-'+key;
+    const num=h('input',{type:'number',id:id,min:min,max:max,step:step,value:draft[key],inputmode:'decimal'});
+    const rngEl=h('input',{type:'range',min:min,max:max,step:step,value:draft[key],'aria-label':label});
+    function set(val,from){ draft[key]=clamp(val,min,max); if(from!=='num') num.value=draft[key]; if(from!=='rng') rngEl.value=draft[key]; refresh(); }
     num.addEventListener('input',()=>{ if(num.value!=='') set(num.value,'num'); });
-    num.addEventListener('change',()=>set(num.value,'blur'));
-    rng.addEventListener('input',()=>set(rng.value,'rng'));
-    return h('div',{class:'field'}, h('label',{for:id,text:label}), num, rng, hint?h('div',{class:'hint',text:hint}):null);
+    rngEl.addEventListener('input',()=>set(rngEl.value,'rng'));
+    return h('div',{class:'field'}, h('label',{for:id,text:label}), num, rngEl);
   }
-  const isUnit=K.unit;
-  v.append(h('div',{class:'stack-l'},
-    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Numbers'}), h('h1',{text:p.title})),
-    sum,
-    h('section',{class:'group'}, h('h3',{text:'The group'}),
-      field('People sharing','people',2,20,1,'More people means a lower monthly cost and fewer '+isUnit+'s each.')),
-    h('section',{class:'group'}, h('h3',{text:'The place'}),
-      field('Price (€)','price',5000,2000000,5000),
-      field('Buying costs (%)','cost',0,20,0.5,'Transfer tax, notary, survey. Differs by country.'),
-      field(`Usable ${isUnit}s a year`,'season',30,365,5)),
-    h('section',{class:'group'}, h('h3',{text:'The money'}),
-      field('Own money (%)','own',0,100,5),
-      field('Interest (%)','rate',0,12,0.1),
-      field('Loan years','years',0,30,1)),
-    h('section',{class:'group'}, h('h3',{text:'Running it'}),
-      field('Yearly costs (€)','run',0,100000,250,'Upkeep, insurance, local taxes, energy, park or mooring fees.')),
-    h('section',{class:'group'}, h('h3',{text:'Renting it out when nobody is there'}),
-      field(`${isUnit[0].toUpperCase()+isUnit.slice(1)}s rented out`,'rentNights',0,250,5),
-      field(`Rate per ${isUnit} (€)`,'rentRate',0,1500,5),
-      field('Lost to platform, cleaning (%)','cut',0,70,1)),
-    h('section',{class:'group'}, h('h3',{text:'Outlook'}),
-      field('Value change per year (%)','growth',-15,10,0.5,'Houses tend to rise, boats and vans lose value.'),
-      field(`Renting something similar, per ${isUnit} (€)`,'market',0,2000,5)),
-    out
-  ));
+  const box=h('div',{class:'stack'},
+    field('Price (€)','price',5000,2000000,5000), field('Buying costs (%)','cost',0,20,0.5), field(`Usable ${unit}s a year`,'season',30,365,5),
+    field('Own money (%)','own',0,100,5), field('Interest (%)','rate',0,12,0.1), field('Loan years','years',0,30,1),
+    field('Yearly running costs (€)','run',0,100000,250),
+    field(`${unit==='day'?'Days':'Nights'} rented to guests`,'rentNights',0,250,5), field(`Guest rate per ${unit} (€)`,'rentRate',0,1500,5), field('Lost to platform, cleaning (%)','cut',0,70,1),
+    field('Value change per year (%)','growth',-15,10,0.5),
+    sum);
   refresh();
+  return box;
 }
 function line(a,b,total){ return h('div',{class:'line'+(total?' total':'')}, h('span',{text:a}), h('span',{text:b})); }
 function chart(c){
-  const W=320,H=170,L=46,Rr=10,T=10,B=24;
-  const pts=c.pts;
-  const maxV=Math.max(1, ...pts.map(x=>Math.max(x.paid,x.worth)));
-  const minV=Math.min(0, ...pts.map(x=>Math.min(x.paid,x.worth)));
-  const nice=v=>{ const p=Math.pow(10,Math.floor(Math.log10(Math.max(1,Math.abs(v))))); return Math.ceil(v/p)*p; };
-  const top=nice(maxV), bot=minV<0?-nice(-minV):0;
+  const W=320,H=170,L=46,Rr=10,T=10,B=24, pts=c.pts;
+  const maxV=Math.max(1,...pts.map(x=>Math.max(x.paid,x.worth))), minV=Math.min(0,...pts.map(x=>Math.min(x.paid,x.worth)));
+  const niceN=v=>{ const p=Math.pow(10,Math.floor(Math.log10(Math.max(1,Math.abs(v))))); return Math.ceil(v/p)*p; };
+  const top=niceN(maxV), bot=minV<0?-niceN(-minV):0;
   const X=y=>L+(W-L-Rr)*y/10, Y=v=>T+(H-T-B)*(1-(v-bot)/(top-bot));
   const svg=s('svg',{class:'chart',viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':`After 10 years you put in ${eur(c.end.paid)} and your share is worth ${eur(c.end.worth)}`});
-  const ticks=[bot, bot+(top-bot)/2, top];
-  ticks.forEach(t=>{
-    svg.append(s('line',{x1:L,x2:W-Rr,y1:Y(t),y2:Y(t),stroke:css('--line'),'stroke-width':1}));
-    svg.append(s('text',{x:L-6,y:Y(t)+4,'text-anchor':'end','font-size':10,'font-family':'Spline Sans Mono, monospace',fill:css('--muted')}, t>=1000||t<=-1000 ? (t<0?'−':'')+'€'+Math.round(Math.abs(t)/1000)+'k' : eur(t)));
-  });
+  [bot,bot+(top-bot)/2,top].forEach(t=>{ svg.append(s('line',{x1:L,x2:W-Rr,y1:Y(t),y2:Y(t),stroke:css('--line'),'stroke-width':1})); svg.append(s('text',{x:L-6,y:Y(t)+4,'text-anchor':'end','font-size':10,'font-family':'Spline Sans Mono, monospace',fill:css('--muted')}, Math.abs(t)>=1000? (t<0?'−':'')+'€'+Math.round(Math.abs(t)/1000)+'k' : eur(t))); });
   [0,5,10].forEach(y=>svg.append(s('text',{x:X(y),y:H-6,'text-anchor':'middle','font-size':10,'font-family':'Spline Sans Mono, monospace',fill:css('--muted')}, y===0?'now':'yr '+y)));
-  function path(key,col){
-    const d=pts.map((p,i)=>(i?'L':'M')+X(p.y).toFixed(1)+','+Y(p[key]).toFixed(1)).join(' ');
-    svg.append(s('path',{d:d,fill:'none',stroke:col,'stroke-width':2.4,'stroke-linejoin':'round','stroke-linecap':'round'}));
-    const e=pts[pts.length-1]; svg.append(s('circle',{cx:X(e.y),cy:Y(e[key]),r:4,fill:col}));
-  }
-  // area between, to show the real cost
   const area='M'+pts.map(p=>X(p.y)+','+Y(p.paid)).join(' L')+' L'+pts.slice().reverse().map(p=>X(p.y)+','+Y(p.worth)).join(' L')+' Z';
   svg.append(s('path',{d:area,fill:css('--warn'),'fill-opacity':.1}));
-  path('paid',css('--warn')); path('worth',css('--accent'));
+  [['paid','--warn'],['worth','--accent']].forEach(([k,col])=>{ const d=pts.map((p,i)=>(i?'L':'M')+X(p.y).toFixed(1)+','+Y(p[k]).toFixed(1)).join(' '); svg.append(s('path',{d:d,fill:'none',stroke:css(col),'stroke-width':2.4,'stroke-linejoin':'round','stroke-linecap':'round'})); const e=pts[pts.length-1]; svg.append(s('circle',{cx:X(e.y),cy:Y(e[k]),r:4,fill:css(col)})); });
   return svg;
 }
-
-/* ---- Pitch ---- */
-const ANGLES={
-  easy:{t:'Cheap and easy', d:'For the friend who just wants it simple'},
-  money:{t:'Smart money', d:'For the one who likes a good investment'},
-  family:{t:'The family', d:'Kids, a garden, holidays without booking'},
-  escape:{t:'The escape', d:'Spontaneous weekends away'},
-  careful:{t:'Try it first', d:'For the doubter: no commitment yet'}
-};
-function pitchText(p, angle, lang, to){
-  const c=calc(p), K=KINDS[p.kind]||KINDS.cabin;
-  const nl=lang==='nl';
-  const unitNL={night:'nachten',day:'dagen'}[K.unit], unit1NL={night:'nacht',day:'dag'}[K.unit];
-  const name=to? to : (nl?'hé':'hey');
-  const hi=to? (nl?`Hoi ${to}!`:`Hi ${to}!`) : (nl?'Hoi!':'Hi!');
-  const where=p.place? ` (${p.place})` : '';
-  const link=inviteLink(p);
-  const wk=eur(p.market*2/Math.max(2,c.people));
-  const f={per:eur(c.per), up:eur(c.up), nights:int(c.nights), night:eur(c.perNight), people:c.people, worth:eur(c.end.worth), paid:eur(c.end.paid), market:eur(p.market), t:p.title};
-  let m;
-  if(nl){
-    m={
-      easy:`${hi} Ik ben iets leuks aan het uitzoeken: met een groep vrienden samen een ${f.t.toLowerCase()} kopen${where}. Met ${f.people} mensen kost het ongeveer ${f.per} per maand per persoon, plus eenmalig ${f.up} om in te stappen. Daarvoor heb je zo'n ${f.nights} ${unitNL} per jaar, dat is ${f.night} per ${unit1NL}. Het gedoe regelen we samen. Niets is nog definitief, kijk maar:`,
-      money:`${hi} Een idee met echte cijfers: ${f.people} vrienden kopen samen een ${f.t.toLowerCase()}${where}. Iedereen legt eenmalig ${f.up} in en betaalt ongeveer ${f.per} per maand; verhuur dekt een deel van de kosten. Na tien jaar is je aandeel naar schatting ${f.worth} waard, tegen ${f.paid} ingelegd. Geen garantie, maar een stuk slimmer dan elk jaar vakantiehuizen huren. Wil je de cijfers zien?`,
-      family:`${hi} Stel je voor: een ${f.t.toLowerCase()}${where} waar de kinderen buiten kunnen spelen, zonder boekingsstress. Met ${f.people} gezinnen/vrienden heb je ieder zo'n ${f.nights} ${unitNL} per jaar, voor ${f.per} per maand. Vakanties en lange weekenden wanneer het ons uitkomt. Doe je mee?`,
-      escape:`${hi} Vrijdagmiddag laptop dicht en gewoon gaan: naar onze eigen ${f.t.toLowerCase()}${where}. Met ${f.people} mensen is het ${f.per} per maand per persoon, ${f.nights} ${unitNL} per jaar. Geen gezoek, geen boeken. Zin in?`,
-      careful:`${hi} Je hoeft nog nergens ja tegen te zeggen. Ik denk erover om met vrienden samen een ${f.t.toLowerCase()} te delen (ongeveer ${f.per} p.p. per maand). Eerste stap: we huren een weekend iets vergelijkbaars, zo'n ${wk} per persoon, en kijken of het klikt. Pas daarna beslissen we, met duidelijke afspraken over kosten, agenda en hoe je weer uitstapt.`
-    };
-  } else {
-    m={
-      easy:`${hi} I'm looking into something fun: buying a ${f.t.toLowerCase()}${where} together with a group of friends. With ${f.people} of us it comes to about ${f.per} a month each, plus ${f.up} once to get in. For that you get around ${f.nights} ${K.unit}s a year, which is ${f.night} a ${K.unit}. We'd sort out the hassle together. Nothing is fixed yet, have a look:`,
-      money:`${hi} An idea with real numbers: ${f.people} friends co-own a ${f.t.toLowerCase()}${where}. Each puts in ${f.up} once and about ${f.per} a month; renting it out covers part of the costs. After ten years each share would be worth about ${f.worth}, against ${f.paid} put in. No guarantees, but a lot smarter than renting holiday homes every year. Want to see the numbers?`,
-      family:`${hi} Picture a ${f.t.toLowerCase()}${where} where the kids can play outside, with no booking stress. With ${f.people} families and friends we'd each get about ${f.nights} ${K.unit}s a year, for ${f.per} a month. Holidays and long weekends whenever it suits us. Are you in?`,
-      escape:`${hi} Close the laptop on Friday afternoon and just go: to our own ${f.t.toLowerCase()}${where}. With ${f.people} of us it's ${f.per} a month each, ${f.nights} ${K.unit}s a year. No searching, no booking. Fancy it?`,
-      careful:`${hi} You don't have to say yes to anything yet. I'm thinking of sharing a ${f.t.toLowerCase()} with friends (about ${f.per} a month each). First step: we rent something similar for a weekend, around ${wk} each, and see if it works. Only then we decide, with clear rules on costs, the calendar and how to step out.`
-    };
-  }
-  let out=m[angle]||m.easy;
-  if(p.note) out += (nl?'\n\nPS: ':'\n\nPS: ') + p.note;
-  out += '\n\n' + (nl?'Laat hier weten wat voor jou zou werken: ':'Tell me what would work for you here: ') + link;
-  return out;
-}
-function viewPitch(v,p){
-  const msg=h('div',{class:'msg',id:'msg'});
-  function upd(){ msg.textContent=pitchText(p,p.angle,p.lang,p.to); }
-  const angles=h('div',{class:'angles'});
-  Object.keys(ANGLES).forEach(k=>{
-    const b=h('button',{class:'angle','aria-pressed':p.angle===k?'true':'false', onclick:()=>{ p.angle=k; save(); [...angles.children].forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); upd(); }},
-      h('b',{text:ANGLES[k].t}), h('span',{text:ANGLES[k].d}));
-    angles.append(b);
+function rulesForm(editable){
+  const c=D.commons;
+  if(!c) return h('p',{class:'note',text:'Name your commons first.'});
+  const box=h('div',{class:'rules'});
+  Object.keys(RULES).forEach(k=>{
+    if(!editable){ box.append(h('div',null,h('small',{class:'eyebrow',text:RULES[k].l}),h('div',{text:rule(k).text}))); return; }
+    const sel=h('select',{id:'rule-'+k,onchange:async e=>{ const rules=Object.assign({},(D.commons||{}).rules,{[k]:Number(e.target.value)}); await put('commons','main',Object.assign({},D.commons,{rules:rules})); }});
+    RULES[k].o.forEach((o,j)=>sel.append(h('option',{value:j,text:o,selected:rule(k).i===j?true:null})));
+    box.append(h('label',null,RULES[k].l,sel));
   });
-  const langs=h('div',{class:'chips',role:'group','aria-label':'Language'});
-  [['nl','Nederlands'],['en','English']].forEach(([k,l])=>{
-    const b=h('button',{class:'chip','aria-pressed':p.lang===k?'true':'false',onclick:()=>{ p.lang=k; save(); [...langs.children].forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); upd(); }}, l);
-    langs.append(b);
-  });
-  v.append(h('div',{class:'stack-l'},
-    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Pitch'}), h('h1',{text:'Invite someone in'}),
-      h('p',{class:'soft',text:'Every friend cares about something else. Pick what this one cares about; the numbers fill themselves in. The link lets them answer with what they could put in.'})),
-    h('section',{class:'stack'},
-      h('div',{class:'form'},
-        h('label',null,'Your name', h('input',{id:'me-name',value:S.me,placeholder:'So they know who asks',oninput:e=>{ S.me=txt(e.target.value,40); save(); upd(); }})),
-        h('label',null,'Their name', h('input',{id:'to-name',value:p.to,placeholder:'Optional',oninput:e=>{ p.to=txt(e.target.value,40); save(); upd(); }})),
-        h('label',{class:'full'},'A personal line (optional)', h('input',{id:'pnote',value:p.note,placeholder:'e.g. Remember that cabin weekend in May?',oninput:e=>{ p.note=txt(e.target.value,280); save(); upd(); }}))
-      )),
-    h('section',{class:'stack'}, h('h3',{text:'What do they care about?'}), angles, langs),
-    h('section',{class:'stack'},
-      msg,
-      h('div',{class:'row'},
-        h('button',{class:'btn share',onclick:()=>shareText(msg.textContent,msg)},'Send'),
-        h('button',{class:'btn',onclick:()=>copy(msg.textContent,msg)},'Copy text'),
-        h('button',{class:'btn ghost',onclick:()=>copy(inviteLink(p))},'Copy link only')),
-      h('p',{class:'note',text:'The link carries this plan’s figures and your personal line. Anyone with the link can read them, so leave out anything private.'}))
-  ));
-  upd();
+  const ms=members();
+  return h('div',{class:'stack'}, box,
+    h('p',{class:'note',text:`${ms.filter(m=>m.accepted).length} of ${ms.length} members accepted. Each member accepts on the Crew tab; members added by name can be marked there by the ambassador.`}),
+    editable && MODE==='local'? h('div',null,h('button',{class:'btn small',type:'button',onclick:async()=>{ for(const m of ms.filter(m=>!m.accepted)) await put('members',m.id,Object.assign({},m,{accepted:true,acceptedOn:today()})); toast('Marked everyone as accepted'); }},'Everyone agreed in person')) : null);
 }
-
-/* ---- Crew ---- */
-function viewCrew(v,p){
-  const c=calc(p);
-  const crew=crewWithMe(p);
-  const inC=crew.filter(m=>m.st==='in').length, mayC=crew.filter(m=>m.st==='maybe').length;
-  const short=(p.crew||[]).filter(m=>m.st!=='no' && m.max < c.per);
-  const open=Math.max(0, c.people-inC);
-  const head=h('div',{class:'crew-head'}, wheel(p,120),
-    h('div',{class:'stack',style:'gap:6px'},
-      h('h2',{text: open ? `${open} share${open===1?'':'s'} to go` : 'Every share is spoken for'}),
-      h('p',{class:'soft'}, `${inC} in, ${mayC} maybe, out of ${c.people}. At ${eur(c.per)} a month each.`)));
-
-  // what would make it fit
-  const tips=[];
-  if(short.length){
-    const lowest=Math.min(...short.map(m=>m.max));
-    let need=null;
-    for(let n=c.people+1;n<=20;n++){ const cc=calc(Object.assign({},p,{people:n})); if(cc.per<=lowest){ need=[n,cc.per]; break; } }
-    tips.push(`${short.length===1?short[0].n+'’s limit is':short.length+' people have a limit'} below ${eur(c.per)}.` + (need?` With ${need[0]} people it drops to ${eur(need[1])}.`:' More own money or more rental nights would help.'));
+function trialForm(editable){
+  const c=D.commons;
+  if(!c) return h('p',{class:'note',text:'Name your commons first.'});
+  if(c.trialStart){
+    const m=monthsBetween(c.trialStart,today());
+    return h('div',{class:'stack'}, h('div',{class:'stage'}, h('span',{text:`Started ${nice(c.trialStart)} · ends ${nice(addDays(c.trialStart,182))}`}), h('div',{class:'bar'},h('i',{style:`width:${Math.min(100,Math.round(m/6*100))}%`}))),
+      h('p',{class:'note',text:'At the end, settle up and decide together: become a co-op, change the set-up, or stop.'}));
   }
-  const ups=(p.crew||[]).filter(m=>m.st!=='no');
-  if(ups.length){
-    const avail=ups.reduce((a,m)=>a+m.up,0), needUp=c.up*ups.length;
-    tips.push(`Together the others can put in ${eur(avail)} up front; their shares need ${eur(needUp)}.`);
-  }
-  const testers=(p.crew||[]).filter(m=>m.test && m.st!=='no').length;
-  if(testers) tips.push(`${testers} want to try it first. A weekend in something similar costs about ${eur(p.market*2)}, so ${eur(p.market*2/Math.max(2,testers+1))} each.`);
-
-  const list=h('div',null);
-  crew.forEach(m=>list.append(memberRow(p,m,c)));
-
-  v.append(h('div',{class:'stack-l'},
-    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Crew'}), head),
-    tips.length ? h('section',{class:'card stack'}, h('h3',{text:'What the answers say'}), h('ul',{style:'margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px'}, tips.map(t=>h('li',{text:t})))) : null,
-    h('section',null, list),
-    h('section',{class:'stack'}, h('h3',{text:'Add someone yourself'}), memberForm(p,null)),
-    h('section',{class:'stack'},
-      h('h3',{text:'Got a reply link?'}),
-      h('p',{class:'note',text:'When a friend answers your invite, they send you a link. Open it on this phone and they are added here. Or paste it below.'}),
-      pasteBox(p))
-  ));
+  if(!editable) return h('p',{class:'note',text:'Not started yet.'});
+  const start=h('input',{type:'date',id:'trial-start',value:today()});
+  return h('form',{class:'form',onsubmit:async ev=>{ ev.preventDefault(); if(!parse(start.value)){ toast('Pick a start date'); return; } if(await put('commons','main',Object.assign({},c,{stage:'trial',trialStart:start.value,period:start.value}))){ toast('Trial started'); if(MODE==='shared') render(); } }},
+    h('label',null,'First day',start),
+    h('div',{class:'row',style:'grid-column:1/-1'}, h('button',{class:'btn primary',type:'submit'},'Start the six-month trial')));
 }
-function memberRow(p,m,c){
-  const fits = m.me ? null : (m.max>=c.per);
-  const meta = m.me ? 'Organiser' :
-    [m.max?`up to ${eur(m.max)}/month`:'no limit given', m.up?`${eur(m.up)} up front`:null, m.nights?`wants ${m.nights} ${(KINDS[p.kind]||KINDS.cabin).unit}s`:null, m.test?'wants to try first':null].filter(Boolean).join(' · ');
-  const st={in:['in','In'],maybe:['maybe','Maybe'],no:['no','Not now']}[m.st]||['maybe','Maybe'];
-  const row=h('div',{class:'member'},
-    h('div',null, h('b',{text:m.n}), h('span',{class:'pill '+st[0],text:st[1]})),
-    h('div',{class:'meta'}, meta, (!m.me && m.st!=='no') ? h('span',{class:fits?'ok':'low',text:fits?'  ✓ fits':'  ✕ below the cost'}) : null, m.note? h('div',{text:'“'+m.note+'”'}) : null),
-    m.me ? h('div',{class:'tools'}) : h('div',{class:'tools'},
-      h('button',{class:'btn small ghost',onclick:()=>{ row.replaceWith(h('div',{class:'card',style:'margin-block:8px'}, memberForm(p,m))); }},'Edit'))
-  );
-  return row;
-}
-function memberForm(p,m){
-  const e=m||{n:'',st:'maybe',max:Math.round(calc(p).per/10)*10,nights:0,up:0,test:false,note:''};
-  const k=m?m.id:'new';
-  const name=h('input',{id:'mn-'+k,value:e.n,placeholder:'Name',required:true});
-  const st=h('select',{id:'ms-'+k}, h('option',{value:'in',text:'In',selected:e.st==='in'?true:null}), h('option',{value:'maybe',text:'Maybe',selected:e.st==='maybe'?true:null}), h('option',{value:'no',text:'Not now',selected:e.st==='no'?true:null}));
-  const max=h('input',{id:'mm-'+k,type:'number',inputmode:'decimal',value:e.max,min:0});
-  const up=h('input',{id:'mu-'+k,type:'number',inputmode:'decimal',value:e.up,min:0});
-  const ni=h('input',{id:'mi-'+k,type:'number',inputmode:'decimal',value:e.nights,min:0});
-  const test=h('input',{id:'mt-'+k,type:'checkbox',checked:e.test,style:'width:auto'});
-  const note=h('input',{id:'mo-'+k,value:e.note,placeholder:'Optional'});
-  const box=h('form',{class:'form',onsubmit:ev=>{
-    ev.preventDefault();
-    const n=txt(name.value,40).trim(); if(!n){ name.focus(); toast('Add a name'); return; }
-    const rec={id:m?m.id:uid(), n:n, st:st.value, max:clamp(max.value,0,1e5), up:clamp(up.value,0,1e7), nights:clamp(ni.value,0,366), test:test.checked, note:txt(note.value,280)};
-    if(m){ Object.assign(m,rec); } else p.crew.push(rec);
-    p.example=false; save(); render(); toast(m?'Saved':'Added '+n);
-  }},
-    h('label',null,'Name',name), h('label',null,'Answer',st),
-    h('label',null,'Max per month (€)',max), h('label',null,'Can put in (€)',up),
-    h('label',null,'Nights wanted',ni), h('label',{style:'flex-direction:row;align-items:center;gap:8px;padding-top:18px'},test,'Wants to try first'),
-    h('label',{class:'full'},'Note',note),
-    h('div',{class:'row full',style:'grid-column:1/-1'},
-      h('button',{class:'btn primary',type:'submit'}, m?'Save':'Add to crew'),
-      m? h('button',{class:'btn ghost',type:'button',onclick:()=>{ p.crew=p.crew.filter(x=>x.id!==m.id); save(); render(); toast('Removed '+m.n); }},'Remove') : null,
-      m? h('button',{class:'btn ghost',type:'button',onclick:()=>render()},'Cancel') : null)
-  );
-  return box;
-}
-function pasteBox(p){
-  const inp=h('input',{class:'txt',id:'paste-reply',placeholder:'Paste a reply link'});
-  return h('div',{class:'row'}, inp, h('button',{class:'btn',onclick:()=>{
-    const m=String(inp.value).match(/#reply-([A-Za-z0-9_-]+)/);
-    if(!m){ toast('That is not a reply link'); return; }
-    handleReply(dec(m[1])); inp.value='';
-  }},'Add'));
-}
-function handleReply(o){
-  const r=readReply(o);
-  if(!r){ render(); toast('That reply link is damaged'); return false; }
-  const p=S.plans.find(x=>x.id===r.pid);
-  if(!p){ render(); toast('That reply is for a plan that isn’t on this phone'); return false; }
-  const ex=p.crew.find(m=>m.n.toLowerCase()===r.n.toLowerCase());
-  const rec={n:r.n, st:r.st, max:r.max, nights:r.nights, up:r.up, test:r.test, note:r.note};
-  if(ex) Object.assign(ex,rec); else p.crew.push(Object.assign({id:uid()},rec));
-  p.example=false;
-  S.cur=p.id; S.tab='crew'; save(); render();
-  toast((ex?'Updated ':'Added ')+r.n);
-  return true;
-}
-
-/* ---- Path ---- */
-const RULES={
-  form:{l:'How you own it',o:['Each on the deed, with a co-ownership agreement at the notary','A small company (BV) that owns it, everyone holds shares','An association or cooperative','Decide with the notary']},
-  cal:{l:'Who gets which weeks',o:['Draft for prime weeks (order flips each round), first come for the rest','Fixed rotating weeks, shifting one week each year','First come, first served, with a cap per person']},
-  cost:{l:'How costs are split',o:['Equal shares, whoever uses it','A fixed part each, plus a small fee per night used','By the size of each share']},
-  fund:{l:'Reserve for repairs',o:['10% on top of running costs, into a shared pot','5% on top of running costs','Pay repairs when they come']},
-  exit:{l:'Stepping out',o:['Offer your share to the group first at an independent valuation; after 6 months you may sell to an outsider the group accepts','The group must buy you out at valuation within 12 months','Find your own replacement, the group has a veto']},
-  lock:{l:'Minimum stay',o:['3 years before anyone can step out','5 years','No minimum']},
-  vote:{l:'Decisions',o:['Majority for everyday things; everyone must agree on selling, big repairs and new members','Two-thirds for everything','One person runs it; big things by majority']},
-  guests:{l:'Friends, pets, renting out',o:['Guests welcome when you are there; renting out only via the shared account','Guests and pets fine; no renting out','Decide house by house']}
-};
-function rulesText(p){
-  const r=p.rules||{};
-  const c=calc(p);
-  let t=`House rules for ${p.title}${p.place?' ('+p.place+')':''} — draft\n\n`;
-  t+=`Group: ${c.people} shares. Each puts in about ${eur(c.up)} and pays about ${eur(c.per)} a month.\n\n`;
-  Object.keys(RULES).forEach(k=>{ t+=`${RULES[k].l}: ${RULES[k].o[r[k]||0]}\n`; });
-  t+='\nA draft to talk through together. Have a notary or lawyer turn it into the real agreement.';
-  return t;
-}
-function draftOrder(p){
-  const names=crewWithMe(p).filter(m=>m.st==='in').map(m=>m.me?(S.me||'You'):m.n);
-  if(names.length<2) return null;
-  const ord=names.slice(); const R=rng(p.id+'draft');
-  for(let i=ord.length-1;i>0;i--){ const j=Math.floor(R()*(i+1)); [ord[i],ord[j]]=[ord[j],ord[i]]; }
-  const rounds=[ord, ord.slice().reverse()];
-  return rounds;
-}
-function viewPath(v,p){
-  p.steps=p.steps||{}; p.rules=p.rules||{};
-  const c=calc(p);
-  const weekend=p.market*2;
-  const steps=[
-    {t:'Name the dream', d:'One concrete place beats a vague idea.', b:[
-      'Pick a real listing or a real area, with a price. People join something they can picture.',
-      'Write the one line you would put on the fridge: who, what, why.' ]},
-    {t:'Find three who light up', d:'Not the whole group yet. Just the first few.', b:[
-      'Send the invite with the angle that fits each of them.',
-      'Three “yes, if the numbers hold” is enough to make it real for the next five.' ], go:['pitch','Write an invite']},
-    {t:'Rent it first', d:`A weekend in something similar: about ${eur(weekend)}, ${eur(weekend/Math.max(2,c.people))} each.`, b:[
-      'Book a place like the one you want to buy, with the people who said yes or maybe.',
-      'Notice how often people would really go, who cooks, who cleans, and who leaves things behind.',
-      'Do two or three of these over a season. The group that keeps showing up is your group.' ]},
-    {t:'Collect soft yeses', d:'Each friend says what they could put in, without signing anything.', b:[
-      'The reply link asks for a monthly limit, an amount up front and how many nights they want.',
-      'The Crew tab shows whether the numbers fit, and how many people would make them fit.' ], go:['crew','See the crew']},
-    {t:'Agree the rules', d:'Before money moves. This is what prevents the fights.', rules:true},
-    {t:'Buy it', d:'Money, paperwork, keys.', b:[
-      'Open a shared account for the monthly costs and the repair pot.',
-      'Get a mortgage advisor who knows second homes or co-ownership, and a notary for the agreement.',
-      'Check local rules: some holiday parks and towns forbid renting out or living there.' ]},
-    {t:'Live it', d:'Calendar, costs and a yearly look back.', draft:true, b:[
-      'Once a year: costs against plan, who used it how much, whether the rules still feel fair.',
-      'Keep a waiting list of friends who would like a share, so stepping out is easy.' ]}
+function coopForm(editable){
+  const c=D.commons;
+  const items=[
+    'Settle up the trial and talk it through: who stays, who steps out, what to change.',
+    'Sign a co-op or co-ownership agreement, ideally with a notary. Use the charter as the draft.',
+    'Pick a board: at least a chair and a treasurer. The ambassador can be one of them.',
+    'Open a shared bank account for the advances.',
+    'Keep renting or leasing, or buy together. Open “Numbers” under each thing to compare.'
   ];
-  const doneCount=steps.filter((_,i)=>p.steps[i]).length;
-  const list=h('div',{class:'steps'});
-  steps.forEach((st,i)=>{
-    const done=!!p.steps[i];
-    const tick=h('button',{class:'tick','aria-label':(done?'Mark not done: ':'Mark done: ')+st.t, onclick:ev=>{ ev.preventDefault(); p.steps[i]=!p.steps[i]; save(); render(); }}, done?'✓':String(i+1));
-    const body=h('div',{class:'body'});
-    if(st.b) body.append(h('ul',null, st.b.map(x=>h('li',{text:x}))));
-    if(st.go) body.append(h('div',null,h('button',{class:'btn small',onclick:()=>go(st.go[0])},st.go[1])));
-    if(st.rules){
-      const out=h('div',{class:'msg',style:'font-size:.88rem'});
-      const box=h('div',{class:'rules'});
-      Object.keys(RULES).forEach(k=>{
-        const sel=h('select',{id:'rule-'+k,onchange:e=>{ p.rules[k]=Number(e.target.value); save(); out.textContent=rulesText(p); }});
-        RULES[k].o.forEach((o,j)=>sel.append(h('option',{value:j,text:o,selected:(p.rules[k]||0)===j?true:null})));
-        box.append(h('label',null,RULES[k].l,sel));
-      });
-      out.textContent=rulesText(p);
-      body.append(h('p',{class:'soft',text:'Pick what fits your group. The draft below updates; send it round and take it to the notary.'}), box, out,
-        h('div',{class:'row'}, h('button',{class:'btn share',onclick:()=>shareText(out.textContent,out)},'Send to the group'), h('button',{class:'btn',onclick:()=>copy(out.textContent,out)},'Copy')));
-    }
-    if(st.draft){
-      const rounds=draftOrder(p);
-      if(rounds){
-        const ol=h('ol',{class:'draft-order'});
-        rounds.forEach((r,ri)=>ol.append(h('li',null,h('b',{text:'Round '+(ri+1)}),h('span',{text:r.join(' → ')}))));
-        body.append(h('p',{class:'soft',text:'Prime-week draft for the people who are in. Pick one week each per round; next year, start where this year ended.'}), ol);
-      } else body.append(h('p',{class:'note',text:'Once two or more people are in, a prime-week draft order shows up here.'}));
-    }
-    list.append(h('div',{class:'step'+(done?' done':'')}, tick,
-      h('details',{open:(!done && i===doneCount)?true:null}, h('summary',null,h('b',{text:st.t}),h('span',{text:st.d})), body)));
+  return h('div',{class:'stack'}, h('ul',null, items.map(x=>h('li',{text:x}))),
+    c && c.stage==='coop' ? h('p',{class:'ok',text:'You are a co-op. Well done.'}) :
+    (editable && c ? h('div',null,h('button',{class:'btn',onclick:async()=>{ if(await put('commons','main',Object.assign({},c,{stage:'coop',coopSince:today()}))) toast('Congratulations, you’re a co-op'); }},'We signed: we’re a co-op')) : null));
+}
+
+/* ---------- boot ---------- */
+let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ SCENES.forEach(x=>{ if(x[0].isConnected) drawScene(x[0],x[1],x[2]); }); },200); });
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>render()); }catch(e){}
+new MutationObserver(()=>render()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+async function resolveNames(){
+  if(!USER) return;
+  const ids=members().map(m=>m.uid).filter(Boolean);
+  if(!ids.length) return;
+  try{ const ps=await USER.profiles(ids); let changed=false; ids.forEach(id=>{ const p=ps[id]; if(p && (!NAMES[id] || NAMES[id].name!==p.name)){ NAMES[id]={name:p.name, color:p.color, avatarUrl:p.avatarUrl}; changed=true; } }); if(changed) queueRender(); }catch(e){}
+}
+async function startShared(db, user){
+  DB=db; USER=user; MODE='shared';
+  try{ MYID=user? await user.id() : null; }catch(e){}
+  try{ const w=user? await user.can('data.write') : null; if(w===false) CANWRITE=false; }catch(e){}
+  try{ ISADMIN=user? (await user.canEdit()) : false; }catch(e){ ISADMIN=false; }
+  let answered=false;
+  const timer=setTimeout(()=>{ if(!answered){ STALE=true; queueRender(); } },10000);
+  const done=snap=>{ if(snap && snap.metadata && !snap.metadata.fromCache){ answered=true; clearTimeout(timer); if(STALE){ STALE=false; } } };
+  const onErr=e=>{ answered=true; clearTimeout(timer); if(e && e.code==='revoked'){ CANWRITE=false; } queueRender(); };
+  db.doc('commons/main').onSnapshot(snap=>{ D.commons=snap.exists? snap.data() : null; done(snap); queueRender(); }, onErr);
+  COLLS.forEach(c=>{
+    db.collection(c).onSnapshot(snap=>{
+      const o={}; snap.docs.forEach(d=>{ o[d.id]=Object.assign({}, d.data(), {id:d.id}); }); D[c]=o; done(snap);
+      if(c==='members') resolveNames();
+      queueRender();
+    }, onErr);
   });
-  v.append(h('div',{class:'stack-l'},
-    h('div',{class:'stack'}, h('p',{class:'eyebrow',text:'Path'}), h('h1',{text:'From “we should” to the keys'}),
-      h('p',{class:'soft'}, `${doneCount} of ${steps.length} steps done. Renting together first keeps the risk small: the group finds out how it works before anyone buys.`)),
-    list
-  ));
-}
-
-/* ---------- join view (a friend opening an invite) ---------- */
-function viewJoin(p){
-  SCENES=[];
-  document.getElementById('top').textContent='';
-  document.getElementById('tabs').parentElement.hidden=true;
-  const v=document.getElementById('view'); v.textContent='';
-  const c=calc(p), K=KINDS[p.kind]||KINDS.cabin;
-  const cv=h('canvas',{'aria-hidden':'true'});
-  const who=p.org||'A friend';
-  const name=h('input',{id:'j-name',placeholder:'Your name'});
-  const st=h('select',{id:'j-st'}, h('option',{value:'in',text:'I’m in, if the numbers hold'}), h('option',{value:'maybe',text:'Interested, I’d like to try it first',selected:true}), h('option',{value:'no',text:'Not for me right now'}));
-  const max=h('input',{id:'j-max',type:'number',inputmode:'decimal',value:Math.round(c.per/10)*10,min:0});
-  const up=h('input',{id:'j-up',type:'number',inputmode:'decimal',value:Math.round(c.up/1000)*1000,min:0});
-  const ni=h('input',{id:'j-ni',type:'number',inputmode:'decimal',value:Math.round(c.nights),min:0});
-  const test=h('input',{id:'j-test',type:'checkbox',checked:true,style:'width:auto'});
-  const note=h('input',{id:'j-note',placeholder:'Anything else? (optional)'});
-  const result=h('div',{class:'stack'});
-  const form=h('form',{class:'form',onsubmit:ev=>{
-    ev.preventDefault();
-    const n=txt(name.value,40).trim(); if(!n){ name.focus(); toast('Add your name'); return; }
-    const o={v:1,pid:p.id,n:n,st:st.value,max:clamp(max.value,0,1e5),up:clamp(up.value,0,1e7),nights:clamp(ni.value,0,366),test:test.checked,note:txt(note.value,280)};
-    const link=baseUrl()+'#reply-'+enc(o);
-    const word={in:'I’m in, if the numbers hold.',maybe:'I’m interested and would like to try it first.',no:'Not for me right now, but thanks for asking.'}[o.st];
-    const text=`${word} Up to ${eur(o.max)} a month, ${eur(o.up)} up front.\nMy answer for “${p.title}”: ${link}`;
-    const msg=h('div',{class:'msg',text:text});
-    result.textContent='';
-    result.append(h('h3',{text:'Send this back to '+who}), msg,
-      h('div',{class:'row'}, h('button',{class:'btn share',onclick:()=>shareText(text,msg)},'Send'), h('button',{class:'btn',onclick:()=>copy(text,msg)},'Copy')),
-      h('p',{class:'note',text:'Nothing is signed or stored anywhere. Your answer only travels in this message.'}));
-    result.scrollIntoView({behavior:'smooth',block:'start'});
-  }},
-    h('label',{class:'full'},'Your name',name),
-    h('label',{class:'full'},'Your answer',st),
-    h('label',null,'Max per month (€)',max), h('label',null,'Could put in once (€)',up),
-    h('label',null,K.unit==='day'?'Days a year you’d want':'Nights a year you’d want',ni),
-    h('label',{style:'flex-direction:row;align-items:center;gap:8px;padding-top:18px'},test,'Try a weekend first'),
-    h('label',{class:'full'},'Note',note),
-    h('div',{class:'row',style:'grid-column:1/-1'}, h('button',{class:'btn primary',type:'submit'},'Make my answer'))
-  );
-  v.append(h('div',{class:'stack-l',style:'padding-top:12px'},
-    h('div',{class:'join-banner'}, h('span',{class:'eyebrow',text:'The New Commons'}), h('b',{text:`${who} invites you to share a ${p.title.toLowerCase()}`})),
-    h('div',{class:'stack'},
-      h('div',{class:'hero'}, cv),
-      h('h1',{text:p.title}), p.place? h('p',{class:'soft',text:p.place}) : null,
-      p.note? h('p',{class:'msg',text:'“'+p.note+'” — '+who}) : null,
-      h('div',{class:'figs'},
-        h('div',{class:'fig key'}, h('b',{text:eur(c.per)}), h('span',{text:`a month each, with ${c.people} people`})),
-        h('div',{class:'fig'}, h('b',{text:eur(c.up)}), h('span',{text:'once, to get in'})),
-        h('div',{class:'fig'}, h('b',{text:int(c.nights)}), h('span',{text:`${K.unit}s a year each`}))),
-      h('p',{class:'soft'}, `That is ${eur(c.perNight)} a ${K.unit}, against about ${eur(p.market)} to rent something similar. After ten years a share would be worth about ${eur(c.end.worth)}. These are estimates.`)),
-    h('section',{class:'card stack'}, h('h3',{text:'Nothing to sign yet'}),
-      h('p',{class:'soft',text:'The plan is to rent a similar place together for a weekend first, then decide. Everyone agrees the rules on costs, the calendar and how to step out before any money moves.'})),
-    h('section',{class:'stack'}, h('h2',{text:'What would work for you?'}), form, result),
-    h('div',{class:'row'},
-      h('button',{class:'btn ghost',onclick:()=>{ p.crew=[]; p.example=false; if(!S.plans.find(x=>x.id===p.id)) S.plans.push(p); S.cur=p.id; S.tab='numbers'; save(); history.replaceState(null,'',location.pathname); document.getElementById('tabs').parentElement.hidden=false; render(); toast('Saved to your plans'); }},'Play with these numbers myself')),
-    h('p',{class:'foot',text:'The New Commons helps groups of friends own a place together.'})
-  ));
-  scene(cv,p.kind,p.id);
-}
-
-/* ---------- start ---------- */
-function route(){
-  const hs=location.hash||'';
-  let m=hs.match(/^#join-([A-Za-z0-9_-]+)$/);
-  if(m){ const p=readInvite(dec(m[1])); if(p){ viewJoin(p); return; } toast('That invite link is damaged'); }
-  m=hs.match(/^#reply-([A-Za-z0-9_-]+)$/);
-  if(m){ try{ history.replaceState(null,'',location.pathname); }catch(e){} handleReply(dec(m[1])); return; }
-  document.getElementById('tabs').parentElement.hidden=false;
   render();
 }
-window.addEventListener('hashchange', route);
-// On resize (also when the phone keyboard opens) only redraw the pictures, so typing is never interrupted.
-let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ SCENES.forEach(x=>{ if(x[0].isConnected) drawScene(x[0],x[1],x[2]); }); },200); });
-try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>route()); }catch(e){}
-new MutationObserver(()=>route()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-route();
+function startLocal(){ MODE='local'; loadLocal(); render(); }
+(async function boot(){
+  render();
+  const hasClaude = typeof window.claude==='object' && window.claude && typeof window.claude.use==='function';
+  if(!hasClaude){ startLocal(); return; }
+  let db=null, user=null;
+  try{ [db,user]=await Promise.all([window.claude.use('db'), window.claude.use('user')]); }catch(e){}
+  if(db) startShared(db,user); else startLocal();
+})();
 })();
 </script>
