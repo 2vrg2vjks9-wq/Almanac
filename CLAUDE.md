@@ -1,6 +1,6 @@
 # Almanac
 
-GitHub Pages site (served from `main`) with the owner's home-screen apps: `radar/`, `polder/`, `fuerteventura/`, `nakasendo/`, `curiosity/`, `enso/`, `proxima/`, `loam/`, `commons/`.
+GitHub Pages site (served from `main`) with the owner's home-screen apps: `radar/`, `polder/`, `fuerteventura/`, `nakasendo/`, `curiosity/`, `enso/`, `proxima/`, `loam/`, `commons/`, `casaviento/`.
 
 ## Safety check — required for every app, every change
 
@@ -17,6 +17,7 @@ The owner asked for this on all current and future apps. The repo is public and 
 ## Apps edited directly in the repo
 
 - Polder, Nakasendō and Fuerteventura have no artifact source: edit `<app>/index.html` directly, run the safety check, then commit and push.
+- Casa Viento (`casaviento/`) is a holiday-home calculator: edit `casaviento/index.html` directly (no artifact). Spot data lives in the `D` array (price per m², AirROI rental figures, rules, flight), each with dated sources in `S`; when refreshing figures, update the source label date too. Wind, temperature, rain and swell are computed on the phone from Open-Meteo archive/marine data (2023–2025) and cached in `casa-viento-clim-v1`; settings in `casa-viento-v1`. Bump `CACHE` in `casaviento/sw.js` if the offline file list changes.
 - Fuerteventura (`fuerteventura/`) was built from the Polder template. Fact ids are array positions stored in readers' kept/seen lists: append new facts at the end of `FACTS`, never insert or reorder. Its "Things to do" list (`TODO`, filtered by the area chip, "done" marks stored by array position) is append-only too. Its storage keys start with `fuerte-almanac-`; bump `CACHE` in `fuerteventura/sw.js` when it changes.
 
 ## Apps published from Claude artifacts

@@ -1,0 +1,413 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Casa Viento">
+<meta name="theme-color" content="#f3ead9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1a1f" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script>if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});</script>
+<title>Casa Viento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* One phone-width column: a wind-swept header, a tuning card, a ranked list of spots, and a detail sheet per spot. */
+:root{
+  --sand:#f3ead9; --paper:#fbf7ef; --card:#fffdf8; --ink:#17323b; --soft:#4f6870; --muted:#86989d;
+  --line:rgba(23,50,59,.13); --sea:#1f5f74; --sea2:#2f7d93; --terra:#c4552d; --sun:#e9a23b;
+  --good:#2e7d4f; --mid:#b9851c; --bad:#b8452a; --bar:#2f7d93; --bar2:#c9dde2;
+  --display:'DM Serif Display',Georgia,serif; --body:'Manrope',system-ui,-apple-system,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --r:16px;
+}
+@media (prefers-color-scheme:dark){:root{
+  --sand:#0e1a1f; --paper:#13232a; --card:#172a32; --ink:#e8efe9; --soft:#a8bcc0; --muted:#6f878c;
+  --line:rgba(232,239,233,.12); --sea:#7cc3d6; --sea2:#5aa9bf; --terra:#ee8a62; --sun:#f2bb5c;
+  --good:#6fcf92; --mid:#e9b84f; --bad:#f08a6a; --bar:#5aa9bf; --bar2:#25414b;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--sand);color:var(--ink);font:15px/1.5 var(--body);padding:env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 24px)}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px}
+header{position:relative;padding:28px 0 18px;overflow:hidden}
+header h1{font:400 40px/1 var(--display);margin:0;letter-spacing:-.5px}
+header p{margin:8px 0 0;color:var(--soft);max-width:30ch}
+.gusts{position:absolute;right:-24px;top:10px;width:150px;height:62px;opacity:.85}
+.gusts path{stroke:var(--sea2);stroke-width:4;stroke-linecap:round;fill:none;stroke-dasharray:60 200;animation:gust 4.5s linear infinite}
+.gusts path:nth-child(2){animation-delay:1.3s}.gusts path:nth-child(3){animation-delay:2.6s;stroke:var(--sun)}
+@keyframes gust{from{stroke-dashoffset:260}to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.gusts path{animation:none;stroke-dasharray:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:0 0 14px}
+.lbl{font:600 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px}
+.budget{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.budget b{font:400 34px/1 var(--display)}
+input[type=range]{width:100%;accent-color:var(--terra);margin:10px 0 2px;height:28px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button,.chip{font:600 13px var(--body);border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:7px 12px;min-height:34px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--sea);border-color:var(--sea);color:var(--paper)}
+.row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.row>div{flex:1 1 140px}
+.weights{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.w{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);background:var(--paper);border-radius:12px;padding:8px 10px;min-height:44px;cursor:pointer;font:600 13px var(--body);color:var(--ink);text-align:left}
+.dots{display:flex;gap:3px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--bar2)}.dots i.on{background:var(--terra)}
+.status{font:12px var(--mono);color:var(--muted);margin:2px 0 12px;min-height:18px}
+.list{display:flex;flex-direction:column;gap:12px}
+.spot{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 12px;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%}
+.spot .top{display:flex;align-items:flex-start;gap:12px}
+.rank{font:400 26px/1 var(--display);color:var(--muted);width:26px;flex:none}
+.spot h3{margin:0;font:400 22px/1.15 var(--display)}
+.spot .sub{color:var(--soft);font-size:13px}
+.score{margin-left:auto;text-align:right;flex:none}
+.score b{font:600 20px/1 var(--mono);color:var(--terra)}
+.score small{display:block;font:10px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+.meter{height:5px;border-radius:3px;background:var(--bar2);margin:12px 0 10px;overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--sea2),var(--terra));border-radius:3px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 10px}
+.stat small{display:block;font:10px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.stat span{font:600 15px var(--body)}
+.good{color:var(--good)}.mid{color:var(--mid)}.bad{color:var(--bad)}
+.pill{display:inline-block;font:600 11px var(--mono);padding:2px 8px;border-radius:999px;border:1px solid currentColor;margin-top:8px}
+/* detail sheet */
+dialog{overflow:auto;border:0;padding:0;margin:0;max-width:none;width:100%;height:100%;max-height:none;background:var(--sand);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+.sheet{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 40px)}
+.back{font:600 14px var(--body);background:none;border:0;color:var(--sea);padding:10px 0;min-height:44px;cursor:pointer}
+.sheet h2{font:400 34px/1.05 var(--display);margin:4px 0 4px}
+.sheet .sub{color:var(--soft);margin:0 0 16px}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big .card{margin:0}
+.big b{display:block;font:400 28px/1.1 var(--display)}
+.big small{color:var(--soft);font-size:12px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font:10px var(--mono);fill:var(--muted)}
+.calc{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center}
+.calc label{color:var(--soft);font-size:14px}
+.calc input{width:96px;font:600 15px var(--mono);text-align:right;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
+.ledger{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+.ledger td{padding:6px 0;border-bottom:1px solid var(--line)}
+.ledger td:last-child{text-align:right;font:500 14px var(--mono)}
+.ledger tr.tot td{font-weight:700;border-bottom:0;padding-top:10px}
+.note{font-size:13px;color:var(--soft)}
+.src{font-size:13px;color:var(--soft);padding-left:18px;margin:6px 0 0}
+.src li{margin:4px 0}
+a{color:var(--sea)}
+.toggle{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--soft);margin-top:10px}
+.toggle input{width:20px;height:20px;accent-color:var(--terra)}
+footer{color:var(--muted);font-size:12px;margin-top:20px}
+</style></head><body>
+<div class="wrap">
+<header>
+  <svg class="gusts" viewBox="0 0 190 90" aria-hidden="true"><path d="M10 20 C60 10 110 30 180 18"/><path d="M30 48 C80 40 120 58 186 46"/><path d="M5 74 C60 66 100 84 170 72"/></svg>
+  <h1>Casa Viento</h1>
+  <p>Where your budget buys a holiday home near wind and surf, and what renting it out would return.</p>
+</header>
+
+<section class="card" aria-label="Your budget and priorities">
+  <div class="lbl">All-in budget (incl. buying costs)</div>
+  <div class="budget"><b id="budgetOut">€60,000</b><span class="note" id="budgetHint"></span></div>
+  <input type="range" id="budget" min="30000" max="250000" step="5000" value="60000" aria-label="Budget">
+  <div class="row">
+    <div><div class="lbl">Price vs local median</div><div class="seg" id="disc"></div></div>
+    <div><div class="lbl">Wing day = afternoon wind ≥</div><div class="seg" id="thr"></div></div>
+  </div>
+  <div class="lbl" style="margin-top:16px">What matters (tap to change)</div>
+  <div class="weights" id="weights"></div>
+</section>
+
+<div class="status" id="status" role="status"></div>
+<div class="list" id="list"></div>
+
+<section class="card" style="margin-top:18px">
+  <div class="lbl">How this works</div>
+  <p class="note">Property prices and holiday-rental figures are the latest published data I could find per spot (RealAdvisor, INE, AirROI and others, mostly September–October 2026; each spot lists its sources). Wind, sun and swell are measured live on your phone from three years of hourly weather-model data (Open-Meteo, 2023–2025), so they arrive a few seconds after you open the app and are then kept on this phone. Model wind reads a little low at funnel spots like Tarifa and Sotavento, so compare spots with each other rather than trusting the absolute day count.</p>
+  <p class="note">Prices are medians: cheaper flats exist, which is what the “below median” chips are for. Rental figures are market averages, scaled down for small units. Taxes are simplified. I’m not a tax adviser, so check with a local gestor or notary before you buy.</p>
+</section>
+<footer>Your budget and choices are saved on this phone. Weather requests send only each spot’s public coordinates to Open-Meteo.</footer>
+</div>
+
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
+
+<script>
+"use strict";
+const MONTHS=["J","F","M","A","M","J","J","A","S","O","N","D"];
+const COUNTRY={
+  ES:{buy:.085,run:2200,tax:"19% non-resident tax on net profit (EU resident)",taxFn:(g,net)=>.19*Math.max(0,net)},
+  AN:{buy:.09,run:2200,tax:"19% non-resident tax on net profit (EU resident)",taxFn:(g,net)=>.19*Math.max(0,net)},
+  PT:{buy:.04,run:1800,tax:"25% on 35% of turnover (≈8.75% of gross), plus 6% VAT on stays for non-residents",taxFn:(g)=>.0875*g+g*.06/1.06},
+  IT:{buy:.09,run:2000,tax:"Cedolare secca: 21% of gross rent (first rental property)",taxFn:(g)=>.21*g},
+  GR:{buy:.08,run:1600,tax:"15% of rent up to €12k (approx., after 5% allowance)",taxFn:(g)=>.15*g*.95},
+  MA:{buy:.08,run:1200,tax:"Roughly 10% of gross rent as a non-resident (check locally)",taxFn:(g)=>.10*g}
+};
+const LIC={open:["Open","good"],mixed:["Check rules","mid"],hard:["Restricted","bad"]};
+const S={
+  raCanOliva:["RealAdvisor, La Oliva (Oct 2026)","https://realadvisor.es/es/precios-viviendas/municipio-la-oliva"],
+  raPajara:["RealAdvisor, Pájara (Oct 2026)","https://realadvisor.es/es/precios-viviendas/municipio-pajara"],
+  raTeguise:["RealAdvisor, Teguise (Oct 2026)","https://realadvisor.es/es/precios-viviendas/municipio-teguise"],
+  raGranadilla:["RealAdvisor, Granadilla de Abona (Oct 2026)","https://realadvisor.es/es/precios-viviendas/municipio-granadilla-de-abona"],
+  raSantaLucia:["RealAdvisor, Santa Lucía de Tirajana (Oct 2026)","https://realadvisor.es/es/precios-viviendas/municipio-santa-lucia-de-tirajana"],
+  raTarifa:["RealAdvisor, Tarifa (Oct 2026)","https://realadvisor.es/es/precios-viviendas/municipio-tarifa"],
+  ineVdB:["INE median sale price via ativos.pt (Q2 2026)","https://www.ativos.pt/imobiliario/preco-mediano-venda"],
+  tagusPen:["Tagus Property estimate, Peniche (Feb 2026)","https://www.tagusproperty.com/real-estate-market-peniche/"],
+  raMarsala:["RealAdvisor, Marsala (Sep 2026)","https://realadvisor.it/it/mercato-immobiliare/comune-marsala-it"],
+  raSTeresa:["RealAdvisor, Santa Teresa Gallura (Oct 2026)","https://realadvisor.it/it/mercato-immobiliare/comune-santa-teresa-gallura-it"],
+  epdRhodes:["Indomio/Spitogatos asking prices via Europe Property Data (Jan 2026)","https://europe-property-data.pages.dev/europe/greece/greek-islands-compared/"],
+  mitEss:["Mitula asking prices, Essaouira (Nov 2026)","https://immo.mitula.ma/immo/appartement-essaouira"],
+  arCan:["AirROI Canary Islands, 12 months to Oct 2026","https://airroi.com/airbnb-data/spain/canarias"],
+  arGran:["AirROI Granadilla de Abona, 12 months to Sep 2026","https://airroi.com/airbnb-data/spain/canary-islands/granadilla-de-abona"],
+  arSL:["AirROI Santa Lucía de Tirajana, 12 months to Oct 2026","https://airroi.com/airbnb-data/spain/canary-islands/santa-lucía-de-tirajana"],
+  arAnd:["AirROI Andalusia (Tarifa), 12 months to Oct 2026","https://airroi.com/airbnb-data/spain/andalusia"],
+  arFaro:["AirROI Faro District (Burgau), 12 months to Oct 2026","https://airroi.com/airbnb-data/portugal/faro-district"],
+  arPen:["AirROI Atouguia da Baleia page (Peniche market), 12 months to Oct 2026","https://airroi.com/airbnb-data/portugal/leiria-district/atouguia-da-baleia"],
+  arSic:["AirROI Sicily (Marsala), 12 months to Oct 2026","https://airroi.com/airbnb-data/italy/sicily"],
+  arSar:["AirROI Sardinia (Santa Teresa Gallura), 12 months to Oct 2026","https://airroi.com/airbnb-data/italy/sardegna"],
+  arRho:["AirROI Municipality of Rhodes, 12 months to Oct 2026","https://airroi.com/airbnb-data/greece/aegean/municipality-of-rhodes"],
+  arEss:["AirROI Essaouira, 12 months to Oct 2026","https://airroi.com/airbnb-data/morocco/marrakech-safi/essaouira"],
+  lawCan:["Canary Islands holiday-home law in force 13 Dec 2025 (Fimax summary)","https://www.fimax.es/en/nueva-ley-viviendas-vacacionales-canarias-2026/"],
+  lawPT:["Portugal short-term rental rules 2026 (Your Overseas Home)","https://www.youroverseashome.com/portugal/articles/short-term-rental-rules-portugal-2026/"],
+  lawIT:["Italy short-let tax 2026 (BusinessOnline)","https://www.businessonline.it/news/affitti-brevi-le-nuove-regole-e-tassazione-nel-2026-ufficiali-con-esempi-pratici_n81243.html"]
+};
+// windR/surfR: fallback 1-5 ratings from the spot's reputation, used only until live data loads.
+const D=[
+ {id:"corralejo",name:"Corralejo",place:"Fuerteventura, Spain",spot:"Flag Beach",c:"ES",lat:28.72,lon:-13.84,mlat:28.80,mlon:-13.90,
+  m2:3658,m2s:"raCanOliva",adr:185,occ:.47,rev:18400,str:"arCan",strNote:"Corralejo market",lic:"hard",licNote:"New Canary law (in force 13 Dec 2025): new holiday-rental use only where the council's planning allows it, and most councils are still adapting. Buy a flat that already has a licence and check which transitional route it qualifies for.",lawS:"lawCan",
+  fly:5.0,flyNote:"AMS→FUE 4h25 direct, 40 min drive",windR:4,surfR:4,blurb:"Trade winds most of the year, reef breaks on the north track, dunes and Lobos island next door. Dry and brown rather than green."},
+ {id:"sotavento",name:"Costa Calma · Sotavento",place:"Fuerteventura, Spain",spot:"René Egli lagoon",c:"ES",lat:28.12,lon:-14.23,mlat:28.21,mlon:-14.30,
+  m2:3487,m2s:"raPajara",adr:152,occ:.44,rev:12443,str:"arCan",strNote:"Costa Calma market",lic:"hard",licNote:"New Canary law (in force 13 Dec 2025): new holiday-rental use only where planning allows it. Many Costa Calma complexes are tourist-zoned, which can help, but check the specific building.",lawS:"lawCan",
+  fly:5.4,flyNote:"AMS→FUE 4h25 direct, 1h drive",windR:5,surfR:3,blurb:"The summer trade-wind machine: the lagoon gets some of the most consistent wind in Europe from May to September. La Pared for surf is 25 minutes away."},
+ {id:"famara",name:"Famara",place:"Lanzarote, Spain",spot:"Caleta de Famara",c:"ES",lat:29.12,lon:-13.56,mlat:29.16,mlon:-13.62,
+  m2:3575,m2s:"raTeguise",adr:190,occ:.51,rev:20900,str:"arCan",strNote:"Caleta de Famara market",lic:"hard",licNote:"New Canary law (in force 13 Dec 2025): new holiday-rental use only where planning allows it. Caleta de Famara is a small village, so check carefully.",lawS:"lawCan",
+  fly:4.8,flyNote:"AMS→ACE 4h15 direct, 30 min drive",windR:4,surfR:5,blurb:"A long beach under the Risco cliffs: cross-onshore wind for wing and kite, and one of the best surf beaches in the Canaries."},
+ {id:"medano",name:"El Médano",place:"Tenerife, Spain",spot:"Playa del Médano",c:"ES",lat:28.04,lon:-16.53,mlat:28.01,mlon:-16.49,
+  m2:3009,m2s:"raGranadilla",adr:133,occ:.477,rev:16223,str:"arGran",strNote:"Granadilla de Abona market",lic:"hard",licNote:"New Canary law (in force 13 Dec 2025): new holiday-rental use only where planning allows it. El Médano is mostly residential, so licences are hard to add.",lawS:"lawCan",
+  fly:4.8,flyNote:"AMS→TFS 4h30 direct, 15 min drive",windR:5,surfR:3,blurb:"A real town with an accelerated trade wind, ten minutes from the airport. The green north of Tenerife and Teide are an hour away."},
+ {id:"pozo",name:"Pozo Izquierdo",place:"Gran Canaria, Spain",spot:"Pozo / Vargas",c:"ES",lat:27.82,lon:-15.42,mlat:27.80,mlon:-15.36,
+  m2:2051,m2s:"raSantaLucia",adr:103,occ:.466,rev:12935,str:"arSL",strNote:"Santa Lucía de Tirajana market",lic:"hard",licNote:"New Canary law (in force 13 Dec 2025): new holiday-rental use only where planning allows it. The cheapest Canary option, but mostly residential zoning.",lawS:"lawCan",
+  fly:4.8,flyNote:"AMS→LPA 4h25 direct, 25 min drive",windR:5,surfR:3,blurb:"Home of the windsurf world cup: very strong summer wind. Vecindario next door is ordinary and affordable; the island's green, mountainous interior is close."},
+ {id:"tarifa",name:"Tarifa",place:"Andalusia, Spain",spot:"Valdevaqueros",c:"AN",lat:36.06,lon:-5.68,mlat:36.03,mlon:-5.80,
+  m2:4853,m2s:"raTarifa",adr:180,occ:.37,rev:15700,str:"arAnd",strNote:"Tarifa market",lic:"mixed",licNote:"Andalusian councils can cap holiday lets, and since July 2025 every listing needs a national registration number. Check Tarifa's current rules before buying.",lawS:null,
+  fly:4.7,flyNote:"AMS→AGP 2h55 direct, 1h45 drive",windR:5,surfR:2,blurb:"Levante and Poniente funnel through the Strait. Green cork-oak hills behind the beaches, but a very expensive town."},
+ {id:"sagres",name:"Sagres",place:"Algarve, Portugal",spot:"Martinhal / Burgau",c:"PT",lat:37.02,lon:-8.92,mlat:37.05,mlon:-9.02,
+  m2:3189,m2s:"ineVdB",adr:210,occ:.48,rev:23300,str:"arFaro",strNote:"Burgau market (same municipality)",lic:"open",licNote:"Short-let registration (AL) is a notification to the council, not a permit, and the Algarve is mostly open. Check the council's current map before buying.",lawS:"lawPT",
+  fly:4.2,flyNote:"AMS→FAO 2h55 direct, 1h15 drive",windR:3,surfR:5,blurb:"Surf on both coasts, so there is always an offshore beach, and a summer nortada for wing. Green Costa Vicentina park on the doorstep. The price is a sold-price median, not asking."},
+ {id:"peniche",name:"Peniche · Baleal",place:"Silver Coast, Portugal",spot:"Lagoa de Óbidos / Baleal",c:"PT",lat:39.40,lon:-9.22,mlat:39.36,mlon:-9.45,
+  m2:2413,m2s:"tagusPen",adr:116,occ:.38,rev:11123,str:"arPen",strNote:"Peniche market",lic:"open",licNote:"Short-let registration (AL) is a notification to the council; the Silver Coast is generally open. Check the council's map before buying.",lawS:"lawPT",
+  fly:3.8,flyNote:"AMS→LIS 2h50 direct, 1h drive",windR:3,surfR:5,blurb:"Supertubos and a dozen breaks within 10 minutes; the Óbidos lagoon is a flat-water wing spot. Green, but cool and grey in winter."},
+ {id:"stagnone",name:"Lo Stagnone",place:"Marsala, Sicily, Italy",spot:"Stagnone lagoon",c:"IT",lat:37.87,lon:12.46,mlat:37.86,mlon:12.36,
+  m2:724,m2s:"raMarsala",adr:130,occ:.33,rev:8330,str:"arSic",strNote:"Marsala market",lic:"open",licNote:"Needs the national CIN code and a regional registration; no caps in Marsala that I found.",lawS:"lawIT",
+  fly:4.0,flyNote:"AMS→PMO 2h45 direct, 1h15 drive (or Trapani)",windR:3,surfR:1,blurb:"A huge knee-deep lagoon, ideal for learning and freestyle on the wing. Cheap property and vineyards, but hardly any surf.",oneEuro:"Salemi, about 35 km inland, has run a €1-house scheme. Check whether it is still open."},
+ {id:"portopollo",name:"Porto Pollo",place:"Sardinia, Italy",spot:"Porto Pollo bay",c:"IT",lat:41.19,lon:9.32,mlat:41.27,mlon:9.18,
+  m2:2349,m2s:"raSTeresa",adr:192,occ:.45,rev:14600,str:"arSar",strNote:"Santa Teresa Gallura market",lic:"open",licNote:"Needs the national CIN code and a regional registration (IUN in Sardinia).",lawS:"lawIT",
+  fly:3.1,flyNote:"AMS→OLB 2h20 (mostly summer), 45 min drive",windR:4,surfR:2,blurb:"The Mistral and Ponente funnel through the Bocche: legendary in summer, quiet in winter. Granite, maquis and very clear water.",oneEuro:"Inland Sardinian villages such as Ollolai and Nulvi have run €1-home schemes."},
+ {id:"prasonisi",name:"Prasonisi",place:"Rhodes, Greece",spot:"Prasonisi isthmus",c:"GR",lat:35.88,lon:27.76,mlat:35.84,mlon:27.80,
+  m2:2421,m2s:"epdRhodes",adr:270,occ:.457,rev:27461,str:"arRho",strNote:"Rhodes municipality (includes larger villas)",lic:"open",licNote:"Register on the short-stay registry (AMA). Greece's new-licence limits apply in central Athens, not Rhodes.",lawS:null,
+  fly:5.1,flyNote:"AMS→RHO 3h35 (mostly summer), 1h30 drive",windR:4,surfR:2,blurb:"Two bays split by a sandbar: flat on one side, waves on the other, with meltemi all summer. Remote south tip, quiet in winter."},
+ {id:"essaouira",name:"Essaouira",place:"Morocco",spot:"Essaouira bay / Sidi Kaouki",c:"MA",lat:31.50,lon:-9.77,mlat:31.47,mlon:-9.86,
+  m2:890,m2s:"mitEss",adr:102,occ:.391,rev:11540,str:"arEss",strNote:"Essaouira market (converted from MAD)",lic:"mixed",licNote:"Foreigners can buy titled property. Short lets need a declaration and tax registration, and enforcement is less predictable. Outside the EU.",lawS:null,
+  fly:6.7,flyNote:"AMS→RAK 3h50, 2h45 drive",windR:5,surfR:4,blurb:"The 'Wind City of Africa': reliable trade wind most of the year, Sidi Kaouki's surf 25 minutes south. Cheapest by far, longest to reach."}
+];
+const WEIGHTS=[["wind","Wind"],["surf","Surf"],["warm","Winter warmth"],["ret","Rental return"],["rules","Rental rules"],["green","Green"],["fly","Short trip"]];
+const KEY="casa-viento-v1",CKEY="casa-viento-clim-v1";
+const st={budget:60000,disc:0,thr:15,w:{wind:3,surf:2,warm:2,ret:2,rules:2,green:1,fly:1},calc:{}};
+try{Object.assign(st,JSON.parse(localStorage.getItem(KEY)||"{}"));}catch(e){}
+let clim={};try{clim=JSON.parse(localStorage.getItem(CKEY)||"{}")||{};}catch(e){clim={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+function saveClim(){try{localStorage.setItem(CKEY,JSON.stringify(clim));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const eur=n=>"€"+Math.round(n).toLocaleString("en-GB");
+const pct=n=>(n*100).toFixed(1)+"%";
+
+/* ---------- climate: fetched once per spot, kept on the phone ---------- */
+const FRESH=180*864e5;
+async function getJSON(url){const r=await fetch(url);if(!r.ok)throw new Error(r.status);return r.json();}
+async function loadClimate(d){
+  const c=clim[d.id];
+  if(c&&c.t&&Date.now()-c.t<FRESH&&c.aft)return;
+  const w=await getJSON(`https://archive-api.open-meteo.com/v1/archive?latitude=${d.lat}&longitude=${d.lon}&start_date=2023-01-01&end_date=2025-12-31&hourly=wind_speed_10m&daily=temperature_2m_max,precipitation_sum&wind_speed_unit=kn&timezone=auto`);
+  const out={t:Date.now(),aft:[],mo:[],tmax:[],rain:0,surf:null};
+  // Afternoon (12:00-17:59 local) mean wind for each day.
+  const ht=w.hourly.time,hv=w.hourly.wind_speed_10m,byDay={};
+  for(let i=0;i<ht.length;i++){const h=+ht[i].slice(11,13);if(h<12||h>17||hv[i]==null)continue;const k=ht[i].slice(0,10);(byDay[k]=byDay[k]||[]).push(hv[i]);}
+  Object.keys(byDay).sort().forEach(k=>{const a=byDay[k];out.aft.push(Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10);out.mo.push(+k.slice(5,7)-1);});
+  const tm=Array.from({length:12},()=>[]);let rain=0;
+  w.daily.time.forEach((t,i)=>{const m=+t.slice(5,7)-1;if(w.daily.temperature_2m_max[i]!=null)tm[m].push(w.daily.temperature_2m_max[i]);rain+=w.daily.precipitation_sum[i]||0;});
+  out.tmax=tm.map(a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:null);
+  out.rain=Math.round(rain/3);
+  // Swell: a "surf day" has swell >= 1.0 m with period >= 9 s offshore (wave height as a fallback).
+  try{
+    const m=await getJSON(`https://marine-api.open-meteo.com/v1/marine?latitude=${d.mlat}&longitude=${d.mlon}&start_date=2023-01-01&end_date=2025-12-31&daily=swell_wave_height_max,swell_wave_period_max,wave_height_max,wave_period_max&timezone=auto`);
+    const t=m.daily.time,sh=m.daily.swell_wave_height_max,sp=m.daily.swell_wave_period_max,wh=m.daily.wave_height_max,wp=m.daily.wave_period_max;
+    const n=Array(12).fill(0),y=Array(12).fill(0);
+    t.forEach((s,i)=>{const mm=+s.slice(5,7)-1;let h=sh&&sh[i],p=sp&&sp[i];if(h==null){h=wh&&wh[i];p=wp&&wp[i];}if(h==null)return;n[mm]++;if(h>=1&&(p||0)>=9)y[mm]++;});
+    if(n.some(x=>x))out.surf=n.map((x,i)=>x?Math.round(y[i]/x*100):0);
+  }catch(e){}
+  clim[d.id]=out;saveClim();
+}
+function windMonths(d){
+  const c=clim[d.id];if(!c||!c.aft)return null;
+  const n=Array(12).fill(0),y=Array(12).fill(0);
+  c.aft.forEach((v,i)=>{n[c.mo[i]]++;if(v>=st.thr)y[c.mo[i]]++;});
+  return n.map((x,i)=>x?y[i]/x:0);
+}
+const DAYS=[31,28.25,31,30,31,30,31,31,30,31,30,31];
+function windDays(d){const m=windMonths(d);return m?Math.round(m.reduce((s,p,i)=>s+p*DAYS[i],0)):null;}
+function surfPct(d){const c=clim[d.id];if(!c||!c.surf)return null;return Math.round(c.surf.reduce((a,b)=>a+b,0)/12);}
+
+/* ---------- money ---------- */
+const DISC=[[0,"Median"],[.15,"−15%"],[.3,"−30% (fixer / inland)"]];
+function sizeFactor(m2){return m2<25?.45:m2<45?.65:m2<70?.85:1;}
+function unitLabel(m2){return m2<12?"barely a parking space":m2<25?"a small studio":m2<45?"a 1-bedroom flat":m2<70?"a 2-bedroom flat":m2<110?"a family house":"a big house";}
+function money(d,over){
+  const C=COUNTRY[d.c],o=Object.assign({},st.calc[d.id]||{},over||{});
+  const buyPct=C.buy,price=st.budget/(1+buyPct),m2price=d.m2*(1-st.disc),m2=price/m2price;
+  const rate=o.rate!=null?o.rate:Math.round(d.adr*sizeFactor(m2));
+  const occ=o.occ!=null?o.occ:Math.round(d.occ*100);
+  const own=o.own!=null?o.own:3, run=o.run!=null?o.run:C.run, mgmt=o.mgmt!=null?o.mgmt:true;
+  const nights=Math.max(0,365-own*7)*occ/100, gross=nights*rate;
+  const platform=gross*.15, cleaning=nights/4.5*35, mg=mgmt?gross*.2:0;
+  const pre=gross-platform-cleaning-mg-run, tax=C.taxFn(gross,pre), net=pre-tax;
+  return {price,buyCost:st.budget-price,m2,rate,occ,own,run,mgmt,nights,gross,platform,cleaning,mg,pre,tax,net,yield:net/st.budget,C};
+}
+
+/* ---------- scoring ---------- */
+function metrics(d){
+  const m=money(d),c=clim[d.id];
+  const wd=windDays(d), sp=surfPct(d);
+  return {
+    wind: wd!=null?wd:d.windR*60,
+    surf: sp!=null?sp:d.surfR*12,
+    warm: c&&c.tmax&&c.tmax[0]!=null?(c.tmax[0]+c.tmax[1]+c.tmax[11])/3:null,
+    ret: m.yield,
+    rules: {open:1,mixed:.55,hard:.15}[d.lic],
+    green: c&&c.rain!=null?Math.min(c.rain,700):null,
+    fly: -d.fly,
+    m
+  };
+}
+function rankAll(){
+  const ms=D.map(d=>({d,x:metrics(d)}));
+  const keys=WEIGHTS.map(w=>w[0]);
+  const lo={},hi={};
+  keys.forEach(k=>{const v=ms.map(o=>o.x[k]).filter(v=>v!=null);lo[k]=Math.min(...v);hi[k]=Math.max(...v);});
+  ms.forEach(o=>{let s=0,wt=0;keys.forEach(k=>{const w=st.w[k];if(!w)return;const v=o.x[k];const n=v==null?.5:(hi[k]===lo[k]?.5:(v-lo[k])/(hi[k]-lo[k]));s+=n*w;wt+=w;});o.score=wt?Math.round(s/wt*100):0;});
+  return ms.sort((a,b)=>b.score-a.score);
+}
+
+/* ---------- render ---------- */
+function renderControls(){
+  $("#budgetOut").textContent=eur(st.budget);$("#budget").value=st.budget;
+  $("#disc").innerHTML=DISC.map(([v,l])=>`<button type="button" data-v="${v}" aria-pressed="${st.disc==v}">${esc(l)}</button>`).join("");
+  $("#thr").innerHTML=[12,15,18].map(v=>`<button type="button" data-v="${v}" aria-pressed="${st.thr==v}">${v} kn</button>`).join("");
+  $("#weights").innerHTML=WEIGHTS.map(([k,l])=>`<button type="button" class="w" data-k="${k}" aria-label="${esc(l)}: ${st.w[k]} of 3"><span>${esc(l)}</span><span class="dots">${[1,2,3].map(i=>`<i class="${st.w[k]>=i?"on":""}"></i>`).join("")}</span></button>`).join("");
+}
+function cls(v,a,b){return v>=b?"good":v>=a?"mid":"bad";}
+function renderList(){
+  const r=rankAll();
+  $("#list").innerHTML=r.map((o,i)=>{
+    const d=o.d,m=o.x.m,wd=windDays(d),sp=surfPct(d),c=clim[d.id];
+    const jan=c&&c.tmax&&c.tmax[0]!=null?Math.round(c.tmax[0])+"°":"…";
+    const lic=LIC[d.lic];
+    return `<button type="button" class="spot" data-id="${esc(d.id)}">
+      <div class="top"><div class="rank">${i+1}</div><div><h3>${esc(d.name)}</h3><div class="sub">${esc(d.place)}</div></div>
+      <div class="score"><b>${o.score}</b><small>fit</small></div></div>
+      <div class="meter"><i style="width:${o.score}%"></i></div>
+      <div class="stats">
+        <div class="stat"><small>You get</small><span class="${cls(m.m2,25,45)}">${Math.round(m.m2)} m²</span></div>
+        <div class="stat"><small>Net yield</small><span class="${cls(m.yield,.02,.045)}">${pct(m.yield)}</span></div>
+        <div class="stat"><small>Wing days/yr</small><span>${wd!=null?wd:"…"}</span></div>
+        <div class="stat"><small>Swell days</small><span>${sp!=null?sp+"%":"…"}</span></div>
+        <div class="stat"><small>Jan max</small><span>${jan}</span></div>
+        <div class="stat"><small>Door to door</small><span>${d.fly.toFixed(1)} h</span></div>
+      </div>
+      <span class="pill ${lic[1]}">Rentals: ${esc(lic[0])}</span>
+    </button>`;}).join("");
+  const n=D.filter(d=>clim[d.id]&&clim[d.id].aft).length;
+  $("#budgetHint").textContent=st.disc?`at ${Math.round(st.disc*100)}% below median`:"";
+  if(n<D.length&&!$("#status").dataset.err)$("#status").textContent=`Measuring wind and swell… ${n}/${D.length} spots`;
+}
+function bars(vals,max,fmt,color){
+  const W=320,H=110,T=14,bw=W/12;
+  let s=`<svg viewBox="0 0 ${W} ${H+T+18}" role="img"><g transform="translate(0 ${T})">`;
+  vals.forEach((v,i)=>{const h=v==null?0:Math.max(2,v/max*H);s+=`<rect x="${i*bw+3}" y="${H-h}" width="${bw-6}" height="${h}" rx="3" fill="${color}"><title>${esc(fmt(v))}</title></rect><text x="${i*bw+bw/2}" y="${H+13}" text-anchor="middle">${MONTHS[i]}</text>`;if(v!=null&&v>=max*.12)s+=`<text x="${i*bw+bw/2}" y="${H-h-4}" text-anchor="middle">${esc(fmt(v))}</text>`;});
+  return s+"</g></svg>";
+}
+function openSheet(id){
+  const d=D.find(x=>x.id===id);if(!d)return;
+  st.open=id;renderSheet(d);const dlg=$("#sheet");if(!dlg.open)dlg.showModal();dlg.scrollTop=0;
+}
+function renderSheet(d){
+  const m=money(d),c=clim[d.id],wm=windMonths(d),lic=LIC[d.lic],src=[S[d.m2s],S[d.str],d.lawS&&S[d.lawS]].filter(Boolean);
+  const wbars=wm?bars(wm.map(p=>Math.round(p*100)),100,v=>v+"%","var(--bar)"):`<p class="note">Measuring… (fallback rating ${d.windR}/5)</p>`;
+  const tbars=c&&c.tmax?bars(c.tmax,35,v=>v==null?"":Math.round(v)+"°","var(--sun)"):"";
+  const sbars=c&&c.surf?bars(c.surf,100,v=>v+"%","var(--sea2)"):`<p class="note">${c&&c.aft?"No swell data for this spot":"Measuring…"} (fallback rating ${d.surfR}/5)</p>`;
+  $("#sheetBody").innerHTML=`
+  <button type="button" class="back" id="close">← All spots</button>
+  <h2>${esc(d.name)}</h2><p class="sub">${esc(d.place)} · ${esc(d.spot)}</p>
+  <p>${esc(d.blurb)}</p>
+  <div class="big">
+    <div class="card"><b>${Math.round(m.m2)} m²</b><small>${esc(unitLabel(m.m2))} for ${eur(m.price)} at ${eur(d.m2*(1-st.disc))}/m²</small></div>
+    <div class="card"><b class="${cls(m.yield,.02,.045)}">${pct(m.yield)}</b><small>net yield after costs and tax: ${eur(m.net)} a year</small></div>
+  </div>
+  <div class="card chart" style="margin-top:14px"><div class="lbl">Share of days with afternoon wind ≥ ${st.thr} kn</div>${wbars}
+    <p class="note">${windDays(d)!=null?`About ${windDays(d)} wing days a year in the model, 2023–2025.`:""}</p></div>
+  <div class="card chart"><div class="lbl">Average daytime high</div>${tbars||'<p class="note">Measuring…</p>'}
+    <p class="note">${c&&c.rain!=null?`About ${c.rain} mm of rain a year: ${c.rain<200?"dry, desert-like":c.rain<450?"dry summers, some winter green":"properly green"}.`:""}</p></div>
+  <div class="card chart"><div class="lbl">Days with swell ≥ 1 m at ≥ 9 s offshore</div>${sbars}</div>
+  <div class="card"><div class="lbl">Rent it out: your numbers</div>
+    <div class="calc">
+      <label for="cRate">Nightly rate (market avg ${eur(d.adr)})</label><input id="cRate" inputmode="numeric" value="${m.rate}">
+      <label for="cOcc">Occupancy % (market ${Math.round(d.occ*100)}%)</label><input id="cOcc" inputmode="numeric" value="${m.occ}">
+      <label for="cOwn">Weeks you use it yourself</label><input id="cOwn" inputmode="numeric" value="${m.own}">
+      <label for="cRun">Running costs / year</label><input id="cRun" inputmode="numeric" value="${m.run}">
+    </div>
+    <label class="toggle"><input type="checkbox" id="cMg" ${m.mgmt?"checked":""}> Local manager (20% of rent)</label>
+    <table class="ledger">
+      <tr><td>Rent: ${Math.round(m.nights)} nights × ${eur(m.rate)}</td><td>${eur(m.gross)}</td></tr>
+      <tr><td>Platform fee (15%)</td><td>−${eur(m.platform)}</td></tr>
+      <tr><td>Cleaning (€35 per 4.5-night stay)</td><td>−${eur(m.cleaning)}</td></tr>
+      ${m.mgmt?`<tr><td>Manager (20%)</td><td>−${eur(m.mg)}</td></tr>`:""}
+      <tr><td>Running costs</td><td>−${eur(m.run)}</td></tr>
+      <tr><td>Tax</td><td>−${eur(m.tax)}</td></tr>
+      <tr class="tot"><td>Net per year</td><td class="${m.net>=0?"good":"bad"}">${eur(m.net)}</td></tr>
+    </table>
+    <p class="note">Rate starts at the market average scaled to your unit size (smaller flats earn less per night). Market: ${esc(d.strNote)}, ${eur(d.adr)} a night at ${Math.round(d.occ*100)}% occupancy, ${eur(d.rev)} a year for an average listing.</p>
+    <p class="note">Buying costs ≈ ${Math.round(m.C.buy*100)}% (${eur(m.buyCost)}): transfer tax, notary, registry and lawyer. Tax: ${esc(m.C.tax)}.</p>
+  </div>
+  <div class="card"><div class="lbl">Rental rules</div><span class="pill ${lic[1]}" style="margin-top:0">${esc(lic[0])}</span><p class="note">${esc(d.licNote)}</p>
+    ${d.oneEuro?`<p class="note"><b>€1 houses nearby:</b> ${esc(d.oneEuro)}</p>`:""}</div>
+  <div class="card"><div class="lbl">Getting there</div><p class="note">${esc(d.flyNote)} · about ${d.fly.toFixed(1)} h door to door from Amsterdam.</p></div>
+  <div class="card"><div class="lbl">Sources</div><ul class="src">${src.map(([t,u])=>`<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a></li>`).join("")}<li>Wind, temperature, rain and swell: Open-Meteo historical weather and marine models, 2023–2025.</li></ul></div>`;
+  $("#close").onclick=()=>{$("#sheet").close();};
+  const upd=(k,el,f)=>el.addEventListener("change",()=>{const v=f(el);st.calc[d.id]=Object.assign({},st.calc[d.id]||{},{[k]:v});save();renderSheet(d);renderList();});
+  const num=el=>{const v=parseFloat(String(el.value).replace(/[^\d.]/g,""));return isFinite(v)?v:null;};
+  upd("rate",$("#cRate"),el=>{const v=num(el);return v==null?null:Math.max(0,v);});
+  upd("occ",$("#cOcc"),el=>{const v=num(el);return v==null?null:Math.min(100,Math.max(0,v));});
+  upd("own",$("#cOwn"),el=>{const v=num(el);return v==null?null:Math.min(52,Math.max(0,v));});
+  upd("run",$("#cRun"),el=>{const v=num(el);return v==null?null:Math.max(0,v);});
+  upd("mgmt",$("#cMg"),el=>el.checked);
+}
+function rerender(){renderControls();renderList();if($("#sheet").open&&st.open){const d=D.find(x=>x.id===st.open);if(d)renderSheet(d);}}
+
+/* ---------- events ---------- */
+$("#budget").addEventListener("input",e=>{st.budget=+e.target.value;$("#budgetOut").textContent=eur(st.budget);renderList();});
+$("#budget").addEventListener("change",save);
+$("#disc").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.disc=+b.dataset.v;save();rerender();});
+$("#thr").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.thr=+b.dataset.v;save();rerender();});
+$("#weights").addEventListener("click",e=>{const b=e.target.closest(".w");if(!b)return;const k=b.dataset.k;st.w[k]=(st.w[k]+1)%4;save();rerender();});
+$("#list").addEventListener("click",e=>{const b=e.target.closest(".spot");if(b)openSheet(b.dataset.id);});
+$("#sheet").addEventListener("close",()=>{st.open=null;});
+
+rerender();
+(async()=>{
+  const queue=D.slice();let fails=0;
+  async function worker(){while(queue.length){const d=queue.shift();try{await loadClimate(d);}catch(e){fails++;}renderList();if($("#sheet").open&&st.open===d.id)renderSheet(d);}}
+  await Promise.all([worker(),worker()]);
+  const n=D.filter(d=>clim[d.id]&&clim[d.id].aft).length;
+  $("#status").textContent=n===D.length?"Wind and swell measured from 2023–2025 data.":`Measured ${n}/${D.length} spots${fails?" (no connection for the rest; using fallback ratings)":""}. Reopen to retry.`;
+  if(n<D.length)$("#status").dataset.err="1";
+})();
+</script>
+</body></html>

@@ -25,6 +25,9 @@ ALLOWED_HOSTS = (
     # phone's location, only when "near me" / "where am I" is tapped):
     "api.open-meteo.com", "marine-api.open-meteo.com", "ntfy.sh",
     "overpass-api.de", "nominatim.openstreetmap.org",
+    # Casa Viento reads three years of historical wind/temperature for each spot's public
+    # coordinates (no personal data) to count wing days:
+    "archive-api.open-meteo.com",
     # Radar's "Look around here" / "Scout this city" fall back to two more public Overpass
     # (OpenStreetMap) mirrors when overpass-api.de is down, and ask Wikipedia's geosearch for
     # notable places. They receive the phone's coordinates, only when those buttons are tapped:
