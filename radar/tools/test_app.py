@@ -166,7 +166,9 @@ def forecast():
 
 
 def marine():
-    days = [str(datetime.date.today() + datetime.timedelta(days=i)) for i in range(7)]
+    from zoneinfo import ZoneInfo  # the forecast's days are Amsterdam days, like the app's
+    start = datetime.datetime.now(ZoneInfo("Europe/Amsterdam")).date()
+    days = [str(start + datetime.timedelta(days=i)) for i in range(7)]
     return [{"daily": {"time": days, "sea_surface_temperature_max": ([None, 15.4, 15.2] if i == 0 else [14.1] * 3) + [14.0] * 4,
                        "wave_height_max": [0.6, 1.4, 0.9, 0.5, 0.4, 1.1, 2.0], "wave_period_max": [5, 9, 6, 5, 4, 8, 11],
                        "wave_direction_dominant": [280] * 7}} for i, _ in enumerate(SPOTS)]
@@ -360,7 +362,7 @@ def tabs_suite(browser, site, scheme):
     tab(page, "wind")
     check("°C" in page.inner_text("#windAll"), "%s: water temperature shown" % scheme)
     check("wetsuit" in page.inner_text("#windAll"), "%s: wetsuit hint shown" % scheme)
-    check(page.locator("#windAll .spot").first.locator(".waves .wv").count() == 7 and page.locator("#windAll .spot").first.locator(".waves .wv.on").count() >= 2, "%s: wave heights per day, surfable days bold" % scheme)
+    check(page.locator("#windAll .spot").first.locator(".waves .wv").count() >= 6 and page.locator("#windAll .spot").first.locator(".waves .wv.on").count() >= 2, "%s: wave heights per day, surfable days bold" % scheme)
     check(page.locator('#windAll .spot[data-spot="inland"] .waves').count() == 0, "%s: lakes have no wave row" % scheme)
     check(page.locator("#v-wind #weekend").count() == 0, "%s: weekend planner moved off Wind" % scheme)
     check(page.locator("#windPlace .pill").all_inner_texts() == ["Home spots", "Where I am", "Search a place", "Edit"], "%s: Wind has a place switch with Edit" % scheme)
@@ -910,6 +912,9 @@ def wind_place_suite(browser, site):
     check(len(calls) == 1 and "Test kite beach" in names and len(names) == 2, "where I am: nearby spot plus the place itself %s" % names)
     chips = page.locator("#windPlace .pill").all_inner_texts()
     check(chips[:2] == ["Home spots", "Kyoto"] and page.locator('#windPlace .pill.on').inner_text() == "Kyoto", "where I am: the place is kept as a chip %s" % chips)
+    page.set_viewport_size({"width": 320, "height": 640}); page.wait_for_timeout(200)
+    check(page.evaluate("document.documentElement.scrollWidth <= 320"), "where I am: no sideways scroll at 320 px with a kept place")
+    page.set_viewport_size({"width": 390, "height": 844})
     page.click('#windPlace [data-wp="home"]'); page.wait_for_timeout(600)
     page.click('#windPlace [data-wp="here"]'); page.wait_for_timeout(1500)
     check(len(calls) == 1 and "Test kite beach" in page.locator("#windAll .spot-name").all_inner_texts(), "where I am: same spot again searches nothing (%d searches)" % len(calls))

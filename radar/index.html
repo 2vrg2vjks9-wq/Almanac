@@ -18,11 +18,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-11-08b";</script>
+<script>var APP_VERSION="2026-11-08c";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
 <div class="topcover" aria-hidden="true"></div>
+<script>
+(function () { // home-screen app whose page stops above the home indicator: see .short-vp in app.css
+  function fit() {
+    var standalone = navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+    var gap = (screen.height || 0) - window.innerHeight;
+    document.documentElement.classList.toggle("short-vp", !!standalone && gap >= 20 && gap < 120 && screen.height > screen.width);
+  }
+  fit(); window.addEventListener("resize", fit); window.addEventListener("orientationchange", fit);
+})();
+</script>
 <div class="wrap">
   <div class="signin" id="signin" role="alert" hidden>
     <p><b>Your sign-in has expired.</b> Radar can't update or send notes until you sign in again.</p>

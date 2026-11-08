@@ -572,3 +572,9 @@ button.rday:active { background: var(--sunk); }
 .edit-spots .es-name { flex: 1; min-width: 0; font: 500 17px/1.3 var(--read); }
 .edit-spots .ib { font-size: 18px; }
 .edit-spots .ib:disabled { opacity: .3; }
+
+/* Some iPhone home-screen apps end the page above the home indicator, so the safe area is already outside it:
+   then the floating bar and notices sit just above the bottom edge instead of an extra inset higher. */
+.short-vp .tabs { bottom: 10px; }
+.short-vp .fb { bottom: 90px; }
+.short-vp #undoBar { bottom: 96px; }
