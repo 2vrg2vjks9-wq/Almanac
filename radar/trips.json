@@ -1,0 +1,30 @@
+{
+  "about": "Windsurf trip scout destinations (public spot data, no personal data). km = road km one way from The Hague, toll = tolls/ferries one way in EUR, hours = door to door one way. fare = typical return fare in EUR from a Dutch airport (AMS, RTM or EIN), hand luggage, [rest of the year, peak months]; season = months with direct flights (all year when missing). These are rough estimates; the daily task checks live fares for the top trips.",
+  "fuel": 0.13,
+  "spots": [
+    {"id": "wissant", "name": "Wissant", "area": "Côte d'Opale, France", "lat": 50.886, "lon": 1.662, "good": [[200, 360], [0, 45]], "by": "car", "km": 330, "toll": 0, "hours": 3.5},
+    {"id": "spo", "name": "Sankt Peter-Ording", "area": "North Sea, Germany", "lat": 54.31, "lon": 8.60, "good": [[180, 360]], "by": "car", "km": 560, "toll": 0, "hours": 6},
+    {"id": "sylt", "name": "Westerland, Sylt", "area": "North Sea, Germany", "lat": 54.91, "lon": 8.30, "good": [[180, 360], [0, 30]], "by": "car", "km": 640, "toll": 60, "hours": 7.5},
+    {"id": "fehmarn", "name": "Fehmarn", "area": "Baltic, Germany", "lat": 54.44, "lon": 11.19, "good": [[0, 360]], "by": "car", "km": 630, "toll": 0, "hours": 6.5},
+    {"id": "hvidesande", "name": "Hvide Sande", "area": "West Jutland, Denmark", "lat": 56.00, "lon": 8.13, "good": [[0, 360]], "by": "car", "km": 850, "toll": 0, "hours": 9},
+    {"id": "quiberon", "name": "Quiberon", "area": "Brittany, France", "lat": 47.48, "lon": -3.12, "good": [[0, 360]], "by": "car", "km": 1000, "toll": 55, "hours": 10},
+    {"id": "latorche", "name": "La Torche", "area": "Brittany, France", "lat": 47.84, "lon": -4.35, "good": [[180, 330]], "by": "car", "km": 1100, "toll": 55, "hours": 11},
+    {"id": "silvaplana", "name": "Silvaplana", "area": "Engadin, Switzerland", "lat": 46.45, "lon": 9.79, "good": [[180, 260]], "by": "car", "km": 950, "toll": 25, "hours": 10, "note": "Thermal Maloja wind: the forecast often reads low"},
+    {"id": "garda", "name": "Torbole, Lake Garda", "area": "Italy", "lat": 45.87, "lon": 10.87, "good": [[0, 40], [150, 220]], "by": "car", "km": 1050, "toll": 60, "hours": 11, "note": "Thermal Ora and Pelèr: the forecast often reads low"},
+    {"id": "leucate", "name": "Leucate", "area": "Languedoc, France", "lat": 42.91, "lon": 3.05, "good": [[270, 360], [0, 20], [90, 150]], "by": "car", "km": 1350, "toll": 100, "hours": 13},
+    {"id": "tarifa", "name": "Tarifa", "area": "Andalusia, Spain", "lat": 36.01, "lon": -5.60, "good": [[60, 120], [230, 300]], "by": "plane", "air": "AGP", "fare": [110, 260], "peak": [7, 8], "hours": 6},
+    {"id": "sotavento", "name": "Sotavento", "area": "Fuerteventura, Canaries", "lat": 28.14, "lon": -14.23, "good": [[0, 60], [330, 360]], "by": "plane", "air": "FUE", "fare": [160, 330], "peak": [12, 1, 2, 3], "hours": 6.5},
+    {"id": "pozo", "name": "Pozo Izquierdo", "area": "Gran Canaria, Canaries", "lat": 27.82, "lon": -15.42, "good": [[0, 60], [330, 360]], "by": "plane", "air": "LPA", "fare": [150, 320], "peak": [12, 1, 2, 3], "hours": 6.5},
+    {"id": "medano", "name": "El Médano", "area": "Tenerife, Canaries", "lat": 28.04, "lon": -16.54, "good": [[20, 90]], "by": "plane", "air": "TFS", "fare": [140, 300], "peak": [12, 1, 2, 3], "hours": 6.5},
+    {"id": "teguise", "name": "Costa Teguise", "area": "Lanzarote, Canaries", "lat": 29.00, "lon": -13.48, "good": [[0, 60], [330, 360]], "by": "plane", "air": "ACE", "fare": [150, 320], "peak": [12, 1, 2, 3], "hours": 6.5},
+    {"id": "guincho", "name": "Guincho", "area": "Lisbon coast, Portugal", "lat": 38.73, "lon": -9.47, "good": [[300, 360], [0, 20]], "by": "plane", "air": "LIS", "fare": [100, 240], "peak": [7, 8], "hours": 5.5},
+    {"id": "viana", "name": "Viana do Castelo", "area": "North Portugal", "lat": 41.69, "lon": -8.84, "good": [[300, 360], [0, 30]], "by": "plane", "air": "OPO", "fare": [90, 220], "peak": [7, 8], "hours": 5.5},
+    {"id": "essaouira", "name": "Essaouira", "area": "Morocco", "lat": 31.51, "lon": -9.77, "good": [[330, 360], [0, 40]], "by": "plane", "air": "RAK", "fare": [130, 280], "peak": [12, 4], "hours": 8},
+    {"id": "portopollo", "name": "Porto Pollo", "area": "Sardinia, Italy", "lat": 41.19, "lon": 9.32, "good": [[240, 300], [60, 120]], "by": "plane", "air": "OLB", "fare": [120, 300], "peak": [7, 8], "season": [4, 5, 6, 7, 8, 9, 10], "hours": 5.5},
+    {"id": "prasonisi", "name": "Prasonisi", "area": "Rhodes, Greece", "lat": 35.88, "lon": 27.76, "good": [[290, 360], [0, 20]], "by": "plane", "air": "RHO", "fare": [160, 350], "peak": [7, 8], "season": [4, 5, 6, 7, 8, 9, 10], "hours": 7},
+    {"id": "kos", "name": "Kefalos, Kos", "area": "Greece", "lat": 36.75, "lon": 26.98, "good": [[280, 360], [0, 20]], "by": "plane", "air": "KGS", "fare": [160, 350], "peak": [7, 8], "season": [4, 5, 6, 7, 8, 9, 10], "hours": 7},
+    {"id": "alacati", "name": "Alaçatı", "area": "Turkey", "lat": 38.27, "lon": 26.37, "good": [[330, 360], [0, 40]], "by": "plane", "air": "ADB", "fare": [160, 320], "peak": [7, 8], "hours": 7},
+    {"id": "elgouna", "name": "El Gouna", "area": "Red Sea, Egypt", "lat": 27.39, "lon": 33.68, "good": [[300, 360], [0, 30]], "by": "plane", "air": "HRG", "fare": [260, 480], "peak": [12, 2, 10], "hours": 8},
+    {"id": "sal", "name": "Santa Maria, Sal", "area": "Cape Verde", "lat": 16.60, "lon": -22.90, "good": [[0, 90]], "by": "plane", "air": "SID", "fare": [380, 650], "peak": [12, 2], "hours": 9}
+  ]
+}

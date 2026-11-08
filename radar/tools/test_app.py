@@ -165,6 +165,30 @@ def forecast():
     return out
 
 
+def trip_forecast(url):
+    """16 days for the windsurf trip scout: windsurf wind from each spot's first good direction on two days in three."""
+    spots = json.load(open(os.path.join(ROOT, "radar", "trips.json")))["spots"]
+    start = datetime.date.today()
+    out = []
+    for si, sp in enumerate(spots):
+        g = sp["good"][0]; d = (g[0] + g[1]) / 2
+        t, kn, dd = [], [], []
+        for day in range(16):
+            base = 8 if (day + si) % 3 == 0 else 24
+            for h in range(24):
+                t.append("%sT%02d:00" % (start + datetime.timedelta(days=day), h)); kn.append(base); dd.append(d)
+        days = [str(start + datetime.timedelta(days=i)) for i in range(16)]
+        out.append({"hourly": {"time": t, "wind_speed_10m": kn, "wind_direction_10m": dd},
+                    "daily": {"time": days, "temperature_2m_max": [16 if sp["lat"] > 45 else 23] * 16}})
+    return out
+
+
+def meteo(route):
+    u = route.request.url
+    body = trip_forecast(u) if "forecast_days=16" in u else forecast()
+    route.fulfill(status=200, headers=JSONH, body=json.dumps(body))
+
+
 def marine():
     from zoneinfo import ZoneInfo  # the forecast's days are Amsterdam days, like the app's
     start = datetime.datetime.now(ZoneInfo("Europe/Amsterdam")).date()
@@ -221,7 +245,7 @@ class Mocks:
         self.notes, self.github, self.overpass_hits = [], [], []
         self.overpass_up = overpass_up
         r = page.route
-        r("**/api.open-meteo.com/**", lambda x: x.fulfill(status=200, headers=JSONH, body=json.dumps(forecast())))
+        r("**/api.open-meteo.com/**", meteo)
         r("**/marine-api.open-meteo.com/**", lambda x: x.fulfill(status=200, headers=JSONH, body=json.dumps(marine())))
         for host in ("overpass-api.de", "overpass.kumi.systems", "overpass.private.coffee"):
             r("**/%s/**" % host, self.overpass)
@@ -364,6 +388,20 @@ def tabs_suite(browser, site, scheme):
     check("wetsuit" in page.inner_text("#windAll"), "%s: wetsuit hint shown" % scheme)
     check(page.locator("#windAll .spot").first.locator(".waves .wv").count() >= 6 and page.locator("#windAll .spot").first.locator(".waves .wv.on").count() >= 2, "%s: wave heights per day, surfable days bold" % scheme)
     check(page.locator('#windAll .spot[data-spot="inland"] .waves').count() == 0, "%s: lakes have no wave row" % scheme)
+    page.wait_for_selector("#windTrips .trip", timeout=8000)
+    check(page.locator('#windTrips [data-k="weekend"] .trip').count() >= 1, "%s: trip scout finds a weekend by car" % scheme)
+    check(page.locator('#windTrips [data-k="week"] .trip').count() >= 1 and "€" in page.inner_text('#windTrips [data-k="week"]'), "%s: trip scout finds 4-7 day trips with a cost" % scheme)
+    check("°C" in page.inner_text("#windTrips") and "windsurf" in page.inner_text("#windTrips"), "%s: trips show windsurf days and temperature" % scheme)
+    page.locator("#windTrips .trip .open").first.click(); page.wait_for_selector("#sheet.show .trip-days", timeout=3000)
+    check(page.locator("#sheetBody .trip-days li").count() >= 2, "%s: trip details list the days" % scheme)
+    page.keyboard.press("Escape"); page.wait_for_timeout(400)
+    n0 = page.locator("#windTrips .trip").count(); name0 = page.locator("#windTrips .trip h3").first.inner_text()
+    swipe(page, "#windTrips .trip", -160); page.wait_for_timeout(400)
+    check(name0 not in page.inner_text("#windTrips h3") if page.locator("#windTrips .trip").count() else True, "%s: swiping left hides a trip spot" % scheme)
+    check(page.is_visible("#tripUnhide"), "%s: hidden spots can be shown again" % scheme)
+    page.click("#undoBtn"); page.wait_for_timeout(400)
+    check(page.locator("#windTrips .trip").count() == n0, "%s: Undo brings the trip spot back" % scheme)
+    shot(page, "wind-trips-%s.png" % scheme)
     check(page.locator("#v-wind #weekend").count() == 0, "%s: weekend planner moved off Wind" % scheme)
     check(page.locator("#windPlace .pill").all_inner_texts() == ["Home spots", "Where I am", "Search a place", "Edit"], "%s: Wind has a place switch with Edit" % scheme)
     # Edit home spots: move the first one down

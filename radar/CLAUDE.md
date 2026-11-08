@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -280,3 +280,14 @@ Don't add frameworks or a build step; keep all JSON schemas and localStorage key
 don't touch the other apps' folders; keep copy plain, sentence case, active voice; run
 `tools/safety_check.py` (and the tests) before pushing, and add any new outside host to its allowlist with a reason.
 - **New work leads:** Work opens with a "New leads" section (`#workNew`) and the Work tab shows a count. A lead is new when it was found in the last 7 days and isn't in `radar-work-seen`; leaving the Work tab (the `radar-tab` event) marks them seen. On first run, only leads from the last 3 days count as new. The brief's "new leads" link jumps to `#hNewLeads`.
+- **Windsurf trips** (Wind tab, `js/scout.js`, `trips.json`): scouts trips from the Netherlands with good wind, 14 °C or
+  warmer by day and low travel costs. `trips.json` holds public destinations (coordinates, good directions, car km and
+  tolls from The Hague, or airport, typical fares [rest of year, peak] and flight season). One Open-Meteo request
+  (16 days, `timezone=auto`, cached 3 h in `radar-scout-wx`) feeds two lists: Weekends by car (next two weekends, Sat and
+  Sun ride, spots up to 900 km) and 4–7 day trips by plane or car (best window per spot from the day after tomorrow, at
+  least 3 windsurf days and half the days; "Long range" past day 8). A windsurf day = a run of max(3, minHours) daylight
+  hours in the windsurf range with a good direction. Costs: car = km × 2 × fuel + tolls × 2; plane = typical fare. The
+  daily task runs `tools/trips.py` (same rules, flight trips only) in `prepare`, writes the top 3 to `.plain/trips.json`
+  and asks Claude for live fares into `interests.fares` {at, items: [{spot, out, back, from, price, airline, url}]}; the
+  app uses a live fare less than 3 days old when spot and departure (±1 day) match. Swipe left hides a spot for two
+  weeks (`radar-scout-hidden`), with Undo. When adding destinations, keep ids stable and the data public and generic.

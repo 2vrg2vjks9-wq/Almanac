@@ -33,7 +33,7 @@ SPEND = os.path.join(ROOT, "radar", "spend.json")  # API spend per month (amount
 BUDGET = float(os.environ.get("RADAR_BUDGET_USD") or 5.0)
 CHEAP = "claude-haiku-5-5"
 LOW = {  # task: (cap per run in USD, web searches allowed; 0 = WebSearch switched off)
-    "daily": (0.12, 6),
+    "daily": (0.14, 7),
     "inbox": (0.08, 4),
     "finds": (0.06, 0),
     "concerts": (0.06, 4),
@@ -178,6 +178,28 @@ def tasks():
     return json.load(open(os.path.join(PLAIN, "tasks.json")))
 
 
+# Wind › Windsurf trips: the app estimates flight costs; the daily run checks live fares for the top 3 flight trips
+# (tools/trips.py writes them to radar/.plain/trips.json with the app's rules) and the app shows them (interests.fares).
+FARES = """Live fares for the Windsurf trips on the Wind tab (do this last, briefly):
+radar/.plain/trips.json lists up to 3 windsurf trips by plane ({spot, name, air, out, back}). For each, find the
+cheapest return fare for one person with hand luggage from a Dutch airport (AMS, RTM or EIN) to `air`, leaving `out`
+and returning `back` (a day either side is fine; then use those dates). Prefer opening fare pages with WebFetch
+(airline sites such as transavia.com, ryanair.com, klm.nl, vueling.com, or Google Flights / Skyscanner result pages);
+use at most 1 web search for all three. Only record a price you saw on a page. Write interests.fares =
+{"at": now (ISO), "items": [{"spot", "out", "back", "from": IATA code, "price": number in EUR, "airline", "url"}]}
+(replace the old list; leave a trip out when no fare was found). Don't mention fares in your final message."""
+
+
+def trip_fares():
+    """Run the trip scout for the daily task; True when there are flight trips to price."""
+    try:
+        subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "trips.py")], check=True, timeout=120)
+        return bool(json.load(open(os.path.join(PLAIN, "trips.json"))))
+    except Exception:  # no forecast today: skip the fare check
+        say("trip scout: no forecast, skipping fares")
+        return False
+
+
 def prepare(name):
     vault("unlock")
     t = tasks().get(name) or BUILTIN.get(name)
@@ -201,6 +223,7 @@ def prepare(name):
             snap[n] = content_hash(json.load(open(f)))
     json.dump(snap, open(os.path.join(TMP, "snap.json"), "w"))
     run = bool(notes) or not t.get("needs_notes")
+    fares = name == "daily" and trip_fares()
     billed = os.environ.get("SUBSCRIPTION") != "true"
     cap, searches = LOW.get(name, (0.05, 2))
     prompt = t["prompt"]
@@ -217,6 +240,8 @@ def prepare(name):
     if run and name in SWITCHABLE and settings().get("tasks", {}).get(name) is False:
         say("switched off in Settings")
         run = False
+    if fares:
+        prompt += "\n\n" + FARES
     open(os.path.join(TMP, "prompt.txt"), "w").write(prompt)
     output(model=CHEAP if billed else (t.get("model") or "claude-sonnet-5-5"), run=str(run).lower(),
            cap=("%.2f" % cap) if billed else "", nosearch="true" if billed and not searches else "false")

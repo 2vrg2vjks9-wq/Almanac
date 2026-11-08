@@ -3,6 +3,7 @@ import { $, ago, hm, stamp } from "./util.js";
 import { D, loadData, on, mergePicks } from "./data.js";
 import { initTabs, initSheet, initPullToRefresh, initWelcome, currentTab, initUndo } from "./ui.js";
 import { initWind, loadWind, skeleton, net, reloadWind } from "./wind.js";
+import { loadScout } from "./scout.js";
 import { state, drawFeed, drawForYou, drawWork, initFindRead, markLeadsSeen, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
 import { openItem, refreshItem, icsAll } from "./detail.js";
 import { initNotes } from "./notes.js";
@@ -95,6 +96,7 @@ async function loadAll() {
     if (D.keyBad && src !== "live") showLock("Radar's passphrase has changed. Enter the new one to see today's data.");
     if (!src) { $("lead").textContent = "Radar needs a connection the first time you open it."; $("leadSub").textContent = ""; return; }
     start();
+    loadScout();
     await loadWind();
   } finally {
     busy = false;
