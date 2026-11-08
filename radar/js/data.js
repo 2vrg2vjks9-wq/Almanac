@@ -136,7 +136,8 @@ export function refreshUntil(done, onData) {
 export const HOME = { lat: 52.0799, lon: 4.3113, name: "Den Haag" };
 export function tripPoint() {
   const W = get(KEYS.windPlace, null), off = get(KEYS.settings, {}).tripOff || 0;
-  if (W && W.mode !== "home" && W.lat != null && (W.t || 0) > off && km(HOME.lat, HOME.lon, W.lat, W.lon) > 30) return { lat: W.lat, lon: W.lon, name: W.name };
+  const kept = W && W.mode === "saved" ? (get(KEYS.places, []) || []).find((x) => x.id === W.id) : null;
+  if (kept && (W.t || 0) > off && km(HOME.lat, HOME.lon, kept.lat, kept.lon) > 30) return { lat: kept.lat, lon: kept.lon, name: kept.name };
   const H = get(KEYS.here, null);
   if (H && H.lat != null && (H.t || 0) > off && Date.now() - (H.t || 0) < 2 * 864e5 && km(HOME.lat, HOME.lon, H.lat, H.lon) > 30) {
     const A = get(KEYS.around, null);

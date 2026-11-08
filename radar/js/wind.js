@@ -1,9 +1,10 @@
 // Live wind for the spots in interests.json (Open-Meteo, no key), the wind ribbons,
 // the hourly chart, water temperature with a wetsuit hint, and the Today lead sentence.
 import { $, html, put, pad, stamp, getJSON, km, kmText } from "./util.js";
-import { get, set, KEYS } from "./store.js";
+import { get, set, KEYS, S, save } from "./store.js";
 import { D, emit } from "./data.js";
-import { showTab, openSheet, closeSheet } from "./ui.js";
+import { showTab, openSheet, closeSheet, swipeRow, undoable, say } from "./ui.js";
+import { track } from "./notes.js";
 
 export const net = { wind: null, windAt: null, sessions: [] }; // sessions: rideable windows, soonest first
 let WATER = get(KEYS.water, {});
@@ -250,18 +251,44 @@ export async function loadWind() {
   }
 }
 
-// --- Where the wind is for: home spots, where I am, or a searched place ------------------------------
-// Away from home Radar has no spot list, so it finds kite, windsurf and wingfoil spots that OpenStreetMap knows within
-// 25 km (Overpass), or uses the place itself. Their good directions aren't known, so every direction counts as
-// rideable there (the hourly chart still shows the direction). Kept on this phone (radar-wind-place); the morning
-// alert stays on the home spots. What leaves the phone: the position or the search text, to OpenStreetMap.
-const place = () => get(KEYS.windPlace, null) || { mode: "home" };
+// --- Where the wind is for: home spots or a kept place ---------------------------------------------
+// Each place found with Where I am or Search a place is kept as a chip next to Home spots (radar-places, on this
+// phone), with the kite, windsurf and wingfoil spots OpenStreetMap knows within 20 km plus the place itself. Their
+// good directions aren't known, so every direction counts there. Asking again within 5 km of a kept place opens it
+// without searching. Edit removes and reorders spots (and removes a place); home edits go to the encrypted interests
+// (radar-track `homeSpots`), so the morning alert follows them. What leaves the phone: the position or the search
+// text, to OpenStreetMap, only when you tap.
+const places = () => { const p = get(KEYS.places, []); return Array.isArray(p) ? p : []; };
+const savePlaces = (p) => set(KEYS.places, p);
+// older versions kept one place in radar-wind-place itself: turn it into a kept place once
+(function migrate() {
+  const W = get(KEYS.windPlace, null);
+  const old = [W, W && W.last].filter((x) => x && (x.mode === "here" || x.mode === "search") && x.lat != null && Array.isArray(x.spots));
+  if (!old.length) return;
+  const P = places();
+  old.forEach((x) => { if (!P.some((p) => km(p.lat, p.lon, x.lat, x.lon) <= 5)) P.push({ id: "pl" + Math.round(x.lat * 1e3) + "_" + Math.round(x.lon * 1e3), name: x.name, lat: x.lat, lon: x.lon, spots: x.spots, t: x.t || Date.now() }); });
+  savePlaces(P);
+  const keep = W.mode === "home" ? null : P.find((p) => km(p.lat, p.lon, W.lat, W.lon) <= 5);
+  set(KEYS.windPlace, keep ? { mode: "saved", id: keep.id, t: W.t || Date.now() } : { mode: "home" });
+})();
+function place() {
+  const W = get(KEYS.windPlace, null) || { mode: "home" };
+  if (W.mode === "saved") { const p = places().find((x) => x.id === W.id); if (p) return Object.assign({ mode: "saved" }, p, { t: W.t }); }
+  return { mode: "home" };
+}
+// Home spots with the phone's edits applied until the data shows them (settings.homeSpots: {order, removed})
+function homeSpots() {
+  const all = (D.config && D.config.wind && D.config.wind.spots) || [], h = (S.settings && S.settings.homeSpots) || {};
+  const rm = new Set(h.removed || []), order = h.order || [];
+  const pos = (x) => { const i = order.indexOf(x.id); return i < 0 ? 1e3 + all.indexOf(x) : i; };
+  return all.filter((x) => !rm.has(x.id)).sort((a, b) => pos(a) - pos(b));
+}
 export function spots() {
   const P = place();
-  return P.mode !== "home" && Array.isArray(P.spots) && P.spots.length ? P.spots : D.config.wind.spots;
+  return P.mode === "saved" && Array.isArray(P.spots) && P.spots.length ? P.spots : homeSpots();
 }
 const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];
-async function nearbySpots(lat, lon, name) {
+async function nearbySpots(lat, lon) {
   // named kite, windsurf and wingfoil spots within 20 km; each mirror gets 9 s
   const q = '[out:json][timeout:8];nwr["sport"~"^(kitesurfing|windsurfing|wingfoiling|kiteboarding)$"][name](around:20000,' + lat.toFixed(4) + "," + lon.toFixed(4) + ");out center 12;";
   let els = null;
@@ -279,39 +306,31 @@ async function nearbySpots(lat, lon, name) {
   out.sort((a, b) => km(lat, lon, a.lat, a.lon) - km(lat, lon, b.lat, b.lon));
   return { spots: out.slice(0, 3), answered: els !== null };
 }
-function lastFor(mode) {
-  const P = place(), c = P.mode === mode ? P : P.last && P.last.mode === mode ? P.last : null;
-  return c && c.lat != null ? c : null;
-}
-const placeSpot = (lat, lon, name) => ({ id: "place", name: name, sub: "Forecast for where you are · direction not checked", lat, lon, good: [[0, 360]] });
-async function setPlace(mode, lat, lon, name) {
-  const cur = place();
-  // Home keeps the last place it left (`last`), so asking from the same spot later needs no new search
-  if (mode === "home") { set(KEYS.windPlace, { mode: "home", last: cur.mode !== "home" ? cur : cur.last || null }); return reload(); }
-  const P = lastFor(mode);
-  // asking again from roughly the same spot (within 5 km): keep the spots found last time, just refresh the forecast
-  if (P && Array.isArray(P.spots) && P.spots.length && km(P.lat, P.lon, lat, lon) <= 5) {
-    set(KEYS.windPlace, Object.assign({}, P, { t: Date.now() }));
-    return reload();
-  }
-  // a new place: the forecast for the place itself shows right away; nearby spots join when the search answers
-  set(KEYS.windPlace, { mode, name, lat, lon, spots: [placeSpot(lat, lon, name)], t: Date.now() });
-  reload();
-  const r = await nearbySpots(lat, lon, name);
-  const now = place();
-  if (now.mode !== mode || now.lat !== lat || now.lon !== lon) return; // moved on meanwhile
-  if (r.spots.length) { set(KEYS.windPlace, Object.assign({}, now, { spots: r.spots.concat([placeSpot(lat, lon, name)]).slice(0, 4) })); reload(); }
-  else $("windSub").textContent = r.answered ? "OpenStreetMap knows no kite or wing spots within 20 km: this is the forecast for where you are." : "Couldn't reach OpenStreetMap for nearby spots: this is the forecast for where you are.";
+const placeSpot = (id, lat, lon, name) => ({ id: id + "-c", name: name, sub: "Forecast for the place · direction not checked", lat, lon, good: [[0, 360]] });
+const nearKept = (lat, lon) => places().find((p) => km(p.lat, p.lon, lat, lon) <= 5);
+function select(id) { set(KEYS.windPlace, id ? { mode: "saved", id, t: Date.now() } : { mode: "home" }); reload(); }
+async function addPlace(lat, lon, name) {
+  const kept = nearKept(lat, lon);
+  if (kept) return select(kept.id); // already kept: open it, no search
+  const id = "pl" + Date.now().toString(36);
+  savePlaces(places().concat([{ id, name, lat, lon, spots: [placeSpot(id, lat, lon, name)], t: Date.now() }]));
+  select(id); // the forecast for the place itself shows right away; nearby spots join when the search answers
+  const r = await nearbySpots(lat, lon);
+  const P = places(), me = P.find((x) => x.id === id);
+  if (!me) return;
+  if (r.spots.length) { me.spots = r.spots.concat(me.spots.filter((x) => x.id === id + "-c")).slice(0, 4); savePlaces(P); if (place().id === id) reload(); }
+  else if (place().id === id) $("windSub").textContent = r.answered ? "OpenStreetMap knows no kite or wing spots within 20 km: this is the forecast for the place itself." : "Couldn't reach OpenStreetMap for nearby spots: this is the forecast for the place itself.";
 }
 export function reloadWind() { document.querySelectorAll("#todayWind .spot, #windAll .spot").forEach((x) => x.remove()); skeleton(); loadWind(); }
 function reload() { reloadWind(); emit("change"); }
 function paintPlace() {
   const P = place(), box = $("windPlace");
   if (!box) return;
+  const chip = (k, label, on) => html`<button class="pill${on ? " on" : ""}" type="button" data-wp="${k}" aria-pressed="${String(on)}">${label}</button>`;
+  put(box, html`${chip("home", "Home spots", P.mode === "home")}${places().map((p) => chip("p:" + p.id, p.name, P.id === p.id))}${chip("here", "Where I am", false)}${chip("search", "Search a place", false)}<button class="pill ghost" type="button" data-wp="edit">Edit</button>`);
   box.querySelectorAll("[data-wp]").forEach((b) => {
-    const on = b.dataset.wp === P.mode || (b.dataset.wp === "search" && P.mode === "search");
-    b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on));
-    if (b.dataset.wp === "search") b.textContent = P.mode === "search" ? P.name : "Search a place";
+    const k = b.dataset.wp;
+    b.onclick = () => (k === "home" ? select(null) : k === "here" ? whereIAm() : k === "search" ? searchPlace() : k === "edit" ? editSpots() : select(k.slice(2)));
   });
   const t = $("windTitle");
   if (t) t.previousElementSibling.textContent = P.mode === "home" ? "Your spots" : P.name;
@@ -320,14 +339,14 @@ async function whereIAm() {
   if (!navigator.geolocation) { $("windSub").textContent = "This phone can't share its location."; return; }
   $("windSub").textContent = "Finding where you are…";
   navigator.geolocation.getCurrentPosition(async (p) => {
-    const lat = p.coords.latitude, lon = p.coords.longitude, P = lastFor("here");
-    if (P && km(P.lat, P.lon, lat, lon) <= 5) return setPlace("here", lat, lon, P.name); // same spot: no lookups
+    const lat = p.coords.latitude, lon = p.coords.longitude, kept = nearKept(lat, lon);
+    if (kept) return select(kept.id); // roughly the same spot: no lookups at all
     let name = "Where you are";
     try {
       const g = await getJSON("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat=" + lat.toFixed(4) + "&lon=" + lon.toFixed(4), 6000);
       const a = g.address || {}; name = a.city || a.town || a.village || a.municipality || name;
     } catch (e) { /* keep the generic name */ }
-    setPlace("here", lat, lon, name);
+    addPlace(lat, lon, name);
   }, () => { $("windSub").textContent = "Location is off for Safari: Settings, Privacy & Security, Location Services, Safari Websites."; }, { timeout: 15000, maximumAge: 300000 });
 }
 function searchPlace() {
@@ -346,17 +365,67 @@ function searchPlace() {
         const r = await getJSON("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=en&q=" + encodeURIComponent(q), 12000);
         put(res, r.length ? html`${r.map((x, i) => html`<li><button class="mini" type="button" data-i="${i}"><span class="what"><b>${String(x.display_name).split(",")[0]}</b><small>${String(x.display_name).split(",").slice(1, 4).join(",")}</small></span></button></li>`)}`
           : html`<li class="muted">Nothing found. Try a town name.</li>`);
-        res.querySelectorAll("[data-i]").forEach((b) => { b.onclick = () => { const x = r[+b.dataset.i]; closeSheet(); setPlace("search", +x.lat, +x.lon, String(x.display_name).split(",")[0]); }; });
+        res.querySelectorAll("[data-i]").forEach((b) => { b.onclick = () => { const x = r[+b.dataset.i]; closeSheet(); addPlace(+x.lat, +x.lon, String(x.display_name).split(",")[0]); }; });
       } catch (err) { put(res, html`<li class="muted">The search didn't answer. Try again.</li>`); }
     };
   }, "Wind somewhere else");
 }
 
+// --- Edit: remove and reorder the spots of the place on screen (and remove a kept place) --------------------
+function editSpots() {
+  const P = place(), home = P.mode === "home";
+  const list = () => (home ? homeSpots() : (places().find((x) => x.id === P.id) || { spots: [] }).spots);
+  const saveOrder = (ids, removedId) => {
+    if (home) {
+      const h = Object.assign({ order: [], removed: [] }, S.settings.homeSpots || {});
+      h.order = ids;
+      if (removedId && !h.removed.includes(removedId)) h.removed = h.removed.concat([removedId]);
+      S.settings = Object.assign({}, S.settings, { homeSpots: h }); save("settings");
+      track({ homeSpots: h }); // the encrypted interests follow, so the morning alert does too
+    } else {
+      const all = places(), me = all.find((x) => x.id === P.id);
+      if (!me) return;
+      me.spots = ids.map((id) => me.spots.find((x) => x.id === id)).filter(Boolean);
+      savePlaces(all);
+    }
+    reload();
+  };
+  const draw = () => {
+    const L = list();
+    openSheet(() => html`<h2 class="sheet-title" id="sheetTitle">Edit ${home ? "home spots" : P.name}</h2>
+      <p class="lede">Move a spot up or down, or remove it (swipe left works too).${home ? " Home changes also reach the morning wind alert." : ""}</p>
+      <ul class="edit-spots">${L.map((x, i) => html`<li data-id="${x.id}"><span class="es-name">${x.name}</span>
+        <button class="ib" type="button" data-up="${i}" aria-label="Move ${x.name} up"${i === 0 ? " disabled" : ""}>↑</button>
+        <button class="ib" type="button" data-down="${i}" aria-label="Move ${x.name} down"${i === L.length - 1 ? " disabled" : ""}>↓</button>
+        <button class="ib hide" type="button" data-rm="${i}" aria-label="Remove ${x.name}">×</button></li>`)}</ul>
+      ${home ? "" : html`<button class="linkbtn danger" type="button" data-rmplace>Remove ${P.name} from Wind</button>`}
+      <div class="sheet-acts"><button class="btn ghost" type="button" data-close>Done</button></div>`, (el) => {
+      const ids = L.map((x) => x.id);
+      const move = (i, d) => { const j = i + d; [ids[i], ids[j]] = [ids[j], ids[i]]; saveOrder(ids); draw(); };
+      el.querySelectorAll("[data-up]").forEach((b) => { b.onclick = () => move(+b.dataset.up, -1); });
+      el.querySelectorAll("[data-down]").forEach((b) => { b.onclick = () => move(+b.dataset.down, 1); });
+      const remove = (i, li) => {
+        if (L.length <= 1) { say("Keep at least one spot" + (home ? "." : ", or remove the whole place.")); return; }
+        li.hidden = true;
+        const id = ids[i];
+        undoable("Removed " + L[i].name + ".", () => { li.hidden = false; }, () => { saveOrder(ids.filter((x) => x !== id), id); });
+      };
+      el.querySelectorAll("[data-rm]").forEach((b) => { b.onclick = () => remove(+b.dataset.rm, b.closest("li")); });
+      el.querySelectorAll(".edit-spots li").forEach((li, i) => swipeRow(li, () => {}, () => remove(i, li), ["", "Remove"]));
+      const rp = el.querySelector("[data-rmplace]");
+      if (rp) rp.onclick = () => {
+        closeSheet();
+        const keep = places();
+        savePlaces(keep.filter((x) => x.id !== P.id)); select(null);
+        undoable(P.name + " removed.", () => { savePlaces(keep); select(P.id); });
+      };
+    }, "Edit spots");
+  };
+  draw();
+}
+
 export function initWind() {
-  const wp = $("windPlace");
-  if (wp) wp.querySelectorAll("[data-wp]").forEach((b) => {
-    b.onclick = () => (b.dataset.wp === "home" ? setPlace("home") : b.dataset.wp === "here" ? whereIAm() : searchPlace());
-  });
+  paintPlace();
   const go = () => showTab("wind");
   $("todayWind").onclick = go;
   $("todayWind").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };

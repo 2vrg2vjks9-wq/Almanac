@@ -119,27 +119,68 @@ export function gearNews() {
 }
 
 // --- You › Finds: everything else on the wanted list ------------------------------------------------------
+// --- Editing a search ----------------------------------------------------------------------------------------
+// Edits wait on the phone (radar-wanted-edits) until the data shows them, and go sealed in a radar-track note;
+// task.py apply changes interests.wanted, and the finds task writes new queries for a changed search.
+function withEdit(w) {
+  const e = S.wantedEdits[w.id];
+  if (!e) return w;
+  const done = !e.remove && ["title", "look_for", "fit", "budget", "where"].every((k) => !e[k] || e[k] === w[k]);
+  if (done) { delete S.wantedEdits[w.id]; save("wantedEdits"); return w; }
+  return Object.assign({}, w, ...["title", "look_for", "fit", "budget", "where"].filter((k) => e[k]).map((k) => ({ [k]: e[k] })), { edited: true, remove: !!e.remove });
+}
+const searches = () => ((D.config && D.config.wanted) || []).filter((w) => w && w.id && w.title).map(withEdit).filter((w) => !w.remove);
+function saveSearch(w, ch) {
+  S.wantedEdits[w.id] = Object.assign({}, ch, { t: Date.now() }); save("wantedEdits");
+  track({ wanted: { [w.id]: ch } });
+  drawGear();
+}
+function editSearch(id) {
+  const w = searches().find((x) => x.id === id) || (id === WING ? { id: WING, title: "Wingfoil gear" } : null);
+  if (!w) return;
+  ask({
+    title: "Edit search", intro: "Change what Radar looks for. The next morning scan uses it.",
+    fields: [
+      { name: "t", label: "What to look for", value: w.title, required: true },
+      { name: "l", label: "A good find would be", value: w.look_for || w.short || "", long: true, placeholder: "Brand, size, condition…" },
+      { name: "b", label: "Budget (optional)", value: w.budget ? String(w.budget) : "", placeholder: "Up to €400" },
+      { name: "p", label: "Where (optional)", value: w.where ? String(w.where) : "", placeholder: "Within 100 km, or ships to NL" },
+    ],
+    submit: "Save search",
+    extra: id === WING ? null : { label: "Remove this search", run: () => {
+      const sec = document.querySelector('#wanted .want[data-w="' + CSS.escape(id) + '"]');
+      if (sec) sec.hidden = true;
+      undoable("Search removed.", () => { if (sec) sec.hidden = false; }, () => saveSearch(w, { remove: true }));
+    } },
+    send: (v) => saveSearch(w, { title: v.t, look_for: v.l, budget: v.b, where: v.p }),
+  });
+}
+
 function drawWanted() {
   const box = $("wanted");
   if (!box) return;
-  const wanted = ((D.config && D.config.wanted) || []).filter((w) => w && w.id && w.id !== WING && w.title);
+  const wanted = searches().filter((w) => w.id !== WING);
   box.hidden = !wanted.length;
   if (!wanted.length) return;
   const u = D.gear && D.gear.updated;
   put(box, html`${wanted.map((w) => {
     const list = sortAds(ads(w.id)), hits = list.filter((a) => a.match === "hit").length;
     return html`<section class="want" data-w="${w.id}">
-      <h3>${w.title}</h3>
+      <div class="bk-h"><h3>${w.title}</h3><button class="linkbtn bk-edit" type="button" data-edit="${w.id}">Edit</button></div>
+      ${w.edited ? html`<p class="want-sub">Changed. The next morning scan uses it.</p>` : ""}
       <p class="want-sub">${w.short || ""}${w.short ? " " : ""}${u ? (list.length ? list.length + (list.length === 1 ? " ad" : " ads") + (hits ? ", " + hits + " clear " + (hits === 1 ? "match" : "matches") : "") + ", checked " + ago(u) + "." : "Nothing right now, checked " + ago(u) + ".") : "The first scan fills this in."}</p>
       ${list.length ? html`<div class="want-list">${list.map((a) => rowHTML(a, "Check fit", list))}</div>` : ""}
     </section>`;
   })}`);
   wireHide(box);
+  box.querySelectorAll("[data-edit]").forEach((b) => { b.onclick = () => editSearch(b.dataset.edit); });
 }
 
 export function drawGear() { drawWing(); drawWanted(); }
 
 export function initGear() {
+  const we = $("wingEdit");
+  if (we) we.onclick = () => editSearch(WING);
   const wb = $("wantBtn");
   if (wb) wb.onclick = () => ask({
     title: "Look for something second-hand", intro: "Say what you want and what would make it a good find. Radar adds it to the searches it runs a few times a day.",

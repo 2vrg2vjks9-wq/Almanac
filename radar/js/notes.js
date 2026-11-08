@@ -133,6 +133,7 @@ export async function note(title, body, label, doneText) {
 let pend = {}, pendTimer = null;
 export function track(patch) {
   if (patch.bucket) patch = Object.assign({}, patch, { bucket: Object.assign({}, pend.bucket || {}, patch.bucket) });
+  if (patch.wanted) patch = Object.assign({}, patch, { wanted: Object.assign({}, pend.wanted || {}, patch.wanted) });
   if (patch.spend) patch = Object.assign({}, patch, { spend: (pend.spend || 0) + patch.spend });
   Object.assign(pend, patch);
   clearTimeout(pendTimer);
@@ -146,6 +147,8 @@ function sendTracked() {
   if (p.bucket) t.bucket = p.bucket;
   if (p.artists) t.artists = p.artists;
   if (p.watch) t.watch = p.watch;
+  if (p.homeSpots) t.homeSpots = p.homeSpots;
+  if (p.wanted) t.wanted = p.wanted;
   if (p.spend) t.spend = p.spend;
   if (Object.keys(t).length) note("Radar tracker", JSON.stringify(t), "radar-track", "");
 }

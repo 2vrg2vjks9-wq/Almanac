@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -192,9 +192,12 @@ in commit messages, issue comments or Actions logs.
   Nearby (Look around), one search box with a clear button over the first three, and a one-tap Find more in For you,
   Go and Read & listen that follows the pane's filters (place, Near me, when, what, search text; `/api/ideas` with
   `where`, or the inbox task); Wind = forecast with a place switch (Home spots, Where I am, Search a place:
-  `radar-wind-place`, nearby kite/wingfoil spots from Overpass, directions not checked; the morning alert stays on
-  the home spots);
-  You = saved, bucket list, Following, Finds (all second-hand searches, wingfoil first: ad age, price vs similar ads,
+  `radar-wind-place`; every place found becomes a kept chip with its spots in `radar-places`, reopened without a search
+  within 5 km; Edit removes and reorders spots and removes a kept place, and home edits travel as `homeSpots` in a
+  radar-track note so `task.py apply` updates `interests.wind.spots` and the morning alert follows);
+  You = jump buttons (Saved, Bucket list, Following, Finds, Learned, Settings), saved, bucket list, Following, Finds
+  (each search has Edit: title, a good find, budget, where, or remove; sent as `wanted` in radar-track, applied to
+  `interests.wanted`, and finds writes new queries for a changed search) (all second-hand searches, wingfoil first: ad age, price vs similar ads,
   Good deal at 20% under), learned. Everything that lists swipes: rows (right yes/more/Interested, left no/hide/Not for me), ads (right opens,
   left hides), wishes (right edits, left removes), artists (right alerts, left unfollows), Act now (right opens, left
   takes it off). What swipes away gets an Undo notice (`undoable()` in ui.js; wishes and artists only change when it

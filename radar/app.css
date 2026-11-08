@@ -563,3 +563,12 @@ button.rday:active { background: var(--sunk); }
 .dot.c-sport { background: var(--reef); }
 .ib.watch.on { color: var(--marine); background: var(--sunk); }
 .ad-price s { color: var(--ink-3); font-weight: 400; }
+/* You: jump buttons, and the spot editor on Wind */
+.jump { margin: 12px calc(-1 * var(--gutter)) 0; }
+.pill.ghost { box-shadow: none; text-decoration: underline; text-underline-offset: 3px; color: var(--marine); }
+.edit-spots { list-style: none; margin: 8px 0; padding: 0; }
+.edit-spots li { display: flex; align-items: center; gap: 4px; min-height: 52px; background: var(--surface); }
+.edit-spots li + li { border-top: 1px solid var(--rule); }
+.edit-spots .es-name { flex: 1; min-width: 0; font: 500 17px/1.3 var(--read); }
+.edit-spots .ib { font-size: 18px; }
+.edit-spots .ib:disabled { opacity: .3; }

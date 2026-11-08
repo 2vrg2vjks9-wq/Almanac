@@ -158,7 +158,7 @@ function compose({ title, intro, fields, submit, send, extra }) {
 }
 // A short form that sends one note to Claude (used by Do's "Ask for more ideas").
 export function ask(o) {
-  compose({ title: o.title, intro: o.intro, fields: o.fields, submit: o.submit, send: o.send || ((v) => { const [t, b] = o.note(v); note(t, b, o.label, o.done); }) });
+  compose({ title: o.title, intro: o.intro, fields: o.fields, submit: o.submit, extra: o.extra, send: o.send || ((v) => { const [t, b] = o.note(v); note(t, b, o.label, o.done); }) });
 }
 function addInterest() {
   compose({
@@ -355,6 +355,16 @@ export function initSaved() {
   $("addBtn").onclick = addInterest;
   $("bucketBtn").onclick = addWish;
   $("followBtn").onclick = followArtist;
+  // jump buttons at the top of You: scroll to a section (Settings opens it)
+  document.querySelectorAll("#youJump [data-to]").forEach((b) => {
+    b.onclick = () => {
+      const t = $(b.dataset.to);
+      if (!t) return;
+      if (b.dataset.to === "setBtn") return t.click();
+      const y = t.getBoundingClientRect().top + window.scrollY - 70;
+      window.scrollTo({ top: y, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    };
+  });
   $("brainBtn").onclick = () => compose({
     title: "Brainstorm wishes", intro: "Claude suggests wishes that fit your interests. Give it a direction, or leave it empty for a mix.",
     fields: [{ name: "t", label: "Around (optional)", placeholder: "Wind trips, mountains, art pilgrimages, a house abroad…" }],

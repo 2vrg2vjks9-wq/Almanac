@@ -111,7 +111,8 @@ RULES = """Cost rules for this run (they come before everything below):
 
 EXTRA = {  # added to the cost rules, per task (generic: nothing about the owner)
     "finds": "- Web search is switched off for this task. Open the marketplaces' own search pages with WebFetch instead,\n"
-             "  one per query in interests.wanted[].queries (or the search title when there are none), and ask WebFetch\n"
+             "  one per query in interests.wanted[].queries (when a search has none, e.g. after the owner edited it, write\n"
+             "  2 or 3 short queries per site into it from its title and look_for first), and ask WebFetch\n"
              "  for every ad's title, price, location, date and link:\n"
              "    Marktplaats:   https://www.marktplaats.nl/q/<query>/\n"
              "    2dehands:      https://www.2dehands.be/q/<query>/\n"
@@ -599,6 +600,28 @@ def apply():
                         if isinstance(v, dict) and str(v.get("url", "")).startswith("http"):
                             keep[str(k)[:80]] = {x: v.get(x) for x in ("url", "title", "price", "search", "t")}
                     it["watch"] = keep
+                if isinstance(j.get("homeSpots"), dict) and isinstance(it.get("wind"), dict) and isinstance(it["wind"].get("spots"), list):
+                    hs = j["homeSpots"]
+                    rm = {str(x) for x in (hs.get("removed") or [])[:50]}
+                    order = [str(x) for x in (hs.get("order") or [])[:50]]
+                    sp = [x for x in it["wind"]["spots"] if isinstance(x, dict) and str(x.get("id")) not in rm]
+                    if sp:  # never leave the alert without spots
+                        sp.sort(key=lambda x: order.index(str(x.get("id"))) if str(x.get("id")) in order else 1000 + it["wind"]["spots"].index(x))
+                        it["wind"]["spots"] = sp
+                if isinstance(j.get("wanted"), dict) and isinstance(it.get("wanted"), list):
+                    for wid, ch in list(j["wanted"].items())[:30]:
+                        if not isinstance(ch, dict):
+                            continue
+                        for w in it["wanted"]:
+                            if isinstance(w, dict) and str(w.get("id")) == str(wid):
+                                if ch.get("remove"):
+                                    w["_remove"] = True
+                                for k in ("title", "look_for", "fit", "budget", "where"):
+                                    if isinstance(ch.get(k), str) and ch[k].strip():
+                                        w[k] = ch[k].strip()[:500]
+                                if ch.get("look_for") or ch.get("title"):
+                                    w.pop("queries", None)  # the finds task builds new queries from the new description
+                    it["wanted"] = [w for w in it["wanted"] if not (isinstance(w, dict) and w.get("_remove"))]
                 if isinstance(j.get("artists"), dict):
                     apply_artists(it, j["artists"])
                 try:

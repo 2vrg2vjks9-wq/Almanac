@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-11-08a";</script>
+<script>var APP_VERSION="2026-11-08b";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -144,11 +144,19 @@
       <button class="rbtn" id="setBtn" type="button" aria-label="Settings"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </header>
     <p class="sub">What you saved, your bucket list, second-hand finds, and what Radar has learned about you.</p>
+    <nav class="seg jump" id="youJump" aria-label="Jump to">
+      <button class="pill" type="button" data-to="hSaved">Saved</button>
+      <button class="pill" type="button" data-to="hBucket">Bucket list</button>
+      <button class="pill" type="button" data-to="hFollow">Following</button>
+      <button class="pill" type="button" data-to="hFinds">Finds</button>
+      <button class="pill" type="button" data-to="hLearned">Learned</button>
+      <button class="pill" type="button" data-to="setBtn">Settings</button>
+    </nav>
 
-    <h2>Saved</h2>
+    <h2 id="hSaved">Saved</h2>
     <div class="sheet" id="savedList"></div>
 
-    <h2>Bucket list</h2>
+    <h2 id="hBucket">Bucket list</h2>
     <div class="sheet" id="bucketList"></div>
     <div class="sheet" id="bucketIdeas" hidden></div>
     <div class="sheet">
@@ -156,15 +164,15 @@
       <p class="hint">Radar checks each wish every morning and tells you when the timing is right: cheap flights, a good season, a rare deal.</p>
     </div>
 
-    <h2>Following</h2>
+    <h2 id="hFollow">Following</h2>
     <p class="sub">Artists Radar watches for concerts and releases. The bell sends a notification when one announces a show nearby.</p>
     <div class="sheet" id="follow"></div>
     <div class="sheet"><div class="duo"><button class="btn ghost" id="followBtn" type="button">Follow an artist</button></div></div>
 
-    <h2>Finds</h2>
+    <h2 id="hFinds">Finds</h2>
     <p class="sub" id="wantedHead">Second-hand things you're looking for, checked every morning on Marktplaats, 2dehands, Kleinanzeigen and, for car parts, sloperijen. Tap an ad to open it.</p>
     <section class="want" id="wingBox">
-      <h3>Wingfoil gear</h3>
+      <div class="bk-h"><h3>Wingfoil gear</h3><button class="linkbtn bk-edit" type="button" id="wingEdit">Edit</button></div>
       <p class="want-sub" id="gearSub"></p>
       <div class="filters"><div class="seg" id="gearTypes" role="group" aria-label="Filter gear"></div></div>
       <div class="sheet" id="gear"></div>
@@ -174,7 +182,7 @@
       <div class="duo"><button class="btn ghost" id="wantBtn" type="button">Look for something second-hand</button></div>
     </div>
 
-    <h2>What Radar has learned</h2>
+    <h2 id="hLearned">What Radar has learned</h2>
     <div class="sheet learned"><ul id="learned"></ul></div>
 
     <h2>Teach it more</h2>
