@@ -384,7 +384,8 @@ function profile() {
     no: Object.values(S.do).filter((a) => a.v < 0).slice(-15).map((a) => a.title) };
 }
 async function instantIdeas(askText, where) {
-  if (!SERVER || !navigator.onLine) return { why: "offline" };
+  if (!navigator.onLine) return { why: "offline" };
+  if (!SERVER) return { why: "setup" }; // the GitHub Pages copy has no Radar server: Radar's tasks answer instead
   try {
     const have = ideas().filter((it) => !ideaPast(it)).map((it) => it.title).slice(0, 80);
     const body = JSON.stringify({ ask: askText, where: where || "", profile: profile(), have });
@@ -418,18 +419,26 @@ async function findMore(askText, where) {
     emit("change");
     say(found.length + " new ideas. Say yes or no to them first.");
     window.scrollTo({ top: 0 });
+  } else if (res.why === "offline") {
+    say("You're offline. Ask again when you're connected.");
+    return;
   } else {
     const why = { setup: "Instant ideas aren't switched on yet (the ANTHROPIC_API_KEY secret in Cloudflare).", signin: "Sign in again to get ideas right away.",
       offline: "You're offline.", none: "Claude found nothing it could stand behind right now." }[res.why] || "Claude couldn't be reached.";
-    say(res.why === "setup" ? "Claude is finding ideas through Radar's tasks. They appear here in about 3 minutes." : why + " Your request went to Radar; ideas arrive within a few minutes.");
+    pendingSay = res.why === "setup" ? "Claude is finding ideas through Radar's tasks. They appear here in about 3 minutes." : why + " Your request went to Radar; ideas arrive within a few minutes.";
     const before = ideas().length, sent = Date.now();
     refreshUntil(() => ideas().length > before || (D.things && Date.parse(D.things.updated) > sent), () => emit("change"));
   }
-  note("Do: more ideas" + (askText ? " like " + askText : "") + (where ? " around " + where : ""),
+  const out = await note("Do: more ideas" + (askText ? " like " + askText : "") + (where ? " around " + where : ""),
     "Please look for more Do ideas (things to do, " + (where ? "in or near " + where : "Den Haag first") + ")" + (askText ? ": " + askText : ".") +
     (found.length ? "\n\nPicked ideas (instant research, check before keeping):\n" + JSON.stringify(found) : ""),
     "radar-interest", "");
+  if (pendingSay) {
+    say(out === "waiting" ? "This copy of Radar can't send requests yet: connect it in You › Settings › Sending notes, or open Radar from almanac-dgf.pages.dev." : pendingSay);
+    pendingSay = "";
+  }
 }
+let pendingSay = "";
 
 // One tap: Find more follows what the pane is set to (place, Near me, when, what, the search text).
 const label = (list, k) => (list.find((x) => x[0] === k) || [])[1] || "";

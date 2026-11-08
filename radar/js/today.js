@@ -3,12 +3,12 @@
 // - Act now: one list of things with a date to act by, nearest first: deadlines (tracked leads first), tickets to
 //   book, last chances, things on your yes list in the next three days and bucket-list "good time" moments.
 // - Weekend (Thursday to Sunday, on Today): rideable wind on Saturday and Sunday next to your yes list that weekend.
-import { $, html, put, d, today, shortDate } from "./util.js";
+import { $, html, put, d, today, shortDate, getJSON } from "./util.js";
 import { S } from "./store.js";
 import { D, visible, isWork, tripPoint, nearTrip, emit } from "./data.js";
 import { net } from "./wind.js";
 import { showTab, showPane, swipeRow, undoable, say } from "./ui.js";
-import { S as Store, save } from "./store.js";
+import { S as Store, save, get, set, KEYS } from "./store.js";
 import { ideas, answer, eligible, ideaPast, placeText, prepText, sortByDate, openIdea, decide, findPadel } from "./do.js";
 import { deadline, tracked, WORK_LABEL, workSub } from "./feed.js";
 import { gearNews } from "./gear.js";
@@ -130,6 +130,17 @@ export function paintTrip() {
   if (!bar) return;
   bar.hidden = !T;
   if (T) $("tripText").textContent = "Trip mode: " + T.name;
+  if (T && T.name === "where you are" && !naming && navigator.onLine) nameTrip(T);
+}
+// The town for a trip found by Look around, looked up once (OpenStreetMap's Nominatim) and kept with the result.
+let naming = false;
+async function nameTrip(T) {
+  naming = true;
+  try {
+    const g = await getJSON("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat=" + T.lat.toFixed(4) + "&lon=" + T.lon.toFixed(4), 8000);
+    const a = g.address || {}, city = a.city || a.town || a.village || a.municipality;
+    if (city) { const A = get(KEYS.around, {}) || {}; set(KEYS.around, Object.assign({}, A, { place: Object.assign({}, A.place || {}, { city, country: a.country || "" }) })); emit("change"); }
+  } catch (e) { /* keep the generic name */ }
 }
 export function initTrip(reloadWind) {
   $("tripPadel").onclick = findPadel;

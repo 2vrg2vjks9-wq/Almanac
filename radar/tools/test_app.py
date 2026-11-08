@@ -875,6 +875,29 @@ def do_suite(browser, site, scheme):
     ctx.close()
 
 
+def wind_place_suite(browser, site):
+    """Wind › Where I am: forecast right away, nearby spots join, and asking again from the same spot searches nothing."""
+    ctx, page, errors = new_page(browser, site, "light", coords={"latitude": 28.05, "longitude": -14.33})
+    m = Mocks(page)
+    calls = []
+    def ov(route):
+        if "sport" in route.request.url:
+            calls.append(1)
+            return route.fulfill(status=200, headers=JSONH, body=json.dumps({"elements": [{"type": "node", "id": 1, "lat": 28.06, "lon": -14.35, "tags": {"name": "Test kite beach", "sport": "kitesurfing"}}]}))
+        return route.fallback()
+    page.route("**/overpass-api.de/**", ov)
+    page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=8000)
+    tab(page, "wind"); page.click('#windPlace [data-wp="here"]')
+    page.wait_for_function("[...document.querySelectorAll('#windAll .spot-name')].some(e => e.innerText == 'Test kite beach')", timeout=8000)
+    names = page.locator("#windAll .spot-name").all_inner_texts()
+    check(len(calls) == 1 and "Test kite beach" in names and len(names) == 2, "where I am: nearby spot plus the place itself %s" % names)
+    page.click('#windPlace [data-wp="home"]'); page.wait_for_timeout(600)
+    page.click('#windPlace [data-wp="here"]'); page.wait_for_timeout(1500)
+    check(len(calls) == 1 and "Test kite beach" in page.locator("#windAll .spot-name").all_inner_texts(), "where I am: same spot again searches nothing (%d searches)" % len(calls))
+    check(not errors, "where I am: no JavaScript errors %s" % errors[:2])
+    ctx.close()
+
+
 def run():
     static_checks()
     build_site()
@@ -893,6 +916,7 @@ def run():
             around_suite(browser, site, scheme)
             scout_suite(browser, site, scheme)
         overpass_down_suite(browser, site)
+        wind_place_suite(browser, site)
         denied_suite(browser, site)
         home_suite(browser, site)
         instant_suite(browser, site)

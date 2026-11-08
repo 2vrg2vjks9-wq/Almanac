@@ -262,13 +262,14 @@ export function spots() {
 }
 const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];
 async function nearbySpots(lat, lon, name) {
-  const q = '[out:json][timeout:15];nwr["sport"~"kitesurfing|windsurfing|wingfoiling|kiteboarding"](around:25000,' + lat.toFixed(4) + "," + lon.toFixed(4) + ");out center 12;";
-  let els = [];
+  // named kite, windsurf and wingfoil spots within 20 km; each mirror gets 9 s
+  const q = '[out:json][timeout:8];nwr["sport"~"^(kitesurfing|windsurfing|wingfoiling|kiteboarding)$"][name](around:20000,' + lat.toFixed(4) + "," + lon.toFixed(4) + ");out center 12;";
+  let els = null;
   for (const u of OVERPASS) {
-    try { const j = await getJSON(u + "?data=" + encodeURIComponent(q), 20000); els = j.elements || []; break; } catch (e) { /* next mirror */ }
+    try { const j = await getJSON(u + "?data=" + encodeURIComponent(q), 9000); els = j.elements || []; break; } catch (e) { /* next mirror */ }
   }
   const seen = new Set(), out = [];
-  els.forEach((e) => {
+  (els || []).forEach((e) => {
     const la = e.lat != null ? e.lat : e.center && e.center.lat, lo = e.lon != null ? e.lon : e.center && e.center.lon;
     const nm = (e.tags && (e.tags.name || e.tags["name:en"])) || "";
     if (la == null || !nm || seen.has(nm.toLowerCase())) return;
@@ -276,14 +277,31 @@ async function nearbySpots(lat, lon, name) {
     out.push({ id: "p" + e.id, name: nm, sub: kmText(km(lat, lon, la, lo)) + " away · direction not checked", lat: la, lon: lo, good: [[0, 360]] });
   });
   out.sort((a, b) => km(lat, lon, a.lat, a.lon) - km(lat, lon, b.lat, b.lon));
-  return out.slice(0, 3).concat(out.length ? [] : [{ id: "place", name: name, sub: "Forecast for the place · direction not checked", lat, lon, good: [[0, 360]] }]);
+  return { spots: out.slice(0, 3), answered: els !== null };
 }
+function lastFor(mode) {
+  const P = place(), c = P.mode === mode ? P : P.last && P.last.mode === mode ? P.last : null;
+  return c && c.lat != null ? c : null;
+}
+const placeSpot = (lat, lon, name) => ({ id: "place", name: name, sub: "Forecast for where you are · direction not checked", lat, lon, good: [[0, 360]] });
 async function setPlace(mode, lat, lon, name) {
-  if (mode === "home") { set(KEYS.windPlace, { mode: "home" }); return reload(); }
-  $("windSub").textContent = "Finding wind spots near " + name + "…";
-  const sp = await nearbySpots(lat, lon, name);
-  set(KEYS.windPlace, { mode, name, lat, lon, spots: sp, t: Date.now() });
+  const cur = place();
+  // Home keeps the last place it left (`last`), so asking from the same spot later needs no new search
+  if (mode === "home") { set(KEYS.windPlace, { mode: "home", last: cur.mode !== "home" ? cur : cur.last || null }); return reload(); }
+  const P = lastFor(mode);
+  // asking again from roughly the same spot (within 5 km): keep the spots found last time, just refresh the forecast
+  if (P && Array.isArray(P.spots) && P.spots.length && km(P.lat, P.lon, lat, lon) <= 5) {
+    set(KEYS.windPlace, Object.assign({}, P, { t: Date.now() }));
+    return reload();
+  }
+  // a new place: the forecast for the place itself shows right away; nearby spots join when the search answers
+  set(KEYS.windPlace, { mode, name, lat, lon, spots: [placeSpot(lat, lon, name)], t: Date.now() });
   reload();
+  const r = await nearbySpots(lat, lon, name);
+  const now = place();
+  if (now.mode !== mode || now.lat !== lat || now.lon !== lon) return; // moved on meanwhile
+  if (r.spots.length) { set(KEYS.windPlace, Object.assign({}, now, { spots: r.spots.concat([placeSpot(lat, lon, name)]).slice(0, 4) })); reload(); }
+  else $("windSub").textContent = r.answered ? "OpenStreetMap knows no kite or wing spots within 20 km: this is the forecast for where you are." : "Couldn't reach OpenStreetMap for nearby spots: this is the forecast for where you are.";
 }
 export function reloadWind() { document.querySelectorAll("#todayWind .spot, #windAll .spot").forEach((x) => x.remove()); skeleton(); loadWind(); }
 function reload() { reloadWind(); emit("change"); }
@@ -302,10 +320,11 @@ async function whereIAm() {
   if (!navigator.geolocation) { $("windSub").textContent = "This phone can't share its location."; return; }
   $("windSub").textContent = "Finding where you are…";
   navigator.geolocation.getCurrentPosition(async (p) => {
-    const lat = p.coords.latitude, lon = p.coords.longitude;
+    const lat = p.coords.latitude, lon = p.coords.longitude, P = lastFor("here");
+    if (P && km(P.lat, P.lon, lat, lon) <= 5) return setPlace("here", lat, lon, P.name); // same spot: no lookups
     let name = "Where you are";
     try {
-      const g = await getJSON("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat=" + lat.toFixed(4) + "&lon=" + lon.toFixed(4), 12000);
+      const g = await getJSON("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat=" + lat.toFixed(4) + "&lon=" + lon.toFixed(4), 6000);
       const a = g.address || {}; name = a.city || a.town || a.village || a.municipality || name;
     } catch (e) { /* keep the generic name */ }
     setPlace("here", lat, lon, name);
