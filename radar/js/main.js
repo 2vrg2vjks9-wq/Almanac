@@ -4,6 +4,7 @@ import { D, loadData, on, mergePicks } from "./data.js";
 import { initTabs, initSheet, initPullToRefresh, initWelcome, currentTab, initUndo } from "./ui.js";
 import { initWind, loadWind, skeleton, net, reloadWind } from "./wind.js";
 import { loadScout } from "./scout.js";
+import { drawCompanies, initCompanies } from "./companies.js";
 import { state, drawFeed, drawForYou, drawWork, initFindRead, markLeadsSeen, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
 import { openItem, refreshItem, icsAll } from "./detail.js";
 import { initNotes } from "./notes.js";
@@ -30,7 +31,7 @@ function drawRegions() {
   const both = () => { drawFeed(); drawForYou(); drawRegions(); };
   segs("regions", r, "region", both); segs("forRegions", r, "region", both);
 }
-function drawAll() { drawRegions(); drawFeed(); drawForYou(); drawWork(); drawSaved(); drawDo(); drawGear(); drawToday(); if (currentTab() === "settings") drawSettings(); }
+function drawAll() { drawRegions(); drawFeed(); drawForYou(); drawWork(); drawCompanies(); drawSaved(); drawDo(); drawGear(); drawToday(); if (currentTab() === "settings") drawSettings(); }
 
 // --- Lock screen ---------------------------------------------------------------------------
 function showLock(text) {
@@ -137,6 +138,7 @@ initSettings();
 initUndo();
 initTrip(reloadWind);
 initCal(icsAll);
+initCompanies();
 initNotes();
 initSaved();
 initAround();

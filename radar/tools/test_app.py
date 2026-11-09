@@ -50,7 +50,7 @@ def fixtures():
         "bucketlist": [{"id": "aurora", "title": "See the northern lights", "good_time": "dark skies", "where": "north", "added": DAY(-5)}],
         "alerts": {"ntfy": "radar-test-topic"},
         "wanted": [{"id": "wingfoil", "title": "Wingfoil gear"}, {"id": "car-seats", "title": "Leather seats for the test car", "short": "A test search."}],
-        "artists": ["Test Artist", "Quiet Band"], "concertAlerts": {"artists": ["Quiet Band"], "notified": []},
+        "companies": [{"name": "Test Fund", "bell": True}], "artists": ["Test Artist", "Quiet Band"], "concertAlerts": {"artists": ["Quiet Band"], "notified": []},
     }
     it = lambda **k: dict({"region": "nl", "place": "", "city": "", "start": None, "end": None, "summary": "A test item.", "why": "test", "url": "https://example.org/", "found": DAY(-10)}, **k)
     feed = {"updated": DAY(0) + "T07:00:00+02:00", "note": "test", "items": [
@@ -62,8 +62,8 @@ def fixtures():
         it(id="me-1", kind="meditation", title="Silent Saturday", city="Den Haag", start=DAY(4)),
         it(id="jp-1", kind="exhibition", title="Kyoto garden show", region="jp", city="Kyoto", start=DAY(-3), end=DAY(20)),
         it(id="bk-1", kind="bucket", bucket="aurora", title="Aurora window", region="eu", why="Bucket list: See the northern lights"),
-        it(id="wk-1", kind="work", title="Adaptation finance forum", region="eu", start=DAY(30)),
-        it(id="test-freelance-later", kind="freelance", region="eu", title="Test lead, later deadline", end=DAY(40)),
+        it(id="wk-1", kind="work", title="Adaptation finance forum", region="eu", start=DAY(30), org="Delta Works Co"),
+        it(id="test-freelance-later", kind="freelance", region="eu", title="Test lead, later deadline", end=DAY(40), org="Test Fund"),
         it(id="test-freelance-soon", kind="freelance", title="Test lead, deadline soon", end=DAY(9), found=DAY(0)),
     ]}
     taste = {"updated": DAY(-1), "learned": ["Likes quiet art."], "more": ["garden"], "less": ["crowds"]}
@@ -456,6 +456,23 @@ def tabs_suite(browser, site, scheme):
     tab(page, "today"); page.wait_for_timeout(200); tab(page, "work"); page.wait_for_timeout(200)
     check(not page.is_visible("#workNew") and page.locator('.tab[data-v="work"] .count').count() == 0, "%s: leaving Work marks new leads as seen" % scheme)
     check(page.locator("#workFeed .item").count() >= 1, "%s: Work tab lists opportunities" % scheme)
+    # Companies you track
+    check(page.locator("#companies li").count() == 1 and "1 open lead" in page.inner_text("#companies"), "%s: tracked company with its open leads" % scheme)
+    page.click("#companies .cn"); page.wait_for_timeout(300)
+    check(page.locator("#workFeed .item").count() == 1 and page.is_visible("#workCompany"), "%s: tapping a company shows only its leads" % scheme)
+    page.click("#workCompanyClear"); page.wait_for_timeout(200)
+    check(not page.is_visible("#workCompany") and page.locator("#workFeed .item").count() > 1, "%s: Show all companies clears the filter" % scheme)
+    page.locator('#workFeed .item:has-text("Adaptation finance forum") .open').click(); page.wait_for_selector("#sheet.show", timeout=3000)
+    check(page.locator('#sheetBody [data-a="company"]').inner_text() == "Track Delta Works Co", "%s: a lead offers to track its company" % scheme)
+    page.click('#sheetBody [data-a="company"]'); page.wait_for_timeout(500)
+    check(page.locator("#companies li").count() == 2 and "added" in page.inner_text("#companies"), "%s: tracking a company from a lead" % scheme)
+    swipe(page, '#companies li[data-name="Delta Works Co"]', -160); page.wait_for_timeout(300)
+    check(page.locator("#companies li").count() == 1, "%s: swiping left stops tracking" % scheme)
+    page.click("#undoBtn"); page.wait_for_timeout(300)
+    check(page.locator("#companies li").count() == 2, "%s: Undo keeps tracking the company" % scheme)
+    page.locator('#companies li[data-name="Test Fund"] [data-bell]').click(); page.wait_for_timeout(200)
+    check(page.locator('#companies li[data-name="Test Fund"] [data-bell]').get_attribute("aria-pressed") == "false", "%s: bell switches pushes per company" % scheme)
+    shot(page, "work-companies-%s.png" % scheme)
     page.click('#workKinds .pill:has-text("Freelance")'); page.wait_for_timeout(150)
     titles = page.locator("#workFeed .item h3").all_inner_texts()
     check(len(titles) >= 2 and titles[0] == "Test lead, deadline soon" and titles[1] == "Test lead, later deadline", "%s: Freelance sorted by deadline %s" % (scheme, titles[:2]))

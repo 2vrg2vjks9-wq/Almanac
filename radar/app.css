@@ -590,3 +590,10 @@ button.rday:active { background: var(--sunk); }
 .trip-days li { display: grid; grid-template-columns: 7.5em 1fr auto; gap: 8px; padding: 9px 0; border-top: 1px solid var(--rule); font-size: 15px; color: var(--ink-2); }
 .trip-days li.surf span:nth-child(2) { color: var(--buoy-ink); font-weight: 600; }
 .trip-days li.wing span:nth-child(2) { color: var(--kelp-ink); font-weight: 600; }
+
+/* --- Companies you track (Work) --- */
+.companies li { position: relative; }
+.companies .cn { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-height: 44px; justify-content: center; }
+.companies .cn small { font-size: 13px; color: var(--ink-3); margin-top: 1px; }
+.companies li.on .fn { color: var(--marine); text-decoration: underline; text-underline-offset: 3px; }
+.cofilter { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 8px; font-weight: 600; color: var(--marine); }

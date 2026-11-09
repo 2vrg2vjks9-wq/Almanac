@@ -15,7 +15,7 @@ Tasks and their instructions live encrypted in the vault (tasks.enc.json). Needs
 GITHUB_TOKEN; finish also reads $RUNNER_TEMP/out.json (claude --output-format json).
 The Actions log of this public repo is world-readable: this script prints counts and fixed words only.
 """
-import base64, glob, json, os, shutil, subprocess, sys, urllib.request
+import base64, datetime, glob, json, os, re, shutil, subprocess, sys, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 VAULT = os.path.join(ROOT, "radar", "tools", "vault.mjs")
@@ -92,8 +92,16 @@ for (field, kind of assignments, rates, languages, places, what to avoid). Then 
    a short summary, a `why` that names the match with the profile, the url you opened, and found = today.
    Jobs, calls and grants that fit: kind "work" with sub job | call | grant. Only include things you opened
    and that are open now.
+3b. Companies the owner tracks: `interests.companies` [{name, bell, careers?}]. For each, open its `careers`
+   page with WebFetch (the jobs or vacancies page; when it is missing, find it with at most one web search per
+   company, at most 2 such searches per run, and save it as `careers`). Add open roles and freelance or interim
+   assignments there that fit the profile as above, with org = the company name exactly as tracked and
+   company = the same name; remove that company's items that are no longer listed. Set `checked` (today) on
+   each company you opened.
 4. Your final message is sent to the owner's phone: one or two plain sentences naming the best new leads,
-   or exactly "No new work leads." when nothing new was added.""",
+   or exactly "No new work leads." when nothing new was added. Name new roles at tracked companies with
+   bell: true first ("New at <company>: <role>"); don't name roles at companies with bell: false unless they are
+   among the best new leads.""",
         "quiet": ["No new work leads."],
     },
 }
@@ -560,6 +568,32 @@ def apply_artists(it, ch):
     it["concertAlerts"] = ca
 
 
+def apply_companies(it, ch):
+    """Companies tracked in Work: {add: [{name, bell, url?}], remove: [names], bell: {name: bool}}.
+    interests.companies = [{name, bell, careers?, added}]; the work task fills in `careers` when it finds the page."""
+    cos = [c for c in (it.get("companies") or []) if isinstance(c, dict) and c.get("name")]
+    find = lambda n: next((c for c in cos if c["name"].lower() == n.lower()), None)
+    for n in [str(x).strip()[:80] for x in (ch.get("remove") or [])[:50] if str(x).strip()]:
+        cos = [c for c in cos if c["name"].lower() != n.lower()]
+    for a in (ch.get("add") or [])[:50]:
+        n = str((a or {}).get("name") or "").strip()[:80] if isinstance(a, dict) else ""
+        if not n:
+            continue
+        c = find(n)
+        if not c:
+            c = {"name": n, "added": datetime.date.today().isoformat()}
+            cos.append(c)
+        c["bell"] = bool(a.get("bell", True))
+        u = str(a.get("url") or "")[:300]
+        if re.match(r"^https?://", u):
+            c["careers"] = u
+    for n, on in list((ch.get("bell") or {}).items())[:50]:
+        c = find(str(n).strip()[:80])
+        if c:
+            c["bell"] = bool(on)
+    it["companies"] = cos
+
+
 def apply():
     """Apply the phone's Settings and Work tracker notes without Claude: they are plain JSON, so a script can
     merge them into the encrypted interests (settings, tracked) and add the cost of instant research to the
@@ -649,6 +683,8 @@ def apply():
                     it["wanted"] = [w for w in it["wanted"] if not (isinstance(w, dict) and w.get("_remove"))]
                 if isinstance(j.get("artists"), dict):
                     apply_artists(it, j["artists"])
+                if isinstance(j.get("companies"), dict):
+                    apply_companies(it, j["companies"])
                 try:
                     c = float(j.get("spend") or 0)
                     if 0 < c < 2:

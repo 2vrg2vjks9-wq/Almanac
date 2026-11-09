@@ -4,6 +4,7 @@ import { html, d, pad, longDate, safeUrl, mapUrl } from "./util.js";
 import { openSheet, paintSheet, sheetOpen } from "./ui.js";
 import { metaLine, dueHTML, flagsHTML, reactButtons, placeOf, calable, act, deadline, workSub, trackButtons, setTrack } from "./feed.js";
 import { isWork } from "./data.js";
+import { trackButton, wireTrackButton } from "./companies.js";
 
 let current = null;
 
@@ -24,6 +25,7 @@ function body(it) {
   const acts = [
     url && html`<a class="btn" href="${url}" target="_blank" rel="noopener">Open details</a>`,
     hasMap && html`<a class="btn ghost" href="${mapUrl(it.lat, it.lon)}" target="_blank" rel="noopener">Show on map</a>`,
+    trackButton(it),
     calable(it) && html`<button class="btn ghost" type="button" data-a="ics">${isWork(it) && deadline(it) && !(workSub(it) === "event" && it.start) ? "Add deadline to calendar" : "Add to calendar"}</button>`,
   ].filter(Boolean);
   return html`<div class="meta">${metaLine(it)}</div>
@@ -44,6 +46,7 @@ export function openItem(it) {
     el.querySelectorAll(".tk").forEach((b) => { b.onclick = () => setTrack(current, b.dataset.t); });
     const c = el.querySelector('[data-a="ics"]');
     if (c) c.onclick = () => ics(current);
+    wireTrackButton(el, current);
   }, it.title);
 }
 // Called after a reaction so the open sheet shows the new state.

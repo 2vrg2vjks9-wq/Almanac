@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-companies.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -291,3 +291,10 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   and asks Claude for live fares into `interests.fares` {at, items: [{spot, out, back, from, price, airline, url}]}; the
   app uses a live fare less than 3 days old when spot and departure (±1 day) match. Swipe left hides a spot for two
   weeks (`radar-scout-hidden`), with Undo. When adding destinations, keep ids stable and the data public and generic.
+- **Companies you track** (Work, `js/companies.js`): `interests.companies` [{name, bell, careers?, added, checked?}].
+  Track by name (+ optional careers page) or with "Track <org>" in a work lead's details; tap a company to filter All
+  leads to it (`state.company`, matched on `company` or `org`); the bell switches pushes for its new roles; swipe right
+  toggles the bell, left stops tracking (Undo). Phone changes wait in `radar-companies` until the data shows them and
+  travel in radar-track as `companies` {add: [{name, bell, url}], remove, bell}; `task.py apply_companies` merges them.
+  The `work` task opens each company's careers page (finds and saves it when missing, at most 2 searches a run), adds
+  fitting roles with org/company = the tracked name, and names new roles at bell companies first in its push.

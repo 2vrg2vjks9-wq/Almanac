@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-11-08e";</script>
+<script>var APP_VERSION="2026-11-09a";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -146,12 +146,16 @@
     <p class="sub" id="workSub"></p>
     <div id="workNew" hidden></div>
     <div id="workDue" hidden></div>
+    <h2 id="hCompanies">Companies you track</h2>
+    <div class="sheet" id="companies"></div>
+    <div class="sheet"><div class="duo"><button class="btn ghost" id="trackCo" type="button">Track a company</button></div></div>
     <div class="calrow"><button class="linkbtn" id="calWork" type="button">Add my plans to the calendar</button></div>
     <h2>All leads</h2>
+    <p class="cofilter" id="workCompany" hidden><span id="workCompanyName"></span><button class="linkbtn" type="button" id="workCompanyClear">Show all companies</button></p>
     <div class="filters"><div class="seg" id="workKinds" role="group" aria-label="Filter work"></div>
       <div class="seg" id="workPlaces" role="group" aria-label="Filter work by place"></div></div>
     <div class="sheet" id="workFeed"></div>
-    <p class="fine">Mark a lead Interested and Radar reminds you 3 days and 1 day before its deadline. Not for me hides it and teaches the work search, which runs on Tuesdays and Fridays.</p>
+    <p class="fine">Mark a lead Interested and Radar reminds you 3 days and 1 day before its deadline. Not for me hides it and teaches the work search, which runs on Tuesdays and Fridays and also checks the careers pages of the companies you track (the bell sends a push when one has a new role).</p>
   </section>
 
   <section class="view" id="v-saved" aria-labelledby="savedTitle">

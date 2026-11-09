@@ -29,7 +29,9 @@ export function deadline(it) {
 }
 const KLABEL = { concert: "Music", release: "Music", news: "Music", exhibition: "Art", restaurant: "Food", story: "Books & film", meditation: "Meditation", work: "Work", freelance: "Freelance", bucket: "Bucket list" };
 const MUSIC = ["concert", "release", "news"];
-export const state = { kind: "all", region: "all", work: "all", wplace: "all", showHidden: false, all: false, q: "" };
+export const state = { kind: "all", region: "all", work: "all", wplace: "all", showHidden: false, all: false, q: "", company: "" };
+// a work lead is at a company when its org (or the work task's `company` tag) names it
+export const atCompany = (it, name) => { const o = String(it.company || it.org || "").trim().toLowerCase(), n = String(name || "").trim().toLowerCase(); return !!o && !!n && (o === n || o.includes(n) || (o.length > 3 && n.includes(o))); };
 const textMatch = (it) => !Q.q || [it.title, it.summary, it.why, it.place, it.city].join(" ").toLowerCase().includes(Q.q);
 
 // Location filters come from where the items are: Near me (when Look around knows where you are), the
@@ -273,6 +275,7 @@ function actBy(it) {
   return null;
 }
 function workMatch(it) {
+  if (state.company && !atCompany(it, state.company)) return false;
   // Europe includes the Netherlands
   if (state.wplace !== "all" && workPlace(it) !== state.wplace && !(state.wplace === "eu" && workPlace(it) === "nl")) return false;
   if (state.work === "all") return true;
@@ -337,7 +340,9 @@ export function drawWork() {
     return score(b) - score(a);
   });
   const empty = { mine: "Nothing tracked yet. Mark a lead Interested or Applied, or swipe it right.", freelance: "No freelance leads right now.", event: "No events on the radar right now.", call: "No open calls right now.", job: "No roles right now.", insight: "Nothing to read yet." }[state.work] || "Nothing here yet.";
-  mount($("workFeed"), items, false, empty + " The daily update checks every morning.");
+  mount($("workFeed"), items, false, state.company ? "No open leads at " + state.company + " right now. The work search checks again on Tuesdays and Fridays." : empty + " The daily update checks every morning.");
+  const cf = $("workCompany");
+  if (cf) { cf.hidden = !state.company; if (state.company) { $("workCompanyName").textContent = "Only " + state.company; } }
   const mine = all.filter((it) => tracked(it) === "interested" || tracked(it) === "applied").length;
   $("workSub").textContent = (items.length === 1 ? "1 lead" : items.length + " leads") + (mine ? ", " + mine + " tracked" : "") + ", updated " + ago(D.feed.updated) + ". Swipe right for Interested, left for Not for me.";
   // Next deadlines across everything, the three nearest
