@@ -2,11 +2,11 @@
  "budget": 5.0,
  "mode": "api",
  "month": "2026-11",
- "spent": 0.858,
+ "spent": 0.904,
  "tasks": {
   "bucket": {
-   "at": "2026-11-08T16:05:55Z",
-   "cost": 0.047,
+   "at": "2026-11-09T19:55:21Z",
+   "cost": 0.045,
    "result": "ok"
   },
   "concerts": {
@@ -34,5 +34,5 @@
    "result": "ok"
   }
  },
- "updated": "2026-11-09T17:28:42Z"
+ "updated": "2026-11-09T19:55:21Z"
 }
