@@ -31,7 +31,8 @@ const KLABEL = { concert: "Music", release: "Music", news: "Music", exhibition: 
 const MUSIC = ["concert", "release", "news"];
 export const state = { kind: "all", region: "all", work: "all", wplace: "all", showHidden: false, all: false, q: "", company: "" };
 // a work lead is at a company when its org (or the work task's `company` tag) names it
-let coFlag = () => "";
+let coFlag = () => "", grp = () => 0;
+export const setGroupRank = (fn) => { grp = fn; };
 export const setCompanyFlag = (fn) => { coFlag = fn; };
 export const atCompany = (it, name) => { const o = String(it.company || it.org || "").trim().toLowerCase(), n = String(name || "").trim().toLowerCase(); return !!o && !!n && (o === n || o.includes(n) || (o.length > 3 && n.includes(o))); };
 const textMatch = (it) => !Q.q || [it.title, it.summary, it.why, it.place, it.city].join(" ").toLowerCase().includes(Q.q);
@@ -298,7 +299,7 @@ export function newLeads() {
     save("workSeen");
   }
   return leadsNow().filter((it) => !S.workSeen[it.id] && d(it.found) && (t - d(it.found)) / 864e5 <= 7)
-    .sort((a, b) => (d(b.found) - d(a.found)) || ((actBy(a) || 9e15) - (actBy(b) || 9e15)));
+    .sort((a, b) => (grp(workSub(a)) - grp(workSub(b))) || (d(b.found) - d(a.found)) || ((actBy(a) || 9e15) - (actBy(b) || 9e15)));
 }
 export function markLeadsSeen() {
   const n = newLeads();
@@ -335,6 +336,7 @@ export function drawWork() {
   const rank = (it) => ({ interested: 0, applied: 1 }[tracked(it)] ?? 2);
   const items = all.filter(workMatch).sort((a, b) => {
     if (state.work === "mine" && rank(a) !== rank(b)) return rank(a) - rank(b);
+    if (state.work === "all" && grp(workSub(a)) !== grp(workSub(b))) return grp(workSub(a)) - grp(workSub(b));
     const x = actBy(a), y = actBy(b);
     if (x && y && +x !== +y) return x - y;
     if (x && !y) return -1;

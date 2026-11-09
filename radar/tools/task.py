@@ -78,7 +78,13 @@ conditions, place); follow it closely.
         "prompt": """Radar's work search: find freelance and work opportunities for the owner of this Radar.
 
 Read radar/.plain/interests.json: `about`, `work` and `freelance` describe who this is for and what to look
-for (field, kind of assignments, rates, languages, places, what to avoid). Then update radar/.plain/feed.json.
+for (field, kind of assignments, rates, languages, places, what to avoid). `settings.work` (when present) holds
+the owner's own choices and wins over the rest: `order` (which kind matters most: freelance, job, call or event;
+spend most effort there), `volume` (few = 2 to 3 new leads per run, fit 4+ only; mix = 3 to 5 per run, fit 3+;
+wide = up to 8 per run), `formats` (remote, hybrid / onsite = in the Netherlands, abroad = only now and then, so
+keep abroad roles rare and strong), `levels` (mid, senior; director = only when the fit is strong, at most one per
+run) and `freelance` (time available: month = a few days a month, 1-2 or 3-5 days a week; skip assignments that need
+more). Give every item a `fit` 1 to 5. Then update radar/.plain/feed.json.
 
 1. Remove work and freelance items whose deadline (or `end`) has passed, or that are clearly filled.
 2. Sources: `interests.freelance.sources` is a list of pages worth checking every time (freelance platforms,
@@ -655,6 +661,16 @@ def apply():
                         cur["budget"] = round(b, 2)
                 except Exception:
                     pass
+                w = j.get("work")
+                if isinstance(w, dict):  # Work › Your work search: fixed choices only
+                    pick = lambda v, ok: v if v in ok else ""
+                    cur["work"] = {
+                        "order": pick(w.get("order"), ("date", "freelance", "job", "call", "event")) or "date",
+                        "volume": pick(w.get("volume"), ("few", "mix", "wide")),
+                        "freelance": pick(w.get("freelance"), ("month", "1-2", "3-5")),
+                        "formats": [x for x in (w.get("formats") or []) if x in ("remote", "hybrid", "onsite", "abroad")],
+                        "levels": [x for x in (w.get("levels") or []) if x in ("mid", "senior", "director")],
+                    }
                 it["settings"] = cur
             else:
                 if isinstance(j.get("work"), dict):

@@ -302,3 +302,8 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   `look_for` (what counts as relevant there), or removes. The work task lists every open role at a tracked company with
   `fit` 1–5 against the profile and `look_for`; fit 4+ is relevant: the row shows "At <company>" and its `why`
   (`companyFlag`, hooked into feed.js rows via `setCompanyFlag`), and only those are pushed for bell companies.
+- **Your work search** (Work, `js/workprefs.js`): fixed choices only (no free text, nothing preset in the public code):
+  Show first (`order`: date | freelance | job | call | event; sorts Everything and New leads by kind, then date),
+  New leads (`volume`: few | mix | wide), Ways of working (`formats`), Level (`levels`: mid, senior, director = strong
+  fit only) and Time for freelance (`freelance`: month | 1-2 | 3-5). Kept in radar-settings `work`, sent with the
+  settings note; `task.py apply` keeps only known values in `interests.settings.work`, and the work prompt follows it.
