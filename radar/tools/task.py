@@ -94,14 +94,16 @@ for (field, kind of assignments, rates, languages, places, what to avoid). Then 
    and that are open now.
 3b. Companies the owner tracks: `interests.companies` [{name, bell, careers?}]. For each, open its `careers`
    page with WebFetch (the jobs or vacancies page; when it is missing, find it with at most one web search per
-   company, at most 2 such searches per run, and save it as `careers`). Add open roles and freelance or interim
-   assignments there that fit the profile as above, with org = the company name exactly as tracked and
-   company = the same name; remove that company's items that are no longer listed. Set `checked` (today) on
-   each company you opened.
+   company, at most 2 such searches per run, and save it as `careers`). List every open role and freelance or
+   interim assignment there as an item (kind/sub as above) with org = the company name exactly as tracked and
+   company = the same name, and score each with `fit` 1 to 5 against the profile AND the company's `look_for`
+   (when set: e.g. seniority, field, place). Only fit 4 or 5 counts as relevant: give those a `why` naming the
+   match in one sentence. Fit 1 to 3: a short neutral `why`, no flags. Remove that company's items that are no
+   longer listed. Set `checked` (today) on each company you opened.
 4. Your final message is sent to the owner's phone: one or two plain sentences naming the best new leads,
-   or exactly "No new work leads." when nothing new was added. Name new roles at tracked companies with
-   bell: true first ("New at <company>: <role>"); don't name roles at companies with bell: false unless they are
-   among the best new leads.""",
+   or exactly "No new work leads." when nothing new was added. Name new roles with fit 4+ at tracked
+   companies with bell: true first ("New at <company>: <role>"); never name roles with fit 3 or lower at tracked
+   companies, and don't name roles at companies with bell: false unless they are among the best new leads.""",
         "quiet": ["No new work leads."],
     },
 }
@@ -569,8 +571,9 @@ def apply_artists(it, ch):
 
 
 def apply_companies(it, ch):
-    """Companies tracked in Work: {add: [{name, bell, url?}], remove: [names], bell: {name: bool}}.
-    interests.companies = [{name, bell, careers?, added}]; the work task fills in `careers` when it finds the page."""
+    """Companies tracked in Work: {add: [{name, bell, url?, look_for?}], remove: [names], bell: {name: bool},
+    edit: {oldName: {name, url, look_for}}}. interests.companies = [{name, bell, careers?, look_for?, added}]; the work
+    task fills in `careers` when it finds the page. An edit with an empty url clears `careers` so the task finds it."""
     cos = [c for c in (it.get("companies") or []) if isinstance(c, dict) and c.get("name")]
     find = lambda n: next((c for c in cos if c["name"].lower() == n.lower()), None)
     for n in [str(x).strip()[:80] for x in (ch.get("remove") or [])[:50] if str(x).strip()]:
@@ -587,6 +590,25 @@ def apply_companies(it, ch):
         u = str(a.get("url") or "")[:300]
         if re.match(r"^https?://", u):
             c["careers"] = u
+        if str(a.get("look_for") or "").strip():
+            c["look_for"] = str(a["look_for"]).strip()[:400]
+    for old, e in list((ch.get("edit") or {}).items())[:50]:
+        c = find(str(old).strip()[:80])
+        if not c or not isinstance(e, dict):
+            continue
+        n = str(e.get("name") or "").strip()[:80]
+        if n and not (n.lower() != c["name"].lower() and find(n)):
+            c["name"] = n
+        u = str(e.get("url") or "")[:300]
+        if re.match(r"^https?://", u):
+            c["careers"] = u
+        elif "url" in e:
+            c.pop("careers", None)
+        lf = str(e.get("look_for") or "").strip()[:400]
+        if lf:
+            c["look_for"] = lf
+        elif "look_for" in e:
+            c.pop("look_for", None)
     for n, on in list((ch.get("bell") or {}).items())[:50]:
         c = find(str(n).strip()[:80])
         if c:

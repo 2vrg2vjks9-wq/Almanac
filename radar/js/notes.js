@@ -137,7 +137,7 @@ export function track(patch) {
   if (patch.spend) patch = Object.assign({}, patch, { spend: (pend.spend || 0) + patch.spend });
   if (patch.companies) { // several changes within the 4 s collect into one note
     const a = pend.companies || {}, b = patch.companies;
-    patch = Object.assign({}, patch, { companies: { add: (a.add || []).concat(b.add || []), remove: (a.remove || []).concat(b.remove || []), bell: Object.assign({}, a.bell || {}, b.bell || {}) } });
+    patch = Object.assign({}, patch, { companies: { add: (a.add || []).concat(b.add || []), remove: (a.remove || []).concat(b.remove || []), bell: Object.assign({}, a.bell || {}, b.bell || {}), edit: Object.assign({}, a.edit || {}, b.edit || {}) } });
   }
   Object.assign(pend, patch);
   clearTimeout(pendTimer);

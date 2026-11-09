@@ -298,3 +298,7 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   travel in radar-track as `companies` {add: [{name, bell, url}], remove, bell}; `task.py apply_companies` merges them.
   The `work` task opens each company's careers page (finds and saves it when missing, at most 2 searches a run), adds
   fitting roles with org/company = the tracked name, and names new roles at bell companies first in its push.
+  Edit (pencil, `edit` {oldName: {name, url, look_for}}; empty url clears `careers`) changes name, careers page and
+  `look_for` (what counts as relevant there), or removes. The work task lists every open role at a tracked company with
+  `fit` 1–5 against the profile and `look_for`; fit 4+ is relevant: the row shows "At <company>" and its `why`
+  (`companyFlag`, hooked into feed.js rows via `setCompanyFlag`), and only those are pushed for bell companies.

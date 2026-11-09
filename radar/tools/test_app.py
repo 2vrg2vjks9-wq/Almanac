@@ -63,7 +63,7 @@ def fixtures():
         it(id="jp-1", kind="exhibition", title="Kyoto garden show", region="jp", city="Kyoto", start=DAY(-3), end=DAY(20)),
         it(id="bk-1", kind="bucket", bucket="aurora", title="Aurora window", region="eu", why="Bucket list: See the northern lights"),
         it(id="wk-1", kind="work", title="Adaptation finance forum", region="eu", start=DAY(30), org="Delta Works Co"),
-        it(id="test-freelance-later", kind="freelance", region="eu", title="Test lead, later deadline", end=DAY(40), org="Test Fund"),
+        it(id="test-freelance-later", kind="freelance", region="eu", title="Test lead, later deadline", end=DAY(40), org="Test Fund", fit=4, why="Senior role in adaptation finance."),
         it(id="test-freelance-soon", kind="freelance", title="Test lead, deadline soon", end=DAY(9), found=DAY(0)),
     ]}
     taste = {"updated": DAY(-1), "learned": ["Likes quiet art."], "more": ["garden"], "less": ["crowds"]}
@@ -457,7 +457,9 @@ def tabs_suite(browser, site, scheme):
     check(not page.is_visible("#workNew") and page.locator('.tab[data-v="work"] .count').count() == 0, "%s: leaving Work marks new leads as seen" % scheme)
     check(page.locator("#workFeed .item").count() >= 1, "%s: Work tab lists opportunities" % scheme)
     # Companies you track
-    check(page.locator("#companies li").count() == 1 and "1 open lead" in page.inner_text("#companies"), "%s: tracked company with its open leads" % scheme)
+    check(page.locator("#companies li").count() == 1 and "1 open role, 1 fits you" in page.inner_text("#companies"), "%s: tracked company with its open roles and fits" % scheme)
+    check(page.locator('#workFeed .item:has-text("Test lead, later deadline") .flag.co').inner_text() == "At Test Fund" and "Senior role" in page.inner_text('#workFeed .item:has-text("Test lead, later deadline") .because'), "%s: strong fits at a tracked company are flagged with why" % scheme)
+    check(page.locator('#workFeed .item:has-text("Adaptation finance forum") .flag.co').count() == 0, "%s: other leads aren't flagged" % scheme)
     page.click("#companies .cn"); page.wait_for_timeout(300)
     check(page.locator("#workFeed .item").count() == 1 and page.is_visible("#workCompany"), "%s: tapping a company shows only its leads" % scheme)
     page.click("#workCompanyClear"); page.wait_for_timeout(200)
@@ -472,6 +474,12 @@ def tabs_suite(browser, site, scheme):
     check(page.locator("#companies li").count() == 2, "%s: Undo keeps tracking the company" % scheme)
     page.locator('#companies li[data-name="Test Fund"] [data-bell]').click(); page.wait_for_timeout(200)
     check(page.locator('#companies li[data-name="Test Fund"] [data-bell]').get_attribute("aria-pressed") == "false", "%s: bell switches pushes per company" % scheme)
+    page.locator('#companies li[data-name="Test Fund"] [data-edit]').click(); page.wait_for_selector("#sheet.show form.compose", timeout=3000); page.wait_for_timeout(300)
+    check(page.input_value('#sheetBody [name="t"]') == "Test Fund" and page.locator("#sheetBody [data-extra]").count() == 1, "%s: edit sheet with name and remove" % scheme)
+    page.fill('#sheetBody [name="t"]', "Test Fund NL"); page.fill('#sheetBody [name="l"]', "Senior roles, Netherlands")
+    page.click('#sheetBody button[type="submit"]'); page.wait_for_timeout(500)
+    check(page.locator('#companies li[data-name="Test Fund NL"]').count() == 1 and "Senior roles, Netherlands" in page.inner_text("#companies"), "%s: editing renames and sets what to look for" % scheme)
+    check(json.loads(page.evaluate("localStorage.getItem('radar-companies')"))["edit"]["Test Fund"]["look_for"] == "Senior roles, Netherlands", "%s: the edit waits to be sent" % scheme)
     shot(page, "work-companies-%s.png" % scheme)
     page.click('#workKinds .pill:has-text("Freelance")'); page.wait_for_timeout(150)
     titles = page.locator("#workFeed .item h3").all_inner_texts()

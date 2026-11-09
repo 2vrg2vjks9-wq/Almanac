@@ -31,6 +31,8 @@ const KLABEL = { concert: "Music", release: "Music", news: "Music", exhibition: 
 const MUSIC = ["concert", "release", "news"];
 export const state = { kind: "all", region: "all", work: "all", wplace: "all", showHidden: false, all: false, q: "", company: "" };
 // a work lead is at a company when its org (or the work task's `company` tag) names it
+let coFlag = () => "";
+export const setCompanyFlag = (fn) => { coFlag = fn; };
 export const atCompany = (it, name) => { const o = String(it.company || it.org || "").trim().toLowerCase(), n = String(name || "").trim().toLowerCase(); return !!o && !!n && (o === n || o.includes(n) || (o.length > 3 && n.includes(o))); };
 const textMatch = (it) => !Q.q || [it.title, it.summary, it.why, it.place, it.city].join(" ").toLowerCase().includes(Q.q);
 
@@ -130,7 +132,7 @@ function itemHTML(it, big) {
     <div class="meta">${metaLine(it)}</div>
     <h3><button class="open" type="button" aria-haspopup="dialog">${it.title}</button></h3>
     ${place ? html`<div class="where">${place}</div>` : ""}${dueHTML(it)}
-    ${it.summary ? html`<p class="clip">${it.summary}</p>` : ""}${flagsHTML(it)}
+    ${it.summary ? html`<p class="clip">${it.summary}</p>` : ""}${flagsHTML(it)}${coFlag(it)}
     <div class="acts">${url ? html`<a class="go" href="${url}" target="_blank" rel="noopener">Open details</a>` : html`<span class="go"></span>`}${isWork(it) ? trackButtons(it) : reactButtons(it, false)}</div>
   </article>`;
 }
