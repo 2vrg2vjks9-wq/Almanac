@@ -127,8 +127,9 @@ export function dueHTML(it) {
 }
 export const flagsHTML = (it) => {
   const eco = isWork(it) && isEco(it) ? html`<span class="flag eco">Startups${ECO_ROLE[it.eco_role] ? " · " + ECO_ROLE[it.eco_role] : ""}</span>` : "";
+  const regen = isWork(it) && it.theme === "regen" ? html`<span class="flag eco">Regenerative</span>` : "";
   const f = Array.isArray(it.flags) ? it.flags : [];
-  return eco || f.length ? html`<div class="flags">${eco}${f.map((x) => html`<span class="flag">${x}</span>`)}</div>` : "";
+  return eco || regen || f.length ? html`<div class="flags">${eco}${regen}${f.map((x) => html`<span class="flag">${x}</span>`)}</div>` : "";
 };
 export function reactButtons(it, labels) {
   const r = S.reactions[it.id], up = !!(r && r.v > 0), down = !!(r && r.v < 0), sv = !!S.saved[it.id], hd = !!S.hidden[it.id];

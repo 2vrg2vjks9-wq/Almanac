@@ -312,3 +312,5 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   (`settings.work.startups` {on, roles, orgs: accelerators | funds | public | corporate, places: nl | eu | jpeu | online, xb: entry | agencies | jpcorp | tenders});
   switching it on picks every choice, chips leave one out. The work task looks for these only when it's on, keeps good
   programme pages in `interests.freelance.sources` (what = "startups") and aims for 2–4 live eco items.
+- **Regenerative** (Work): Your work search › "Also look for" (`settings.work.themes`: regen-econ, regen-fin); the work
+  task marks matching items `theme: "regen"` and the row shows a "Regenerative" label.

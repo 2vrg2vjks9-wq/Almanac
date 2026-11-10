@@ -62,6 +62,7 @@ def fixtures():
         it(id="me-1", kind="meditation", title="Silent Saturday", city="Den Haag", start=DAY(4)),
         it(id="jp-1", kind="exhibition", title="Kyoto garden show", region="jp", city="Kyoto", start=DAY(-3), end=DAY(20)),
         it(id="bk-1", kind="bucket", bucket="aurora", title="Aurora window", region="eu", why="Bucket list: See the northern lights"),
+        it(id="regen-1", kind="work", sub="job", title="Nature finance lead", region="eu", theme="regen"),
         it(id="eco-1", kind="work", sub="call", title="Mentor pool for a climate accelerator", region="eu", end=DAY(20), eco=True, eco_role="mentor"),
         it(id="wk-1", kind="work", title="Adaptation finance forum", region="eu", start=DAY(30), org="Delta Works Co"),
         it(id="test-freelance-later", kind="freelance", region="eu", title="Test lead, later deadline", end=DAY(40), org="Test Fund", fit=4, why="Senior role in adaptation finance."),
@@ -485,7 +486,7 @@ def tabs_suite(browser, site, scheme):
     check(json.loads(page.evaluate("localStorage.getItem('radar-companies')"))["edit"]["Test Fund"]["look_for"] == "Senior roles, Netherlands", "%s: the edit waits to be sent" % scheme)
     shot(page, "work-companies-%s.png" % scheme)
     # Your work search
-    check(page.locator("#workPrefs select").count() == 3 and page.locator("#workPrefs .pill").count() == 7, "%s: work search choices" % scheme)
+    check(page.locator("#workPrefs select").count() == 3 and page.locator("#workPrefs .pill").count() == 9, "%s: work search choices" % scheme)
     page.select_option("#wpOrder", "freelance"); page.wait_for_timeout(300)
     t = page.locator("#workFeed .item h3").all_inner_texts()
     check(len(t) >= 3 and "Adaptation finance forum" == t[-1], "%s: Show first puts freelance before events %s" % (scheme, t))
@@ -500,6 +501,9 @@ def tabs_suite(browser, site, scheme):
     page.click('#workKinds .pill:has-text("Startups")'); page.wait_for_timeout(300)
     check(page.locator("#workFeed .item").count() == 1 and page.inner_text("#workFeed .item .flag.eco") == "Startups · Mentor", "%s: Startups filter and label" % scheme)
     page.click('#workKinds .pill:has-text("Everything")'); page.wait_for_timeout(200)
+    page.click('#wpThemes .pill[data-k="regen-fin"]'); page.wait_for_timeout(200)
+    check(json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["work"]["themes"] == ["regen-fin"], "%s: regenerative themes can be picked" % scheme)
+    check(page.inner_text('#workFeed .item:has-text("Nature finance lead") .flag.eco') == "Regenerative", "%s: regenerative leads are labelled" % scheme)
     shot(page, "work-prefs-%s.png" % scheme)
     page.select_option("#wpOrder", "date"); page.wait_for_timeout(200)
     page.click('#workKinds .pill:has-text("Freelance")'); page.wait_for_timeout(150)

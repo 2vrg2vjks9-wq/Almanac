@@ -24,10 +24,11 @@ const ECO = {
   places: [["nl", "Netherlands"], ["eu", "Europe"], ["jpeu", "Japan and Europe"], ["online", "Online, anywhere"]],
   xb: [["entry", "Market-entry programmes"], ["agencies", "Trade and innovation agencies"], ["jpcorp", "Japanese companies in Europe"], ["tenders", "Tenders to run programmes"]],
 };
+const THEMES = [["regen-econ", "Regenerative economics"], ["regen-fin", "Regenerative finance"]];
 const LEVELS = [["mid", "Mid-level"], ["senior", "Senior"], ["director", "Director, if the fit is strong"]];
 
 export const prefs = () => {
-  const p = Object.assign({ order: "date", volume: "", freelance: "", formats: [], levels: [] }, (S.settings || {}).work || {});
+  const p = Object.assign({ order: "date", volume: "", freelance: "", formats: [], levels: [], themes: [] }, (S.settings || {}).work || {});
   p.startups = Object.assign({ on: false, roles: [], orgs: [], places: [] }, p.startups || {});
   if (!Array.isArray(p.startups.xb)) p.startups.xb = p.startups.on ? ECO.xb.map((x) => x[0]) : []; // added later: on for those who switched on
   return p;
@@ -61,6 +62,7 @@ export function drawWorkPrefs() {
   put(box, html`${select("wpOrder", "Show first", ORDER, p.order)}${select("wpVolume", "New leads", VOLUME, p.volume)}
     ${chips("wpFormats", "Ways of working", FORMATS, p.formats)}${chips("wpLevels", "Level", LEVELS, p.levels)}
     ${select("wpFree", "Time for freelance", FREELANCE, p.freelance)}
+    ${chips("wpThemes", "Also look for", THEMES, p.themes)}
     <label class="tg"><span><b>Startup and accelerator work</b><small>Mentoring, programme roles, juries and investor-readiness work, labelled Startups</small></span>
       <input type="checkbox" role="switch" id="wpEco"${p.startups.on ? " checked" : ""}></label>
     ${p.startups.on ? html`${chips("wpEcoRoles", "Roles", ECO.roles, p.startups.roles)}${chips("wpEcoOrgs", "Organisations", ECO.orgs, p.startups.orgs)}${chips("wpEcoPlaces", "Where", ECO.places, p.startups.places)}${chips("wpEcoXb", "Cross-border programmes", ECO.xb, p.startups.xb)}` : ""}`);
@@ -79,7 +81,7 @@ export function drawWorkPrefs() {
         if (i < 0) cur.push(k); else cur.splice(i, 1); saveWork({ startups: Object.assign({}, st, { [key]: cur }) }); };
     });
   });
-  [["wpFormats", "formats"], ["wpLevels", "levels"]].forEach(([id, key]) => {
+  [["wpFormats", "formats"], ["wpLevels", "levels"], ["wpThemes", "themes"]].forEach(([id, key]) => {
     $(id).querySelectorAll(".pill").forEach((b) => {
       b.onclick = () => { const cur = prefs()[key].slice(), k = b.dataset.k, i = cur.indexOf(k); if (i < 0) cur.push(k); else cur.splice(i, 1); saveWork({ [key]: cur }); };
     });
