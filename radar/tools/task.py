@@ -91,7 +91,12 @@ jury / judge / selection-panel calls (pitch days, challenges, grant selection) a
 coaching. `orgs`: accelerators = climate accelerators and incubators and their cohort calls; funds = climate funds
 and VCs (venture partner, scout, platform roles); public = innovation agencies, development finance institutions and
 EU programmes; corporate = corporate venturing and open-innovation challenges. `places`: nl, eu, jpeu (programmes
-bridging Japanese and European startups), online (remote mentoring and juries anywhere). Keep good accelerator,
+bridging Japanese and European startups), online (remote mentoring and juries anywhere). `xb` (cross-border
+programmes, where the owner has run accelerator programmes for foreign climate startups before): entry = soft-landing
+and go-to-Europe programmes for foreign startups (eco_role entry); agencies = calls from trade, investment and
+innovation agencies (Japanese and European) for programme partners, mentors or experts; jpcorp = open-innovation,
+venture-arm and partnership roles at Japanese companies in Europe; tenders = calls for organisations or experts to
+design or run an accelerator or startup programme (eco_role tender). Keep good accelerator,
 fund and programme pages in `interests.freelance.sources` with what = "startups" and open them each run; aim for
 2 to 4 live `eco` items. Then update radar/.plain/feed.json.
 
@@ -686,6 +691,7 @@ def apply():
                         "roles": [x for x in (e.get("roles") or []) if x in ("mentor", "programme", "jury", "coach")],
                         "orgs": [x for x in (e.get("orgs") or []) if x in ("accelerators", "funds", "public", "corporate")],
                         "places": [x for x in (e.get("places") or []) if x in ("nl", "eu", "jpeu", "online")],
+                        "xb": [x for x in (e.get("xb") or []) if x in ("entry", "agencies", "jpcorp", "tenders")],
                     }
                 it["settings"] = cur
             else:

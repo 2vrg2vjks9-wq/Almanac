@@ -494,7 +494,7 @@ def tabs_suite(browser, site, scheme):
     check(st["order"] == "freelance" and st["levels"] == ["senior"] and page.locator('#wpLevels .pill[data-k="senior"].on').count() == 1, "%s: choices are kept and shown" % scheme)
     page.click("#wpEco"); page.wait_for_timeout(300)
     st = json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["work"]["startups"]
-    check(st["on"] and len(st["roles"]) == 4 and len(st["orgs"]) == 4 and len(st["places"]) == 4 and page.locator("#wpEcoRoles .pill.on").count() == 4, "%s: startup work switch picks every choice" % scheme)
+    check(st["on"] and len(st["roles"]) == 4 and len(st["orgs"]) == 4 and len(st["places"]) == 4 and len(st["xb"]) == 4 and page.locator("#wpEcoRoles .pill.on").count() == 4, "%s: startup work switch picks every choice" % scheme)
     page.click('#wpEcoPlaces .pill[data-k="online"]'); page.wait_for_timeout(200)
     check(json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["work"]["startups"]["places"] == ["nl", "eu", "jpeu"], "%s: a startup chip can be left out" % scheme)
     page.click('#workKinds .pill:has-text("Startups")'); page.wait_for_timeout(300)

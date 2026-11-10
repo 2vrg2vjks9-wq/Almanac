@@ -22,12 +22,14 @@ const ECO = {
   roles: [["mentor", "Mentor or expert in residence"], ["programme", "Programme lead"], ["jury", "Jury and selection"], ["coach", "Investor readiness"]],
   orgs: [["accelerators", "Accelerators"], ["funds", "Climate funds and VCs"], ["public", "Public and development funders"], ["corporate", "Corporate innovation"]],
   places: [["nl", "Netherlands"], ["eu", "Europe"], ["jpeu", "Japan and Europe"], ["online", "Online, anywhere"]],
+  xb: [["entry", "Market-entry programmes"], ["agencies", "Trade and innovation agencies"], ["jpcorp", "Japanese companies in Europe"], ["tenders", "Tenders to run programmes"]],
 };
 const LEVELS = [["mid", "Mid-level"], ["senior", "Senior"], ["director", "Director, if the fit is strong"]];
 
 export const prefs = () => {
   const p = Object.assign({ order: "date", volume: "", freelance: "", formats: [], levels: [] }, (S.settings || {}).work || {});
   p.startups = Object.assign({ on: false, roles: [], orgs: [], places: [] }, p.startups || {});
+  if (!Array.isArray(p.startups.xb)) p.startups.xb = p.startups.on ? ECO.xb.map((x) => x[0]) : []; // added later: on for those who switched on
   return p;
 };
 // group rank for sorting All leads and New leads (lower first); 0 for everything when the order is by date
@@ -61,15 +63,15 @@ export function drawWorkPrefs() {
     ${select("wpFree", "Time for freelance", FREELANCE, p.freelance)}
     <label class="tg"><span><b>Startup and accelerator work</b><small>Mentoring, programme roles, juries and investor-readiness work, labelled Startups</small></span>
       <input type="checkbox" role="switch" id="wpEco"${p.startups.on ? " checked" : ""}></label>
-    ${p.startups.on ? html`${chips("wpEcoRoles", "Roles", ECO.roles, p.startups.roles)}${chips("wpEcoOrgs", "Organisations", ECO.orgs, p.startups.orgs)}${chips("wpEcoPlaces", "Where", ECO.places, p.startups.places)}` : ""}`);
+    ${p.startups.on ? html`${chips("wpEcoRoles", "Roles", ECO.roles, p.startups.roles)}${chips("wpEcoOrgs", "Organisations", ECO.orgs, p.startups.orgs)}${chips("wpEcoPlaces", "Where", ECO.places, p.startups.places)}${chips("wpEcoXb", "Cross-border programmes", ECO.xb, p.startups.xb)}` : ""}`);
   $("wpOrder").onchange = (e) => saveWork({ order: e.target.value });
   $("wpVolume").onchange = (e) => saveWork({ volume: e.target.value });
   $("wpFree").onchange = (e) => saveWork({ freelance: e.target.value });
   // switching it on picks every role, organisation and place; tap a chip to leave one out
   $("wpEco").onchange = (e) => saveWork({ startups: e.target.checked
-    ? { on: true, roles: ECO.roles.map((x) => x[0]), orgs: ECO.orgs.map((x) => x[0]), places: ECO.places.map((x) => x[0]) }
+    ? { on: true, roles: ECO.roles.map((x) => x[0]), orgs: ECO.orgs.map((x) => x[0]), places: ECO.places.map((x) => x[0]), xb: ECO.xb.map((x) => x[0]) }
     : Object.assign({}, prefs().startups, { on: false }) });
-  [["wpEcoRoles", "roles"], ["wpEcoOrgs", "orgs"], ["wpEcoPlaces", "places"]].forEach(([id, key]) => {
+  [["wpEcoRoles", "roles"], ["wpEcoOrgs", "orgs"], ["wpEcoPlaces", "places"], ["wpEcoXb", "xb"]].forEach(([id, key]) => {
     const box = $(id);
     if (!box) return;
     box.querySelectorAll(".pill").forEach((b) => {

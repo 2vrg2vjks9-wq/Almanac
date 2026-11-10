@@ -309,6 +309,6 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   settings note; `task.py apply` keeps only known values in `interests.settings.work`, and the work prompt follows it.
 - **Startups** (Work): a "Startups" filter chip and a "Startups · <role>" label (`flag eco`) for items with `eco: true`
   and `eco_role` mentor | programme | jury | coach. Your work search has a "Startup and accelerator work" switch
-  (`settings.work.startups` {on, roles, orgs: accelerators | funds | public | corporate, places: nl | eu | jpeu | online});
+  (`settings.work.startups` {on, roles, orgs: accelerators | funds | public | corporate, places: nl | eu | jpeu | online, xb: entry | agencies | jpcorp | tenders});
   switching it on picks every choice, chips leave one out. The work task looks for these only when it's on, keeps good
   programme pages in `interests.freelance.sources` (what = "startups") and aims for 2–4 live eco items.

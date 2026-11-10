@@ -10,7 +10,7 @@ export const KINDS = [["all", "Everything"], ["concert", "Music"], ["story", "Bo
 export const WORK_KINDS = [["all", "Everything"], ["mine", "Tracking"], ["event", "Events"], ["call", "Calls & grants"], ["job", "Jobs"], ["freelance", "Freelance"], ["startups", "Startups"], ["insight", "Reading"]];
 // Startup-ecosystem work (mentoring, programme roles, juries, investor-readiness coaching at accelerators, climate
 // funds, public funders and corporate innovation): the work task marks it `eco: true` with `eco_role`.
-const ECO_ROLE = { mentor: "Mentor", programme: "Programme", jury: "Jury", coach: "Investor readiness" };
+const ECO_ROLE = { mentor: "Mentor", programme: "Programme", jury: "Jury", coach: "Investor readiness", entry: "Market entry", tender: "Tender" };
 export const isEco = (it) => !!it.eco;
 // Where a work lead is: from its region (nl | be/de/uk/eu → Europe | jp | anything else → Global/remote)
 export const WORK_PLACES = [["all", "Anywhere"], ["nl", "Netherlands"], ["eu", "Europe"], ["jp", "Japan"], ["global", "Global"]];
