@@ -62,6 +62,7 @@ def fixtures():
         it(id="me-1", kind="meditation", title="Silent Saturday", city="Den Haag", start=DAY(4)),
         it(id="jp-1", kind="exhibition", title="Kyoto garden show", region="jp", city="Kyoto", start=DAY(-3), end=DAY(20)),
         it(id="bk-1", kind="bucket", bucket="aurora", title="Aurora window", region="eu", why="Bucket list: See the northern lights"),
+        it(id="eco-1", kind="work", sub="call", title="Mentor pool for a climate accelerator", region="eu", end=DAY(20), eco=True, eco_role="mentor"),
         it(id="wk-1", kind="work", title="Adaptation finance forum", region="eu", start=DAY(30), org="Delta Works Co"),
         it(id="test-freelance-later", kind="freelance", region="eu", title="Test lead, later deadline", end=DAY(40), org="Test Fund", fit=4, why="Senior role in adaptation finance."),
         it(id="test-freelance-soon", kind="freelance", title="Test lead, deadline soon", end=DAY(9), found=DAY(0)),
@@ -491,6 +492,14 @@ def tabs_suite(browser, site, scheme):
     page.click('#wpLevels .pill[data-k="senior"]'); page.wait_for_timeout(200)
     st = json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["work"]
     check(st["order"] == "freelance" and st["levels"] == ["senior"] and page.locator('#wpLevels .pill[data-k="senior"].on').count() == 1, "%s: choices are kept and shown" % scheme)
+    page.click("#wpEco"); page.wait_for_timeout(300)
+    st = json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["work"]["startups"]
+    check(st["on"] and len(st["roles"]) == 4 and len(st["orgs"]) == 4 and len(st["places"]) == 4 and page.locator("#wpEcoRoles .pill.on").count() == 4, "%s: startup work switch picks every choice" % scheme)
+    page.click('#wpEcoPlaces .pill[data-k="online"]'); page.wait_for_timeout(200)
+    check(json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["work"]["startups"]["places"] == ["nl", "eu", "jpeu"], "%s: a startup chip can be left out" % scheme)
+    page.click('#workKinds .pill:has-text("Startups")'); page.wait_for_timeout(300)
+    check(page.locator("#workFeed .item").count() == 1 and page.inner_text("#workFeed .item .flag.eco") == "Startups · Mentor", "%s: Startups filter and label" % scheme)
+    page.click('#workKinds .pill:has-text("Everything")'); page.wait_for_timeout(200)
     shot(page, "work-prefs-%s.png" % scheme)
     page.select_option("#wpOrder", "date"); page.wait_for_timeout(200)
     page.click('#workKinds .pill:has-text("Freelance")'); page.wait_for_timeout(150)
@@ -498,7 +507,7 @@ def tabs_suite(browser, site, scheme):
     check(len(titles) >= 2 and titles[0] == "Test lead, deadline soon" and titles[1] == "Test lead, later deadline", "%s: Freelance sorted by deadline %s" % (scheme, titles[:2]))
     check("Apply by" in page.inner_text("#workFeed") and "days left" in page.inner_text("#workFeed"), "%s: Freelance shows Apply by and days left" % scheme)
     check(page.is_visible("#workDue") and "Test lead, deadline soon" in page.inner_text("#workDue"), "%s: Work shows the next deadlines" % scheme)
-    check(page.locator("#workKinds .pill").all_inner_texts() == ["Everything", "Tracking", "Events", "Calls & grants", "Jobs", "Freelance", "Reading"], "%s: Work filters by type" % scheme)
+    check(page.locator("#workKinds .pill").all_inner_texts() == ["Everything", "Tracking", "Events", "Calls & grants", "Jobs", "Freelance", "Startups", "Reading"], "%s: Work filters by type" % scheme)
     # tracker: interested, then the Tracking filter, then not for me hides
     page.locator('#workFeed .item:has-text("Test lead, later deadline") .tk.interested').click(); page.wait_for_timeout(200)
     check(json.loads(page.evaluate("localStorage.getItem('radar-work')"))["test-freelance-later"]["state"] == "interested", "%s: tracker keeps Interested on the phone" % scheme)

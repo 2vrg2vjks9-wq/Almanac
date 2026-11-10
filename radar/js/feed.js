@@ -7,7 +7,11 @@ import { track, note } from "./notes.js";
 
 // Read & listen: what you read, watch or listen to. Things to go to (concerts, exhibitions, food) are in Go.
 export const KINDS = [["all", "Everything"], ["concert", "Music"], ["story", "Books & film"], ["meditation", "Meditation"]];
-export const WORK_KINDS = [["all", "Everything"], ["mine", "Tracking"], ["event", "Events"], ["call", "Calls & grants"], ["job", "Jobs"], ["freelance", "Freelance"], ["insight", "Reading"]];
+export const WORK_KINDS = [["all", "Everything"], ["mine", "Tracking"], ["event", "Events"], ["call", "Calls & grants"], ["job", "Jobs"], ["freelance", "Freelance"], ["startups", "Startups"], ["insight", "Reading"]];
+// Startup-ecosystem work (mentoring, programme roles, juries, investor-readiness coaching at accelerators, climate
+// funds, public funders and corporate innovation): the work task marks it `eco: true` with `eco_role`.
+const ECO_ROLE = { mentor: "Mentor", programme: "Programme", jury: "Jury", coach: "Investor readiness" };
+export const isEco = (it) => !!it.eco;
 // Where a work lead is: from its region (nl | be/de/uk/eu → Europe | jp | anything else → Global/remote)
 export const WORK_PLACES = [["all", "Anywhere"], ["nl", "Netherlands"], ["eu", "Europe"], ["jp", "Japan"], ["global", "Global"]];
 const workPlace = (it) => (it.region === "nl" ? "nl" : ["eu", "be", "de", "uk", "fr", "lu", "ie"].includes(it.region) ? "eu" : it.region === "jp" ? "jp" : "global");
@@ -121,7 +125,11 @@ export function dueHTML(it) {
   const verb = workSub(it) === "event" ? "Register by" : "Apply by";
   return html`<div class="due${n <= 14 ? " close" : ""}">${verb} ${date}${n === 0 ? ", today" : n === 1 ? ", tomorrow" : n <= 14 ? ", " + n + " days left" : ""}</div>`;
 }
-export const flagsHTML = (it) => (it.flags && it.flags.length ? html`<div class="flags">${it.flags.map((f) => html`<span class="flag">${f}</span>`)}</div>` : "");
+export const flagsHTML = (it) => {
+  const eco = isWork(it) && isEco(it) ? html`<span class="flag eco">Startups${ECO_ROLE[it.eco_role] ? " · " + ECO_ROLE[it.eco_role] : ""}</span>` : "";
+  const f = Array.isArray(it.flags) ? it.flags : [];
+  return eco || f.length ? html`<div class="flags">${eco}${f.map((x) => html`<span class="flag">${x}</span>`)}</div>` : "";
+};
 export function reactButtons(it, labels) {
   const r = S.reactions[it.id], up = !!(r && r.v > 0), down = !!(r && r.v < 0), sv = !!S.saved[it.id], hd = !!S.hidden[it.id];
   const L = (t) => (labels ? html`<span>${t}</span>` : "");
@@ -283,6 +291,7 @@ function workMatch(it) {
   if (state.wplace !== "all" && workPlace(it) !== state.wplace && !(state.wplace === "eu" && workPlace(it) === "nl")) return false;
   if (state.work === "all") return true;
   if (state.work === "mine") return ["interested", "applied"].includes(tracked(it));
+  if (state.work === "startups") return isEco(it);
   const s = workSub(it);
   return s === state.work || (state.work === "call" && s === "grant");
 }
@@ -343,7 +352,7 @@ export function drawWork() {
     if (y && !x) return 1;
     return score(b) - score(a);
   });
-  const empty = { mine: "Nothing tracked yet. Mark a lead Interested or Applied, or swipe it right.", freelance: "No freelance leads right now.", event: "No events on the radar right now.", call: "No open calls right now.", job: "No roles right now.", insight: "Nothing to read yet." }[state.work] || "Nothing here yet.";
+  const empty = { mine: "Nothing tracked yet. Mark a lead Interested or Applied, or swipe it right.", freelance: "No freelance leads right now.", event: "No events on the radar right now.", call: "No open calls right now.", job: "No roles right now.", startups: "No startup or accelerator work right now.", insight: "Nothing to read yet." }[state.work] || "Nothing here yet.";
   mount($("workFeed"), items, false, state.company ? "No open leads at " + state.company + " right now. The work search checks again on Tuesdays and Fridays." : empty + " The daily update checks every morning.");
   const cf = $("workCompany");
   if (cf) { cf.hidden = !state.company; if (state.company) { $("workCompanyName").textContent = "Only " + state.company; } }

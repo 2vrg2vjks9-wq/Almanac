@@ -84,7 +84,16 @@ spend most effort there), `volume` (few = 2 to 3 new leads per run, fit 4+ only;
 wide = up to 8 per run), `formats` (remote, hybrid / onsite = in the Netherlands, abroad = only now and then, so
 keep abroad roles rare and strong), `levels` (mid, senior; director = only when the fit is strong, at most one per
 run) and `freelance` (time available: month = a few days a month, 1-2 or 3-5 days a week; skip assignments that need
-more). Give every item a `fit` 1 to 5. Then update radar/.plain/feed.json.
+more). Give every item a `fit` 1 to 5.
+`settings.work.startups` (when `on`): also look for startup-ecosystem work and mark those items `eco: true` with
+`eco_role` mentor | programme | jury | coach: mentor or expert-in-residence pools, programme lead or manager roles,
+jury / judge / selection-panel calls (pitch days, challenges, grant selection) and investor-readiness or fundraising
+coaching. `orgs`: accelerators = climate accelerators and incubators and their cohort calls; funds = climate funds
+and VCs (venture partner, scout, platform roles); public = innovation agencies, development finance institutions and
+EU programmes; corporate = corporate venturing and open-innovation challenges. `places`: nl, eu, jpeu (programmes
+bridging Japanese and European startups), online (remote mentoring and juries anywhere). Keep good accelerator,
+fund and programme pages in `interests.freelance.sources` with what = "startups" and open them each run; aim for
+2 to 4 live `eco` items. Then update radar/.plain/feed.json.
 
 1. Remove work and freelance items whose deadline (or `end`) has passed, or that are clearly filled.
 2. Sources: `interests.freelance.sources` is a list of pages worth checking every time (freelance platforms,
@@ -670,6 +679,13 @@ def apply():
                         "freelance": pick(w.get("freelance"), ("month", "1-2", "3-5")),
                         "formats": [x for x in (w.get("formats") or []) if x in ("remote", "hybrid", "onsite", "abroad")],
                         "levels": [x for x in (w.get("levels") or []) if x in ("mid", "senior", "director")],
+                    }
+                    e = w.get("startups") if isinstance(w.get("startups"), dict) else {}
+                    cur["work"]["startups"] = {
+                        "on": bool(e.get("on")),
+                        "roles": [x for x in (e.get("roles") or []) if x in ("mentor", "programme", "jury", "coach")],
+                        "orgs": [x for x in (e.get("orgs") or []) if x in ("accelerators", "funds", "public", "corporate")],
+                        "places": [x for x in (e.get("places") or []) if x in ("nl", "eu", "jpeu", "online")],
                     }
                 it["settings"] = cur
             else:

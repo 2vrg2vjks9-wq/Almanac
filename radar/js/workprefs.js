@@ -18,9 +18,18 @@ export const ORDER = {
 const VOLUME = { "": "Search decides", few: "3–5 a week, strong", mix: "5–10 a week, mix", wide: "10+ a week, wide" };
 const FREELANCE = { "": "Leave open", month: "Days a month", "1-2": "1–2 days a week", "3-5": "3–5 days a week" };
 const FORMATS = [["remote", "Remote"], ["hybrid", "Hybrid in NL"], ["onsite", "On site in NL"], ["abroad", "Now and then abroad"]];
+const ECO = {
+  roles: [["mentor", "Mentor or expert in residence"], ["programme", "Programme lead"], ["jury", "Jury and selection"], ["coach", "Investor readiness"]],
+  orgs: [["accelerators", "Accelerators"], ["funds", "Climate funds and VCs"], ["public", "Public and development funders"], ["corporate", "Corporate innovation"]],
+  places: [["nl", "Netherlands"], ["eu", "Europe"], ["jpeu", "Japan and Europe"], ["online", "Online, anywhere"]],
+};
 const LEVELS = [["mid", "Mid-level"], ["senior", "Senior"], ["director", "Director, if the fit is strong"]];
 
-export const prefs = () => Object.assign({ order: "date", volume: "", freelance: "", formats: [], levels: [] }, (S.settings || {}).work || {});
+export const prefs = () => {
+  const p = Object.assign({ order: "date", volume: "", freelance: "", formats: [], levels: [] }, (S.settings || {}).work || {});
+  p.startups = Object.assign({ on: false, roles: [], orgs: [], places: [] }, p.startups || {});
+  return p;
+};
 // group rank for sorting All leads and New leads (lower first); 0 for everything when the order is by date
 export function groupRank(sub) {
   const o = (ORDER[prefs().order] || ORDER.date)[1];
@@ -49,10 +58,25 @@ export function drawWorkPrefs() {
   const p = prefs();
   put(box, html`${select("wpOrder", "Show first", ORDER, p.order)}${select("wpVolume", "New leads", VOLUME, p.volume)}
     ${chips("wpFormats", "Ways of working", FORMATS, p.formats)}${chips("wpLevels", "Level", LEVELS, p.levels)}
-    ${select("wpFree", "Time for freelance", FREELANCE, p.freelance)}`);
+    ${select("wpFree", "Time for freelance", FREELANCE, p.freelance)}
+    <label class="tg"><span><b>Startup and accelerator work</b><small>Mentoring, programme roles, juries and investor-readiness work, labelled Startups</small></span>
+      <input type="checkbox" role="switch" id="wpEco"${p.startups.on ? " checked" : ""}></label>
+    ${p.startups.on ? html`${chips("wpEcoRoles", "Roles", ECO.roles, p.startups.roles)}${chips("wpEcoOrgs", "Organisations", ECO.orgs, p.startups.orgs)}${chips("wpEcoPlaces", "Where", ECO.places, p.startups.places)}` : ""}`);
   $("wpOrder").onchange = (e) => saveWork({ order: e.target.value });
   $("wpVolume").onchange = (e) => saveWork({ volume: e.target.value });
   $("wpFree").onchange = (e) => saveWork({ freelance: e.target.value });
+  // switching it on picks every role, organisation and place; tap a chip to leave one out
+  $("wpEco").onchange = (e) => saveWork({ startups: e.target.checked
+    ? { on: true, roles: ECO.roles.map((x) => x[0]), orgs: ECO.orgs.map((x) => x[0]), places: ECO.places.map((x) => x[0]) }
+    : Object.assign({}, prefs().startups, { on: false }) });
+  [["wpEcoRoles", "roles"], ["wpEcoOrgs", "orgs"], ["wpEcoPlaces", "places"]].forEach(([id, key]) => {
+    const box = $(id);
+    if (!box) return;
+    box.querySelectorAll(".pill").forEach((b) => {
+      b.onclick = () => { const st = prefs().startups, cur = st[key].slice(), k = b.dataset.k, i = cur.indexOf(k);
+        if (i < 0) cur.push(k); else cur.splice(i, 1); saveWork({ startups: Object.assign({}, st, { [key]: cur }) }); };
+    });
+  });
   [["wpFormats", "formats"], ["wpLevels", "levels"]].forEach(([id, key]) => {
     $(id).querySelectorAll(".pill").forEach((b) => {
       b.onclick = () => { const cur = prefs()[key].slice(), k = b.dataset.k, i = cur.indexOf(k); if (i < 0) cur.push(k); else cur.splice(i, 1); saveWork({ [key]: cur }); };

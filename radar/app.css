@@ -606,3 +606,4 @@ button.rday:active { background: var(--sunk); }
 .tg.wp.col { flex-direction: column; align-items: stretch; gap: 8px; }
 .tg.wp .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .tg.wp .pill { min-height: 38px; padding: 0 12px; }
+.flag.eco { color: var(--kelp); }
