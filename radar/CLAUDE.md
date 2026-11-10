@@ -312,8 +312,9 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   (`settings.work.startups` {on, roles, orgs: accelerators | funds | public | corporate, places: nl | eu | jpeu | online, xb: entry | agencies | jpcorp | tenders});
   switching it on picks every choice, chips leave one out. The work task looks for these only when it's on, keeps good
   programme pages in `interests.freelance.sources` (what = "startups") and aims for 2–4 live eco items.
-- **Regenerative** (Work): Your work search › "Also look for" (`settings.work.themes`: regen-econ, regen-fin); the work
-  task marks matching items `theme: "regen"` and the row shows a "Regenerative" label.
+- **Regenerative** (Work): regenerative economics and finance are always part of the work search (no setting); the work
+  task marks matching items `theme: "regen"` and the row shows a "Regenerative" label. Startup work is on by default
+  too: with no `settings.work.startups` the app shows the switch on with every choice and the task uses them all.
 - **Tab numbers** go once seen: Work's count clears when you open Work (its New leads list stays until you leave);
   Discover's counts only Go ideas new since you last opened Discover (`radar-go-seen`), not every undecided idea.
 - **Done** (Go): on your list, the X becomes "Done" (swipe left too): `radar-do[id].done`, still a yes for Radar's

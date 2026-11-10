@@ -84,12 +84,13 @@ spend most effort there), `volume` (few = 2 to 3 new leads per run, fit 4+ only;
 wide = up to 8 per run), `formats` (remote, hybrid / onsite = in the Netherlands, abroad = only now and then, so
 keep abroad roles rare and strong), `levels` (mid, senior; director = only when the fit is strong, at most one per
 run) and `freelance` (time available: month = a few days a month, 1-2 or 3-5 days a week; skip assignments that need
-more), `themes` (also look for: regen-econ = regenerative economics, e.g. doughnut and wellbeing economy, circular
-and bioregional programmes, think tanks and research roles; regen-fin = regenerative finance, e.g. nature and
-biodiversity finance, regenerative agriculture funds, community and ReFi funding, natural-capital roles; mark those
-items `theme: "regen"` and keep good pages in `interests.freelance.sources` with what = "regenerative"). Give every
-item a `fit` 1 to 5.
-`settings.work.startups` (when `on`): also look for startup-ecosystem work and mark those items `eco: true` with
+more). Give every item a `fit` 1 to 5.
+Always include regenerative economics (doughnut and wellbeing economy, circular and bioregional programmes, think
+tanks and research roles) and regenerative finance (nature and biodiversity finance, regenerative agriculture funds,
+community and ReFi funding, natural-capital roles) in the search: mark those items `theme: "regen"` and keep good
+pages in `interests.freelance.sources` with what = "regenerative".
+Startup-ecosystem work is part of the normal search too (skip it only when `settings.work.startups.on` is false; when
+`settings.work.startups` is missing, use every role, organisation, place and cross-border option below): look for it and mark those items `eco: true` with
 `eco_role` mentor | programme | jury | coach: mentor or expert-in-residence pools, programme lead or manager roles,
 jury / judge / selection-panel calls (pitch days, challenges, grant selection) and investor-readiness or fundraising
 coaching. `orgs`: accelerators = climate accelerators and incubators and their cohort calls; funds = climate funds
@@ -703,7 +704,6 @@ def apply():
                         "freelance": pick(w.get("freelance"), ("month", "1-2", "3-5")),
                         "formats": [x for x in (w.get("formats") or []) if x in ("remote", "hybrid", "onsite", "abroad")],
                         "levels": [x for x in (w.get("levels") or []) if x in ("mid", "senior", "director")],
-                        "themes": [x for x in (w.get("themes") or []) if x in ("regen-econ", "regen-fin")],
                     }
                     e = w.get("startups") if isinstance(w.get("startups"), dict) else {}
                     cur["work"]["startups"] = {

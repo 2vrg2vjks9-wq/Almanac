@@ -486,14 +486,15 @@ def tabs_suite(browser, site, scheme):
     check(json.loads(page.evaluate("localStorage.getItem('radar-companies')"))["edit"]["Test Fund"]["look_for"] == "Senior roles, Netherlands", "%s: the edit waits to be sent" % scheme)
     shot(page, "work-companies-%s.png" % scheme)
     # Your work search
-    check(page.locator("#workPrefs select").count() == 3 and page.locator("#workPrefs .pill").count() == 9, "%s: work search choices" % scheme)
+    check(page.locator("#workPrefs select").count() == 3 and page.locator("#workPrefs .pill").count() == 23, "%s: work search choices" % scheme)
     page.select_option("#wpOrder", "freelance"); page.wait_for_timeout(300)
     t = page.locator("#workFeed .item h3").all_inner_texts()
     check(len(t) >= 3 and "Adaptation finance forum" == t[-1], "%s: Show first puts freelance before events %s" % (scheme, t))
     page.click('#wpLevels .pill[data-k="senior"]'); page.wait_for_timeout(200)
     st = json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["work"]
     check(st["order"] == "freelance" and st["levels"] == ["senior"] and page.locator('#wpLevels .pill[data-k="senior"].on').count() == 1, "%s: choices are kept and shown" % scheme)
-    page.click("#wpEco"); page.wait_for_timeout(300)
+    check(page.is_checked("#wpEco") and page.locator("#wpEcoRoles .pill.on").count() == 4, "%s: startup work is on by default" % scheme)
+    page.click("#wpEco"); page.wait_for_timeout(300); page.click("#wpEco"); page.wait_for_timeout(300)
     st = json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["work"]["startups"]
     check(st["on"] and len(st["roles"]) == 4 and len(st["orgs"]) == 4 and len(st["places"]) == 4 and len(st["xb"]) == 4 and page.locator("#wpEcoRoles .pill.on").count() == 4, "%s: startup work switch picks every choice" % scheme)
     page.click('#wpEcoPlaces .pill[data-k="online"]'); page.wait_for_timeout(200)
@@ -501,8 +502,6 @@ def tabs_suite(browser, site, scheme):
     page.click('#workKinds .pill:has-text("Startups")'); page.wait_for_timeout(300)
     check(page.locator("#workFeed .item").count() == 1 and page.inner_text("#workFeed .item .flag.eco") == "Startups · Mentor", "%s: Startups filter and label" % scheme)
     page.click('#workKinds .pill:has-text("Everything")'); page.wait_for_timeout(200)
-    page.click('#wpThemes .pill[data-k="regen-fin"]'); page.wait_for_timeout(200)
-    check(json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["work"]["themes"] == ["regen-fin"], "%s: regenerative themes can be picked" % scheme)
     check(page.inner_text('#workFeed .item:has-text("Nature finance lead") .flag.eco') == "Regenerative", "%s: regenerative leads are labelled" % scheme)
     shot(page, "work-prefs-%s.png" % scheme)
     page.select_option("#wpOrder", "date"); page.wait_for_timeout(200)
