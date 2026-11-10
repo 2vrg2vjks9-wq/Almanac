@@ -2,7 +2,7 @@
 // tab). They are committed encrypted as data/<name>.enc.json (see vault.js); this opens them, falls
 // back to the last good copy on this phone when offline, and holds the travel-focus rules.
 import { d, today, km } from "./util.js";
-import { get, set, KEYS } from "./store.js";
+import { get, set, KEYS, S } from "./store.js";
 import { open, unlocked } from "./vault.js";
 
 export const Q = { q: "" }; // the Discover search, shared by Go and Read & listen
@@ -54,8 +54,38 @@ function mergeIdeas() {
 }
 // Claude's instant picks for a trip live on the phone until the daily task has them in the feed,
 // and only while the stay lasts.
+// One show per artist: when the feed holds several tour dates of an artist you follow, only the nearest upcoming
+// one shows (anywhere in the app); the others come back one by one as dates pass.
+const nameOf = (x) => String(typeof x === "string" ? x : (x && (x.name || x.artist)) || "").trim();
+function oneShowPerArtist(items) {
+  const C = D.config || {}, names = (Array.isArray(C.artists) ? C.artists : [])
+    .concat((C.concertAlerts && Array.isArray(C.concertAlerts.artists)) ? C.concertAlerts.artists : [])
+    .map(nameOf).filter((n) => n.length > 1);
+  const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const rx = names.map((n) => [n.toLowerCase(), new RegExp("(^|[^\\p{L}\\p{N}])" + esc(n) + "($|[^\\p{L}\\p{N}])", "iu")]);
+  const artistOf = (it) => {
+    if (it.artist) return String(it.artist).toLowerCase();
+    const hit = rx.find(([, r]) => r.test(it.title || "")) || rx.find(([, r]) => r.test(it.summary || ""));
+    return hit ? hit[0] : null;
+  };
+  const best = {};
+  items.forEach((it) => {
+    if (it.kind !== "concert" || past(it)) return;
+    const a = artistOf(it);
+    if (!a) return;
+    const t = (d(it.start) || d(it.end) || new Date(8.64e15)).getTime();
+    if (!best[a] || t < best[a].t) best[a] = { t, id: it.id };
+  });
+  // a date you saved or said yes to stays, whatever its order
+  const kept = (it) => (S.saved && S.saved[it.id]) || (S.do && S.do["f-" + it.id] && S.do["f-" + it.id].v === 1);
+  return items.filter((it) => {
+    if (it.kind !== "concert" || past(it) || kept(it)) return true;
+    const a = artistOf(it);
+    return !a || best[a].id === it.id;
+  });
+}
 export function mergePicks() {
-  const P = get(KEYS.picks, null), items = D.feed.items.filter((it) => !it.picked);
+  const P = get(KEYS.picks, null), items = oneShowPerArtist(D.feed.items.filter((it) => !it.picked));
   const live = P && (!P.until || d(P.until) >= today()) ? P.items || [] : [];
   const titles = new Set(items.map((it) => String(it.title).toLowerCase()));
   D.feed.items = items.concat(live.filter((p) => !titles.has(String(p.title).toLowerCase())));

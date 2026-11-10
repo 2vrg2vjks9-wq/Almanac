@@ -7,7 +7,7 @@
 import { $, html, put, d, today, shortDate, longDate, safeUrl, mapUrl, km, reduceMotion } from "./util.js";
 import { S, save, get, set, KEYS } from "./store.js";
 import { D, emit, Q, mergePicks, refreshUntil, tripPoint } from "./data.js";
-import { openSheet, sheetOpen, paintSheet, swipeRow, say } from "./ui.js";
+import { openSheet, sheetOpen, paintSheet, swipeRow, say, undoable, currentTab } from "./ui.js";
 import { ics } from "./detail.js";
 import { signed } from "./vault.js";
 import { note, SERVER, authFailed, signedOut, track } from "./notes.js";
@@ -139,6 +139,15 @@ function score(it) {
 export const ideas = () => ((D.things && D.things.ideas) || []).filter((it) => it && it.id && it.title);
 export const byId = (id) => ideas().find((x) => x.id === id);
 export const answer = (it) => S.do[it.id];
+// Done: something on your list you've been to. It leaves the lists without counting as a "no" (it stays a yes).
+export const isDone = (it) => { const a = S.do[it.id]; return !!(a && a.v > 0 && a.done); };
+export function markDone(it) {
+  const a = answer(it);
+  if (!a || a.v <= 0) S.do[it.id] = { v: 1, t: Date.now(), title: it.title, cat: it.cat, city: it.city || "", sent: false };
+  S.do[it.id].done = Date.now();
+  save("do"); emit("change");
+  undoable("Marked done. It stays a yes for Radar.", () => { if (S.do[it.id]) { delete S.do[it.id].done; save("do"); emit("change"); } });
+}
 let steady = false, lastOrder = null; // a yes or no doesn't re-rank the list under your finger
 export function decide(it, v) {
   steady = true; setTimeout(() => { steady = false; }, 0);
@@ -156,6 +165,16 @@ function queue() {
     });
 }
 export const undecidedCount = () => ideas().filter((it) => eligible(it) && !answer(it)).length;
+// The Discover tab's number counts new ideas since you last opened Discover (radar-go-seen), not every open one.
+let goSeen = get(KEYS.goSeen, null);
+const unseenIdeas = () => ideas().filter((it) => eligible(it) && !answer(it) && !(goSeen && goSeen[it.id]));
+export function markIdeasSeen(paint = true) {
+  const live = ideas();
+  const next = {};
+  live.forEach((it) => { if (eligible(it) && !answer(it)) next[it.id] = 1; else if (goSeen && goSeen[it.id]) next[it.id] = 1; });
+  goSeen = next; set(KEYS.goSeen, goSeen);
+  if (paint) paintCount();
+}
 // For the teach box: answers not yet sent to Claude.
 export const doPending = () => Object.keys(S.do).filter((k) => S.do[k].v !== 0 && !S.do[k].sent);
 export function doLines() {
@@ -199,11 +218,13 @@ function cardHTML(it, left) {
 }
 function rowHTML(it) {
   const a = answer(it), yes = !!(a && a.v > 0), no = !!(a && a.v < 0), w = whenText(it);
+  const left = yes ? html`<button class="vote d" type="button" data-done aria-label="I've done this">${Y}Done</button>`
+    : html`<button class="vote n${no ? " on" : ""}" type="button" data-v="-1" aria-pressed="${String(no)}" aria-label="Not for me">${N}</button>`;
   return html`<article class="idea" data-id="${it.id}">${badge(it)}<div class="im">
     <div class="meta">${meta(it)}</div>
     <h3><button class="open" type="button" aria-haspopup="dialog">${it.title}</button></h3>
     <div class="where">${[placeText(it), w].filter(Boolean).join(" · ")}</div>
-    <div class="acts"><span class="go"></span><button class="vote n${no ? " on" : ""}" type="button" data-v="-1" aria-pressed="${String(no)}" aria-label="Not for me">${N}</button><button class="vote y${yes ? " on" : ""}" type="button" data-v="1" aria-pressed="${String(yes)}">${Y}${yes ? "Going" : "Yes"}</button></div>
+    <div class="acts"><span class="go"></span>${left}<button class="vote y${yes ? " on" : ""}" type="button" data-v="1" aria-pressed="${String(yes)}">${Y}${yes ? "Going" : "Yes"}</button></div>
   </div></article>`;
 }
 function wireRows(box) {
@@ -211,8 +232,12 @@ function wireRows(box) {
     const it = byId(el.dataset.id);
     if (!it) return;
     el.querySelector(".open").onclick = () => openIdea(it);
-    el.querySelectorAll(".vote").forEach((b) => { b.onclick = () => decide(it, +b.dataset.v); });
-    swipeRow(el, () => decide(it, 1), () => decide(it, -1), ["Yes", "No"]);
+    el.querySelectorAll(".vote[data-v]").forEach((b) => { b.onclick = () => decide(it, +b.dataset.v); });
+    const dn = el.querySelector("[data-done]");
+    if (dn) dn.onclick = () => markDone(it);
+    // on your list: swipe left marks it done instead of "no"
+    const yes = !!(answer(it) && answer(it).v > 0);
+    swipeRow(el, () => decide(it, 1), () => (yes ? markDone(it) : decide(it, -1)), ["Yes", yes ? "Done" : "No"]);
   });
 }
 const textMatch = (it) => !Q.q || [it.title, it.summary, it.why, it.venue, it.city].join(" ").toLowerCase().includes(Q.q);
@@ -276,7 +301,7 @@ export function sortByDate(a, b) {
   return score(b) - score(a);
 }
 function drawPlan() {
-  const list = ideas().filter((it) => answer(it) && answer(it).v > 0 && !ideaPast(it)).sort(sortByDate);
+  const list = ideas().filter((it) => answer(it) && answer(it).v > 0 && !isDone(it) && !ideaPast(it)).sort(sortByDate);
   $("planHead").hidden = !list.length;
   $("doPlan").hidden = !list.length;
   if (!list.length) return;
@@ -290,7 +315,7 @@ function catMatch(it) {
   return (CAT_GROUP[view.cat] || [view.cat]).includes(it.cat);
 }
 function drawAll() {
-  const list = ideas().filter((it) => eligible(it) && inWhen(it, view.when) && (view.city === "all" || cityKey(it) === view.city) && catMatch(it) && textMatch(it) &&
+  const list = ideas().filter((it) => eligible(it) && !isDone(it) && inWhen(it, view.when) && (view.city === "all" || cityKey(it) === view.city) && catMatch(it) && textMatch(it) &&
     (showNo || !(answer(it) && answer(it).v < 0))).sort((a, b) => score(b) - score(a));
   if (steady && lastOrder) { const pos = new Map(lastOrder.map((id, i) => [id, i])); list.sort((a, b) => (pos.has(a.id) ? pos.get(a.id) : 1e9) - (pos.has(b.id) ? pos.get(b.id) : 1e9)); }
   lastOrder = list.map((it) => it.id);
@@ -355,11 +380,13 @@ function refreshIdea() { if (sheetOpen() && current && document.querySelector("#
 function paintCount() {
   const tab = document.querySelector('.tab[data-v="discover"]');
   if (!tab) return;
-  const n = undecidedCount();
+  if (!goSeen) { goSeen = {}; ideas().forEach((it) => { goSeen[it.id] = 1; }); set(KEYS.goSeen, goSeen); } // first run: start from zero
+  if (currentTab() === "discover") markIdeasSeen(false); // new ideas arriving while you're on Discover count as seen
+  const n = currentTab() === "discover" ? 0 : unseenIdeas().length;
   let c = tab.querySelector(".count");
   if (n && !c) { c = document.createElement("span"); c.className = "count"; c.setAttribute("aria-hidden", "true"); tab.appendChild(c); }
   if (c) { if (n) c.textContent = n > 99 ? "99+" : n; else c.remove(); }
-  tab.setAttribute("aria-label", n ? "Discover, " + n + " ideas to decide" : "Discover");
+  tab.setAttribute("aria-label", n ? "Discover, " + n + " new " + (n === 1 ? "idea" : "ideas") : "Discover");
 }
 
 export function drawList() { drawAll(); }

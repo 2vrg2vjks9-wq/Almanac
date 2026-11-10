@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-companies.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-companies, radar-go-seen.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -314,3 +314,13 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   programme pages in `interests.freelance.sources` (what = "startups") and aims for 2–4 live eco items.
 - **Regenerative** (Work): Your work search › "Also look for" (`settings.work.themes`: regen-econ, regen-fin); the work
   task marks matching items `theme: "regen"` and the row shows a "Regenerative" label.
+- **Tab numbers** go once seen: Work's count clears when you open Work (its New leads list stays until you leave);
+  Discover's counts only Go ideas new since you last opened Discover (`radar-go-seen`), not every undecided idea.
+- **Done** (Go): on your list, the X becomes "Done" (swipe left too): `radar-do[id].done`, still a yes for Radar's
+  learning, gone from the lists, Act now and the brief. Not the same as "Not for me".
+- **One show per artist:** for artists in `interests.artists`/`concertAlerts.artists` the app shows only the nearest
+  upcoming concert (`oneShowPerArtist` in data.js; saved or yes-answered dates stay); the tasks keep one concert item
+  per artist with the other dates in its summary. Following an artist or switching its bell on sends a "Concert check:"
+  interest note, so the inbox task checks and pushes new shows right away instead of waiting for Sunday.
+- **Ads without their own link** (the scan only had the search page): the row opens a site search for the ad's title
+  and says so (`adLink` in gear.js); the finds task must re-find the real ad link.

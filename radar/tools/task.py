@@ -143,6 +143,12 @@ RULES = """Cost rules for this run (they come before everything below):
 """
 
 
+CONCERT_RULES = ("- Concerts: per artist keep only ONE concert item in feed.json, the nearest upcoming show (the app shows only\n"
+                 "  that one); put the artist's other dates briefly in its summary (\"Also: 12 Mar Utrecht, 3 Apr Antwerp\") and\n"
+                 "  set `artist` to the artist's name. When it passes, the next date becomes the item.\n"
+                 "- Every show of an artist in interests.concertAlerts.artists that isn't in concertAlerts.notified yet\n"
+                 "  (artist|YYYY-MM-DD|city): add it to notified and name it in your final message, which goes to the phone,\n"
+                 "  as \"Concert: <artist>, <venue>, <city>, <date>\". Name the nearest show first.\n")
 EXTRA = {  # added to the cost rules, per task (generic: nothing about the owner)
     "finds": "- Web search is switched off for this task. Open the marketplaces' own search pages with WebFetch instead,\n"
              "  one per query in interests.wanted[].queries (when a search has none, e.g. after the owner edited it, write\n"
@@ -152,6 +158,10 @@ EXTRA = {  # added to the cost rules, per task (generic: nothing about the owner
              "    2dehands:      https://www.2dehands.be/q/<query>/\n"
              "    Kleinanzeigen: https://www.kleinanzeigen.de/s-<query>/k0   (words joined with -)\n"
              "  plus any `sources` pages a search lists. Their /lrp/api/ endpoints are off-limits (robots.txt).\n"
+             "- Every ad's `url` must be the ad's own page (Marktplaats/2dehands: /v/... with a<id> or m<id>; Kleinanzeigen:\n"
+             "  /s-anzeige/...), never the search page. When WebFetch leaves a link out, ask it again for just the href of\n"
+             "  that ad by title, or open the search page sorted newest or a narrower query. Existing ads whose url is a\n"
+             "  search page: find their own link first this run. Don't write notes about missing links.\n"
              "- Keep ads that still fit, drop ones no longer listed, add new ones. For every ad record `posted`\n"
              "  (YYYY-MM-DD; turn 'Vandaag'/'Heute'/'Gisteren'/'Gestern' into dates) and the price as a number, so the\n"
              "  app can show how long it has been for sale and compare prices.\n"
@@ -176,7 +186,12 @@ EXTRA["inbox"] += ("- A new bucket-list wish: add it to interests.bucketlist wit
                    "  (good moments now, a few good pages in `sources`, `checked` = today).\n")
 EXTRA["inbox"] += ("- A city note (radar-location) or a Do request for a place away from home: also look for padel there (courts\n"
                    "  to book, open matches to join, on Playtomic or club pages) and add them as things ideas with cat \"sport\".\n")
+EXTRA["inbox"] += ("- A \"Concert check: <artist>\" note (the owner just followed the artist or switched its alert on): make sure the\n"
+                   "  artist is in interests.artists and concertAlerts.artists, find their upcoming shows (own concerts and festival\n"
+                   "  slots) in the Netherlands, Belgium or Germany near the border, and follow the concert alert rules below.\n")
+EXTRA["inbox"] += CONCERT_RULES
 EXTRA["daily"] = EXTRA["inbox"]
+EXTRA["concerts"] = CONCERT_RULES
 # Which Settings switch silences a task's push (the owner turns them on and off on the phone).
 PUSH = {"daily": "daily", "inbox": "daily", "finds": "finds", "concerts": "concerts", "work": "work", "bucket": "daily"}
 

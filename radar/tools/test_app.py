@@ -910,8 +910,12 @@ def do_suite(browser, site, scheme):
     ctx, page, errors = new_page(browser, site, scheme)
     m = Mocks(page)
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
+    # the Discover number counts ideas you haven't seen yet and goes once you open Discover
+    page.evaluate("localStorage.setItem('radar-go-seen', '{}')"); page.reload()
+    page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
+    check(page.locator(".tab[data-v=discover] .count").count() == 1, "%s: Discover tab counts new ideas" % scheme)
     tab(page, "discover"); page.click('#panes [data-p="go"]'); page.wait_for_timeout(150)
-    check(page.locator(".tab[data-v=discover] .count").count() == 1, "%s: Discover tab shows how many ideas wait" % scheme)
+    check(page.locator(".tab[data-v=discover] .count").count() == 0, "%s: the Discover number goes once seen" % scheme)
     all_text = page.inner_text("#pane-go")
     check("Big dance festival" not in all_text, "%s: far idea with a low fit stays out (Hague first)" % scheme)
     check("Infinity rooms retrospective" in all_text, "%s: far idea with a high fit shows" % scheme)

@@ -7,12 +7,12 @@ import { loadScout } from "./scout.js";
 import { drawCompanies, initCompanies } from "./companies.js";
 import { drawWorkPrefs, groupRank } from "./workprefs.js";
 import { setGroupRank } from "./feed.js";
-import { state, drawFeed, drawForYou, drawWork, initFindRead, markLeadsSeen, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
+import { state, drawFeed, drawForYou, drawWork, initFindRead, markLeadsSeen, paintWorkCount, segs, KINDS, WORK_KINDS, WORK_PLACES, regions, setOpener, initSearch } from "./feed.js";
 import { openItem, refreshItem, icsAll } from "./detail.js";
 import { initNotes } from "./notes.js";
 import { initSaved, drawSaved, paintTeach, ask } from "./saved.js";
 import { initAround } from "./around.js";
-import { initDo, drawDo, drawList } from "./do.js";
+import { initDo, drawDo, drawList, markIdeasSeen } from "./do.js";
 import { drawToday, setTodayOpener, drawWeekend, initTrip, initCal } from "./today.js";
 import { initSettings, drawSettings } from "./settings.js";
 import { initGear, drawGear } from "./gear.js";
@@ -151,7 +151,12 @@ on("change", () => { drawAll(); refreshItem(); paintTeach(); });
 on("picks", () => { if (D.feed) { mergePicks(); drawAll(); } });
 on("wind", () => { if (D.feed) drawWeekend(); });
 // Leaving Work marks the new leads you saw there as seen.
-window.addEventListener("radar-tab", (e) => { if (D.feed && e.detail.from === "work" && e.detail.to !== "work") markLeadsSeen(); });
+window.addEventListener("radar-tab", (e) => {
+  if (!D.feed) return;
+  if (e.detail.from === "work" && e.detail.to !== "work") markLeadsSeen();
+  if (e.detail.to === "work") paintWorkCount();      // opening Work clears its number (the New leads list stays until you leave)
+  if (e.detail.to === "discover") markIdeasSeen();   // opening Discover clears its number
+});
 // Opening Discover or Today redraws them, so trip mode follows a Look around or a new Wind place right away.
 document.querySelectorAll('.tab[data-v="discover"], .tab[data-v="today"]').forEach((t) => t.addEventListener("click", () => { if (D.feed) drawAll(); }));
 $("refresh").onclick = loadAll;

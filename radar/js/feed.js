@@ -2,7 +2,7 @@
 import { $, html, put, d, today, shortDate, safeUrl, km, kmText, ago, isoDay } from "./util.js";
 import { S, save } from "./store.js";
 import { D, emit, visible, past, isWork, isGo, focusRegion, REGION_NAME, Q, refreshUntil, nearTrip } from "./data.js";
-import { swipeRow, say } from "./ui.js";
+import { swipeRow, say, currentTab } from "./ui.js";
 import { track, note } from "./notes.js";
 
 // Read & listen: what you read, watch or listen to. Things to go to (concerts, exhibitions, food) are in Go.
@@ -324,7 +324,7 @@ export function markLeadsSeen() {
 export function paintWorkCount() {
   const tab = document.querySelector('.tab[data-v="work"]');
   if (!tab || !D.feed) return;
-  const n = newLeads().length;
+  const n = currentTab() === "work" ? 0 : newLeads().length; // the number goes as soon as you open Work
   let c = tab.querySelector(".count");
   if (n && !c) { c = document.createElement("span"); c.className = "count"; c.setAttribute("aria-hidden", "true"); tab.appendChild(c); }
   if (c) { if (n) c.textContent = n > 99 ? "99+" : n; else c.remove(); }

@@ -220,7 +220,8 @@ function drawFollow() {
   box.querySelectorAll("[data-bell]").forEach((b) => { b.onclick = () => {
     const n = b.dataset.bell, on = b.getAttribute("aria-pressed") !== "true";
     S.follow.alerts[n] = on; save("follow");
-    followChange({ alerts: { [n]: on } }, on ? "Concert alerts on for " + n + "." : "Concert alerts off for " + n + ".");
+    followChange({ alerts: { [n]: on } }, on ? "Concert alerts on for " + n + ". Radar checks their shows now." : "Concert alerts off for " + n + ".");
+    if (on) concertCheck(n);
   }; });
   const unfollow = (n, li) => {
     li.hidden = true;
@@ -238,6 +239,11 @@ function drawFollow() {
     swipeRow(li, () => bellBtn.click(), () => unfollow(bellBtn.dataset.bell, li), ["Alerts", "Unfollow"]);
   });
 }
+// A new artist or a bell switched on starts a concert check for that artist straight away (the inbox task), so the
+// first alert doesn't wait for Sunday's concert run.
+function concertCheck(n) {
+  note("Concert check: " + n, "Please check concerts for this artist now and alert me about shows: " + n, "radar-interest", "");
+}
 function followArtist() {
   compose({
     title: "Follow an artist", intro: "Radar watches for their concerts nearby and new releases, and alerts you when they announce a show.",
@@ -247,7 +253,8 @@ function followArtist() {
       S.follow.remove = S.follow.remove.filter((x) => x.toLowerCase() !== v.t.toLowerCase());
       if (!S.follow.add.includes(v.t)) S.follow.add.push(v.t);
       save("follow");
-      followChange({ add: [v.t] }, "Following " + v.t + ". The next concert check looks for shows.");
+      followChange({ add: [v.t] }, "Following " + v.t + ". Radar checks their shows now and alerts you.");
+      concertCheck(v.t);
     },
   });
 }

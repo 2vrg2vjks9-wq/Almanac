@@ -19,6 +19,25 @@ let type = "all";
 let hidden = get(KEYS.gearHidden, {});
 
 const searchOf = (a) => a.search || WING;
+// Some ads come back from a scan with the marketplace's search page instead of the ad's own page (the page
+// didn't show that ad's link). Those still open something useful: a search on that site for the ad's title, so
+// the ad is at or near the top. The finds task re-finds the real link on its next run.
+const AD_PATH = { marktplaats: /^\/(v|a)\//, "2dehands": /^\/(v|a)\//, kleinanzeigen: /^\/s-anzeige\// };
+function adLink(a) {
+  const u = safeUrl(a.url), re = AD_PATH[a.site];
+  if (!u || !re) return { href: u, direct: true };
+  let path = "";
+  try { path = new URL(u).pathname; } catch (e) { return { href: u, direct: true }; }
+  if (re.test(path)) return { href: u, direct: true };
+  const words = String(a.title || "").replace(/\([^)]*\)/g, " ").replace(/[^\p{L}\p{N}.,'-]+/gu, " ").trim().split(/\s+/).filter(Boolean).slice(0, 5);
+  if (!words.length) return { href: u, direct: false };
+  const q = encodeURIComponent(words.join(" ").toLowerCase());
+  const href = a.site === "kleinanzeigen" ? "https://www.kleinanzeigen.de/s-" + q.replace(/%20/g, "-") + "/k0"
+    : "https://www." + (a.site === "2dehands" ? "2dehands.be" : "marktplaats.nl") + "/q/" + q.replace(/%20/g, "+") + "/";
+  return { href: safeUrl(href) || u, direct: false };
+}
+// The scan's own note about a missing link is replaced by the app's line below.
+const cleanNote = (n) => String(n || "").replace(/\s*Ad link not shown[^.]*\.(\s*(Find|find) it with this search page\.)?/g, "").replace(/^\s*[.;:]\s*/, "").trim();
 const ads = (search) => ((D.gear && D.gear.ads) || [])
   .filter((a) => a && a.id && a.title && safeUrl(a.url) && searchOf(a) === search && !hidden[a.id]);
 function age(a) {
@@ -65,16 +84,17 @@ function toggleWatch(a) {
 }
 const EYE = html`<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>`;
 function rowHTML(a, maybeLabel, pool) {
-  const dl = deal(a, pool || []), w = !!S.watch[a.id];
+  const dl = deal(a, pool || []), w = !!S.watch[a.id], link = adLink(a), note = cleanNote(a.note);
   // marketplaces have a fixed label; dismantlers (sloperijen) and parts networks bring their own name
   const s = a.seller ? [a.seller, (a.country || "").toUpperCase()] : SITES[a.site] || [a.site || "", (a.country || "").toUpperCase()];
   return html`<article class="ad" data-id="${a.id}">
-    <a class="ad-main" href="${safeUrl(a.url)}" target="_blank" rel="noopener" data-swipeok>
+    <a class="ad-main" href="${link.href}" target="_blank" rel="noopener" data-swipeok>
       <span class="ad-top"><span class="ad-site">${s[1]} · ${s[0]}</span>${a.match === "hit" ? html`<span class="state now">Match</span>` : html`<span class="state">${maybeLabel}</span>`}${isNew(a) ? html`<span class="state new">New</span>` : ""}${dl && dl.good ? html`<span class="state deal">Good deal</span>` : ""}${dropped(a) ? html`<span class="state deal">Price dropped</span>` : w ? html`<span class="state">Watching</span>` : ""}${a.gone ? html`<span class="state soon">Gone</span>` : ""}</span>
       <b>${a.title}</b>
       <small>${[a.size, a.location, a.shipping ? "ships" : "", a.warranty ? a.warranty + " warranty" : "", online(a) || age(a)].filter(Boolean).join(" · ")}</small>
       ${dl ? html`<small class="ad-deal${dl.good ? " good" : ""}">${dl.text}</small>` : ""}
-      ${a.note ? html`<small class="ad-note">${a.note}</small>` : ""}
+      ${note ? html`<small class="ad-note">${note}</small>` : ""}
+      ${link.direct ? "" : html`<small class="ad-nolink">Opens a ${s[0]} search for this ad; its own link comes with the next scan.</small>`}
     </a>
     <span class="ad-price">${dropped(a) ? html`<s>${euro(a.was)}</s> ` : ""}${euro(a.price)}</span>
     <button class="ib watch${w ? " on" : ""}" type="button" data-watch="${a.id}" aria-pressed="${String(w)}" aria-label="${w ? "Stop watching the price" : "Watch the price"}">${EYE}</button>

@@ -9,7 +9,7 @@ import { D, visible, isWork, tripPoint, nearTrip, emit } from "./data.js";
 import { net } from "./wind.js";
 import { showTab, showPane, swipeRow, undoable, say } from "./ui.js";
 import { S as Store, save, get, set, KEYS } from "./store.js";
-import { ideas, answer, eligible, ideaPast, placeText, prepText, sortByDate, openIdea, decide, findPadel } from "./do.js";
+import { ideas, answer, isDone, eligible, ideaPast, placeText, prepText, sortByDate, openIdea, decide, findPadel } from "./do.js";
 import { deadline, tracked, WORK_LABEL, workSub, newLeads } from "./feed.js";
 import { gearNews } from "./gear.js";
 
@@ -30,7 +30,7 @@ function actItems() {
   });
   ideas().filter((it) => !ideaPast(it)).forEach((it) => {
     const a = answer(it), yes = !!(a && a.v > 0), no = !!(a && a.v < 0);
-    if (no) return;
+    if (no || isDone(it)) return;
     const s = d(it.start), e = d(it.end);
     if (yes && s && s >= t && days(s) <= 3) out.push({ at: s, rank: 1, label: dayLabel(s), title: it.title, sub: "On your list · " + placeText(it), open: () => openIdea(it), hot: days(s) <= 1 });
     else if (prepText(it) && eligible(it) && (yes || it.fit >= 4)) out.push({ at: s || t, rank: yes ? 1 : 3, label: "Book now", title: it.title, sub: prepText(it) + (s ? " · " + shortDate(s) : ""), open: () => openIdea(it) });
@@ -60,7 +60,7 @@ function drawAct() {
 function bestIdea() {
   const t = today(), soon = new Date(t); soon.setDate(t.getDate() + 3);
   const on = (it) => { const s = d(it.start) || t, e = d(it.end) || s; return !it.start && !it.end ? false : s <= soon && e >= t; };
-  const yes = ideas().filter((it) => answer(it) && answer(it).v > 0 && !ideaPast(it) && on(it)).sort(sortByDate);
+  const yes = ideas().filter((it) => answer(it) && answer(it).v > 0 && !isDone(it) && !ideaPast(it) && on(it)).sort(sortByDate);
   if (yes.length) return [yes[0], "on your list"];
   const open = ideas().filter((it) => eligible(it) && !answer(it) && on(it) && homeIdea(it)).sort((a, b) => (b.fit || 3) - (a.fit || 3) || sortByDate(a, b));
   return open.length ? [open[0], "worth a look"] : null;
