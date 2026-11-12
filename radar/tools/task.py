@@ -15,7 +15,7 @@ Tasks and their instructions live encrypted in the vault (tasks.enc.json). Needs
 GITHUB_TOKEN; finish also reads $RUNNER_TEMP/out.json (claude --output-format json).
 The Actions log of this public repo is world-readable: this script prints counts and fixed words only.
 """
-import base64, datetime, glob, json, os, re, shutil, subprocess, sys, urllib.request
+import base64, datetime, glob, hashlib, json, os, re, shutil, subprocess, sys, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 VAULT = os.path.join(ROOT, "radar", "tools", "vault.mjs")
@@ -240,6 +240,40 @@ use at most 1 web search for all three. Only record a price you saw on a page. W
 (replace the old list; leave a trip out when no fare was found). Don't mention fares in your final message."""
 
 
+# Every task's final message becomes a push, so it has to be worth one (the owner's rule: no useless notifications).
+PUSH_RULE = """The push rule (overrides any other wording about your final message): your final message is sent to the
+owner's phone as a notification. Only write one when this run added something the owner would want to act on or know
+today: name at most 3 new things by their title, each with a few words on why or by when. Otherwise answer exactly
+"Nothing new." Never report routine work (past items removed, sources updated, pages checked, lists tidied, counts),
+never repeat something an earlier push already named, and no greetings or sign-offs."""
+QUIET = ("nothing new", "no new ", "no changes", "nothing to report", "all up to date")
+
+
+def worth_pushing(name, res, key):
+    """False for empty or 'nothing new' replies, and for a message already pushed today (same task, same text):
+    a catch-up run and a late scheduled run can otherwise push twice. Only a short hash is kept (status.json is public)."""
+    r = " ".join(str(res or "").split())
+    if not r or r.lower().startswith(QUIET) or len(r) < 12:
+        return False
+    h = hashlib.sha1(r.lower().encode()).hexdigest()[:12]
+    try:
+        st = json.load(open(STATUS))
+    except Exception:
+        st = {}
+    pushed = st.setdefault("pushed", {})
+    today = datetime.date.today().isoformat()
+    seen = pushed.get(key) if isinstance(pushed.get(key), dict) else {}
+    if seen.get("day") == today and h in (seen.get("hashes") or []):
+        return False
+    seen = {"day": today, "hashes": ((seen.get("hashes") or []) if seen.get("day") == today else []) + [h]}
+    pushed[key] = seen
+    try:
+        json.dump(st, open(STATUS, "w"), indent=1)
+    except Exception:
+        pass
+    return True
+
+
 def trip_fares():
     """Run the trip scout for the daily task; True when there are flight trips to price."""
     try:
@@ -292,6 +326,7 @@ def prepare(name):
         run = False
     if fares:
         prompt += "\n\n" + FARES
+    prompt += "\n\n" + PUSH_RULE
     open(os.path.join(TMP, "prompt.txt"), "w").write(prompt)
     output(model=CHEAP if billed else (t.get("model") or "claude-sonnet-5-5"), run=str(run).lower(),
            cap=("%.2f" % cap) if billed else "", nosearch="true" if billed and not searches else "false")
@@ -540,6 +575,7 @@ def finish(name):
         os.remove(os.path.join(PLAIN, "tasks.json"))
         stamp()
         set_status(name, "ok", cost_now)
+        worth = worth_pushing(name, res, PUSH.get(name, name))  # before the commit, so the push hash is saved
         vault("lock")
         files = ["radar/data/%s.enc.json" % n for n in DATA] + [f for f in ("radar/spend.json", "radar/status.json")
                                                                    if os.path.exists(os.path.join(ROOT, f))]
@@ -564,7 +600,8 @@ def finish(name):
             gh("POST", "/issues/%s/comments" % num, {"body": "Done."})
             gh("PATCH", "/issues/%s" % num, {"state": "closed", "state_reason": "completed"})
             closed += 1
-        quiet = res in (t.get("quiet") or []) or not res or settings().get("notify", {}).get(PUSH.get(name, name)) is False
+        quiet = res in (t.get("quiet") or []) or settings().get("notify", {}).get(PUSH.get(name, name)) is False \
+            or not worth
         sent = False if quiet else notify(res, PUSH.get(name, name))
         say("saved: %s; notes closed: %d; notification: %s" % ("yes" if changed else "no changes", closed, "sent" if sent else "none"))
     finally:

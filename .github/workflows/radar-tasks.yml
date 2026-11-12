@@ -87,6 +87,12 @@ jobs:
             elif [ "$h" -ge 9 ] && { [ "$dow" = 2 ] || [ "$dow" = 5 ]; } && [ "$(last work)" != "$today" ]; then t=work
             fi
           fi
+          if [ -n "$SCHEDULE" ] && [ "$t" != inbox ]; then
+            # a late scheduled run after the catch-up already did it today: don't run (and push) twice
+            if [ "$(python3 -c "import json,sys;print((json.load(open('radar/status.json')).get('tasks',{}).get(sys.argv[1]) or {}).get('at','')[:10])" "$t" 2>/dev/null)" = "$(date -u +%F)" ]; then
+              echo "radar-task: $t already ran today"; t=inbox
+            fi
+          fi
           case "$t" in daily|inbox|finds|concerts|work|bucket|apply) ;; *) echo "unknown task"; exit 1 ;; esac
           echo "task=$t" >> "$GITHUB_OUTPUT"
           echo "radar-task: $t"
