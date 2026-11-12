@@ -5,6 +5,8 @@ NTFY_TOPIC environment variable, or else from interests "alerts.ntfy"."""
 import json, math, os, subprocess, sys, urllib.request, urllib.parse, datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import push as P  # on/off switch, importance and quiet hours from Radar's Settings
 if not (os.environ.get("RADAR_KEY") or os.environ.get("PK")):
     sys.exit("RADAR_KEY (or PK) is not set: add it as a GitHub Actions secret (Settings, Secrets and variables, Actions).")
 out = subprocess.run(["node", os.path.join(HERE, "vault.mjs"), "show", "interests"], capture_output=True, text=True)
@@ -16,12 +18,19 @@ if ((cfg.get("settings") or {}).get("notify") or {}).get("wind") is False:
 TOPIC = os.environ.get("NTFY_TOPIC") or (cfg.get("alerts") or {}).get("ntfy")
 if not TOPIC:
     sys.exit("No ntfy topic: set interests alerts.ntfy or the NTFY_TOPIC secret.")
-W = cfg["wind"]; spots = W["spots"]
+W = dict(cfg["wind"]); spots = W["spots"]
+# Settings › Morning wind alert › rules (interests.settings.alerts.wind): which sports, minimum hours, days ahead
+R = ((cfg.get("settings") or {}).get("alerts") or {}).get("wind") or {}
+if isinstance(R.get("sports"), list) and R["sports"]:
+    W["sports"] = {k: v for k, v in W["sports"].items() if k in R["sports"]} or W["sports"]
+if R.get("minHours") in (1, 2, 3, 4, 5, 6):
+    W["minHours"] = R["minHours"]
+DAYS = R.get("days") if R.get("days") in (1, 2, 3) else 3
 q = urllib.parse.urlencode({
     "latitude": ",".join(str(s["lat"]) for s in spots),
     "longitude": ",".join(str(s["lon"]) for s in spots),
     "hourly": "wind_speed_10m,wind_gusts_10m,wind_direction_10m",
-    "wind_speed_unit": "kn", "timezone": "Europe/Amsterdam", "forecast_days": 3})
+    "wind_speed_unit": "kn", "timezone": "Europe/Amsterdam", "forecast_days": DAYS})
 res = json.load(urllib.request.urlopen("https://api.open-meteo.com/v1/forecast?" + q, timeout=30))
 if isinstance(res, dict): res = [res]
 COMP = "N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW".split()
@@ -52,8 +61,6 @@ for spot, r in zip(spots, res):
 if not lines:
     print("No rideable windows in the next 3 days."); raise SystemExit
 body = "\n".join(lines[:8]) + ("\n…and more" if len(lines) > 8 else "")
-req = urllib.request.Request("https://ntfy.sh/" + TOPIC, data=body.encode(), headers={
-    "Title": "Wind on: " + lines[0].split(":")[0], "Tags": "surfer", "Priority": "default",
-    "Click": "https://almanac-dgf.pages.dev/radar/"})
-urllib.request.urlopen(req, timeout=30)
+if not P.send(cfg, "wind", "Wind on: " + lines[0].split(":")[0], body, "surfer"):
+    sys.exit("ntfy didn't take the alert.")
 print("Sent %d window(s)." % len(lines))  # the Actions log is public: don't print spots or times

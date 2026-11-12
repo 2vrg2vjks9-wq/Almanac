@@ -609,3 +609,14 @@ button.rday:active { background: var(--sunk); }
 .tg.wp .pill { min-height: 38px; padding: 0 12px; }
 .flag.eco { color: var(--kelp); }
 .test-push { margin-top: 10px; }
+
+/* --- Notification options (Settings) --- */
+.nopts { margin: -2px 0 8px; padding: 0 0 8px; border-bottom: 1px solid var(--rule); }
+.nopts summary { cursor: pointer; font: 600 14px/44px var(--ui); color: var(--marine); list-style: none; }
+.nopts summary::-webkit-details-marker { display: none; }
+.nopts summary::after { content: " ›"; }
+.nopts[open] summary::after { content: " ⌄"; }
+.nopt { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; font-size: 15px; color: var(--ink-2); }
+.nopt.col { flex-direction: column; align-items: stretch; gap: 8px; padding: 6px 0; }
+.nopt .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.nopt select { min-height: 44px; max-width: 62%; font: 15px var(--ui); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 10px; padding: 0 10px; }

@@ -5,7 +5,8 @@
 - Weekend planner (Thursdays): rideable wind windows for Saturday and Sunday plus the best things to do that
   weekend from the Do list (Den Haag first), in one push.
 
-Each can be switched off in Radar's Settings (interests.settings.notify.deadlines / .weekend).
+Each can be switched off in Radar's Settings (interests.settings.notify.deadlines / .weekend); the reminder days
+come from settings.alerts.remind, and importance and quiet hours are handled by push.py.
 The Actions log is public: it prints counts only."""
 import datetime, json, math, os, subprocess, sys, urllib.parse, urllib.request
 
@@ -21,14 +22,19 @@ def show(name):
     return json.loads(r.stdout)
 
 
-def push(topic, title, body, tags):
-    req = urllib.request.Request("https://ntfy.sh/" + topic, data=body.encode(), method="POST", headers={
-        "Title": title.encode("utf-8").decode("latin-1", "ignore"), "Tags": tags, "Click": APP})
-    urllib.request.urlopen(req, timeout=30)
+import push as P  # quiet hours, importance and the on/off switches live there
 
 
 def on(cfg, key):
-    return ((cfg.get("settings") or {}).get("notify") or {}).get(key) is not False
+    return P.on(cfg, key)
+
+
+REMIND = {"3-1": (3, 1), "7-2": (7, 2), "1": (1,), "7-3-1": (7, 3, 1)}
+
+
+def remind_days(cfg):
+    """Settings › Deadline reminders › timing (interests.settings.alerts.remind), 3 and 1 days before by default."""
+    return REMIND.get(((cfg.get("settings") or {}).get("alerts") or {}).get("remind"), (3, 1))
 
 
 def deadlines(cfg, today):
@@ -41,7 +47,7 @@ def deadlines(cfg, today):
         except ValueError:
             continue
         left = (d - today).days
-        if left in (3, 1):
+        if left in remind_days(cfg):
             out.append((left, d, lead))
     return sorted(out, key=lambda x: x[1])
 
@@ -105,8 +111,7 @@ def weekend_things(things, sat, sun):
 
 def main():
     cfg = show("interests")
-    topic = os.environ.get("NTFY_TOPIC") or (cfg.get("alerts") or {}).get("ntfy")
-    if not topic:
+    if not P.topic(cfg):
         sys.exit("No ntfy topic.")
     today = datetime.datetime.now(AMS).date()
     sent = 0
@@ -114,8 +119,7 @@ def main():
         for left, d, lead in deadlines(cfg, today):
             body = "%s%s\nApply by %s." % (lead.get("title", "A lead you marked"), (" · " + lead["org"]) if lead.get("org") else "",
                                             d.strftime("%a %d %b"))
-            push(topic, "Deadline %s" % ("tomorrow" if left == 1 else "in 3 days"), body, "briefcase")
-            sent += 1
+            sent += P.send(cfg, "deadlines", "Deadline %s" % ("tomorrow" if left == 1 else "in %d days" % left), body, "briefcase")
     if on(cfg, "weekend") and today.weekday() == 3:  # Thursday
         sat = today + datetime.timedelta(days=2); sun = today + datetime.timedelta(days=3)
         try:
@@ -133,8 +137,7 @@ def main():
             lines.append("No rideable wind forecast yet.")
         for x in things:
             lines.append("· " + x["title"] + (" (" + x["city"] + ")" if x.get("city") else ""))
-        push(topic, "Your weekend", "\n".join(lines), "calendar")
-        sent += 1
+        sent += P.send(cfg, "weekend", "Your weekend", "\n".join(lines), "calendar")
     print("Sent %d reminder(s)." % sent)  # the Actions log is public: counts only
 
 

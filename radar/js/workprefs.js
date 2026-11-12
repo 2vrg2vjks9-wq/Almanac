@@ -7,6 +7,7 @@ import { S, save } from "./store.js";
 import { say } from "./ui.js";
 import { track } from "./notes.js";
 import { drawWork } from "./feed.js";
+import { settingsNote } from "./settings.js";
 
 export const ORDER = {
   date: ["Nearest date", []],
@@ -46,7 +47,7 @@ function saveWork(patch) {
   const s = Object.assign({}, S.settings || {});
   s.work = Object.assign({}, prefs(), patch);
   S.settings = s; save("settings");
-  track({ settings: { notify: s.notify || {}, tasks: s.tasks || {}, budget: s.budget || 5, work: s.work } });
+  track({ settings: settingsNote(s) });
   say("Saved. The order changes now; the work search uses it from its next run.");
   drawWorkPrefs(); drawWork();
 }

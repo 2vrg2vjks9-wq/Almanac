@@ -483,22 +483,16 @@ def git(*args):
                           cwd=ROOT, capture_output=True, text=True)
 
 
-def notify(text):
-    topic = os.environ.get("NTFY_TOPIC", "").strip()
-    if not topic:
-        try:
-            topic = str(json.load(open(os.path.join(PLAIN, "interests.json"))).get("alerts", {}).get("ntfy", "")).strip()
-        except Exception:
-            topic = ""
-    if not topic:
-        return False
-    req = urllib.request.Request("https://ntfy.sh/" + topic, data=text[:1000].encode(), method="POST",
-                                 headers={"Title": "Radar", "Tags": "satellite"})
+def notify(text, key="status"):
+    """Push Claude's message (or a status notice) through push.py: honours the phone's on/off switch, importance
+    and quiet hours for `key` (status notices use the default importance and can't be switched off)."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import push
     try:
-        urllib.request.urlopen(req, timeout=20)
-        return True
+        cfg = json.load(open(os.path.join(PLAIN, "interests.json")))
     except Exception:
-        return False
+        cfg = {}
+    return push.send(cfg, key, "Radar", text[:1000], "satellite", click=None)
 
 
 def finish(name):
@@ -571,7 +565,7 @@ def finish(name):
             gh("PATCH", "/issues/%s" % num, {"state": "closed", "state_reason": "completed"})
             closed += 1
         quiet = res in (t.get("quiet") or []) or not res or settings().get("notify", {}).get(PUSH.get(name, name)) is False
-        sent = False if quiet else notify(res)
+        sent = False if quiet else notify(res, PUSH.get(name, name))
         say("saved: %s; notes closed: %d; notification: %s" % ("yes" if changed else "no changes", closed, "sent" if sent else "none"))
     finally:
         shutil.rmtree(PLAIN, ignore_errors=True)
@@ -695,6 +689,19 @@ def apply():
                         cur["budget"] = round(b, 2)
                 except Exception:
                     pass
+                al = j.get("alerts")
+                if isinstance(al, dict):  # Settings › notification options: fixed choices only (see push.py)
+                    q = al.get("quiet") if isinstance(al.get("quiet"), dict) else {}
+                    hr = lambda v, d: v if isinstance(v, int) and 0 <= v <= 23 else d
+                    ws = al.get("wind") if isinstance(al.get("wind"), dict) else {}
+                    cur["alerts"] = {
+                        "quiet": {"on": bool(q.get("on")), "from": hr(q.get("from"), 22), "to": hr(q.get("to"), 7)},
+                        "level": {str(k)[:20]: v for k, v in list((al.get("level") or {}).items())[:20] if v in ("loud", "normal", "silent")},
+                        "remind": al.get("remind") if al.get("remind") in ("3-1", "7-2", "1", "7-3-1") else "3-1",
+                        "wind": {"sports": [str(x)[:20] for x in (ws.get("sports") or [])[:6]],
+                                 "minHours": ws.get("minHours") if ws.get("minHours") in (1, 2, 3, 4, 5, 6) else None,
+                                 "days": ws.get("days") if ws.get("days") in (1, 2, 3) else 3},
+                    }
                 w = j.get("work")
                 if isinstance(w, dict):  # Work › Your work search: fixed choices only
                     pick = lambda v, ok: v if v in ok else ""

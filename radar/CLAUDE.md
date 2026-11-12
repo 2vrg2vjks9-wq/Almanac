@@ -330,3 +330,9 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   and says so (`adLink` in gear.js); the finds task must re-find the real ad link.
 - **Test notification** (Settings, under the alert topic): "Send a test notification" posts one message from the phone
   to `https://ntfy.sh/<alerts.ntfy>` (only on tap; the topic must match `[A-Za-z0-9_-]{1,64}`).
+- **Notification options** (Settings): Quiet hours (`settings.alerts.quiet` {on, from, to}, hours in Amsterdam time; a push
+  in those hours gets ntfy's `At` header for the end), and under each switch "Options": Importance (`alerts.level.<key>`
+  loud | normal | silent = ntfy priority 4 / 3 / 2), for the wind alert Sports, At least (hours) and Look ahead
+  (`alerts.wind` {sports, minHours, days}), for deadlines When (`alerts.remind` 3-1 | 7-2 | 1 | 7-3-1). All pushes go
+  through `tools/push.py` (wind_alert.py, remind.py, task.py notify); `task.py apply` keeps only known values. The
+  settings note carries everything (`settingsNote` in settings.js, also used by workprefs.js).

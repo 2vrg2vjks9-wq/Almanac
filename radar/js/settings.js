@@ -26,9 +26,31 @@ const TASKS = [
 const BUDGETS = [3, 5, 8, 10];
 const TASK_NAMES = { daily: "Daily update", inbox: "Notes from the phone", finds: "Second-hand finds", concerts: "Concert check", work: "Work search", bucket: "Bucket-list check" };
 const cur = () => S.settings || {};
+// everything the settings note carries (task.py apply keeps only known values)
+export const settingsNote = (s) => ({ notify: s.notify || {}, tasks: s.tasks || {}, budget: s.budget || 5, work: s.work, alerts: alerts(s) });
+const LEVELS = { loud: "Loud", normal: "Normal", silent: "Silent" };
+const REMIND = { "3-1": "3 and 1 days before", "7-2": "7 and 2 days before", "1": "The day before", "7-3-1": "7, 3 and 1 days before" };
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0") + ":00");
+function alerts(s) {
+  const a = Object.assign({}, (s || cur()).alerts || {});
+  a.quiet = Object.assign({ on: false, from: 22, to: 7 }, a.quiet || {});
+  a.level = Object.assign({}, a.level || {});
+  a.remind = a.remind || "3-1";
+  a.wind = Object.assign({ sports: [], minHours: null, days: 3 }, a.wind || {});
+  return a;
+}
+function setAlerts(patch, msg) {
+  const s = Object.assign({}, cur());
+  s.alerts = Object.assign(alerts(s), patch);
+  S.settings = s; save("settings");
+  track({ settings: settingsNote(s) });
+  drawSettings();
+  say(msg || "Saved. Radar uses it from the next notification.");
+}
 const isOn = (group, k) => ((cur()[group] || {})[k]) !== false;
 
 let status = null, statusAt = 0;
+const OPEN = new Set();
 async function loadStatus() {
   if (status && Date.now() - statusAt < 60000) return status;
   try {
@@ -43,7 +65,7 @@ function change(group, k, v) {
   if (group === "budget") s.budget = v;
   else s[group] = Object.assign({}, s[group] || {}, { [k]: v });
   S.settings = s; save("settings");
-  track({ settings: { notify: s.notify || {}, tasks: s.tasks || {}, budget: s.budget || 5 } });
+  track({ settings: settingsNote(s) });
   drawSettings();
   say("Saved. Radar uses it from the next run.");
 }
@@ -75,7 +97,44 @@ function drawStatus() {
 
 export function drawSettings() {
   if (!$("notifyBox")) return;
-  put($("notifyBox"), html`${NOTIFY.map((n) => toggle("notify", n))}`);
+  const A = alerts(), W = (D.config && D.config.wind) || {}, sports = Object.keys(W.sports || {});
+  const sel = (id, map, val) => html`<select id="${id}">${Object.keys(map).map((k) => html`<option value="${k}"${String(k) === String(val) ? " selected" : ""}>${map[k]}</option>`)}</select>`;
+  const hours = Object.fromEntries(HOURS.map((h, i) => [i, h]));
+  const extra = (k) => {
+    if (k === "wind") {
+      const on = A.wind.sports.length ? A.wind.sports : sports;
+      return html`<div class="nopt col"><span>Sports</span><div class="chips">${sports.map((sp) => html`<button class="pill${on.includes(sp) ? " on" : ""}" type="button" data-sport="${sp}" aria-pressed="${String(on.includes(sp))}">${(W.sports[sp] || {}).label || sp}</button>`)}</div></div>
+        <label class="nopt"><span>At least</span>${sel("optHours", { "": "As set (" + (W.minHours || 2) + " h)", 1: "1 hour", 2: "2 hours", 3: "3 hours", 4: "4 hours" }, A.wind.minHours || "")}</label>
+        <label class="nopt"><span>Look ahead</span>${sel("optDays", { 1: "Today", 2: "2 days", 3: "3 days" }, A.wind.days || 3)}</label>`;
+    }
+    if (k === "deadlines") return html`<label class="nopt"><span>When</span>${sel("optRemind", REMIND, A.remind)}</label>`;
+    return "";
+  };
+  put($("notifyBox"), html`<label class="tg"><span><b>Quiet hours</b><small>${A.quiet.on ? "Pushes in these hours wait until " + HOURS[A.quiet.to] : "Pushes can come at any time"}</small></span>
+      <input type="checkbox" role="switch" id="quietOn"${A.quiet.on ? " checked" : ""}></label>
+    ${A.quiet.on ? html`<div class="nopts quiet"><label class="nopt"><span>From</span>${sel("quietFrom", hours, A.quiet.from)}</label><label class="nopt"><span>Until</span>${sel("quietTo", hours, A.quiet.to)}</label></div>` : ""}
+    ${NOTIFY.map((n) => html`${toggle("notify", n[0] === "wind" ? [n[0], n[1], "When a spot has a rideable window " + (A.wind.days === 1 ? "today." : "in the next " + (A.wind.days || 3) + " days.")]
+      : n[0] === "deadlines" ? [n[0], n[1], REMIND[A.remind] + " the deadline of a lead you marked Interested."] : n)}${isOn("notify", n[0]) ? html`<details class="nopts" data-k="${n[0]}"><summary>Options</summary>
+      <label class="nopt"><span>Importance</span>${sel("lvl-" + n[0], LEVELS, A.level[n[0]] || "normal")}</label>${extra(n[0])}</details>` : ""}`)}`);
+  $("quietOn").onchange = (e) => setAlerts({ quiet: Object.assign({}, A.quiet, { on: e.target.checked }) });
+  if ($("quietFrom")) $("quietFrom").onchange = (e) => setAlerts({ quiet: Object.assign({}, A.quiet, { from: +e.target.value }) });
+  if ($("quietTo")) $("quietTo").onchange = (e) => setAlerts({ quiet: Object.assign({}, A.quiet, { to: +e.target.value }) });
+  NOTIFY.forEach(([k]) => { const s = $("lvl-" + k); if (s) s.onchange = (e) => setAlerts({ level: Object.assign({}, A.level, { [k]: e.target.value }) }); });
+  if ($("optRemind")) $("optRemind").onchange = (e) => setAlerts({ remind: e.target.value });
+  if ($("optHours")) $("optHours").onchange = (e) => setAlerts({ wind: Object.assign({}, A.wind, { minHours: e.target.value ? +e.target.value : null }) });
+  if ($("optDays")) $("optDays").onchange = (e) => setAlerts({ wind: Object.assign({}, A.wind, { days: +e.target.value }) });
+  document.querySelectorAll("#notifyBox [data-sport]").forEach((b) => {
+    b.onclick = () => {
+      const cur2 = (A.wind.sports.length ? A.wind.sports : sports).slice(), i = cur2.indexOf(b.dataset.sport);
+      if (i < 0) cur2.push(b.dataset.sport); else if (cur2.length > 1) cur2.splice(i, 1); else { say("Keep at least one sport."); return; }
+      setAlerts({ wind: Object.assign({}, A.wind, { sports: cur2 }) });
+    };
+  });
+  // keep an options panel open after a change redraws the list
+  document.querySelectorAll("#notifyBox details.nopts").forEach((d) => {
+    if (OPEN.has(d.dataset.k)) d.open = true;
+    d.querySelector("summary").addEventListener("click", () => { if (d.open) OPEN.delete(d.dataset.k); else OPEN.add(d.dataset.k); });
+  });
   const b = +(cur().budget || 5);
   put($("budgetBox"), html`<div class="tg"><span><b>Monthly limit</b><small>About €${Math.round(b * 0.92)}</small></span>
       <span class="seg small">${BUDGETS.map((x) => html`<button class="pill${x === b ? " on" : ""}" type="button" data-b="${x}" aria-pressed="${String(x === b)}">$${x}</button>`)}</span></div>
