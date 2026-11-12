@@ -2,7 +2,7 @@
 // - Status reads the public radar/status.json (run times, outcomes and spend only) written by the tasks.
 // - Notifications, the monthly budget and the task switches are kept on this phone (radar-settings) and sent
 //   sealed (a radar-settings note); a script merges them into the encrypted interests without Claude.
-import { $, html, put, ago } from "./util.js";
+import { $, html, put, ago, fetchT } from "./util.js";
 import { S, save, set, KEYS } from "./store.js";
 import { D } from "./data.js";
 import { showTab, say } from "./ui.js";
@@ -97,6 +97,22 @@ function paintAlert() {
   el.append("All alerts come through the free ntfy app: subscribe to ");
   const c = document.createElement("span"); c.className = "alert-topic"; c.textContent = t;
   el.append(c, ". Keep it to yourself: anyone with the topic can read the alerts.");
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "btn ghost test-push"; b.id = "testPush"; b.textContent = "Send a test notification";
+  b.onclick = () => testPush(t, b);
+  el.append(document.createElement("br"), b);
+}
+
+// Settings › Send a test notification: the phone posts one short message to the topic (only on tap).
+async function testPush(topic, b) {
+  if (!/^[A-Za-z0-9_-]{1,64}$/.test(topic)) { say("The alert topic looks wrong, so nothing was sent."); return; }
+  b.disabled = true;
+  try {
+    const r = await fetchT("https://ntfy.sh/" + topic, { method: "POST", headers: { Title: "Radar test", Tags: "white_check_mark" },
+      body: "Test from Radar: alerts reach this phone." }, 15000);
+    say(r.ok ? "Sent. It should pop up within a few seconds; if not, check the ntfy app is subscribed to the topic above." : "ntfy didn't accept it (" + r.status + "). Try again in a minute.");
+  } catch (e) { say("Couldn't reach ntfy. Check your connection and try again."); }
+  b.disabled = false;
 }
 
 export function openSettings() {

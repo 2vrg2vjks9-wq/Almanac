@@ -328,3 +328,5 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   interest note, so the inbox task checks and pushes new shows right away instead of waiting for Sunday.
 - **Ads without their own link** (the scan only had the search page): the row opens a site search for the ad's title
   and says so (`adLink` in gear.js); the finds task must re-find the real ad link.
+- **Test notification** (Settings, under the alert topic): "Send a test notification" posts one message from the phone
+  to `https://ntfy.sh/<alerts.ntfy>` (only on tap; the topic must match `[A-Za-z0-9_-]{1,64}`).

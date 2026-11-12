@@ -624,6 +624,11 @@ def tabs_suite(browser, site, scheme):
     check(page.is_hidden("#connBox"), "%s: GitHub connect hidden on the Cloudflare site" % scheme)
     check("Radar version" in page.inner_text("#appVersion"), "%s: version line in Settings" % scheme)
     check("radar-test-topic" in page.inner_text("#alertLine"), "%s: alert topic shown from the encrypted interests" % scheme)
+    pushes = []
+    page.route("**/ntfy.sh/**", lambda r: (pushes.append((r.request.method, r.request.url)), r.fulfill(status=200, headers=JSONH, body="{}")))
+    page.click("#testPush"); page.wait_for_timeout(500)
+    check(pushes == [("POST", "https://ntfy.sh/radar-test-topic")], "%s: test notification goes to the topic %s" % (scheme, pushes))
+    page.unroute("**/ntfy.sh/**")
     check("this month" in page.inner_text("#status") and "Daily update" in page.inner_text("#status"), "%s: status shows spend and last runs" % scheme)
     check(page.locator("#notifyBox input[type=checkbox]").count() == 7, "%s: notification switches" % scheme)
     page.locator('#notifyBox input[data-k="weekend"]').click(); page.click('#budgetBox [data-b="3"]'); page.wait_for_timeout(200)
