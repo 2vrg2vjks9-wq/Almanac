@@ -39,17 +39,50 @@ LOW = {  # task: (cap per run in USD, web searches allowed; 0 = WebSearch switch
     "concerts": (0.06, 4),
     "work": (0.10, 5),
     "bucket": (0.08, 4),
+    "watch": (0.07, 3),
 }
 STATUS = os.path.join(ROOT, "radar", "status.json")  # public run status for the app (dates, outcomes, spend; nothing personal)
 # When the month's money runs low, these give way first, so the daily refresh and the work search keep running:
 # a low-priority run only goes ahead while it leaves RESERVE of the paced budget for the others.
-LOW_PRIORITY = {"finds", "concerts", "inbox"}
+LOW_PRIORITY = {"finds", "concerts", "inbox", "watch"}
 RESERVE = 0.25
-SWITCHABLE = {"finds", "concerts", "work", "bucket"}  # tasks the owner can switch off in Settings (daily and inbox stay on)
+SWITCHABLE = {"finds", "concerts", "work", "bucket", "watch"}  # tasks the owner can switch off in Settings (daily and inbox stay on)
 
 # Tasks whose instructions live here instead of in the vault. Keep them free of personal details: they point
 # at the encrypted interests for everything about the owner.
 BUILTIN = {
+    "watch": {
+        "prompt": """Radar's monitors: keep an eye on a few things for the owner of this Radar and report what changed.
+
+Read radar/.plain/interests.json. `watching` holds one entry per monitor: {checked, summary, items:[{id, title,
+summary, url, date, important, found}], sources:[{name, url}]}; create it when missing. The monitors:
+- holiday: holiday-rental rules and prices in the owner's holiday-home spots, the places named in the `D` array of
+  casaviento/index.html in this repo (read that file). Watch changes to holiday-rental law and licences (regional and
+  national: registration, moratoriums, zoning, taxes), and price per m2 and rental-income trends there.
+- houses: new houses for sale matching `settings.house` (when it is missing, skip this monitor): areas (coast = The
+  Hague's coast: Scheveningen, Duindorp, Kijkduin, Ockenburgh; wassenaar = Wassenaar, Katwijk, Noordwijk; westland =
+  Monster, Ter Heijde, 's-Gravenzande, Hoek van Holland; delft = Delft, Rijswijk; leiden = Leiden, Voorschoten,
+  Oegstgeest), price (500 = up to 500k, 750 = 500k to 750k, 1000 = 750k to 1M, 1000+ = above 1M euro), rooms (at
+  least), outdoor (garden = must have a garden), type (house = no apartments). Use public listing pages that allow it (check robots.txt; never their APIs),
+  newest first; give each listing's address area, asking price, rooms and plot/living m2 in its summary.
+- newbuild: new-build projects in Zuid-Holland: sales starts, lotteries and registration deadlines (project and
+  developer pages, municipal pages, new-build portals). Mark a registration deadline within 3 weeks important.
+- policy: climate-finance and adaptation policy and the funding calendar: EU taxonomy and CSRD changes, EU Mission
+  Adaptation, Horizon Europe Cluster 5, EIC, LIFE, Dutch Delta Programme, RVO and NWO calls. For funding calls, give the
+  expected or actual opening date and deadline. Mark anything opening or closing within 4 weeks important.
+
+1. Pick the 2 monitors whose `checked` date is oldest (missing = never; houses only when settings.house is set).
+2. For each, open its `sources` first with WebFetch (no search needed), then use your web searches only to find new
+   good pages; keep the best pages in `sources` (at most 8).
+3. Keep at most 6 current items per monitor, newest first: add what's new, drop what has passed or no longer holds,
+   keep ids stable for items that remain (new ids: monitor + "-" + a short slug). Each item: a plain title, a one or
+   two sentence summary in your own words with the concrete facts, the url you opened, date (YYYY-MM-DD of the
+   change, call or listing when known), important: true only when the owner should act or know soon, found = today
+   for new items. Only what you opened; never invent.
+4. Set `summary` to one plain sentence on where things stand, and `checked` = today, on each monitor you looked at.
+5. Final message: follow the push rule; name only important new items.""",
+        "quiet": ["Nothing new."],
+    },
     "bucket": {
         "prompt": """Radar's bucket-list check: look for genuinely good moments for the owner's bucket-list wishes.
 
@@ -194,7 +227,7 @@ EXTRA["inbox"] += CONCERT_RULES
 EXTRA["daily"] = EXTRA["inbox"]
 EXTRA["concerts"] = CONCERT_RULES
 # Which Settings switch silences a task's push (the owner turns them on and off on the phone).
-PUSH = {"daily": "daily", "inbox": "daily", "finds": "finds", "concerts": "concerts", "work": "work", "bucket": "daily"}
+PUSH = {"daily": "daily", "inbox": "daily", "finds": "finds", "concerts": "concerts", "work": "work", "bucket": "daily", "watch": "watch"}
 
 
 def say(msg):
@@ -801,6 +834,17 @@ def apply():
                         cur["budget"] = round(b, 2)
                 except Exception:
                     pass
+                hs = j.get("house")
+                if isinstance(hs, dict):  # You › Watching › houses: fixed choices only
+                    cur["house"] = {
+                        "areas": [x for x in (hs.get("areas") or []) if x in ("coast", "wassenaar", "westland", "delft", "leiden")],
+                        "price": hs.get("price") if hs.get("price") in ("500", "750", "1000", "1000+") else "",
+                        "rooms": hs.get("rooms") if hs.get("rooms") in (3, 4, 5) else None,
+                        "outdoor": hs.get("outdoor") if hs.get("outdoor") in ("garden", "any") else "any",
+                        "type": hs.get("type") if hs.get("type") in ("house", "any") else "any",
+                    }
+                    if not cur["house"]["areas"]:
+                        cur.pop("house")
                 al = j.get("alerts")
                 if isinstance(al, dict):  # Settings › notification options: fixed choices only (see push.py)
                     q = al.get("quiet") if isinstance(al.get("quiet"), dict) else {}

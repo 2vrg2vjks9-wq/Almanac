@@ -628,3 +628,8 @@ button.rday:active { background: var(--sunk); }
 .ad-rate .rate svg { width: 16px; height: 16px; }
 .ad-rate .rate.on { color: var(--kelp); border-color: var(--kelp); }
 .rate-why { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+/* --- Watching (You) and Policy and funding (Work) --- */
+.watch-box + .watch-box { margin-top: 18px; }
+.watch-box .want-sub small { color: var(--ink-3); }
+.house-opts { margin-top: 8px; border-bottom: 0; }

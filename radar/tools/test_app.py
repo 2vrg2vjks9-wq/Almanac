@@ -50,6 +50,13 @@ def fixtures():
         "bucketlist": [{"id": "aurora", "title": "See the northern lights", "good_time": "dark skies", "where": "north", "added": DAY(-5)}],
         "alerts": {"ntfy": "radar-test-topic"},
         "wanted": [{"id": "wingfoil", "title": "Wingfoil gear"}, {"id": "car-seats", "title": "Leather seats for the test car", "short": "A test search."}],
+        "watching": {
+            "holiday": {"checked": DAY(-1), "summary": "New registration rules start next year.", "items": [
+                {"id": "holiday-reg", "title": "Holiday-rental registration rule", "summary": "Every rental needs a number.", "url": "https://example.org/rule", "date": DAY(-2), "important": True, "found": DAY(-1)}]},
+            "newbuild": {"checked": DAY(-3), "items": []},
+            "policy": {"checked": DAY(-1), "summary": "Two calls open soon.", "items": [
+                {"id": "policy-call", "title": "Adaptation call opens", "summary": "Opens next month.", "url": "https://example.org/call", "important": True, "found": DAY(0)},
+                {"id": "policy-csrd", "title": "Reporting rules simplified", "summary": "Fewer firms in scope.", "url": "https://example.org/csrd"}]}},
         "companies": [{"name": "Test Fund", "bell": True}], "artists": ["Test Artist", "Quiet Band"], "concertAlerts": {"artists": ["Quiet Band"], "notified": []},
     }
     it = lambda **k: dict({"region": "nl", "place": "", "city": "", "start": None, "end": None, "summary": "A test item.", "why": "test", "url": "https://example.org/", "found": DAY(-10)}, **k)
@@ -471,6 +478,7 @@ def tabs_suite(browser, site, scheme):
     tab(page, "today"); page.wait_for_timeout(200); tab(page, "work"); page.wait_for_timeout(200)
     check(not page.is_visible("#workNew") and page.locator('.tab[data-v="work"] .count').count() == 0, "%s: leaving Work marks new leads as seen" % scheme)
     check(page.locator("#workFeed .item").count() >= 1, "%s: Work tab lists opportunities" % scheme)
+    check(page.locator("#workPolicy .watch-item").count() == 2 and "Two calls open soon" in page.inner_text("#workPolicy"), "%s: Work shows Policy and funding" % scheme)
     # Companies you track
     check(page.locator("#companies li").count() == 1 and "1 open role, 1 fits you" in page.inner_text("#companies"), "%s: tracked company with its open roles and fits" % scheme)
     check(page.locator('#workFeed .item:has-text("Test lead, later deadline") .flag.co').inner_text() == "At Test Fund" and "Senior role" in page.inner_text('#workFeed .item:has-text("Test lead, later deadline") .because'), "%s: strong fits at a tracked company are flagged with why" % scheme)
@@ -627,6 +635,18 @@ def tabs_suite(browser, site, scheme):
     page.fill('#sheetBody textarea[name="g"]', "Clear skies near a good wingfoil spot"); page.click('#sheetBody button[type=submit]'); page.wait_for_timeout(300)
     check("near a good wingfoil spot" in page.inner_text("#bucketList") and "Changed" in page.inner_text("#bucketList"), "%s: edited wish shows at once" % scheme)
 
+    # Watching
+    check(page.locator("#watching .watch-box").count() == 3 and "Holiday-rental registration rule" in page.inner_text("#watch-holiday") and "Important" in page.inner_text("#watch-holiday"), "%s: Watching shows the monitors and their items" % scheme)
+    check("First check coming soon" in page.inner_text("#watch-houses") and page.locator("#watch-houses details.house-opts[open]").count() == 1, "%s: houses start with the choices open" % scheme)
+    page.click('#houseAreas [data-area="coast"]'); page.wait_for_timeout(200); page.select_option("#housePrice", "750"); page.wait_for_timeout(200)
+    hs = json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["house"]
+    check(hs["areas"] == ["coast"] and hs["price"] == "750", "%s: house choices kept %s" % (scheme, hs))
+    swipe(page, "#watch-holiday .watch-item", -160); page.wait_for_timeout(300)
+    check(page.locator("#watch-holiday .watch-item").count() == 0, "%s: swiping hides a watched item" % scheme)
+    page.click("#undoBtn"); page.wait_for_timeout(300)
+    check(page.locator("#watch-holiday .watch-item").count() == 1, "%s: Undo brings it back" % scheme)
+    shot(page, "watching-%s.png" % scheme)
+
     # Settings
     page.click("#setBtn"); page.wait_for_timeout(600)
     check(page.is_visible("#v-settings") and page.locator('.tab[data-v="saved"].on').count() == 1, "%s: Settings opens under You" % scheme)
@@ -639,7 +659,7 @@ def tabs_suite(browser, site, scheme):
     check(pushes == [("POST", "https://ntfy.sh/radar-test-topic")], "%s: test notification goes to the topic %s" % (scheme, pushes))
     page.unroute("**/ntfy.sh/**")
     check("this month" in page.inner_text("#status") and "Daily update" in page.inner_text("#status"), "%s: status shows spend and last runs" % scheme)
-    check(page.locator("#notifyBox input[type=checkbox]").count() == 8, "%s: notification switches and quiet hours" % scheme)
+    check(page.locator("#notifyBox input[type=checkbox]").count() == 9, "%s: notification switches and quiet hours" % scheme)
     page.click("#quietOn"); page.wait_for_timeout(200)
     check(page.is_visible("#quietFrom") and page.input_value("#quietFrom") == "22" and page.input_value("#quietTo") == "7", "%s: quiet hours 22:00 to 07:00" % scheme)
     page.locator('details.nopts[data-k="wind"] summary').click(); page.select_option("#lvl-wind", "loud"); page.wait_for_timeout(200)

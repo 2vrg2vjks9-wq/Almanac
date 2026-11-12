@@ -5,6 +5,7 @@ import { initTabs, initSheet, initPullToRefresh, initWelcome, currentTab, initUn
 import { initWind, loadWind, skeleton, net, reloadWind } from "./wind.js";
 import { loadScout } from "./scout.js";
 import { backupIfDue, offerRestore } from "./backup.js";
+import { drawWatching } from "./watching.js";
 import { drawCompanies, initCompanies } from "./companies.js";
 import { drawWorkPrefs, groupRank } from "./workprefs.js";
 import { setGroupRank } from "./feed.js";
@@ -34,7 +35,7 @@ function drawRegions() {
   const both = () => { drawFeed(); drawForYou(); drawRegions(); };
   segs("regions", r, "region", both); segs("forRegions", r, "region", both);
 }
-function drawAll() { drawRegions(); drawFeed(); drawForYou(); drawWork(); drawCompanies(); drawWorkPrefs(); drawSaved(); drawDo(); drawGear(); drawToday(); if (currentTab() === "settings") drawSettings(); }
+function drawAll() { drawRegions(); drawFeed(); drawForYou(); drawWork(); drawCompanies(); drawWorkPrefs(); drawWatching(); drawSaved(); drawDo(); drawGear(); drawToday(); if (currentTab() === "settings") drawSettings(); }
 
 // --- Lock screen ---------------------------------------------------------------------------
 function showLock(text) {

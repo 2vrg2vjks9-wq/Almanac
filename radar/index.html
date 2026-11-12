@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,0..100;1,9..144,400,0..100&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <!-- Bump on every change. Older copies of the app compare this line with the live page and reload. -->
-<script>var APP_VERSION="2026-11-12d";</script>
+<script>var APP_VERSION="2026-11-12e";</script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -155,6 +155,8 @@
     <div class="filters"><div class="seg" id="workKinds" role="group" aria-label="Filter work"></div>
       <div class="seg" id="workPlaces" role="group" aria-label="Filter work by place"></div></div>
     <div class="sheet" id="workFeed"></div>
+    <h2 id="hPolicy">Policy and funding</h2>
+    <div id="workPolicy"></div>
     <h2 id="hWorkPrefs">Your work search</h2>
     <p class="sub tight">Choices only, nothing to type. They stay encrypted and steer the Tuesday and Friday search.</p>
     <div class="sheet" id="workPrefs"></div>
@@ -171,6 +173,7 @@
       <button class="pill" type="button" data-to="hBucket">Bucket list</button>
       <button class="pill" type="button" data-to="hFollow">Following</button>
       <button class="pill" type="button" data-to="hFinds">Finds</button>
+      <button class="pill" type="button" data-to="hWatching">Watching</button>
       <button class="pill" type="button" data-to="hLearned">Learned</button>
       <button class="pill" type="button" data-to="setBtn">Settings</button>
     </nav>
@@ -203,6 +206,10 @@
     <div class="sheet">
       <div class="duo"><button class="btn ghost" id="wantBtn" type="button">Look for something second-hand</button></div>
     </div>
+
+    <h2 id="hWatching">Watching</h2>
+    <p class="sub">Radar checks these about twice a week and only pushes when something important changes.</p>
+    <div id="watching"></div>
 
     <h2 id="hLearned">What Radar has learned</h2>
     <div class="sheet learned"><ul id="learned"></ul></div>
