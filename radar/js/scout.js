@@ -6,13 +6,15 @@
 // Travel costs are estimates: fuel and tolls for the car, typical fares for a flight (trips.json). The daily Claude task
 // runs tools/trips.py with the same rules and checks live fares for the top 3 flight trips (interests.fares); a live fare
 // replaces the estimate when it matches the spot and dates. Swipe left hides a spot for two weeks (radar-scout-hidden).
+// Water temperature: Open-Meteo Marine (daily sea surface max, 7 days, cached 6 h in radar-scout-sea) for sea spots
+// (lakes have `water: false`); a trip shows the mean over its days, or the latest day known when it starts later.
 // What leaves the phone: the destinations' public coordinates, to Open-Meteo. Nothing personal.
 import { $, html, put, getJSON, mapUrl, safeUrl } from "./util.js";
 import { get, set } from "./store.js";
 import { D } from "./data.js";
 import { openSheet, swipeRow, undoable } from "./ui.js";
 
-const WX_KEY = "radar-scout-wx", HIDE_KEY = "radar-scout-hidden";
+const WX_KEY = "radar-scout-wx", SEA_KEY = "radar-scout-sea", HIDE_KEY = "radar-scout-hidden";
 const MIN_TEMP = 14, WEEKEND_KM = 900, HIDE_DAYS = 14;
 const COMPASS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
 const dirName = (x) => COMPASS[Math.round(x / 22.5) % 16];
@@ -26,7 +28,7 @@ const range = (a, b) => (a.slice(0, 7) === b.slice(0, 7)
 const euro = (n) => "€" + Math.round(n / 5) * 5;
 const todayNL = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam" }).format(new Date());
 
-let SPOTS = null, FUEL = 0.13, last = null;
+let SPOTS = null, FUEL = 0.13, last = null, SEA = {};
 
 function hidden() {
   const h = get(HIDE_KEY, {}), now = Date.now(), out = {};
@@ -88,9 +90,13 @@ function trip(spot, days, from, to, rideDays) {
   const temp = temps.length ? avg(temps) : null;
   const cost = costOf(spot, from), live = cost.how === "plane" ? liveFare(spot, from) : null;
   const eur = live ? live.price : cost.eur;
+  const sea = SEA[spot.id] || {}, sk = Object.keys(sea).sort();
+  const inTrip = list.map((x) => sea[x.day]).filter((v) => typeof v === "number");
+  const before = sk.filter((k) => k <= from && typeof sea[k] === "number");
+  const water = inTrip.length ? avg(inTrip) : before.length ? sea[before[before.length - 1]] : sk.length ? sea[sk[sk.length - 1]] : null;
   const good = list.filter((x) => x.surf);
   const score = surf * 25 + wing * 6 + Math.min(Math.max((temp || 0) - MIN_TEMP, 0), 10) * 3 - eur / 12 - (spot.hours || 0) * 2;
-  return { spot, from, to, list, ride, surf, wing, temp, cost, live, eur, score,
+  return { spot, from, to, list, ride, surf, wing, temp, water: typeof water === "number" ? water : null, cost, live, eur, score,
     kn: good.length ? Math.round(avg(good.map((x) => x.kn))) : 0, dir: good.length ? good[0].dir : "" };
 }
 
@@ -147,7 +153,7 @@ function rowHTML(t, i, kind) {
     <h3><button class="open" type="button" aria-haspopup="dialog">${t.spot.name}</button></h3>
     <div class="where">${t.spot.area}</div>
     <p class="trip-facts"><span class="tf-wind">${t.surf} of ${days} days windsurf${t.kn ? html`, ~${t.kn} kn ${t.dir}` : ""}</span>
-      <span>${Math.round(t.temp)} °C</span><span>${costLine(t)}</span></p>
+      <span>${Math.round(t.temp)} °C air${t.water != null ? html` · ${Math.round(t.water)} °C water` : ""}</span><span>${costLine(t)}</span></p>
   </article>`;
 }
 function flightUrl(t) {
@@ -158,7 +164,7 @@ function detail(t) {
     <p class="lede">${t.spot.area} · ${range(t.from, t.to)}</p>
     <ul class="trip-days">${t.list.map((x) => html`<li class="${x.surf ? "surf" : x.wing ? "wing" : ""}"><span>${short(x.day)}</span>
       <span>${x.surf ? "Windsurf" : x.wing ? "Wingfoil" : "Light"} ${x.kn} kn${x.dir ? " " + x.dir : ""}${x.hours ? html` · ${x.hours} h` : ""}</span>
-      <span>${typeof x.t === "number" ? Math.round(x.t) + " °C" : ""}</span></li>`)}</ul>
+      <span>${typeof x.t === "number" ? Math.round(x.t) + " °C" : ""}${typeof (SEA[t.spot.id] || {})[x.day] === "number" ? " · water " + Math.round(SEA[t.spot.id][x.day]) + " °C" : ""}</span></li>`)}</ul>
     <p class="lede">${t.cost.how === "car"
       ? html`About ${euro(t.eur)} for fuel and tolls, there and back (${t.spot.km} km each way, ~${t.spot.hours} h).`
       : t.live ? html`${euro(t.live.price)} return from ${t.live.from || "a Dutch airport"}${t.live.airline ? " with " + t.live.airline : ""}, seen on a fare page in the daily check. Board bag or rental not included.`
@@ -216,4 +222,22 @@ export async function loadScout() {
     }
   }
   lastRes = res; redo();
+  loadSea();
+}
+
+// sea temperatures arrive after the trips are drawn; a failure only leaves the water figure out
+async function loadSea() {
+  const sea = SPOTS.filter((s) => s.water !== false), c = get(SEA_KEY, null);
+  if (c && c.n === sea.length && Date.now() - c.t < 6 * 36e5) { SEA = c.sea || {}; redo(); return; }
+  try {
+    let r = await getJSON("https://marine-api.open-meteo.com/v1/marine?latitude=" + sea.map((s) => s.lat).join(",") + "&longitude=" + sea.map((s) => s.lon).join(",") +
+      "&daily=sea_surface_temperature_max&timezone=auto&forecast_days=7", 25000);
+    if (!Array.isArray(r)) r = [r];
+    const out = {};
+    sea.forEach((s, i) => { const d = (r[i] || {}).daily || {}, m = {};
+      (d.time || []).forEach((k, j) => { const v = (d.sea_surface_temperature_max || [])[j]; if (typeof v === "number") m[k] = v; });
+      if (Object.keys(m).length) out[s.id] = m; });
+    SEA = out; set(SEA_KEY, { t: Date.now(), n: sea.length, sea: out });
+  } catch (e) { if (c) SEA = c.sea || {}; }
+  redo();
 }

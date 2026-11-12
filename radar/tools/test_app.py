@@ -21,7 +21,7 @@ The Cloudflare site is simulated with the host name radar.localhost (Chromium ma
 127.0.0.1 and treats it as a secure context), so the app takes its /api/note path; 127.0.0.1
 stands in for github.io. Needs Playwright for Python.
 Exits non-zero when something fails."""
-import base64, datetime, functools, glob, hashlib, hmac, http.server, json, math, os, shutil, socketserver, subprocess, sys, tempfile, threading, time
+import base64, datetime, functools, glob, hashlib, hmac, http.server, json, math, os, shutil, socketserver, subprocess, sys, tempfile, threading, time, urllib.parse
 
 from playwright.sync_api import sync_playwright
 
@@ -191,6 +191,17 @@ def meteo(route):
     route.fulfill(status=200, headers=JSONH, body=json.dumps(body))
 
 
+def marine_route(route):
+    u = route.request.url
+    if "sea_surface_temperature_max&" in u and "wave_height" not in u:  # the trip scout: one entry per location asked
+        n = len(urllib.parse.parse_qs(urllib.parse.urlparse(u).query)["latitude"][0].split(","))
+        start = datetime.date.today()
+        body = [{"daily": {"time": [str(start + datetime.timedelta(days=i)) for i in range(7)], "sea_surface_temperature_max": [19.6] * 7}} for _ in range(n)]
+    else:
+        body = marine()
+    route.fulfill(status=200, headers=JSONH, body=json.dumps(body))
+
+
 def marine():
     from zoneinfo import ZoneInfo  # the forecast's days are Amsterdam days, like the app's
     start = datetime.datetime.now(ZoneInfo("Europe/Amsterdam")).date()
@@ -248,7 +259,7 @@ class Mocks:
         self.overpass_up = overpass_up
         r = page.route
         r("**/api.open-meteo.com/**", meteo)
-        r("**/marine-api.open-meteo.com/**", lambda x: x.fulfill(status=200, headers=JSONH, body=json.dumps(marine())))
+        r("**/marine-api.open-meteo.com/**", marine_route)
         for host in ("overpass-api.de", "overpass.kumi.systems", "overpass.private.coffee"):
             r("**/%s/**" % host, self.overpass)
         r("**/en.wikipedia.org/**", lambda x: x.fulfill(status=200, headers=JSONH, body=json.dumps(WIKI)))
@@ -393,7 +404,9 @@ def tabs_suite(browser, site, scheme):
     page.wait_for_selector("#windTrips .trip", timeout=8000)
     check(page.locator('#windTrips [data-k="weekend"] .trip').count() >= 1, "%s: trip scout finds a weekend by car" % scheme)
     check(page.locator('#windTrips [data-k="week"] .trip').count() >= 1 and "€" in page.inner_text('#windTrips [data-k="week"]'), "%s: trip scout finds 4-7 day trips with a cost" % scheme)
-    check("°C" in page.inner_text("#windTrips") and "windsurf" in page.inner_text("#windTrips"), "%s: trips show windsurf days and temperature" % scheme)
+    check("°C air" in page.inner_text("#windTrips") and "windsurf" in page.inner_text("#windTrips"), "%s: trips show windsurf days and temperature" % scheme)
+    page.wait_for_function("document.querySelector('#windTrips').innerText.includes('°C water')", timeout=5000)
+    check("20 °C water" in page.inner_text("#windTrips"), "%s: trips show the water temperature" % scheme)
     page.locator("#windTrips .trip .open").first.click(); page.wait_for_selector("#sheet.show .trip-days", timeout=3000)
     check(page.locator("#sheetBody .trip-days li").count() >= 2, "%s: trip details list the days" % scheme)
     page.keyboard.press("Escape"); page.wait_for_timeout(400)
