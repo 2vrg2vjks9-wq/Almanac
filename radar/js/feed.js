@@ -1,4 +1,5 @@
 // The feed: ranking (taste.json + reactions), item rows, and the lists on Today, Explore, Work and Saved.
+import { paint as paintFresh } from "./fresh.js";
 import { $, html, put, d, today, shortDate, safeUrl, km, kmText, ago, isoDay } from "./util.js";
 import { S, save } from "./store.js";
 import { D, emit, visible, past, isWork, isGo, focusRegion, REGION_NAME, Q, refreshUntil, nearTrip } from "./data.js";
@@ -64,7 +65,6 @@ function endsSoon(it) {
 function status(it) {
   const s = d(it.start), e = d(it.end), f = d(it.found), t = today();
   if (endsSoon(it)) return ["soon", isWork(it) && deadline(it) ? "Deadline soon" : "Ends soon"];
-  if (f && (t - f) / 864e5 <= 3) return ["new", "New"];
   if (s && s <= t && (!e || e >= t) && it.kind !== "restaurant" && it.kind !== "story") return ["now", "On now"];
   if (it.pick) return ["", "Suggestion"];
   if (it.kind === "bucket") return ["now", "Good time"];
@@ -136,9 +136,12 @@ export function reactButtons(it, labels) {
   const L = (t) => (labels ? html`<span>${t}</span>` : "");
   return html`<button class="ib up${up ? " on" : ""}" data-a="up" type="button" aria-label="More like this" aria-pressed="${String(up)}">${I.up}${L("More")}</button><button class="ib down${down ? " on" : ""}" data-a="down" type="button" aria-label="Less like this" aria-pressed="${String(down)}">${I.down}${L("Less")}</button><button class="ib save${sv ? " on" : ""}" data-a="save" type="button" aria-label="${sv ? "Saved" : "Save"}" aria-pressed="${String(sv)}">${sv ? I.saveOn : I.save}${L(sv ? "Saved" : "Save")}</button><button class="ib hide" data-a="hide" type="button" aria-label="${hd ? "Unhide" : "Hide"}">${hd ? I.unhide : I.hide}${L(hd ? "Unhide" : "Hide")}</button>`;
 }
+// the kind of new find, for the "New" counts and Today's line (fresh.js)
+export const freshKind = (it) => (isWork(it) ? "lead" : it.kind === "concert" ? "concert" : it.kind === "bucket" ? "bucket"
+  : ["release", "story", "news", "meditation"].includes(it.kind) ? "read" : "idea");
 function itemHTML(it, big) {
   const place = placeOf(it), url = safeUrl(it.url);
-  return html`<article class="item${big ? " big" : ""}" data-id="${it.id}"${calable(it) ? html` data-cal="1"` : ""}>
+  return html`<article class="item${big ? " big" : ""}" data-id="${it.id}" data-fresh="f:${it.id}" data-found="${it.found || ""}" data-fk="${freshKind(it)}"${calable(it) ? html` data-cal="1"` : ""}>
     <div class="meta">${metaLine(it)}</div>
     <h3><button class="open" type="button" aria-haspopup="dialog">${it.title}</button></h3>
     ${place ? html`<div class="where">${place}</div>` : ""}${dueHTML(it)}
@@ -321,15 +324,8 @@ export function markLeadsSeen() {
   save("workSeen");
   paintWorkCount(); drawNewLeads();
 }
-export function paintWorkCount() {
-  const tab = document.querySelector('.tab[data-v="work"]');
-  if (!tab || !D.feed) return;
-  const n = currentTab() === "work" ? 0 : newLeads().length; // the number goes as soon as you open Work
-  let c = tab.querySelector(".count");
-  if (n && !c) { c = document.createElement("span"); c.className = "count"; c.setAttribute("aria-hidden", "true"); tab.appendChild(c); }
-  if (c) { if (n) c.textContent = n > 99 ? "99+" : n; else c.remove(); }
-  tab.setAttribute("aria-label", n ? "Work, " + n + " new " + (n === 1 ? "lead" : "leads") : "Work");
-}
+// tab numbers come from fresh.js: unseen new things on each tab, gone once you've seen them
+export function paintWorkCount() { paintFresh(); }
 function drawNewLeads() {
   const box = $("workNew"), list = newLeads();
   if (!box) return;

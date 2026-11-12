@@ -633,3 +633,11 @@ button.rday:active { background: var(--sunk); }
 .watch-box + .watch-box { margin-top: 18px; }
 .watch-box .want-sub small { color: var(--ink-3); }
 .house-opts { margin-top: 8px; border-bottom: 0; }
+
+/* --- New finds (fresh.js) --- */
+.fresh { transition: opacity .6s ease .2s; }
+.fresh.gone { opacity: 0; }
+#youJump .pill.has-new::after { content: ""; display: inline-block; width: 7px; height: 7px; margin-left: 6px; border-radius: 50%; background: var(--flag); vertical-align: middle; }
+.fresh-line { margin: 10px 2px 0; font: 15px/1.5 var(--ui); color: var(--ink-2); }
+.fresh-line b { color: var(--ink); }
+.fresh-line .linkbtn { font: inherit; padding: 0; min-height: 0; }

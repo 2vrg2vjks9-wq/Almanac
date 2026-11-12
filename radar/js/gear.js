@@ -126,9 +126,9 @@ function rowHTML(a, maybeLabel, pool) {
   const dl = deal(a, pool || []), w = !!S.watch[a.id], link = adLink(a), note = cleanNote(a.note);
   // marketplaces have a fixed label; dismantlers (sloperijen) and parts networks bring their own name
   const s = a.seller ? [a.seller, (a.country || "").toUpperCase()] : SITES[a.site] || [a.site || "", (a.country || "").toUpperCase()];
-  return html`<article class="ad" data-id="${a.id}">
+  return html`<article class="ad" data-id="${a.id}" data-fresh="ad:${a.id}" data-found="${a.found || ""}" data-fk="ad">
     <a class="ad-main" href="${link.href}" target="_blank" rel="noopener" data-swipeok>
-      <span class="ad-top"><span class="ad-site">${s[1]} · ${s[0]}</span>${a.match === "hit" ? html`<span class="state now">Match</span>` : html`<span class="state">${maybeLabel}</span>`}${isNew(a) ? html`<span class="state new">New</span>` : ""}${dl && dl.good ? html`<span class="state deal">Good deal</span>` : ""}${dropped(a) ? html`<span class="state deal">Price dropped</span>` : w ? html`<span class="state">Watching</span>` : ""}${a.gone ? html`<span class="state soon">Gone</span>` : ""}</span>
+      <span class="ad-top"><span class="ad-site">${s[1]} · ${s[0]}</span>${a.match === "hit" ? html`<span class="state now">Match</span>` : html`<span class="state">${maybeLabel}</span>`}${dl && dl.good ? html`<span class="state deal">Good deal</span>` : ""}${dropped(a) ? html`<span class="state deal">Price dropped</span>` : w ? html`<span class="state">Watching</span>` : ""}${a.gone ? html`<span class="state soon">Gone</span>` : ""}</span>
       <b>${a.title}</b>
       <small>${[a.size, a.location, a.shipping ? "ships" : "", a.warranty ? a.warranty + " warranty" : "", online(a) || age(a)].filter(Boolean).join(" · ")}</small>
       ${dl ? html`<small class="ad-deal${dl.good ? " good" : ""}">${dl.text}</small>` : ""}

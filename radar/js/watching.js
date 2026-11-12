@@ -40,8 +40,8 @@ function itemsHTML(k, m) {
   const hidden = get(HIDE, {});
   const items = ((m && m.items) || []).filter((x) => x && x.title && !hidden[x.id]);
   if (!items.length) return html`<p class="empty">${m && m.checked ? "Nothing to report right now." : "First check coming soon."}</p>`;
-  return html`${items.map((x) => html`<article class="item watch-item" data-w="${k}" data-id="${x.id || x.title}">
-    <div class="meta">${x.important ? html`<span class="flag">Important</span>` : ""}${x.date ? html`<span>${x.date}</span>` : ""}${x.found && (Date.now() - Date.parse(x.found)) / 864e5 < 4 ? html`<span class="state new">New</span>` : ""}</div>
+  return html`${items.map((x) => html`<article class="item watch-item" data-w="${k}" data-id="${x.id || x.title}" data-fresh="w:${x.id || x.title}" data-found="${x.found || ""}" data-fk="${k === "policy" ? "policy" : "watch"}">
+    <div class="meta">${x.important ? html`<span class="flag">Important</span>` : ""}${x.date ? html`<span>${x.date}</span>` : ""}</div>
     <h3>${safeUrl(x.url) ? html`<a class="open" href="${safeUrl(x.url)}" target="_blank" rel="noopener" data-swipeok>${x.title}</a>` : x.title}</h3>
     ${x.summary ? html`<p class="clip">${x.summary}</p>` : ""}
   </article>`)}`;

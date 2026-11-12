@@ -475,8 +475,15 @@ def tabs_suite(browser, site, scheme):
     check(page.locator('.tab[data-v="work"] .count').count() == 1, "%s: Work tab counts new leads" % scheme)
     tab(page, "work")
     check(page.is_visible("#workNew") and page.locator("#workNewList .item").count() >= 1, "%s: New leads section at the top of Work" % scheme)
+    check(page.locator("#workNewList .item .fresh").count() >= 1, "%s: new leads carry a New label" % scheme)
+    # each new thing counts as seen after about a second on screen; then the Work number goes
+    for i in range(page.locator("#v-work [data-fresh] .fresh:not(.gone)").count()):
+        el = page.locator("#v-work [data-fresh]:has(.fresh:not(.gone))").first
+        if not el.count(): break
+        el.scroll_into_view_if_needed(); page.wait_for_timeout(1400)
+    check(page.locator('.tab[data-v="work"] .count').count() == 0, "%s: seen new things clear the Work number" % scheme)
     tab(page, "today"); page.wait_for_timeout(200); tab(page, "work"); page.wait_for_timeout(200)
-    check(not page.is_visible("#workNew") and page.locator('.tab[data-v="work"] .count').count() == 0, "%s: leaving Work marks new leads as seen" % scheme)
+    check(not page.is_visible("#workNew") and page.locator("#v-work .fresh").count() == 0, "%s: seen leads lose their New label" % scheme)
     check(page.locator("#workFeed .item").count() >= 1, "%s: Work tab lists opportunities" % scheme)
     check(page.locator("#workPolicy .watch-item").count() == 2 and "Two calls open soon" in page.inner_text("#workPolicy"), "%s: Work shows Policy and funding" % scheme)
     # Companies you track
@@ -989,11 +996,22 @@ def do_suite(browser, site, scheme):
     m = Mocks(page)
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
     # the Discover number counts ideas you haven't seen yet and goes once you open Discover
-    page.evaluate("localStorage.setItem('radar-go-seen', '{}')"); page.reload()
-    page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
-    check(page.locator(".tab[data-v=discover] .count").count() == 1, "%s: Discover tab counts new ideas" % scheme)
-    tab(page, "discover"); page.click('#panes [data-p="go"]'); page.wait_for_timeout(150)
-    check(page.locator(".tab[data-v=discover] .count").count() == 0, "%s: the Discover number goes once seen" % scheme)
+    page.wait_for_timeout(300)
+    def dn(): 
+        t = page.locator(".tab[data-v=discover] .count")
+        return int(t.inner_text().replace("+", "")) if t.count() else 0
+    n0 = dn()
+    check(n0 >= 1, "%s: Discover tab counts new things" % scheme)
+    tab(page, "discover")
+    for pn in page.locator("#panes [data-p]").all():
+        pn.click(); page.wait_for_timeout(200)
+        for _ in range(6):
+            el = page.locator("#v-discover [data-fresh]:visible:has(.fresh:not(.gone))").first
+            if not el.count(): break
+            el.scroll_into_view_if_needed(); page.wait_for_timeout(1400)
+    page.click('#panes [data-p="go"]'); page.wait_for_timeout(200)
+    check(dn() < n0 and page.locator("#v-discover .fresh.gone").count() >= 1, "%s: the Discover number drops as new things are seen (%d to %d)" % (scheme, n0, dn()))
+    check("new:" in page.evaluate("document.getElementById('freshLine').innerText") or page.locator("#freshLine").get_attribute("hidden") is not None, "%s: Today's line lists new things" % scheme)
     all_text = page.inner_text("#pane-go")
     check("Big dance festival" not in all_text, "%s: far idea with a low fit stays out (Hague first)" % scheme)
     check("Infinity rooms retrospective" in all_text, "%s: far idea with a high fit shows" % scheme)

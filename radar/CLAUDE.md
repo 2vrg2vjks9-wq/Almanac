@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen, radar-ad-votes, radar-backup-at, radar-backup-sent, radar-restore-offered, radar-watch-hidden.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen, radar-ad-votes, radar-backup-at, radar-backup-sent, radar-restore-offered, radar-watch-hidden, radar-seen, radar-seen-start.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -318,8 +318,12 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
 - **Regenerative** (Work): regenerative economics and finance are always part of the work search (no setting); the work
   task marks matching items `theme: "regen"` and the row shows a "Regenerative" label. Startup work is on by default
   too: with no `settings.work.startups` the app shows the switch on with every choice and the task uses them all.
-- **Tab numbers** go once seen: Work's count clears when you open Work (its New leads list stays until you leave);
-  Discover's counts only Go ideas new since you last opened Discover (`radar-go-seen`), not every undecided idea.
+- **New finds** (`js/fresh.js`): rows carry `data-fresh` (f:<feed id>, do:<idea id>, ad:<id>, w:<id>), `data-found` and
+  `data-fk` (lead, idea, concert, read, bucket, ad, watch, policy). Found in the last 7 days and not in `radar-seen` = a
+  "New" label; a row 60% on screen for a second is seen (label fades, gone next draw). Tab numbers count unseen new
+  things per tab (Today excluded), You's jump buttons get a dot, and Today shows "N new: …" links (`#freshLine`). First
+  run: only the last 2 days count (`radar-seen-start`). Replaced the date-only "New" states and the old tab counters
+  (`paintWorkCount` and do.js `paintCount` call `paint()`); Work's New leads section still uses `radar-work-seen`.
 - **Done** (Go): on your list, the X becomes "Done" (swipe left too): `radar-do[id].done`, still a yes for Radar's
   learning, gone from the lists, Act now and the brief. Not the same as "Not for me".
 - **One show per artist:** for artists in `interests.artists`/`concertAlerts.artists` the app shows only the nearest

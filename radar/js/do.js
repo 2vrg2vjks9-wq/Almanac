@@ -4,6 +4,7 @@
 //   (1–5) to show: Leiden/Rotterdam 3+, Amsterdam/Utrecht 4+, beyond 5.
 // - Decide: one card at a time, yes / no / later (buttons or swipe). Yes goes on the yes list.
 // - Answers are kept on this phone (radar-do) and sent to Claude, sealed, with the other reactions.
+import { paint as paintFresh } from "./fresh.js";
 import { $, html, put, d, today, shortDate, longDate, safeUrl, mapUrl, km, reduceMotion } from "./util.js";
 import { S, save, get, set, KEYS } from "./store.js";
 import { D, emit, Q, mergePicks, refreshUntil, tripPoint } from "./data.js";
@@ -109,7 +110,6 @@ function status(it) {
   if (e && e >= t && (e - t) / 864e5 <= 10 && (!s || s <= t)) return ["soon", "Ends soon"];
   if (s && +s === +t) return ["now", "Today"];
   if (it.prep && farOut(it)) return ["soon", "Plan ahead"];
-  if (f && (t - f) / 864e5 <= 3) return ["new", "New"];
   if (it.picked) return ["new", "Just found"];
   if (it.major) return ["", "Big one"];
   if (it.fresh) return ["", "Fresh idea"];
@@ -220,7 +220,7 @@ function rowHTML(it) {
   const a = answer(it), yes = !!(a && a.v > 0), no = !!(a && a.v < 0), w = whenText(it);
   const left = yes ? html`<button class="vote d" type="button" data-done aria-label="I've done this">${Y}Done</button>`
     : html`<button class="vote n${no ? " on" : ""}" type="button" data-v="-1" aria-pressed="${String(no)}" aria-label="Not for me">${N}</button>`;
-  return html`<article class="idea" data-id="${it.id}">${badge(it)}<div class="im">
+  return html`<article class="idea" data-id="${it.id}" data-fresh="${freshKey(it)}" data-found="${it.found || ""}" data-fk="${it.cat === "music" && /^f-/.test(it.id) ? "concert" : "idea"}">${badge(it)}<div class="im">
     <div class="meta">${meta(it)}</div>
     <h3><button class="open" type="button" aria-haspopup="dialog">${it.title}</button></h3>
     <div class="where">${[placeText(it), w].filter(Boolean).join(" · ")}</div>
@@ -377,7 +377,11 @@ export function openIdea(it) {
 }
 function refreshIdea() { if (sheetOpen() && current && document.querySelector("#sheetBody .react.two")) paintSheet(); }
 
+// a Go idea merged from the feed (id f-<feed id>) shares its "seen" with the same item in For you
+const freshKey = (it) => (/^f-/.test(it.id) ? "f:" + it.id.slice(2) : "do:" + it.id);
 function paintCount() {
+  paintFresh(); // the Discover number now counts unseen new things (fresh.js)
+  return;
   const tab = document.querySelector('.tab[data-v="discover"]');
   if (!tab) return;
   if (!goSeen) { goSeen = {}; ideas().forEach((it) => { goSeen[it.id] = 1; }); set(KEYS.goSeen, goSeen); } // first run: start from zero
