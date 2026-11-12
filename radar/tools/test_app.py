@@ -598,6 +598,15 @@ def tabs_suite(browser, site, scheme):
     page.click("#undoBtn"); page.wait_for_timeout(200)
     check(page.locator("#gear .ad").count() == 5, "%s: Undo brings the ad back" % scheme)
     page.locator("#gear [data-hide]").first.click(); page.wait_for_timeout(150)
+    # rate ads: 👎 with a reason hides it and teaches the finds search; 👍 marks a good find
+    n0 = page.locator("#gear .ad").count()
+    page.locator('#gear [data-rate="down"]').first.click(); page.wait_for_selector("#sheet.show .rate-why", timeout=3000); page.wait_for_timeout(300)
+    page.click('#sheetBody [data-why="price"]'); page.click("#rateSend"); page.wait_for_timeout(400)
+    v = json.loads(page.evaluate("localStorage.getItem('radar-ad-votes')"))
+    check(page.locator("#gear .ad").count() == n0 - 1 and list(v.values())[0]["r"] == ["price"] and list(v.values())[0]["v"] == "down", "%s: Not this asks why, hides the ad and keeps the reason" % scheme)
+    page.locator('#gear [data-rate="up"]').first.click(); page.wait_for_selector("#sheet.show .rate-why", timeout=3000); page.wait_for_timeout(300)
+    page.click("#rateSend"); page.wait_for_timeout(400)
+    check(page.locator('#gear [data-rate="up"].on').count() == 1 and "Good find" in page.inner_text("#gear"), "%s: Good marks a good find" % scheme)
     page.locator("#wingBox").scroll_into_view_if_needed(); shot(page, "gear-%s.png" % scheme, False)
     check(page.locator("#wanted .want").count() == 1 and page.locator("#wanted .ad").count() == 3, "%s: Finds lists the car-seat search with its ads" % scheme)
     check("Check fit" in page.inner_text("#wanted") and "Match" in page.inner_text("#wanted"), "%s: Finds marks matches and unsure fits" % scheme)
@@ -651,6 +660,27 @@ def tabs_suite(browser, site, scheme):
     check(sn and '"weekend": false' in unseal(sn[-1]["body"]).replace('":false', '": false'), "%s: settings sent sealed" % scheme)
     tr = [n for n in m.notes if n.get("label") == "radar-track"]
     check(tr and '"aurora"' in unseal(tr[-1]["body"]), "%s: wish edit sent sealed" % scheme)
+    # Backup: Back up now sends a sealed radar-backup note; task.py keeps it encrypted; Restore writes it back
+    check("Not sent yet" in page.inner_text("#backupBox"), "%s: backup card in Settings" % scheme)
+    page.click("#backupNow"); page.wait_for_timeout(1500)
+    bn = [n for n in m.notes if n.get("label") == "radar-backup"]
+    check(bn and ('"gz"' in unseal(bn[-1]["body"]) or '"data"' in unseal(bn[-1]["body"])) and "Last sent" in page.inner_text("#backupBox"), "%s: Back up now sends a sealed backup" % scheme)
+    if bn:
+        sys.path.insert(0, os.path.join(SITE, "radar", "tools")); import task as T
+        txt = unseal(bn[-1]["body"]); j = json.loads(txt[txt.index("{"):])
+        T.PLAIN = tempfile.mkdtemp(); T.save_backup(j)
+        bj = open(os.path.join(T.PLAIN, "backup.json")).read()
+        check("radar-settings" in json.loads(bj)["data"], "%s: the backup holds the phone's settings" % scheme)
+        js = "import {key, write} from %s; import {readFileSync} from 'fs'; write(key(), 'backup', readFileSync(0, 'utf8'));" % json.dumps(os.path.join(SITE, "radar", "tools", "vault.mjs"))
+        subprocess.run(["node", "--input-type=module", "-e", js], input=bj, text=True, env=dict(os.environ, RADAR_KEY=PASS), check=True)
+        page.evaluate("localStorage.removeItem('radar-settings')")
+        page.evaluate("import('./js/data.js').then((m) => { m.D.config.backupAt = '2026-11-12T12:00:00Z'; })"); page.wait_for_timeout(200)
+        page.click("#restoreNow"); page.wait_for_selector("#sheet.show #doRestore", timeout=4000); page.wait_for_timeout(300)
+        page.click("#doRestore"); page.wait_for_timeout(2500)
+        check(page.evaluate("localStorage.getItem('radar-settings')") is not None, "%s: Restore brings the settings back" % scheme)
+        os.remove(os.path.join(SITE, "radar", "data", "backup.enc.json"))
+        page.wait_for_selector(".tab[data-v=saved]", timeout=8000); page.wait_for_timeout(800)
+        tab(page, "saved"); page.click("#setBtn"); page.wait_for_timeout(600)
     page.click("#setBack"); page.wait_for_timeout(200)
     check(page.is_visible("#v-saved"), "%s: back returns to You" % scheme)
 

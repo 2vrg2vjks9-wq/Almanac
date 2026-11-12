@@ -4,6 +4,7 @@ import { D, loadData, on, mergePicks } from "./data.js";
 import { initTabs, initSheet, initPullToRefresh, initWelcome, currentTab, initUndo } from "./ui.js";
 import { initWind, loadWind, skeleton, net, reloadWind } from "./wind.js";
 import { loadScout } from "./scout.js";
+import { backupIfDue, offerRestore } from "./backup.js";
 import { drawCompanies, initCompanies } from "./companies.js";
 import { drawWorkPrefs, groupRank } from "./workprefs.js";
 import { setGroupRank } from "./feed.js";
@@ -87,6 +88,7 @@ function start() {
   drawAll();
   skeleton();
   fresh();
+  if (D.source === "live") offerRestore().then(backupIfDue);
 }
 async function loadAll() {
   if (busy) return;

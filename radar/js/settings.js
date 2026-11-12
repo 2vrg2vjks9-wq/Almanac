@@ -7,6 +7,7 @@ import { S, save, set, KEYS } from "./store.js";
 import { D } from "./data.js";
 import { showTab, say } from "./ui.js";
 import { track, outboxCount, outboxWhy } from "./notes.js";
+import { drawBackup } from "./backup.js";
 
 const NOTIFY = [
   ["wind", "Morning wind alert", "When a spot has a rideable window in the next 3 days."],
@@ -144,6 +145,7 @@ export function drawSettings() {
   document.querySelectorAll("#budgetBox [data-b]").forEach((x) => { x.onclick = () => change("budget", null, +x.dataset.b); });
   drawStatus();
   paintAlert();
+  drawBackup();
 }
 
 // The ntfy topic lives in the encrypted interests file (anyone who knows it can read the alerts).

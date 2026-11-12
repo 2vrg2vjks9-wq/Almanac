@@ -9,7 +9,7 @@ import { $, html, put, d, today, ago, safeUrl } from "./util.js";
 import { get, set, KEYS, S, save } from "./store.js";
 import { track } from "./notes.js";
 import { D } from "./data.js";
-import { swipeRow, undoable } from "./ui.js";
+import { swipeRow, undoable, openSheet, closeSheet, say } from "./ui.js";
 import { ask } from "./saved.js";
 
 const SITES = { marktplaats: ["Marktplaats", "NL"], "2dehands": ["2dehands", "BE"], kleinanzeigen: ["Kleinanzeigen", "DE"] };
@@ -17,6 +17,45 @@ const TYPES = [["all", "All"], ["wing", "Wings"], ["board", "Boards"], ["foil", 
 const WING = "wingfoil";
 let type = "all";
 let hidden = get(KEYS.gearHidden, {});
+// Ratings of shown ads (👍 / 👎 with reasons), kept per phone in radar-ad-votes and sent in radar-track as
+// `adFeedback`; task.py apply keeps the latest 40 per search in interests.adFeedback, which the finds task learns from.
+const VOTES_KEY = "radar-ad-votes";
+let votes = get(VOTES_KEY, {});
+const WHY_NOT = [["price", "Too expensive"], ["far", "Too far away"], ["size", "Wrong size"], ["model", "Wrong model or type"], ["condition", "Condition"], ["seller", "Seller or ad looks off"]];
+const WHY_YES = [["price", "Good price"], ["model", "Right model"], ["near", "Close by"], ["condition", "Good condition"]];
+const UP = html`<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2 3l-1 3h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 16.8 20H7"/></svg>`;
+const DOWN = html`<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M7 13V4H4v9zM7 13l4 7c1.5 0 2.5-1 2-3l-1-3h6a2 2 0 0 0 2-2.3l-1.2-6A2 2 0 0 0 16.8 4H7"/></svg>`;
+function sendVote(a, v, reasons) {
+  votes[a.id] = { v, r: reasons, at: Date.now() }; set(VOTES_KEY, votes);
+  track({ adFeedback: [{ search: a.search || "wingfoil", id: a.id, t: String(a.title || "").slice(0, 120), p: a.price, site: a.site, v, r: reasons }] });
+}
+function rate(a, v) {
+  const mine = votes[a.id];
+  if (mine && mine.v === v && v === "up") { // tap 👍 again: take it back
+    delete votes[a.id]; set(VOTES_KEY, votes);
+    track({ adFeedback: [{ search: a.search || "wingfoil", id: a.id, t: String(a.title || "").slice(0, 120), v: "clear" }] });
+    drawGear(); return;
+  }
+  const list = v === "up" ? WHY_YES : WHY_NOT, picked = new Set();
+  openSheet(() => html`<h2 class="sheet-title" id="sheetTitle">${v === "up" ? "What's good about it?" : "Why not this one?"}</h2>
+    <p class="lede">${a.title}</p>
+    <div class="chips rate-why">${list.map(([k, t]) => html`<button class="pill" type="button" data-why="${k}" aria-pressed="false">${t}</button>`)}</div>
+    <p class="fine">${v === "up" ? "The next scans look for more like this." : "The ad is hidden, and the next scans skip ads like it."} Pick any that apply, or none.</p>
+    <div class="sheet-acts"><button class="btn" type="button" id="rateSend">${v === "up" ? "Good find" : "Not for me"}</button></div>`, (el) => {
+    el.querySelectorAll("[data-why]").forEach((b) => { b.onclick = () => { const k = b.dataset.why; if (picked.has(k)) picked.delete(k); else picked.add(k); b.classList.toggle("on", picked.has(k)); b.setAttribute("aria-pressed", String(picked.has(k))); }; });
+    el.querySelector("#rateSend").onclick = () => {
+      closeSheet();
+      sendVote(a, v, [...picked]);
+      if (v === "down") { hidden[a.id] = Date.now(); set(KEYS.gearHidden, hidden); }
+      drawGear();
+      if (v === "down") undoable("Ad hidden. Radar learns from it.", () => {
+        delete hidden[a.id]; set(KEYS.gearHidden, hidden); delete votes[a.id]; set(VOTES_KEY, votes);
+        track({ adFeedback: [{ search: a.search || "wingfoil", id: a.id, t: String(a.title || "").slice(0, 120), v: "clear" }] }); drawGear();
+      });
+      else say("Thanks. The next scans look for more like this.");
+    };
+  }, v === "up" ? "Good find" : "Not for me");
+}
 
 const searchOf = (a) => a.search || WING;
 // Some ads come back from a scan with the marketplace's search page instead of the ad's own page (the page
@@ -99,6 +138,8 @@ function rowHTML(a, maybeLabel, pool) {
     <span class="ad-price">${dropped(a) ? html`<s>${euro(a.was)}</s> ` : ""}${euro(a.price)}</span>
     <button class="ib watch${w ? " on" : ""}" type="button" data-watch="${a.id}" aria-pressed="${String(w)}" aria-label="${w ? "Stop watching the price" : "Watch the price"}">${EYE}</button>
     <button class="ib hide" type="button" data-hide="${a.id}" aria-label="Hide this ad"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="ad-rate"><button class="rate${(votes[a.id] || {}).v === "up" ? " on" : ""}" type="button" data-rate="up" data-ad="${a.id}" aria-pressed="${String((votes[a.id] || {}).v === "up")}">${UP}<span>${(votes[a.id] || {}).v === "up" ? "Good find" : "Good"}</span></button>
+      <button class="rate" type="button" data-rate="down" data-ad="${a.id}">${DOWN}<span>Not this</span></button></div>
   </article>`;
 }
 function hideAd(id) {
@@ -107,6 +148,7 @@ function hideAd(id) {
 }
 function wireHide(box) {
   box.querySelectorAll("[data-hide]").forEach((b) => { b.onclick = () => hideAd(b.dataset.hide); });
+  box.querySelectorAll("[data-rate]").forEach((b) => { b.onclick = () => { const a = ((D.gear && D.gear.ads) || []).find((x) => x.id === b.dataset.ad); if (a) rate(a, b.dataset.rate); }; });
   box.querySelectorAll("[data-watch]").forEach((b) => { b.onclick = () => { const a = ((D.gear && D.gear.ads) || []).find((x) => x.id === b.dataset.watch); if (a) toggleWatch(a); }; });
   // swipe left hides, right opens the ad
   box.querySelectorAll(".ad").forEach((el) => {

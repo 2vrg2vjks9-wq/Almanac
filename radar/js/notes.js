@@ -135,6 +135,7 @@ export function track(patch) {
   if (patch.bucket) patch = Object.assign({}, patch, { bucket: Object.assign({}, pend.bucket || {}, patch.bucket) });
   if (patch.wanted) patch = Object.assign({}, patch, { wanted: Object.assign({}, pend.wanted || {}, patch.wanted) });
   if (patch.spend) patch = Object.assign({}, patch, { spend: (pend.spend || 0) + patch.spend });
+  if (patch.adFeedback) patch = Object.assign({}, patch, { adFeedback: (pend.adFeedback || []).concat(patch.adFeedback).slice(-60) });
   if (patch.companies) { // several changes within the 4 s collect into one note
     const a = pend.companies || {}, b = patch.companies;
     patch = Object.assign({}, patch, { companies: { add: (a.add || []).concat(b.add || []), remove: (a.remove || []).concat(b.remove || []), bell: Object.assign({}, a.bell || {}, b.bell || {}), edit: Object.assign({}, a.edit || {}, b.edit || {}) } });
@@ -155,6 +156,7 @@ function sendTracked() {
   if (p.wanted) t.wanted = p.wanted;
   if (p.spend) t.spend = p.spend;
   if (p.companies) t.companies = p.companies;
+  if (p.adFeedback) t.adFeedback = p.adFeedback;
   if (Object.keys(t).length) note("Radar tracker", JSON.stringify(t), "radar-track", "");
 }
 export const outboxCount = () => S.outbox.length;

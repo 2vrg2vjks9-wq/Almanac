@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen, radar-ad-votes, radar-backup-at, radar-backup-sent, radar-restore-offered.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -340,3 +340,12 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   "Nothing new."); `worth_pushing` drops empty or "nothing new" replies and a message already pushed today for the same
   key (short hashes in status.json `pushed`, saved before the commit). A scheduled run of a task that already ran
   today (after the hourly catch-up) runs as inbox instead (radar-tasks.yml), so it can't run and push twice.
+- **Rate an ad** (Finds): "Good" / "Not this" under each ad open a sheet of reasons (price, far, size, model, condition,
+  seller; for good: price, model, near, condition). Kept in `radar-ad-votes`, sent in radar-track as `adFeedback`;
+  `apply_ad_feedback` keeps the latest 40 per search in `interests.adFeedback`; the finds prompt gets `AD_FEEDBACK`
+  (find more like up, skip down patterns, never re-add a down ad, adjust look_for). "Not this" also hides the ad (Undo).
+- **Backup** (Settings, `js/backup.js`): the phone-only lists (see `KEYS` there and `BACKUP_KEYS` in task.py) are
+  gzipped, sent as a sealed `radar-backup` note and stored by `task.py apply` (`save_backup`) as data/backup.enc.json
+  (vault name `backup`), with `interests.backupAt` set. Weekly by itself (the first a day after Radar starts on a phone),
+  "Back up now", "Restore from backup" (replaces those keys, reloads), and a one-time restore offer on a phone with
+  nothing saved when `backupAt` exists. Never in it: the key, the data cache, the outbox, the GitHub token, caches.

@@ -240,6 +240,18 @@ use at most 1 web search for all three. Only record a price you saw on a page. W
 (replace the old list; leave a trip out when no fare was found). Don't mention fares in your final message."""
 
 
+# You › Finds: the owner rates shown ads; the finds task learns from it (interests.adFeedback, see apply_ad_feedback).
+AD_FEEDBACK = """The owner's ratings of ads you showed (interests.adFeedback, per search id; "wingfoil" is the gear search):
+each has the ad's title t, price p, site, v = up (a good find) or down (not for me) and reasons r: price = too expensive
+(or, for up, a good price), far = too far away, near = close by, size = wrong size, model = wrong model or type
+(for up: the right model), condition, seller = the seller or ad looked off. Learn from them before you pick ads:
+find more like the "up" ones and rank them first; for "down" reasons tighten that search (price: stay well under that
+price; far: closer to home or shipping only; size, model: skip that size or model; condition: skip worn or broken
+items; seller: skip similar listings). Never add an ad that was rated down again (same id or same listing), and
+mark ads that match the "up" pattern as hit. When a search's ratings show a clear pattern, also update that
+search's look_for in interests.wanted (or interests.gear for wingfoil) in a few plain words."""
+
+
 # Every task's final message becomes a push, so it has to be worth one (the owner's rule: no useless notifications).
 PUSH_RULE = """The push rule (overrides any other wording about your final message): your final message is sent to the
 owner's phone as a notification. Only write one when this run added something the owner would want to act on or know
@@ -326,6 +338,8 @@ def prepare(name):
         run = False
     if fares:
         prompt += "\n\n" + FARES
+    if name == "finds":
+        prompt += "\n\n" + AD_FEEDBACK
     prompt += "\n\n" + PUSH_RULE
     open(os.path.join(TMP, "prompt.txt"), "w").write(prompt)
     output(model=CHEAP if billed else (t.get("model") or "claude-sonnet-5-5"), run=str(run).lower(),
@@ -608,7 +622,7 @@ def finish(name):
         shutil.rmtree(PLAIN, ignore_errors=True)
 
 
-APPLY_LABELS = ["radar-settings", "radar-track"]
+APPLY_LABELS = ["radar-settings", "radar-track", "radar-backup"]
 
 
 def _name(x):
@@ -639,6 +653,62 @@ def apply_artists(it, ch):
     it["artists"] = arts
     ca["artists"] = alerts
     it["concertAlerts"] = ca
+
+
+BACKUP_KEYS = ("radar-saved", "radar-reactions", "radar-hidden", "radar-do", "radar-do-view", "radar-gear-hidden", "radar-work",
+               "radar-settings", "radar-watch", "radar-go-seen", "radar-work-seen", "radar-places", "radar-wanted-edits",
+               "radar-wind-place", "radar-follow", "radar-bucket-edits", "radar-bucket-sent", "radar-companies",
+               "radar-scout-hidden", "radar-ad-votes", "radar-welcomed")
+
+
+def save_backup(j):
+    """{v, at, gz: base64 gzip of {key: json string}} or {v, at, data}: keep only known keys whose values are JSON,
+    and write radar/.plain/backup.json, which `vault lock` encrypts as data/backup.enc.json."""
+    import gzip
+    data = j.get("data")
+    if j.get("gz"):
+        try:
+            data = json.loads(gzip.decompress(base64.b64decode(j["gz"])).decode("utf-8"))
+        except Exception:
+            return
+    if not isinstance(data, dict):
+        return
+    keep = {}
+    for k, v in data.items():
+        if k in BACKUP_KEYS and isinstance(v, str) and len(v) < 400000:
+            try:
+                json.loads(v)
+                keep[k] = v
+            except Exception:
+                pass
+    if keep:
+        at = str(j.get("at") or "")[:20] or datetime.datetime.utcnow().isoformat()[:19] + "Z"
+        json.dump({"v": 1, "at": at, "data": keep}, open(os.path.join(PLAIN, "backup.json"), "w"))
+        return at
+
+
+def apply_ad_feedback(it, items):
+    """Ratings of shown ads: [{search, id, t, p, site, v: up|down|clear, r: [reasons]}]. Kept per search in
+    interests.adFeedback {search: [{id, t, p, site, v, r, at}]}, the latest 40, newest last; `clear` takes one back."""
+    fb = it.get("adFeedback") if isinstance(it.get("adFeedback"), dict) else {}
+    ok_r = {"price", "far", "size", "model", "condition", "seller", "near"}
+    for x in items[:60]:
+        if not isinstance(x, dict):
+            continue
+        s, i, v = str(x.get("search") or "wingfoil")[:40], str(x.get("id") or "")[:80], x.get("v")
+        if not i or v not in ("up", "down", "clear"):
+            continue
+        lst = [e for e in (fb.get(s) or []) if isinstance(e, dict) and e.get("id") != i]
+        if v != "clear":
+            e = {"id": i, "t": str(x.get("t") or "")[:120], "v": v, "r": [r for r in (x.get("r") or []) if r in ok_r][:6],
+                 "at": datetime.date.today().isoformat()}
+            if isinstance(x.get("p"), (int, float)):
+                e["p"] = x["p"]
+            if x.get("site"):
+                e["site"] = str(x["site"])[:20]
+            lst.append(e)
+        fb[s] = lst[-40:]
+    it["adFeedback"] = {k: v for k, v in fb.items() if v}
 
 
 def apply_companies(it, ch):
@@ -714,6 +784,11 @@ def apply():
                 j = None
             done.append(num)
             if not isinstance(j, dict):
+                continue
+            if label == "radar-backup":  # Settings › Backup: the phone's saves, kept encrypted as data/backup.enc.json
+                at = save_backup(j)
+                if at:
+                    it["backupAt"] = at  # tells the app a backup exists (and when) without fetching it
                 continue
             if label == "radar-settings":
                 cur = it.get("settings") if isinstance(it.get("settings"), dict) else {}
@@ -809,6 +884,8 @@ def apply():
                     apply_artists(it, j["artists"])
                 if isinstance(j.get("companies"), dict):
                     apply_companies(it, j["companies"])
+                if isinstance(j.get("adFeedback"), list):
+                    apply_ad_feedback(it, j["adFeedback"])
                 try:
                     c = float(j.get("spend") or 0)
                     if 0 < c < 2:
@@ -820,7 +897,8 @@ def apply():
         vault("lock")
         if spend:
             record(spend)
-        files = ["radar/data/interests.enc.json"] + (["radar/spend.json"] if os.path.exists(SPEND) else [])
+        files = ["radar/data/interests.enc.json"] + (["radar/spend.json"] if os.path.exists(SPEND) else []) + \
+            (["radar/data/backup.enc.json"] if os.path.exists(os.path.join(ROOT, "radar", "data", "backup.enc.json")) else [])
         subprocess.run(["git", "add", "--"] + files, cwd=ROOT, check=True)
         if subprocess.run(["git", "diff", "--cached", "--quiet", "--"] + files, cwd=ROOT).returncode != 0:
             subprocess.run(["git", "-c", "user.name=Radar", "-c", "user.email=radar@users.noreply.github.com",
