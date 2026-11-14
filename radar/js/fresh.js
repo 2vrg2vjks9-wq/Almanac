@@ -7,6 +7,7 @@
 import { $, html, put } from "./util.js";
 import { get, set } from "./store.js";
 import { showTab, currentTab } from "./ui.js";
+import { track } from "./notes.js";
 
 const SEEN = "radar-seen", START = "radar-seen-start", DAYS = 7;
 let seen = get(SEEN, {}) || {};
@@ -26,8 +27,27 @@ export function isNew(key, found) {
   return f >= start && age <= DAYS && age >= -1;
 }
 
+// What you've seen also goes to Radar's tasks (sealed, in a radar-track note as `seen`), so a push never names
+// something you already looked at. Queued in radar-seen-out and sent when Radar goes to the background, at most
+// every 15 minutes, or when the queue gets long.
+const OUT = "radar-seen-out", OUT_AT = "radar-seen-sent";
+function queue(key) {
+  const q = get(OUT, []) || [];
+  if (!q.includes(key)) q.push(key);
+  set(OUT, q.slice(-500));
+  if (q.length >= 60) flushSeen(true);
+}
+export function flushSeen(force) {
+  const q = get(OUT, []) || [];
+  if (!q.length || (!force && Date.now() - (+get(OUT_AT, 0) || 0) < 15 * 6e4)) return;
+  track({ seen: q });
+  set(OUT, []); set(OUT_AT, Date.now());
+}
 let saveT = 0;
-function markSeen(key) {
+// also called when you open something (detail sheet, an ad, a link)
+export function markSeen(key) {
+  if (!key) return;
+  queue(key);
   if (seen[key]) return;
   seen[key] = today();
   clearTimeout(saveT);
@@ -123,6 +143,12 @@ export function initFresh() {
   const mo = new MutationObserver(() => { clearTimeout(scanT); scanT = setTimeout(scan, 60); });
   mo.observe(document.body, { childList: true, subtree: true });
   window.addEventListener("radar-tab", () => setTimeout(scan, 50));
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushSeen(false); });
+  // opening a row (its title, link or Open details) counts as seen too
+  document.addEventListener("click", (e) => {
+    const row = e.target.closest && e.target.closest("[data-fresh]");
+    if (row && e.target.closest(".open, a, [data-a]")) markSeen(row.dataset.fresh);
+  }, true);
   scan();
 }
 export const freshTab = currentTab; // for tests

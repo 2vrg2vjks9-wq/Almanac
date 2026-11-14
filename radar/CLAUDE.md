@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen, radar-ad-votes, radar-backup-at, radar-backup-sent, radar-restore-offered, radar-watch-hidden, radar-seen, radar-seen-start.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen, radar-ad-votes, radar-backup-at, radar-backup-sent, radar-restore-offered, radar-watch-hidden, radar-seen, radar-seen-start, radar-seen-out, radar-seen-sent.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -360,3 +360,8 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   policy (climate-finance policy and the funding calendar). `interests.watching.<k>` {checked, summary, items[≤6],
   sources}. `js/watching.js` shows holiday, houses (with the house choices) and newbuild under You › Watching and
   policy under Work › Policy and funding; rows swipe (right opens, left hides in `radar-watch-hidden`, Undo).
+- **Never push what was seen or pushed before:** `PUSH_RULE` asks for one line per thing ending in its id in brackets;
+  `filter_push` (finish, before the lock) drops lines whose id or text key is in `interests.pushed` (any task, 60 days),
+  `interests.reviewed` (seen or opened in the app) or `interests.tracked`, strips the ids and records what goes out.
+  The phone queues seen and opened keys (fresh.js, `radar-seen-out`) and sends them in radar-track as `seen` when it goes
+  to the background (at most every 15 min, or at 60 keys); `apply` keeps them 90 days in `interests.reviewed`.

@@ -288,10 +288,46 @@ search's look_for in interests.wanted (or interests.gear for wingfoil) in a few 
 # Every task's final message becomes a push, so it has to be worth one (the owner's rule: no useless notifications).
 PUSH_RULE = """The push rule (overrides any other wording about your final message): your final message is sent to the
 owner's phone as a notification. Only write one when this run added something the owner would want to act on or know
-today: name at most 3 new things by their title, each with a few words on why or by when. Otherwise answer exactly
-"Nothing new." Never report routine work (past items removed, sources updated, pages checked, lists tidied, counts),
-never repeat something an earlier push already named, and no greetings or sign-offs."""
+today: name at most 3 new things, one per line, each as its title with a few words on why or by when, ending with the
+thing's id in square brackets (its id in feed, things, gear or watching, e.g. "... apply by 30 Nov [wk-gcf-call]").
+Otherwise answer exactly "Nothing new." Never report routine work (past items removed, sources updated, pages
+checked, lists tidied, counts), never name things in interests.pushed or interests.reviewed (already pushed, or
+already seen by the owner in the app), and no greetings or sign-offs."""
 QUIET = ("nothing new", "no new ", "no changes", "nothing to report", "all up to date")
+
+
+def filter_push(res):
+    """Drop lines naming something already pushed (any task, last 60 days) or already seen, opened, saved, tracked or
+    hidden in the app (interests.reviewed / tracked), then strip the [id] tags. Remembers what goes out in
+    interests.pushed {id or line key: day}. Returns the text to push ("" = nothing left)."""
+    path = os.path.join(PLAIN, "interests.json")
+    try:
+        it = json.load(open(path))
+    except Exception:
+        return re.sub(r"\s*\[[^\[\]]{1,80}\]\s*$", "", str(res or ""), flags=re.M).strip()
+    today = datetime.date.today()
+    cut = (today - datetime.timedelta(days=60)).isoformat()
+    pushed = {k: v for k, v in (it.get("pushed") or {}).items() if isinstance(v, str) and v >= cut}
+    known = set(pushed) | set((it.get("reviewed") or {}).keys()) | set((it.get("tracked") or {}).keys())
+    keep = []
+    for line in str(res or "").splitlines():
+        m = re.search(r"\[([^\[\]]{1,80})\]\s*$", line)
+        text = re.sub(r"\s*\[[^\[\]]{1,80}\]\s*$", "", line).strip()
+        if not text or text.lower().startswith(QUIET):
+            continue
+        lk = "t:" + re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()[:60]
+        ids = [m.group(1).strip()] if m else []
+        if any(i in known for i in ids) or lk in known:
+            continue
+        keep.append(text)
+        for k in ids + [lk]:
+            pushed[k] = today.isoformat()
+    if len(pushed) > 400:
+        pushed = dict(sorted(pushed.items(), key=lambda kv: kv[1])[-400:])
+    it["pushed"] = pushed
+    json.dump(it, open(path, "w"), ensure_ascii=False, indent=1)
+    out = "\n".join(keep).strip()
+    return "" if out.lower().startswith(QUIET) else out
 
 
 def worth_pushing(name, res, key):
@@ -621,6 +657,7 @@ def finish(name):
         # left, and only the known data files are committed; anything else it touched is thrown away.
         os.remove(os.path.join(PLAIN, "tasks.json"))
         stamp()
+        res = filter_push(res)  # drop what was pushed or seen before; saved in interests before the lock
         set_status(name, "ok", cost_now)
         worth = worth_pushing(name, res, PUSH.get(name, name))  # before the commit, so the push hash is saved
         vault("lock")
@@ -930,6 +967,15 @@ def apply():
                     apply_companies(it, j["companies"])
                 if isinstance(j.get("adFeedback"), list):
                     apply_ad_feedback(it, j["adFeedback"])
+                if isinstance(j.get("seen"), list):  # things the owner has seen or opened in the app
+                    rv = it.get("reviewed") if isinstance(it.get("reviewed"), dict) else {}
+                    day = datetime.date.today().isoformat()
+                    for k in j["seen"][:500]:
+                        k = str(k)[:90].split(":", 1)[-1]
+                        if k:
+                            rv[k] = day
+                    cut = (datetime.date.today() - datetime.timedelta(days=90)).isoformat()
+                    it["reviewed"] = dict(sorted(((k, v) for k, v in rv.items() if v >= cut), key=lambda kv: kv[1])[-1500:])
                 try:
                     c = float(j.get("spend") or 0)
                     if 0 < c < 2:
