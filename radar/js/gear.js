@@ -5,6 +5,7 @@
 // gear.json = {updated, note?, ads:[{id, search (wanted id; missing = "wingfoil"), site, country,
 //   type, brand?, title, price (number, EUR), size?, location?, posted? (YYYY-MM-DD), found, url,
 //   match (hit|maybe), note?, shipping?}]}
+import { wasSeen } from "./fresh.js";
 import { $, html, put, d, today, ago, safeUrl } from "./util.js";
 import { get, set, KEYS, S, save } from "./store.js";
 import { track } from "./notes.js";
@@ -174,8 +175,9 @@ function drawWing() {
 // For Today's brief: new matches and good deals across every search.
 export function gearNews() {
   const all = ((D.gear && D.gear.ads) || []).filter((a) => a && a.id && safeUrl(a.url) && !hidden[a.id]);
-  const fresh = all.filter((a) => a.match === "hit" && isNew(a)).length;
-  const deals = all.filter((a) => isNew(a) && (deal(a, all.filter((x) => searchOf(x) === searchOf(a))) || {}).good).length;
+  const unseen = (a) => isNew(a) && !wasSeen("ad:" + a.id); // seen ads stop counting as new
+  const fresh = all.filter((a) => a.match === "hit" && unseen(a)).length;
+  const deals = all.filter((a) => unseen(a) && (deal(a, all.filter((x) => searchOf(x) === searchOf(a))) || {}).good).length;
   if (!fresh && !deals) return "";
   return [fresh ? (fresh === 1 ? "1 new match" : fresh + " new matches") : "", deals ? (deals === 1 ? "1 good deal" : deals + " good deals") : ""].filter(Boolean).join(", ");
 }

@@ -21,6 +21,7 @@ const KIND = { lead: ["lead", "leads", "work"], idea: ["idea", "ideas", "discove
 const TABS = ["discover", "wind", "work", "saved"];
 const JUMP = { hSaved: "#savedList", hBucket: "#bucketList", hFollow: "#follow", hFinds: "#wingBox, #wanted", hWatching: "#watching" };
 
+export const wasSeen = (key) => !!seen[key];
 export function isNew(key, found) {
   if (!key || !found || seen[key]) return false;
   const f = String(found).slice(0, 10), age = (Date.parse(today()) - Date.parse(f)) / 864e5;
@@ -58,6 +59,7 @@ export function markSeen(key) {
   }, 400);
   document.querySelectorAll('[data-fresh="' + CSS.escape(key) + '"] .fresh').forEach((l) => l.classList.add("gone"));
   paint();
+  window.dispatchEvent(new CustomEvent("radar-seen", { detail: key })); // New leads and Today's brief follow
 }
 
 const timers = new WeakMap();
@@ -140,6 +142,8 @@ function brief() {
 
 let scanT = 0;
 export function initFresh() {
+  // once: everything already seen on this phone before the tasks learned about it
+  if (!get("radar-seen-synced", false)) { const k = Object.keys(seen); if (k.length) { set(OUT, k.slice(-500)); flushSeen(true); } set("radar-seen-synced", true); }
   const mo = new MutationObserver(() => { clearTimeout(scanT); scanT = setTimeout(scan, 60); });
   mo.observe(document.body, { childList: true, subtree: true });
   window.addEventListener("radar-tab", () => setTimeout(scan, 50));

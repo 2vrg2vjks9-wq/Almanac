@@ -102,7 +102,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen, radar-ad-votes, radar-backup-at, radar-backup-sent, radar-restore-offered, radar-watch-hidden, radar-seen, radar-seen-start, radar-seen-out, radar-seen-sent.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen, radar-ad-votes, radar-backup-at, radar-backup-sent, radar-restore-offered, radar-watch-hidden, radar-seen, radar-seen-start, radar-seen-out, radar-seen-sent, radar-seen-synced.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -365,3 +365,7 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   `interests.reviewed` (seen or opened in the app) or `interests.tracked`, strips the ids and records what goes out.
   The phone queues seen and opened keys (fresh.js, `radar-seen-out`) and sends them in radar-track as `seen` when it goes
   to the background (at most every 15 min, or at 60 keys); `apply` keeps them 90 days in `interests.reviewed`.
+- **Seen means gone everywhere:** fresh.js fires `radar-seen` on every newly seen key. Work's New leads (`newLeads`)
+  leave out leads seen or opened anywhere (`wasSeen("f:<id>")`) or marked Interested / Applied; its number drops live and
+  the section goes once all are seen (right away when off screen, else "all seen" until you leave). Today's brief redraws,
+  so its "new leads" and Finds "new matches" (`gearNews`, skips seen `ad:` keys) only count what you haven't seen.

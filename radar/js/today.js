@@ -122,6 +122,7 @@ export function drawWeekend() {
   });
 }
 
+window.addEventListener("radar-seen", () => { if (D.feed) { clearTimeout(window.__briefT); window.__briefT = setTimeout(drawBrief, 300); } });
 export function drawToday() { if (!D.feed) return; drawBrief(); drawAct(); drawWeekend(); paintTrip(); }
 
 // --- Trip mode banner (Discover) ------------------------------------------------------------------------------

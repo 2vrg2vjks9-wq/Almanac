@@ -641,3 +641,4 @@ button.rday:active { background: var(--sunk); }
 .fresh-line { margin: 10px 2px 0; font: 15px/1.5 var(--ui); color: var(--ink-2); }
 .fresh-line b { color: var(--ink); }
 .fresh-line .linkbtn { font: inherit; padding: 0; min-height: 0; }
+.all-seen { margin-left: 10px; font: 600 13px var(--ui); color: var(--ink-3); }

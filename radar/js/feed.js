@@ -1,5 +1,5 @@
 // The feed: ranking (taste.json + reactions), item rows, and the lists on Today, Explore, Work and Saved.
-import { paint as paintFresh } from "./fresh.js";
+import { paint as paintFresh, wasSeen } from "./fresh.js";
 import { $, html, put, d, today, shortDate, safeUrl, km, kmText, ago, isoDay } from "./util.js";
 import { S, save } from "./store.js";
 import { D, emit, visible, past, isWork, isGo, focusRegion, REGION_NAME, Q, refreshUntil, nearTrip } from "./data.js";
@@ -311,9 +311,22 @@ export function newLeads() {
     leadsNow().forEach((it) => { if (!(d(it.found) && (t - d(it.found)) / 864e5 <= 3)) S.workSeen[it.id] = 1; });
     save("workSeen");
   }
-  return leadsNow().filter((it) => !S.workSeen[it.id] && d(it.found) && (t - d(it.found)) / 864e5 <= 7)
+  // seen on screen or opened (fresh.js), or already marked Interested / Applied: not new any more
+  return leadsNow().filter((it) => !S.workSeen[it.id] && !wasSeen("f:" + it.id) && !tracked(it) && d(it.found) && (t - d(it.found)) / 864e5 <= 7)
     .sort((a, b) => (grp(workSub(a)) - grp(workSub(b))) || (d(b.found) - d(a.found)) || ((actBy(a) || 9e15) - (actBy(b) || 9e15)));
 }
+// as leads get seen, the New leads number goes down; the section goes once all are seen and it's off screen
+window.addEventListener("radar-seen", (e) => {
+  if (!/^f:/.test(e.detail || "") || !D.feed) return;
+  const box = $("workNew");
+  if (!box || box.hidden) return;
+  const n = newLeads().length, c = box.querySelector(".h-count");
+  if (n && c) { c.textContent = n; return; }
+  if (c) c.remove();
+  const r = box.getBoundingClientRect();
+  if (currentTab() !== "work" || r.bottom < 0 || r.top > innerHeight) drawNewLeads();
+  else { const h = box.querySelector("#hNewLeads"); if (h && !box.querySelector(".all-seen")) h.insertAdjacentHTML("beforeend", '<span class="all-seen">all seen</span>'); }
+});
 export function markLeadsSeen() {
   const n = newLeads();
   if (!n.length) return;
