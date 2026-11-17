@@ -369,3 +369,6 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   leave out leads seen or opened anywhere (`wasSeen("f:<id>")`) or marked Interested / Applied; its number drops live and
   the section goes once all are seen (right away when off screen, else "all seen" until you leave). Today's brief redraws,
   so its "new leads" and Finds "new matches" (`gearNews`, skips seen `ad:` keys) only count what you haven't seen.
+- **Push filter (hard rule):** `filter_push` in `task.py` only lets a line through when it ends with the `[id]` of an
+  item that really exists in the decrypted data and hasn't been pushed or seen. Run reports ("I checked X, nothing
+  found") are always dropped, however they're worded.

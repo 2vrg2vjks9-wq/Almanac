@@ -296,15 +296,38 @@ already seen by the owner in the app), and no greetings or sign-offs."""
 QUIET = ("nothing new", "no new ", "no changes", "nothing to report", "all up to date")
 
 
+def data_ids():
+    """Every "id" in the decrypted data (feed, things, gear, interests incl. watching/bucketlist)."""
+    ids = set()
+    def walk(o):
+        if isinstance(o, dict):
+            if isinstance(o.get("id"), str):
+                ids.add(o["id"].strip())
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    for f in glob.glob(os.path.join(PLAIN, "*.json")):
+        try:
+            walk(json.load(open(f)))
+        except Exception:
+            pass
+    return ids
+
+
 def filter_push(res):
     """Drop lines naming something already pushed (any task, last 60 days) or already seen, opened, saved, tracked or
     hidden in the app (interests.reviewed / tracked), then strip the [id] tags. Remembers what goes out in
-    interests.pushed {id or line key: day}. Returns the text to push ("" = nothing left)."""
+    interests.pushed {id or line key: day}. Returns the text to push ("" = nothing left).
+    Hard rule (the owner's: no useless notifications): a line only goes out when it ends with the [id] of a thing that
+    is really in the data, so reports like "I checked X and found nothing" can never become a push."""
     path = os.path.join(PLAIN, "interests.json")
     try:
         it = json.load(open(path))
     except Exception:
-        return re.sub(r"\s*\[[^\[\]]{1,80}\]\s*$", "", str(res or ""), flags=re.M).strip()
+        return ""
+    real = data_ids()
     today = datetime.date.today()
     cut = (today - datetime.timedelta(days=60)).isoformat()
     pushed = {k: v for k, v in (it.get("pushed") or {}).items() if isinstance(v, str) and v >= cut}
@@ -317,6 +340,8 @@ def filter_push(res):
             continue
         lk = "t:" + re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()[:60]
         ids = [m.group(1).strip()] if m else []
+        if not ids or ids[0] not in real:
+            continue  # no id, or not a real item: a report about the run, not a new thing
         if any(i in known for i in ids) or lk in known:
             continue
         keep.append(text)
