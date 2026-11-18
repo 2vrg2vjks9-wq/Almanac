@@ -1002,6 +1002,10 @@ def do_suite(browser, site, scheme):
     m = Mocks(page)
     page.goto(site); page.wait_for_selector("#todayWind .spot:not(.skel)", timeout=5000)
     # the Discover number counts ideas you haven't seen yet and goes once you open Discover
+    # the page must sit still when nothing happens (a self-triggering loop froze the tabs on a real phone)
+    page.evaluate("() => { window.__mut = 0; new MutationObserver((l) => { window.__mut += l.length; }).observe(document.body, {childList: true, subtree: true, characterData: true}); }")
+    page.wait_for_timeout(2000)
+    check(page.evaluate("window.__mut") < 5, "%s: the page is quiet when idle (%s changes in 2 s)" % (scheme, page.evaluate("window.__mut")))
     page.wait_for_timeout(300)
     def dn(): 
         t = page.locator(".tab[data-v=discover] .count")

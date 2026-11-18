@@ -372,3 +372,6 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
 - **Push filter (hard rule):** `filter_push` in `task.py` only lets a line through when it ends with the `[id]` of an
   item that really exists in the decrypted data and hasn't been pushed or seen. Run reports ("I checked X, nothing
   found") are always dropped, however they're worded.
+- **fresh.js must not wake itself:** its MutationObserver ignores its own labels, tab numbers and `#freshLine`, and
+  `badge`/`brief` only write when the value changed. A loop (about 56 rewrites a second) froze the tabs on the phone
+  with real data; the test "the page is quiet when idle" guards it.

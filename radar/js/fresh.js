@@ -100,8 +100,10 @@ function badge(tab, n, label) {
   if (!t) return;
   let c = t.querySelector(".count");
   if (n && !c) { c = document.createElement("span"); c.className = "count"; c.setAttribute("aria-hidden", "true"); t.appendChild(c); }
-  if (c) { if (n) c.textContent = n > 99 ? "99+" : n; else c.remove(); }
-  t.setAttribute("aria-label", n ? label + ", " + n + " new" : label);
+  const txt = n > 99 ? "99+" : String(n);
+  if (c) { if (!n) c.remove(); else if (c.textContent !== txt) c.textContent = txt; } // only touch the page on a change
+  const al = n ? label + ", " + n + " new" : label;
+  if (t.getAttribute("aria-label") !== al) t.setAttribute("aria-label", al);
 }
 
 let painting = false;
@@ -125,8 +127,10 @@ function brief() {
   const by = {};
   TABS.forEach((t) => unseenIn("#v-" + t).forEach((k) => { const fk = k.split("|")[1] || "idea"; by[fk] = (by[fk] || 0) + 1; }));
   const kinds = Object.keys(by).filter((k) => KIND[k]).sort((a, b) => by[b] - by[a]), n = kinds.reduce((s, k) => s + by[k], 0);
-  box.hidden = !n;
-  if (!n) return;
+  if (box.hidden !== !n) box.hidden = !n;
+  const sig = kinds.map((k) => k + by[k]).join(",");
+  if (!n || box.dataset.sig === sig) return; // unchanged: rewriting it would wake the observer again
+  box.dataset.sig = sig;
   put(box, html`<b>${String(n)} new:</b> ${kinds.map((k, i) => html`${i ? ", " : ""}<button class="linkbtn" type="button" data-fk="${k}">${String(by[k])} ${by[k] === 1 ? KIND[k][0] : KIND[k][1]}</button>`)}`);
   box.querySelectorAll("[data-fk]").forEach((b) => {
     b.onclick = () => {
@@ -144,7 +148,12 @@ let scanT = 0;
 export function initFresh() {
   // once: everything already seen on this phone before the tasks learned about it
   if (!get("radar-seen-synced", false)) { const k = Object.keys(seen); if (k.length) { set(OUT, k.slice(-500)); flushSeen(true); } set("radar-seen-synced", true); }
-  const mo = new MutationObserver(() => { clearTimeout(scanT); scanT = setTimeout(scan, 60); });
+  // rescan only when lists change, not for this module's own labels, tab numbers or Today line (that looped)
+  const own = (n) => n.nodeType !== 1 || n.classList.contains("fresh") || n.classList.contains("count") || (n.closest && n.closest(".tabs, #freshLine"));
+  const mo = new MutationObserver((list) => {
+    if (list.every((r) => (r.target.closest && r.target.closest(".tabs, #freshLine")) || ([...r.addedNodes].every(own) && [...r.removedNodes].every(own)))) return;
+    clearTimeout(scanT); scanT = setTimeout(scan, 120);
+  });
   mo.observe(document.body, { childList: true, subtree: true });
   window.addEventListener("radar-tab", () => setTimeout(scan, 50));
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushSeen(false); });
