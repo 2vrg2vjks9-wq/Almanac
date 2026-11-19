@@ -33,11 +33,11 @@ SPEND = os.path.join(ROOT, "radar", "spend.json")  # API spend per month (amount
 BUDGET = float(os.environ.get("RADAR_BUDGET_USD") or 5.0)
 CHEAP = "claude-haiku-5-5"
 LOW = {  # task: (cap per run in USD, web searches allowed; 0 = WebSearch switched off)
-    "daily": (0.14, 7),
+    "daily": (0.20, 9),   # raised 19 Nov: runs stopped early and added too little; the monthly guard still caps the total
     "inbox": (0.08, 4),
-    "finds": (0.06, 0),
+    "finds": (0.09, 0),
     "concerts": (0.06, 4),
-    "work": (0.10, 5),
+    "work": (0.15, 7),
     "bucket": (0.08, 4),
     "watch": (0.07, 3),
 }
@@ -171,8 +171,11 @@ RULES = """Cost rules for this run (they come before everything below):
   pages, artist tour pages) over searching.
 - Read and change the data files with small, targeted commands (python or jq on radar/.plain/*.json); don't
   print whole files. Keep the files valid JSON after every change, so a stopped run still leaves good data.
-- Do the most valuable work first: notes from the phone, then removing past items, then new items.
-- Stop when the allowance is used. Fewer, solid items beat many thin ones.
+- Notes from the phone first, then a quick tidy (remove past items), then spend the rest of the run on NEW items:
+  bringing new things is this run's main job. Keep going until you've met the minimum below or used every search
+  and opened all known sources; your cap stops the run by itself, so don't stop early to save money.
+- Every new item must be real and current (a page you opened), with found = today, and not already in the data,
+  in interests.reviewed, rated down or answered "no" before.
 
 """
 
@@ -283,6 +286,22 @@ price; far: closer to home or shipping only; size, model: skip that size or mode
 items; seller: skip similar listings). Never add an ad that was rated down again (same id or same listing), and
 mark ads that match the "up" pattern as hit. When a search's ratings show a clear pattern, also update that
 search's look_for in interests.wanted (or interests.gear for wingfoil) in a few plain words."""
+
+
+# The owner's rule (19 Nov): every run has to bring new things, not only tidy. Minimum new items per run.
+QUOTA = {
+    "daily": "Minimum for this run: at least 6 new ideas in things.json (Den Haag first, at least 2 marked fresh) and at "
+             "least 4 new feed items across music, art, food, books and film, stories and meditation. Use the sources "
+             "you saved before (open their agenda pages) and spread your searches over different kinds.",
+    "work": "Minimum for this run: at least 4 new leads in feed.json (jobs, freelance, calls, grants or events; startup "
+            "and accelerator work and regenerative economics or finance count), each with a real deadline or date when "
+            "the page gives one. Open saved sources first, then search for new ones.",
+    "finds": "Minimum for this run: at least 4 new ads across the searches (marked hit or maybe honestly), from the "
+             "marketplaces' own search pages; check each search's queries, and try 2 extra wordings when a search "
+             "finds nothing.",
+    "bucket": "Minimum for this run: for each wish you check, at least 1 concrete, current option (a dated event, trip, "
+              "offer or listing) as a bucket feed item, unless the page you opened shows there is truly none.",
+}
 
 
 # Every task's final message becomes a push, so it has to be worth one (the owner's rule: no useless notifications).
@@ -434,6 +453,8 @@ def prepare(name):
         prompt += "\n\n" + FARES
     if name == "finds":
         prompt += "\n\n" + AD_FEEDBACK
+    if name in QUOTA:
+        prompt += "\n\n" + QUOTA[name]
     prompt += "\n\n" + PUSH_RULE
     open(os.path.join(TMP, "prompt.txt"), "w").write(prompt)
     output(model=CHEAP if billed else (t.get("model") or "claude-sonnet-5-5"), run=str(run).lower(),

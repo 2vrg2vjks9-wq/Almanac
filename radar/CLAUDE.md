@@ -375,3 +375,7 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
 - **fresh.js must not wake itself:** its MutationObserver ignores its own labels, tab numbers and `#freshLine`, and
   `badge`/`brief` only write when the value changed. A loop (about 56 rewrites a second) froze the tabs on the phone
   with real data; the test "the page is quiet when idle" guards it.
+- **Every run brings new things** (19 Nov, the owner noticed lists only shrank): `RULES` now puts new items first after
+  notes and a quick tidy and says not to stop early; `QUOTA` adds a minimum per run (daily 6 ideas + 4 feed items,
+  work 4 leads, finds 4 ads, bucket 1 option per checked wish). Caps raised: daily (0.20, 9), work (0.15, 7), finds
+  0.09. The monthly pacing guard still keeps the total under the budget; low-priority runs give way first.
