@@ -1,4 +1,4 @@
-// Second-hand finds: ads from Marktplaats (NL), 2dehands (BE) and Kleinanzeigen (DE), collected and
+// Second-hand finds: ads from Marktplaats (NL), 2dehands (BE), Kleinanzeigen (DE) and Vinted, collected and
 // filtered every morning by a Claude task into gear.json (encrypted), one list per wanted search in
 // interests.wanted. Everything shows under You › Finds, wingfoil gear first. Each ad says how long it has
 // been online and how its price compares with similar ads (same search and type), with "Good deal" at 20% under. The phone never contacts those sites; it only opens an ad when tapped.
@@ -13,7 +13,9 @@ import { D } from "./data.js";
 import { swipeRow, undoable, openSheet, closeSheet, say } from "./ui.js";
 import { ask } from "./saved.js";
 
-const SITES = { marktplaats: ["Marktplaats", "NL"], "2dehands": ["2dehands", "BE"], kleinanzeigen: ["Kleinanzeigen", "DE"] };
+// Vinted runs one site per country, so its country comes from the ad (default NL).
+const SITES = { marktplaats: ["Marktplaats", "NL"], "2dehands": ["2dehands", "BE"], kleinanzeigen: ["Kleinanzeigen", "DE"], vinted: ["Vinted", ""] };
+const VINTED = { be: "vinted.be", de: "vinted.de" };
 const TYPES = [["all", "All"], ["wing", "Wings"], ["board", "Boards"], ["foil", "Foils"], ["set", "Sets"]];
 const WING = "wingfoil";
 let type = "all";
@@ -62,7 +64,7 @@ const searchOf = (a) => a.search || WING;
 // Some ads come back from a scan with the marketplace's search page instead of the ad's own page (the page
 // didn't show that ad's link). Those still open something useful: a search on that site for the ad's title, so
 // the ad is at or near the top. The finds task re-finds the real link on its next run.
-const AD_PATH = { marktplaats: /^\/(v|a)\//, "2dehands": /^\/(v|a)\//, kleinanzeigen: /^\/s-anzeige\// };
+const AD_PATH = { marktplaats: /^\/(v|a)\//, "2dehands": /^\/(v|a)\//, kleinanzeigen: /^\/s-anzeige\//, vinted: /^\/items\/\d/ };
 function adLink(a) {
   const u = safeUrl(a.url), re = AD_PATH[a.site];
   if (!u || !re) return { href: u, direct: true };
@@ -73,6 +75,7 @@ function adLink(a) {
   if (!words.length) return { href: u, direct: false };
   const q = encodeURIComponent(words.join(" ").toLowerCase());
   const href = a.site === "kleinanzeigen" ? "https://www.kleinanzeigen.de/s-" + q.replace(/%20/g, "-") + "/k0"
+    : a.site === "vinted" ? "https://www." + (VINTED[a.country] || "vinted.nl") + "/catalog?search_text=" + q
     : "https://www." + (a.site === "2dehands" ? "2dehands.be" : "marktplaats.nl") + "/q/" + q.replace(/%20/g, "+") + "/";
   return { href: safeUrl(href) || u, direct: false };
 }
@@ -126,7 +129,8 @@ const EYE = html`<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke=
 function rowHTML(a, maybeLabel, pool) {
   const dl = deal(a, pool || []), w = !!S.watch[a.id], link = adLink(a), note = cleanNote(a.note);
   // marketplaces have a fixed label; dismantlers (sloperijen) and parts networks bring their own name
-  const s = a.seller ? [a.seller, (a.country || "").toUpperCase()] : SITES[a.site] || [a.site || "", (a.country || "").toUpperCase()];
+  const cc = (a.country || (a.site === "vinted" ? "nl" : "")).toUpperCase(), fixed = SITES[a.site];
+  const s = a.seller ? [a.seller, cc] : fixed ? [fixed[0], fixed[1] || cc] : [a.site || "", cc];
   return html`<article class="ad" data-id="${a.id}" data-fresh="ad:${a.id}" data-found="${a.found || ""}" data-fk="ad">
     <a class="ad-main" href="${link.href}" target="_blank" rel="noopener" data-swipeok>
       <span class="ad-top"><span class="ad-site">${s[1]} · ${s[0]}</span>${a.match === "hit" ? html`<span class="state now">Match</span>` : html`<span class="state">${maybeLabel}</span>`}${dl && dl.good ? html`<span class="state deal">Good deal</span>` : ""}${dropped(a) ? html`<span class="state deal">Price dropped</span>` : w ? html`<span class="state">Watching</span>` : ""}${a.gone ? html`<span class="state soon">Gone</span>` : ""}</span>
@@ -167,7 +171,7 @@ function drawWing() {
   const u = D.gear && D.gear.updated;
   $("gearSub").textContent = u
     ? all.length + (all.length === 1 ? " ad" : " ads") + " that fit your sizes and budget, checked " + ago(u) + "."
-    : "No scan yet. A Claude task checks Marktplaats, 2dehands and Kleinanzeigen every morning.";
+    : "No scan yet. A Claude task checks Marktplaats, 2dehands, Kleinanzeigen and Vinted every morning.";
   put(box, list.length ? html`${list.map((a) => rowHTML(a, "Check size", all))}` : html`<p class="empty">${u ? "Nothing matches right now." : "The first scan fills this in."}</p>`);
   wireHide(box);
 }

@@ -85,7 +85,7 @@ in commit messages, issue comments or Actions logs.
     for times or recurring things ("Daily 10–16, book a slot"); undated ideas show as "Any time". Ids are stored
     in the owner's answers: keep them stable, never reuse one.
   - `gear` — second-hand finds (`js/gear.js`): `{updated, note, ads:[{id, search (an `interests.wanted` id; missing =
-    "wingfoil"), site (marktplaats | 2dehands | kleinanzeigen), country (nl | be | de), type, brand?, title, price (EUR
+    "wingfoil"), site (marktplaats | 2dehands | kleinanzeigen | vinted), country (nl | be | de; Vinted ads carry the country of the Vinted site, default nl), type, brand?, title, price (EUR
     number), size?, location?, posted?, found, url, match (hit | maybe), note?, shipping?}]}`. Filled a few times a day
     by the `finds` Claude task. `interests.wanted` lists the searches ({id, title, short?, look_for, fit, check,
     budget, where, queries per site}); the wingfoil search uses the rules in `interests.gear` and shows on the Wind tab
