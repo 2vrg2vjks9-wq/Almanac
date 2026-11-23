@@ -40,17 +40,38 @@ LOW = {  # task: (cap per run in USD, web searches allowed; 0 = WebSearch switch
     "work": (0.15, 7),
     "bucket": (0.08, 4),
     "watch": (0.07, 3),
+    "wing": (0.03, 0),    # quick wingfoil check, only when the free pre-check saw new ads (see wing_check)
 }
 STATUS = os.path.join(ROOT, "radar", "status.json")  # public run status for the app (dates, outcomes, spend; nothing personal)
 # When the month's money runs low, these give way first, so the daily refresh and the work search keep running:
 # a low-priority run only goes ahead while it leaves RESERVE of the paced budget for the others.
 LOW_PRIORITY = {"finds", "concerts", "inbox", "watch"}
 RESERVE = 0.25
-SWITCHABLE = {"finds", "concerts", "work", "bucket", "watch"}  # tasks the owner can switch off in Settings (daily and inbox stay on)
+SWITCHABLE = {"finds", "concerts", "work", "bucket", "watch"}
+SWITCH_AS = {"wing": "finds"}  # the wingfoil watch follows the Second-hand finds switch  # tasks the owner can switch off in Settings (daily and inbox stay on)
 
 # Tasks whose instructions live here instead of in the vault. Keep them free of personal details: they point
 # at the encrypted interests for everything about the owner.
 BUILTIN = {
+    "wing": {
+        "prompt": """Quick wingfoil check: Radar's free pre-check found new ads on the marketplaces' search pages for the wingfoil
+gear search. Be quick: this run has a very small budget.
+
+radar/.plain/new_ads.json lists them: [{site, id, url?, page}]. `url` is the ad's own page when the pre-check saw it;
+otherwise find that ad (by id) on `page`, the search page it came from. When the list is empty the pre-check couldn't
+read the marketplaces: open the wingfoil search's pages yourself (its queries, newest first) and look for ads that
+aren't in gear.json yet.
+
+1. Open each new ad with WebFetch and judge it against the wingfoil rules in radar/.plain/interests.json `gear`
+   (sizes, budget, brands, what fits) and the owner's ad ratings below.
+2. Add every ad that fits to radar/.plain/gear.json `ads` in the usual format (search "wingfoil", site, country,
+   type, brand, title, price as a number, size, location, posted, found = today, url = the ad's own page,
+   match hit | maybe, note, shipping). Skip ads already there (same id or url) and ads rated down before.
+3. A good find is an ad you marked `hit`, or one priced at least 20% under similar wingfoil ads in gear.json (same
+   type, similar size). Your final message names only good finds (title, price, place, and "good deal" when it is
+   one), most interesting first, each ending with its id in brackets. Maybes are saved but not named.""",
+        "quiet": ["Nothing new."],
+    },
     "watch": {
         "prompt": """Radar's monitors: keep an eye on a few things for the owner of this Radar and report what changed.
 
@@ -231,9 +252,10 @@ EXTRA["inbox"] += ("- A \"Concert check: <artist>\" note (the owner just followe
                    "  slots) in the Netherlands, Belgium or Germany near the border, and follow the concert alert rules below.\n")
 EXTRA["inbox"] += CONCERT_RULES
 EXTRA["daily"] = EXTRA["inbox"]
+EXTRA["wing"] = EXTRA["finds"]
 EXTRA["concerts"] = CONCERT_RULES
 # Which Settings switch silences a task's push (the owner turns them on and off on the phone).
-PUSH = {"daily": "daily", "inbox": "daily", "finds": "finds", "concerts": "concerts", "work": "work", "bucket": "daily", "watch": "watch"}
+PUSH = {"daily": "daily", "inbox": "daily", "finds": "finds", "wing": "finds", "concerts": "concerts", "work": "work", "bucket": "daily", "watch": "watch"}
 
 
 def say(msg):
@@ -412,8 +434,145 @@ def trip_fares():
         return False
 
 
+# Wingfoil watch (the owner's wish, 23 Nov: scan wingfoil gear often and push good finds at once, but keep it
+# affordable). An hourly run first reads the marketplaces' search pages itself, without Claude (free): only when it
+# sees ads it hasn't seen before does Claude run, on just those ads, with a tiny cap and at most WING_RUNS a day.
+# When the pages can't be read (blocked or changed), it falls back to a Claude check every WING_FALLBACK_H hours.
+# Ad ids seen are kept encrypted in interests.gearSeen {id: day}; interests.gearScan {day, runs} counts the runs.
+WING_RUNS = 6
+WING_ADS = 10
+WING_FALLBACK_H = 4
+UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+WING_DEFAULT = ["wingfoil", "wing foil", "foilwing"]
+
+
+def wing_pages(it):
+    """(site, url) for each query of the wingfoil search, newest first where the site allows it."""
+    from urllib.parse import quote
+    g = it.get("gear") if isinstance(it.get("gear"), dict) else {}
+    w = next((x for x in it.get("wanted") or [] if isinstance(x, dict) and x.get("id") == "wingfoil"), {})
+    qs = w.get("queries") or g.get("queries") or {}
+    def per(site):
+        v = qs.get(site) if isinstance(qs, dict) else qs
+        v = [x for x in (v or []) if isinstance(x, str) and x.strip()] if isinstance(v, list) else []
+        return (v or WING_DEFAULT)[:3]
+    out = []
+    for q in per("marktplaats"):
+        out.append(("marktplaats", "https://www.marktplaats.nl/q/%s/" % quote(q.lower()).replace("%20", "+")))
+    for q in per("2dehands"):
+        out.append(("2dehands", "https://www.2dehands.be/q/%s/" % quote(q.lower()).replace("%20", "+")))
+    for q in per("kleinanzeigen"):
+        out.append(("kleinanzeigen", "https://www.kleinanzeigen.de/s-%s/k0" % quote(q.lower()).replace("%20", "-")))
+    for q in per("vinted"):
+        out.append(("vinted", "https://www.vinted.nl/catalog?search_text=%s&order=newest_first" % quote(q.lower())))
+    return out
+
+
+AD_RE = {
+    "marktplaats": [r'(?:href=|"vipUrl":)"(/v/[^"?#]*?/([am]\d{6,})[^"?#]*)', r'"itemId":"([am]\d{6,})"'],
+    "2dehands": [r'(?:href=|"vipUrl":)"(/v/[^"?#]*?/([am]\d{6,})[^"?#]*)', r'"itemId":"([am]\d{6,})"'],
+    "kleinanzeigen": [r'(?:href|data-href)="(/s-anzeige/[^"?#]*?/(\d{6,})[^"?#]*)"', r'data-adid="(\d{6,})"'],
+    "vinted": [r'(?:https://www\.vinted\.nl)?(/items/(\d{6,})[^"\\?#\s]*)', r'data-testid="product-item-id-(\d{6,})'],
+}
+HOST = {"marktplaats": "https://www.marktplaats.nl", "2dehands": "https://www.2dehands.be",
+        "kleinanzeigen": "https://www.kleinanzeigen.de", "vinted": "https://www.vinted.nl"}
+
+
+def ad_ids(site, text):
+    """{id: url or ""} for the ads on a search page (or in a url)."""
+    found = {}
+    full, bare = AD_RE[site]
+    for m in re.finditer(full, text):
+        found[m.group(2)] = HOST[site] + m.group(1)
+    for m in re.finditer(bare, text):
+        found.setdefault(m.group(1), "")
+    return found
+
+
+def wing_check(it, gear):
+    """Free pre-check: (run, new ads, reason). Prints counts only."""
+    today = datetime.date.today().isoformat()
+    scan = it.get("gearScan") if isinstance(it.get("gearScan"), dict) else {}
+    runs = scan.get("runs", 0) if scan.get("day") == today else 0
+    if runs >= WING_RUNS:
+        return False, [], "daily limit reached"
+    seen = it.get("gearSeen") if isinstance(it.get("gearSeen"), dict) else {}
+    have = set(seen)
+    for a in (gear or {}).get("ads") or []:
+        if isinstance(a, dict) and a.get("site") in AD_RE:
+            have |= set(ad_ids(a["site"], str(a.get("url") or "")))
+    new, read = [], 0
+    for site, url in wing_pages(it):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "nl,en;q=0.8"})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                text = r.read(3_000_000).decode("utf-8", "ignore")
+        except Exception:
+            continue
+        ids = ad_ids(site, text)
+        if not ids:
+            continue
+        read += 1
+        for i, u in ids.items():
+            if i not in have:
+                have.add(i)
+                new.append({"site": site, "id": i, "url": u or None, "page": url})
+    say("wingfoil pre-check: %d page(s) read, %d new ad(s)" % (read, len(new)))
+    if not seen and read:  # first run: remember what is listed now (the morning finds covers those)
+        it["gearSeen"] = {n["id"]: today for n in new}
+        return False, [], "first look"
+    if not read:
+        last = ((status().get("tasks") or {}).get("wing") or {}).get("at") or ""
+        try:
+            age = (datetime.datetime.utcnow() - datetime.datetime.strptime(last[:19], "%Y-%m-%dT%H:%M:%S")).total_seconds() / 3600
+        except Exception:
+            age = 99
+        return (age >= WING_FALLBACK_H), [], "pages unreadable"
+    return bool(new), new[:WING_ADS], "new ads" if new else "nothing new"
+
+
+def save_quietly(name):
+    """Encrypt and commit interests without a Claude run (the wingfoil watch's first look)."""
+    os.remove(os.path.join(PLAIN, "tasks.json"))
+    vault("lock")
+    f = "radar/data/interests.enc.json"
+    subprocess.run(["git", "add", "--", f], cwd=ROOT, check=True)
+    if subprocess.run(["git", "diff", "--cached", "--quiet", "--", f], cwd=ROOT).returncode == 0:
+        return
+    subprocess.run(["git", "-c", "user.name=Radar", "-c", "user.email=radar@users.noreply.github.com",
+                    "commit", "-q", "-m", "Radar %s" % name], cwd=ROOT, check=True)
+    for _ in range(3):
+        if git("pull", "-q", "--rebase", "origin", "main").returncode == 0 and git("push", "-q", "origin", "HEAD:main").returncode == 0:
+            return
+    say("couldn't save the first look; it tries again next run")
+
+
 def prepare(name):
     vault("unlock")
+    if name == "wing":
+        ip, gp = os.path.join(PLAIN, "interests.json"), os.path.join(PLAIN, "gear.json")
+        it = json.load(open(ip))
+        gear = json.load(open(gp)) if os.path.exists(gp) else {}
+        go, new, why = wing_check(it, gear)
+        if go and settings().get("tasks", {}).get("finds") is False:
+            go, why = False, "switched off"
+        if go:
+            today = datetime.date.today().isoformat()
+            cut = (datetime.date.today() - datetime.timedelta(days=60)).isoformat()
+            seen = {k: v for k, v in (it.get("gearSeen") or {}).items() if isinstance(v, str) and v >= cut}
+            for n in new:
+                seen[n["id"]] = today
+            it["gearSeen"] = dict(sorted(seen.items(), key=lambda kv: kv[1])[-1500:])
+            scan = it.get("gearScan") if isinstance(it.get("gearScan"), dict) else {}
+            it["gearScan"] = {"day": today, "runs": (scan.get("runs", 0) if scan.get("day") == today else 0) + 1}
+            json.dump(new, open(os.path.join(PLAIN, "new_ads.json"), "w"), indent=1)
+        json.dump(it, open(ip, "w"), ensure_ascii=False, indent=1)
+        say("wingfoil: %s" % why)
+        if not go:
+            if why == "first look":
+                save_quietly("wing")  # keep the ads listed now, so only later ones count as new
+            output(run="false", model=CHEAP, cap="", nosearch="true")
+            return
     t = tasks().get(name) or BUILTIN.get(name)
     if not isinstance(t, dict):
         say("unknown task"); sys.exit(1)
@@ -449,12 +608,12 @@ def prepare(name):
                 say("budget: $%.2f of $%.2f used this month, $%.2f allowed so far: skipping this run" % (spent, budget(), allowed))
                 set_status(name, "skipped: budget")
                 run = False
-    if run and name in SWITCHABLE and settings().get("tasks", {}).get(name) is False:
+    if run and (name in SWITCHABLE or name in SWITCH_AS) and settings().get("tasks", {}).get(SWITCH_AS.get(name, name)) is False:
         say("switched off in Settings")
         run = False
     if fares:
         prompt += "\n\n" + FARES
-    if name == "finds":
+    if name in ("finds", "wing"):
         prompt += "\n\n" + AD_FEEDBACK
     if name in QUOTA:
         prompt += "\n\n" + QUOTA[name]
@@ -650,7 +809,7 @@ def git(*args):
                           cwd=ROOT, capture_output=True, text=True)
 
 
-def notify(text, key="status"):
+def notify(text, key="status", urgent=False):
     """Push Claude's message (or a status notice) through push.py: honours the phone's on/off switch, importance
     and quiet hours for `key` (status notices use the default importance and can't be switched off)."""
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -659,6 +818,8 @@ def notify(text, key="status"):
         cfg = json.load(open(os.path.join(PLAIN, "interests.json")))
     except Exception:
         cfg = {}
+    if urgent:  # good wingfoil finds: loud, and straight through quiet hours (the owner's choice)
+        return push.send(cfg, key, "Radar · good find", text[:1000], "surfer", click=None, urgent=True)
     return push.send(cfg, key, "Radar", text[:1000], "satellite", click=None)
 
 
@@ -735,7 +896,7 @@ def finish(name):
             closed += 1
         quiet = res in (t.get("quiet") or []) or settings().get("notify", {}).get(PUSH.get(name, name)) is False \
             or not worth
-        sent = False if quiet else notify(res, PUSH.get(name, name))
+        sent = False if quiet else notify(res, PUSH.get(name, name), urgent=name == "wing")
         say("saved: %s; notes closed: %d; notification: %s" % ("yes" if changed else "no changes", closed, "sent" if sent else "none"))
     finally:
         shutil.rmtree(PLAIN, ignore_errors=True)

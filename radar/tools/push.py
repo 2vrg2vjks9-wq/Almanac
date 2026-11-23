@@ -52,24 +52,27 @@ def quiet_until(cfg, now=None):
     return int(end.timestamp())
 
 
-def headers(cfg, key, title, tags, click=APP, now=None):
+def headers(cfg, key, title, tags, click=APP, now=None, urgent=False):
     h = {"Title": title.encode("utf-8").decode("latin-1", "ignore"), "Tags": tags,
          "Priority": PRIORITY.get(((_s(cfg).get("alerts") or {}).get("level") or {}).get(key), "3")}
     if click:
         h["Click"] = click
+    if urgent:  # loud, and not held back by quiet hours
+        h["Priority"] = "4"
+        return h
     at = quiet_until(cfg, now)
     if at:
         h["At"] = str(at)
     return h
 
 
-def send(cfg, key, title, body, tags, click=APP):
+def send(cfg, key, title, body, tags, click=APP, urgent=False):
     """Push one message unless that kind is switched off; True when ntfy took it."""
     t = topic(cfg)
     if not t or not on(cfg, key):
         return False
     req = urllib.request.Request("https://ntfy.sh/" + t, data=body[:4000].encode(), method="POST",
-                                 headers=headers(cfg, key, title, tags, click))
+                                 headers=headers(cfg, key, title, tags, click, urgent=urgent))
     try:
         urllib.request.urlopen(req, timeout=30)
         return True

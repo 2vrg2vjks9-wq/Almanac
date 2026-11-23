@@ -16,18 +16,18 @@ const NOTIFY = [
   ["work", "New work leads", "After the Tuesday and Friday work search."],
   ["concerts", "Concert alerts", "When an artist you follow announces a show nearby."],
   ["daily", "Morning update", "What the daily research added."],
-  ["finds", "Second-hand finds", "When a clear match turns up."],
+  ["finds", "Second-hand finds", "Good wingfoil finds right away (loud, also in quiet hours); other clear matches after the morning scan."],
   ["watch", "Watching", "Important changes in what Radar watches for you (You › Watching, Work › Policy)."],
 ];
 const TASKS = [
   ["work", "Work search", "Tuesdays and Fridays, about $0.10 a run."],
-  ["finds", "Second-hand finds", "Every morning, about $0.05 a run."],
+  ["finds", "Second-hand finds", "Every morning, about $0.05 a run, plus an hourly wingfoil check that only calls Claude for new ads (about $0.03, at most 6 a day)."],
   ["concerts", "Concert check", "Sundays, about $0.06 a run."],
   ["bucket", "Bucket-list check", "4 times a week, 3 wishes a run, about $0.08 a run."],
   ["watch", "Watching", "4 times a week, 2 monitors a run, about $0.06 a run."],
 ];
 const BUDGETS = [3, 5, 8, 10];
-const TASK_NAMES = { daily: "Daily update", inbox: "Notes from the phone", finds: "Second-hand finds", concerts: "Concert check", work: "Work search", bucket: "Bucket-list check", watch: "Watching" };
+const TASK_NAMES = { daily: "Daily update", inbox: "Notes from the phone", finds: "Second-hand finds", wing: "Wingfoil watch", concerts: "Concert check", work: "Work search", bucket: "Bucket-list check", watch: "Watching" };
 const cur = () => S.settings || {};
 // everything the settings note carries (task.py apply keeps only known values)
 export const settingsNote = (s) => ({ notify: s.notify || {}, tasks: s.tasks || {}, budget: s.budget || 5, work: s.work, alerts: alerts(s), house: s.house });

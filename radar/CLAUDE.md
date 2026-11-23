@@ -95,6 +95,14 @@ in commit messages, issue comments or Actions logs.
     TotalParts, Proxyparts, RRR.lt and Volvo dismantlers for the C30 seats); ads from those carry `site` "sloperij" or
     "parts", `seller` (shown instead of the marketplace name) and optional `warranty`. The phone never contacts those sites; it opens an ad on tap. Ads can be hidden per
     phone (`radar-gear-hidden`).
+    **Wingfoil watch** (`wing` task, the owner's wish of 23 Nov: frequent, good finds pushed at once, affordable): hourly
+    07:23–21:23 Amsterdam. `task.py wing_check` reads the wingfoil search pages itself (Marktplaats, 2dehands,
+    Kleinanzeigen, Vinted; the search's queries, else generic ones), with no Claude and no cost; ad ids already seen are
+    kept encrypted in `interests.gearSeen` {id: day, 60 days}. Only new ids start Claude (BUILTIN `wing`, cap $0.03, no
+    web search, at most `WING_RUNS` = 6 a day in `interests.gearScan`), which judges just those ads, saves them to gear
+    and names only good finds (match hit, or 20%+ under similar ads). That push is loud and skips quiet hours
+    (`push.send(urgent=True)`); it follows the Second-hand finds switches. When no page can be read (blocked or changed),
+    Claude checks the pages itself every `WING_FALLBACK_H` = 4 hours instead. The first run only remembers what's listed.
 - **Travel focus:** items in a travel region (today only `jp`) show, and get a region filter, only while
   `focus` points there (`focus.region`, or `focus.place` matches) and `focus.until` hasn't passed.
 - **localStorage keys** (never rename; the owner's saves live there): radar-saved, radar-reactions, radar-hidden,
