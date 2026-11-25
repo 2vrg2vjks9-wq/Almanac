@@ -54,6 +54,8 @@ def fixtures():
             "holiday": {"checked": DAY(-1), "summary": "New registration rules start next year.", "items": [
                 {"id": "holiday-reg", "title": "Holiday-rental registration rule", "summary": "Every rental needs a number.", "url": "https://example.org/rule", "date": DAY(-2), "important": True, "found": DAY(-1)}]},
             "newbuild": {"checked": DAY(-3), "items": []},
+            "bonuses": {"checked": DAY(-2), "summary": "One bank bonus worth taking.", "items": [
+                {"id": "bonuses-testbank", "title": "Test Bank: EUR 100 for a new account", "summary": "Deposit and two direct debits.", "url": "https://example.org/bonus", "important": True, "found": DAY(-2)}]},
             "policy": {"checked": DAY(-1), "summary": "Two calls open soon.", "items": [
                 {"id": "policy-call", "title": "Adaptation call opens", "summary": "Opens next month.", "url": "https://example.org/call", "important": True, "found": DAY(0)},
                 {"id": "policy-csrd", "title": "Reporting rules simplified", "summary": "Fewer firms in scope.", "url": "https://example.org/csrd"}]}},
@@ -649,7 +651,7 @@ def tabs_suite(browser, site, scheme):
     check("near a good wingfoil spot" in page.inner_text("#bucketList") and "Changed" in page.inner_text("#bucketList"), "%s: edited wish shows at once" % scheme)
 
     # Watching
-    check(page.locator("#watching .watch-box").count() == 3 and "Holiday-rental registration rule" in page.inner_text("#watch-holiday") and "Important" in page.inner_text("#watch-holiday"), "%s: Watching shows the monitors and their items" % scheme)
+    check(page.locator("#watching .watch-box").count() == 4 and "Test Bank" in page.inner_text("#watch-bonuses") and "Holiday-rental registration rule" in page.inner_text("#watch-holiday") and "Important" in page.inner_text("#watch-holiday"), "%s: Watching shows the monitors and their items" % scheme)
     check("First check coming soon" in page.inner_text("#watch-houses") and page.locator("#watch-houses details.house-opts[open]").count() == 1, "%s: houses start with the choices open" % scheme)
     page.click('#houseAreas [data-area="coast"]'); page.wait_for_timeout(200); page.select_option("#housePrice", "750"); page.wait_for_timeout(200)
     hs = json.loads(page.evaluate("localStorage.getItem('radar-settings')"))["house"]

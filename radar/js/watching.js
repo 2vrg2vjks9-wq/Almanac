@@ -1,6 +1,6 @@
 // What Radar watches for you (the `watch` task, Mon, Tue, Thu and Sat: the 2 monitors checked longest ago, so each
 // about twice a week). interests.watching.<monitor> = {checked, summary, items: [{id, title, summary, url, date,
-// important, found}]}. You › Watching shows holiday-home rules and prices, houses for sale and new-build launches;
+// important, found}]}. You › Watching shows holiday-home rules and prices, houses for sale, new-build launches and sign-up bonuses (weekly);
 // Work › Policy and funding shows the climate-finance policy monitor. The houses monitor follows choices made here
 // (areas, price band, rooms, outdoor space, type: fixed lists only, nothing typed), kept in radar-settings `house` and
 // sent sealed with the settings note. Rows swipe: right opens, left hides on this phone (radar-watch-hidden), with Undo.
@@ -15,6 +15,7 @@ const MON = {
   holiday: ["Holiday-home rules and prices", "Holiday-rental rules and price trends in your holiday-home spots."],
   houses: ["Houses for sale", "New listings that match the choices below."],
   newbuild: ["New-build launches", "Sales starts, lotteries and registration deadlines in Zuid-Holland."],
+  bonuses: ["Sign-up bonuses", "Dutch bank, broker, energy and switching bonuses worth collecting, checked weekly."],
   policy: ["Policy and funding", "Climate-finance and adaptation policy, and calls opening or closing soon."],
 };
 const AREAS = [["coast", "The Hague coast"], ["wassenaar", "Wassenaar to Noordwijk"], ["westland", "Westland and Hoek van Holland"], ["delft", "Delft and Rijswijk"], ["leiden", "Leiden and Voorschoten"]];
@@ -92,7 +93,7 @@ export function drawWatching() {
   const you = $("watching"), work = $("workPolicy");
   if (you && D.config) {
     const open = you.querySelector(".house-opts") && you.querySelector(".house-opts").open;
-    put(you, html`${block("holiday")}${block("houses")}${block("newbuild")}`);
+    put(you, html`${block("holiday")}${block("houses")}${block("newbuild")}${block("bonuses")}`);
     if (open && you.querySelector(".house-opts")) you.querySelector(".house-opts").open = true;
     wire(you);
   }

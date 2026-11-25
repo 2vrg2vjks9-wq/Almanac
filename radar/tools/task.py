@@ -39,7 +39,7 @@ LOW = {  # task: (cap per run in USD, web searches allowed; 0 = WebSearch switch
     "concerts": (0.06, 4),
     "work": (0.15, 7),
     "bucket": (0.08, 4),
-    "watch": (0.07, 3),
+    "watch": (0.08, 4),   # 25 Nov: one more search for the weekly bonuses scan
     "wing": (0.03, 0),    # quick wingfoil check, only when the free pre-check saw new ads (see wing_check)
 }
 STATUS = os.path.join(ROOT, "radar", "status.json")  # public run status for the app (dates, outcomes, spend; nothing personal)
@@ -91,8 +91,21 @@ summary, url, date, important, found}], sources:[{name, url}]}; create it when m
 - policy: climate-finance and adaptation policy and the funding calendar: EU taxonomy and CSRD changes, EU Mission
   Adaptation, Horizon Europe Cluster 5, EIC, LIFE, Dutch Delta Programme, RVO and NWO calls. For funding calls, give the
   expected or actual opening date and deadline. Mark anything opening or closing within 4 weeks important.
+- bonuses: sign-up and switching bonuses in the Netherlands that a careful person can collect at low risk (the owner's
+  wish of 25 Nov, a weekly scan): energy supplier switching (overstap/welkomstbonus), bank account bonuses (ING, ABN
+  AMRO, Rabobank, Knab, bunq, Revolut, N26 and others), broker and investment apps, crypto exchanges, credit cards,
+  telecom and health-insurance switching, referral schemes and cashback platforms. No casino or betting offers. Check
+  the provider's own actievoorwaarden page before adding an offer (comparison and affiliate sites only to find
+  them; if only an affiliate page states the amount, say so in the summary). Each item: provider and amount in the
+  title (e.g. "Knab: EUR 100 for a new account"), and in the summary the conditions (deposit, direct debits, holding
+  period, contract length, clawback, BKR registration for credit), the end date in `date` when there is one, and
+  whether it is new or changed since last week. For brokers and crypto add "check your employer's personal-dealing
+  rules first". Mark important: new offers worth EUR 100 or more, and offers ending within 2 weeks. Keep at most 6:
+  the best value for the effort first. Check this monitor at most once a week: skip it when `checked` is less than
+  7 days ago.
 
-1. Pick the 2 monitors whose `checked` date is oldest (missing = never; houses only when settings.house is set).
+1. Pick the 2 monitors whose `checked` date is oldest (missing = never; houses only when settings.house is set;
+   bonuses only when last checked 7 or more days ago).
 2. For each, open its `sources` first with WebFetch (no search needed), then use your web searches only to find new
    good pages; keep the best pages in `sources` (at most 8).
 3. Keep at most 6 current items per monitor, newest first: add what's new, drop what has passed or no longer holds,

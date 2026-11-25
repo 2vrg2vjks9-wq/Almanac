@@ -8,7 +8,8 @@ name: Radar tasks
 #   concerts  Sundays 18:47: new shows by the alert artists
 #   work      Tuesdays and Fridays 08:40: freelance and work leads (instructions in task.py, sources kept in interests)
 #   bucket    Sun, Mon, Wed, Fri 10:25: the 3 wishes checked longest ago (instructions in task.py)
-#   watch     Mon, Tue, Thu, Sat 12:17: the 2 monitors checked longest ago (holiday rules, houses, new-builds, policy)
+#   watch     Mon, Tue, Thu, Sat 12:17: the 2 monitors checked longest ago (holiday rules, houses, new-builds, policy,
+#             sign-up bonuses at most weekly)
 # GitHub sometimes skips scheduled runs: the hourly run then catches up a daily, finds or work run that
 # didn't happen (radar/status.json holds when each task last ran, for the app's status card too).
 # A note from the phone (an issue the owner opens) starts its task right away: city, interest and bucket notes

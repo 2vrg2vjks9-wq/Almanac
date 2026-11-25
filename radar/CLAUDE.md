@@ -365,8 +365,9 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   `watch`): the 2 monitors checked longest ago, so each about twice a week: holiday (rules and prices in the spots of
   casaviento's `D` array), houses (`settings.house` {areas: coast | wassenaar | westland | delft | leiden, price: 500 |
   750 | 1000 | 1000+, rooms, outdoor: garden | any, type: house | any}; skipped when unset), newbuild (Zuid-Holland),
-  policy (climate-finance policy and the funding calendar). `interests.watching.<k>` {checked, summary, items[≤6],
-  sources}. `js/watching.js` shows holiday, houses (with the house choices) and newbuild under You › Watching and
+  policy (climate-finance policy and the funding calendar), bonuses (Dutch sign-up and switching bonuses: bank, broker,
+  energy, telecom, cashback; no gambling; checked at most weekly, the owner's wish of 25 Nov). `interests.watching.<k>` {checked, summary, items[≤6],
+  sources}. `js/watching.js` shows holiday, houses (with the house choices), newbuild and bonuses under You › Watching and
   policy under Work › Policy and funding; rows swipe (right opens, left hides in `radar-watch-hidden`, Undo).
 - **Never push what was seen or pushed before:** `PUSH_RULE` asks for one line per thing ending in its id in brackets;
   `filter_push` (finish, before the lock) drops lines whose id or text key is in `interests.pushed` (any task, 60 days),
