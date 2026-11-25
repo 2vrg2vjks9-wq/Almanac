@@ -660,6 +660,10 @@ def tabs_suite(browser, site, scheme):
     check(page.locator("#watch-holiday .watch-item").count() == 0, "%s: swiping hides a watched item" % scheme)
     page.click("#undoBtn"); page.wait_for_timeout(300)
     check(page.locator("#watch-holiday .watch-item").count() == 1, "%s: Undo brings it back" % scheme)
+    page.click('#watch-bonuses [data-check="bonuses"]'); page.wait_for_timeout(1500)
+    ck = [n for n in m.notes if n.get("label") == "radar-check"]
+    check(len(ck) == 1 and '"check": "bonuses"' in unseal(ck[0]["body"]).replace('":"', '": "') and "bonuses" not in ck[0]["body"], "%s: Check now sends one sealed radar-check note" % scheme)
+    check("Checking" in page.inner_text("#watch-bonuses") and page.locator('#watch-bonuses [data-check]:disabled').count() == 1, "%s: Check now shows it's checking" % scheme)
     shot(page, "watching-%s.png" % scheme)
 
     # Settings

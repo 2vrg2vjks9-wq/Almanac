@@ -110,7 +110,7 @@ in commit messages, issue comments or Actions logs.
   radar-around (last Around me result), radar-scout (last city sent), radar-key (vault key), radar-locked,
   radar-do (Do answers), radar-do-view (Do filters), radar-picks, radar-gear-hidden, radar-work (Work tracker),
   radar-settings, radar-more (instant ideas), radar-pane (Discover pane), radar-bucket-edits, radar-follow,
-  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen, radar-ad-votes, radar-backup-at, radar-backup-sent, radar-restore-offered, radar-watch-hidden, radar-seen, radar-seen-start, radar-seen-out, radar-seen-sent, radar-seen-synced.
+  radar-wind-place, radar-watch, radar-places, radar-wanted-edits, radar-work-seen, radar-scout-wx, radar-scout-hidden, radar-scout-sea, radar-companies, radar-go-seen, radar-ad-votes, radar-backup-at, radar-backup-sent, radar-restore-offered, radar-watch-hidden, radar-seen, radar-seen-start, radar-seen-out, radar-seen-sent, radar-seen-synced, radar-watch-check.
   sessionStorage: radar-reload-for.
 - **Notes to Claude** (`js/notes.js`): add interest (`radar-interest`), bucket wish (`radar-bucket`), reactions
   (`radar-feedback`), city to research (`radar-location`, title `I'm in <city, country> until <YYYY-MM-DD>`).
@@ -366,7 +366,9 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   casaviento's `D` array), houses (`settings.house` {areas: coast | wassenaar | westland | delft | leiden, price: 500 |
   750 | 1000 | 1000+, rooms, outdoor: garden | any, type: house | any}; skipped when unset), newbuild (Zuid-Holland),
   policy (climate-finance policy and the funding calendar), bonuses (Dutch sign-up and switching bonuses: bank, broker,
-  energy, telecom, cashback, KSA-licensed sportsbook free bets with a hedged value; no casino bonuses; checked at most weekly, the owner's wish of 25 Nov). `interests.watching.<k>` {checked, summary, items[≤6],
+  energy, telecom, cashback, KSA-licensed sportsbook free bets with a hedged value; no casino bonuses; checked at most weekly, the owner's wish of 25 Nov). Its **Check now** button sends a sealed `radar-check` note
+  ({"check": "bonuses"}); the issue trigger runs `watch` at once for just that monitor (`radar-watch-check` keeps the tap
+  and shows "Checking…" until the monitor changes or 2 hours pass). `interests.watching.<k>` {checked, summary, items[≤6],
   sources}. `js/watching.js` shows holiday, houses (with the house choices), newbuild and bonuses under You › Watching and
   policy under Work › Policy and funding; rows swipe (right opens, left hides in `radar-watch-hidden`, Undo).
 - **Never push what was seen or pushed before:** `PUSH_RULE` asks for one line per thing ending in its id in brackets;

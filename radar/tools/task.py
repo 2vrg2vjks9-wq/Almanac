@@ -108,7 +108,9 @@ summary, url, date, important, found}], sources:[{name, url}]}; create it when m
   the best value for the effort first. Check this monitor at most once a week: skip it when `checked` is less than
   7 days ago.
 
-1. Pick the 2 monitors whose `checked` date is oldest (missing = never; houses only when settings.house is set;
+0. If radar/.plain/notes.json holds a radar-check note (JSON {"check": "<monitor>"}), the owner tapped "Check now":
+   check only that monitor, right away, ignoring the weekly limit and the oldest-first rule, then go to step 4.
+1. Otherwise pick the 2 monitors whose `checked` date is oldest (missing = never; houses only when settings.house is set;
    bonuses only when last checked 7 or more days ago).
 2. For each, open its `sources` first with WebFetch (no search needed), then use your web searches only to find new
    good pages; keep the best pages in `sources` (at most 8).
@@ -120,6 +122,7 @@ summary, url, date, important, found}], sources:[{name, url}]}; create it when m
 4. Set `summary` to one plain sentence on where things stand, and `checked` = today, on each monitor you looked at.
 5. Final message: follow the push rule; name only important new items.""",
         "quiet": ["Nothing new."],
+        "labels": ["radar-check"],
     },
     "bucket": {
         "prompt": """Radar's bucket-list check: look for genuinely good moments for the owner's bucket-list wishes.

@@ -13,7 +13,7 @@ name: Radar tasks
 # GitHub sometimes skips scheduled runs: the hourly run then catches up a daily, finds or work run that
 # didn't happen (radar/status.json holds when each task last ran, for the app's status card too).
 # A note from the phone (an issue the owner opens) starts its task right away: city, interest and bucket notes
-# run inbox; settings and Work tracker notes are applied by a script without Claude.
+# run inbox; a "Check now" note (radar-check) runs watch for that one monitor; settings and Work tracker notes are applied by a script without Claude.
 # Cost: on the API key every run uses Haiku with a search allowance, a cap per run and a monthly budget
 # (radar/tools/task.py, RADAR_BUDGET_USD, spend in radar/spend.json). With CLAUDE_CODE_OAUTH_TOKEN (the
 # owner's subscription) nothing is billed per use and the task's own model runs.
@@ -72,6 +72,7 @@ jobs:
           if [ -n "$LABELS" ]; then
             case " $LABELS " in
               *" radar-location "*|*" radar-interest "*|*" radar-bucket "*|*" radar-ask "*) INPUT=inbox ;;
+              *" radar-check "*) INPUT=watch ;;   # "Check now" on a Watching monitor (e.g. sign-up bonuses)
               *) INPUT=apply ;;   # settings, tracker or reactions: apply now; reactions wait for the daily run
             esac
           fi

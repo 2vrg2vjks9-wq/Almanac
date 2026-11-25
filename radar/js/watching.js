@@ -3,12 +3,13 @@
 // important, found}]}. You › Watching shows holiday-home rules and prices, houses for sale, new-build launches and sign-up bonuses (weekly);
 // Work › Policy and funding shows the climate-finance policy monitor. The houses monitor follows choices made here
 // (areas, price band, rooms, outdoor space, type: fixed lists only, nothing typed), kept in radar-settings `house` and
-// sent sealed with the settings note. Rows swipe: right opens, left hides on this phone (radar-watch-hidden), with Undo.
+// sent sealed with the settings note. Sign-up bonuses has a Check now button: a sealed radar-check note that runs the watch task for that monitor
+// at once (radar-watch-check keeps the tap until the monitor changes or 2 hours pass). Rows swipe: right opens, left hides on this phone (radar-watch-hidden), with Undo.
 import { $, html, put, ago, safeUrl } from "./util.js";
 import { S, save, get, set } from "./store.js";
 import { D } from "./data.js";
 import { swipeRow, undoable, say } from "./ui.js";
-import { track } from "./notes.js";
+import { track, note } from "./notes.js";
 import { settingsNote } from "./settings.js";
 
 const MON = {
@@ -24,6 +25,11 @@ const ROOMS = { "": "Any", 3: "3 or more", 4: "4 or more", 5: "5 or more" };
 const OUTDOOR = { any: "Any", garden: "Must have a garden" };
 const TYPE = { any: "House or apartment", house: "Houses only" };
 const HIDE = "radar-watch-hidden";
+const CHECK = "radar-watch-check"; // {monitor: time} "Check now" taps not yet answered by a run
+const CHECKABLE = { bonuses: 1 };   // monitors with a Check now button
+// A tap waits until the monitor changes (new check date, summary or items) or 2 hours pass.
+const stamp = (m) => JSON.stringify(m ? [m.checked, m.summary, (m.items || []).map((x) => x && x.id)] : null);
+const asking = (k, m) => { const c = get(CHECK, {})[k]; return c && Date.now() - c.t < 2 * 3600e3 && c.was === stamp(m) ? c : null; };
 
 const house = () => Object.assign({ areas: [], price: "", rooms: null, outdoor: "any", type: "any" }, (S.settings || {}).house || {});
 const mon = (k) => ((D.config && D.config.watching) || {})[k] || null;
@@ -51,7 +57,8 @@ function itemsHTML(k, m) {
 function block(k) {
   const m = mon(k), [title, sub] = MON[k];
   return html`<section class="want watch-box" id="watch-${k}">
-    <div class="bk-h"><h3>${title}</h3></div>
+    <div class="bk-h"><h3>${title}</h3>${CHECKABLE[k] ? html`<button class="btn ghost check-now" type="button" data-check="${k}"${asking(k, m) ? " disabled" : ""}>${asking(k, m) ? "Checking…" : "Check now"}</button>` : ""}</div>
+    ${asking(k, m) ? html`<p class="tg-note">Asked ${ago(new Date(asking(k, m).t).toISOString())}. A check takes about 5 to 15 minutes; pull down to refresh.</p>` : ""}
     <p class="want-sub">${m && m.summary ? m.summary : sub}${m && m.checked ? html` <small>Checked ${ago(m.checked)}.</small>` : ""}</p>
     <div class="sheet">${itemsHTML(k, m)}</div>
     ${k === "houses" ? houseForm() : ""}
@@ -77,6 +84,14 @@ function wire(box) {
       const h = get(HIDE, {}), id = el.dataset.id; h[id] = Date.now(); set(HIDE, h); drawWatching();
       undoable("Hidden.", () => { const h2 = get(HIDE, {}); delete h2[id]; set(HIDE, h2); drawWatching(); });
     }, ["Open", "Hide"]);
+  });
+  box.querySelectorAll("[data-check]").forEach((b) => {
+    b.onclick = async () => {
+      const k = b.dataset.check, c = get(CHECK, {});
+      c[k] = { t: Date.now(), was: stamp(mon(k)) }; set(CHECK, c); drawWatching();
+      const r = await note("Check now: " + k, JSON.stringify({ check: k }), "radar-check", "Asked. Radar checks " + MON[k][0].toLowerCase() + " now.");
+      if (r === "waiting") { const c2 = get(CHECK, {}); delete c2[k]; set(CHECK, c2); drawWatching(); }
+    };
   });
   const areas = box.querySelector("#houseAreas");
   if (!areas) return;
