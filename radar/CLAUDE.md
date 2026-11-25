@@ -366,7 +366,7 @@ don't touch the other apps' folders; keep copy plain, sentence case, active voic
   casaviento's `D` array), houses (`settings.house` {areas: coast | wassenaar | westland | delft | leiden, price: 500 |
   750 | 1000 | 1000+, rooms, outdoor: garden | any, type: house | any}; skipped when unset), newbuild (Zuid-Holland),
   policy (climate-finance policy and the funding calendar), bonuses (Dutch sign-up and switching bonuses: bank, broker,
-  energy, telecom, cashback; no gambling; checked at most weekly, the owner's wish of 25 Nov). `interests.watching.<k>` {checked, summary, items[≤6],
+  energy, telecom, cashback, KSA-licensed sportsbook free bets with a hedged value; no casino bonuses; checked at most weekly, the owner's wish of 25 Nov). `interests.watching.<k>` {checked, summary, items[≤6],
   sources}. `js/watching.js` shows holiday, houses (with the house choices), newbuild and bonuses under You › Watching and
   policy under Work › Policy and funding; rows swipe (right opens, left hides in `radar-watch-hidden`, Undo).
 - **Never push what was seen or pushed before:** `PUSH_RULE` asks for one line per thing ending in its id in brackets;

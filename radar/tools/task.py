@@ -94,7 +94,11 @@ summary, url, date, important, found}], sources:[{name, url}]}; create it when m
 - bonuses: sign-up and switching bonuses in the Netherlands that a careful person can collect at low risk (the owner's
   wish of 25 Nov, a weekly scan): energy supplier switching (overstap/welkomstbonus), bank account bonuses (ING, ABN
   AMRO, Rabobank, Knab, bunq, Revolut, N26 and others), broker and investment apps, crypto exchanges, credit cards,
-  telecom and health-insurance switching, referral schemes and cashback platforms. No casino or betting offers. Check
+  telecom and health-insurance switching, referral schemes and cashback platforms. Also free bets at sportsbooks
+  licensed by the Kansspelautoriteit (check the KSA licence register; never unlicensed sites), the one gambling offer
+  that can come out ahead when hedged across two licensed bookmakers (added 25 Nov at the owner's request): give the
+  free-bet value, minimum odds, wagering and stake-returned rules, and a rough value after hedging, and skip offers
+  whose terms make that negative. No casino deposit bonuses (wagering makes them lose on average). Check
   the provider's own actievoorwaarden page before adding an offer (comparison and affiliate sites only to find
   them; if only an affiliate page states the amount, say so in the summary). Each item: provider and amount in the
   title (e.g. "Knab: EUR 100 for a new account"), and in the summary the conditions (deposit, direct debits, holding

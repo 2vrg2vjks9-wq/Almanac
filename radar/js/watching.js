@@ -15,7 +15,7 @@ const MON = {
   holiday: ["Holiday-home rules and prices", "Holiday-rental rules and price trends in your holiday-home spots."],
   houses: ["Houses for sale", "New listings that match the choices below."],
   newbuild: ["New-build launches", "Sales starts, lotteries and registration deadlines in Zuid-Holland."],
-  bonuses: ["Sign-up bonuses", "Dutch bank, broker, energy and switching bonuses worth collecting, checked weekly."],
+  bonuses: ["Sign-up bonuses", "Dutch bank, broker, energy, switching and licensed free-bet bonuses worth collecting, checked weekly."],
   policy: ["Policy and funding", "Climate-finance and adaptation policy, and calls opening or closing soon."],
 };
 const AREAS = [["coast", "The Hague coast"], ["wassenaar", "Wassenaar to Noordwijk"], ["westland", "Westland and Hoek van Holland"], ["delft", "Delft and Rijswijk"], ["leiden", "Leiden and Voorschoten"]];
